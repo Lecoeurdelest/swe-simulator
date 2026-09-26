@@ -85,7 +85,8 @@ preservation:
     - "ROADMAP Done-when checkboxes are ticked by the developer; the three-marker index in docs/task/README.md is generated from .project/state.json and never replaces them."
     # 2026-09-27: the next convention replaces "A design change is one line with a reason in docs/DECISIONS.md;
     # the GDD is not rewritten (ROADMAP Step 0 pitfalls)." The v1.1 docs (DECISIONS.md header, GDD 12) now update
-    # the GDD section after the superseding row. Semantic change: the developer should confirm it (approval_required_for).
+    # the GDD section after the superseding row. Semantic change (approval_required_for): confirmed by the developer
+    # in chat on 2026-09-27 ("That is OK").
     - "A design change is first a new one-line row with a reason in docs/DECISIONS.md, superseding (never rewriting) the old row; then the GDD section it points to is updated to match (DECISIONS.md header; GDD 12; ROADMAP Step 0 pitfalls)."
     - "Claude never changes a design decision silently; open questions go to the step's design huddle (ROADMAP 10)."
     - "Scope is tagged MUST / SHOULD / LATER; a new idea replaces something and never just adds; new ideas go to docs/ideas_parking_lot.md (ROADMAP 1, risk 1)."
@@ -126,7 +127,8 @@ components:
 decisions:
   # ARCHITECTURE section 0: accepted engineering decisions.
   # AD-01, AD-02 and AD-10 were superseded on 2026-09-27 by AD-11..AD-13, which mirror ARCHITECTURE 0.1, 0.2
-  # and 0.10 as rewritten for D2, D1 and P1. Ids are never renumbered.
+  # and 0.10 as rewritten for D2, D1 and P1. Ids are never renumbered. The supersession was confirmed by the
+  # developer in chat on 2026-09-27.
   - {id: AD-01, title: "480x270 base, viewport + expand + integer, runtime scale guard with fractional fallback", status: superseded, superseded_by: [AD-11], approval: "D2 in docs/DECISIONS.md (developer, 2026-09-26)", source: "ARCHITECTURE 0.1 (v1.0)"}
   - {id: AD-02, title: "Landscape only, either way up; only the job-card swipe reads raw touch", status: superseded, superseded_by: [AD-12], approval: "D1 in docs/DECISIONS.md (developer, 2026-09-26)", source: "ARCHITECTURE 0.2 (v1.0)"}
   - {id: AD-03, title: "monogram 16 for body text; Press Start 2P only for logo, VS screen, banners", status: accepted, source: "ARCHITECTURE 0.3"}
@@ -173,6 +175,7 @@ invariants:
   - INV-16
   - INV-17
   - INV-18
+  - INV-19  # added 2026-09-27 with the developer's approval: the portrait layout rule from .agent/AGENTS.md
 
 requirements:
   # ---------- GDD 10.1 MUST (ids keep the GDD numbering) ----------

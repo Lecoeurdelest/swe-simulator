@@ -7,17 +7,18 @@
     "docs/CONTENT.md": "f17b8c1129c9ae450b5fb6b9eda17d6fd136d99d248d572f52b88891c85d8482",
     "docs/ARCHITECTURE.md": "586b72e031c2b1d91117dc06ef76923405f660643ec3dddadce5db84bd651ef1",
     "docs/ROADMAP.md": "92ec3bbefbb70154408dd6d3d520169eeb28f0799fa845d91ae8acc4e73339d5",
-    "project.yaml": "cc75b37c189d9c43605dbbb982dd5c0d113dc5295aa8f3559fcd37e696663cde",
-    ".project/state.json": "b2f469f805adf5fb499ccb4f67be3f4204f8b0ca12829800f8b0c273e7733b1f"
+    "docs/DECISIONS.md": "e46ddcee7e7d1be9644f11456aca81f2eb8d79ae9ed26a055ee03d5d019c05d8",
+    "project.yaml": "28c940039f127f1334628daeb3bcc353436204cce0df6f98f36a2470f41919be",
+    ".project/state.json": "16af96387414df2dcb5bcf8fe75faf8d664defd1a6f93b3c93e7926cc96268f7"
   },
   "outputs": {
     "docs/task/README.md": {
       "owner": "generated",
-      "sha256": "0bb74c1f9c6ca5ae99f95d34f8ea42756e60cfc92ba6754df6a8065456639ac8"
+      "sha256": "9f48c508ea3f2e40682702bbcec8fc9b0c2e249d546c5fd7dca5fc332e088278"
     },
     "project.yaml": {
       "owner": "generated-by-agent from docs/*.md; regenerate on doc change",
-      "sha256": "cc75b37c189d9c43605dbbb982dd5c0d113dc5295aa8f3559fcd37e696663cde"
+      "sha256": "28c940039f127f1334628daeb3bcc353436204cce0df6f98f36a2470f41919be"
     }
   },
   "hand_owned": [

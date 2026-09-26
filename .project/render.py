@@ -73,17 +73,18 @@ def render_index(model, state):
 
 
 def main():
-    model = yaml.safe_load((ROOT / "project.yaml").read_text())
-    state = json.loads((ROOT / ".project/state.json").read_text())
+    # Explicit UTF-8 and LF: Windows defaults (cp1252, CRLF) mangle the em dashes and change the hashes.
+    model = yaml.safe_load((ROOT / "project.yaml").read_text(encoding="utf-8"))
+    state = json.loads((ROOT / ".project/state.json").read_text(encoding="utf-8"))
     missing = {t["id"] for t in model["tasks"]} ^ set(state["tasks"])
     if missing:
         raise SystemExit(f"project.yaml and state.json disagree on tasks: {sorted(missing)}")
     out = ROOT / "docs/task/README.md"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(render_index(model, state))
+    out.write_text(render_index(model, state), encoding="utf-8", newline="\n")
 
     inputs = ["docs/GDD.md", "docs/CONTENT.md", "docs/ARCHITECTURE.md", "docs/ROADMAP.md",
-              "project.yaml", ".project/state.json"]
+              "docs/DECISIONS.md", "project.yaml", ".project/state.json"]
     manifest = {
         "schema_version": 1,
         "generator": ".project/render.py",
@@ -97,7 +98,8 @@ def main():
                        "docs/DECISIONS.md", ".project/state.json", ".agent/AGENTS.md", ".agent/rules/invariants.md"],
         "bundles": sorted(p.relative_to(ROOT).as_posix() for p in (ROOT / ".project/bundles").glob("*.md")),
     }
-    (ROOT / ".project/generated-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+    (ROOT / ".project/generated-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n",
+                                                           encoding="utf-8", newline="\n")
 
 
 if __name__ == "__main__":

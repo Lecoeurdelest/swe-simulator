@@ -1,0 +1,23 @@
+## STEP-00 AC-S00-1 evidence (2026-09-27, Windows PC)
+git: git version 2.53.0.windows.4 (GitHub Desktop's bundled git on the Windows PC)
+user.name=Mmotkim
+user.email set: True (value not recorded)
+
+## git remote -v
+origin	https://github.com/Lecoeurdelest/swe-simulator.git (fetch)
+origin	https://github.com/Lecoeurdelest/swe-simulator.git (push)
+
+## git status -sb (after git fetch)
+## main...origin/main
+?? .project/evidence/STEP-00/
+?? .project/evidence/STEP-01/2026-09-27-r3/
+
+## git log --oneline -5
+a9f2f19 adjust tasks readme
+c5aadc2 feat: portrait (D1) and iPhone-first (P1): settings, docs v1.1, decisions, plan tracking
+6f40919 chore(plan): initialize plan-driven tracking from docs
+8547a13 feat: add skill plan
+64ed38f init
+
+main == origin/main: True
+tracked .godot/ paths: 0

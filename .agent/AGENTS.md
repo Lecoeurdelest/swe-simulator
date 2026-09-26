@@ -41,7 +41,7 @@ If two docs disagree: the GDD wins on rules and numbers, ARCHITECTURE wins on en
 - Scope: MUST / SHOULD / LATER. A new idea replaces something; park ideas in `docs/ideas_parking_lot.md`.
 - The 2x rule: a task past twice its estimate stops and gets cut or simplified.
 - Comments only for non-obvious logic: the reason, invariant or constraint.
-- Portrait 270x480 base; `Device` reads it from Project Settings. All critical UI fits the central 270x480, text sits on solid panels, and pixel fonts are used only at their native size.
+- Portrait layout rules are INV-19 in `.agent/rules/invariants.md`.
 
 ## godot-ai gotchas
 
@@ -54,8 +54,8 @@ If two docs disagree: the GDD wins on rules and numbers, ARCHITECTURE wins on en
 
 - Chat history and each agent's auto-memory are machine-local. This file, `docs/`, `project.yaml` and `.project/` carry the context. Pull before you start, and push when you stop.
 - Install the same Godot 4.7.2 on both machines (ARCHITECTURE 13.1, 14).
-- On Windows, git checks out the three symlinks `.claude/CLAUDE.md`, `.code/AGENTS.md` and `.claude/skills` as one-line text files unless `core.symlinks` is enabled (this needs Windows Developer Mode, then a re-checkout of those files). Until then, Claude Code on Windows loads neither this file nor the project skills automatically (ISSUE-04).
-- `.project/render.py` and the skill's `check_project.py` need PyYAML. The Mac has it; the Windows PC does not (as of 2026-09-27).
+- The repo has four git symlinks: `.claude/CLAUDE.md`, `.code/AGENTS.md`, `.claude/skills` and `.code/skills`. On Windows they only work with Developer Mode on and `core.symlinks=true` set in the **repo** config (`git config --local`; git writes a local `false` when it clones on Windows, and that overrides the global setting). Otherwise they check out as one-line text files. The Windows PC has been fixed since 2026-09-27 (ISSUE-04). Never commit a placeholder replaced by a real file or folder.
+- `.project/render.py` and the skill's `check_project.py` need PyYAML, which both machines have. On Windows the command is `python`, not `python3`; `render.py` writes UTF-8 with LF on both.
 
 ## Plan-driven workflow (skill: `.agent/skills/plan-driven-development`)
 
