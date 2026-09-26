@@ -10,7 +10,7 @@ Status: v1.0, 2026-09-26. Everything here is a first draft for playtesting. You 
 
 - **ASCII only** in player-facing strings: no curly quotes, accents, emoji or special dashes. The pixel font may not have them, and `tests/test_content_lint.gd` rejects them.
 - **Ids are snake_case and stable.** Don't rename an id once code refers to it; change the text instead.
-- **Placeholders:** `{player_name}`, `{company}`, `{job_title}`, `{salary}`, `{work_mode}`, `{commute_min}`, `{office_days}`, `{hours}`, `{last_company}`, `{knockout}`, `{insider}`, `{days}`, `{n}`, `{day}`, `{topic_1}`, `{topic_2}`. Text in `[SQUARE_BRACKETS]` is deliberately left unfilled: that's the joke.
+- **Placeholders:** `{player_name}`, `{company}`, `{job_title}`, `{salary}`, `{work_mode}`, `{commute_min}`, `{office_days}`, `{hours}`, `{last_company}`, `{knockout}`, `{insider}`, `{days}`, `{n}`, `{day}`, `{topic_1}`, `{topic_2}`, `{r}` (rejections), `{g}` (ghosted), `{i}` (interviews), `{yes_no}` ("yes" or "no"). Text in `[SQUARE_BRACKETS]` is deliberately left unfilled: that's the joke.
 - **Text budgets** (GDD 2.7, enforced by the lint test, which also word-wraps every string at the 40-column portrait text width and checks the line cap):
 
 | Field | Max chars (lines at 40 columns) |
@@ -59,7 +59,7 @@ Before any public release, run a trademark and app-store search on every name ab
 
 Keywords (CV and posting tags): `python` Python, `javascript` JavaScript, `java` Java, `sql` SQL, `git` Git, `cloud` Cloud, `testing` Testing, `apis` APIs, `mobile` Mobile, `data` Data, `agile` Agile, `ai` AI.
 
-Knowledge topics (labels for the Self-Taught's gap list): `algorithms` Algorithms, `data_structures` Data structures, `databases` Databases, `web` Web and HTTP, `tools` Git and testing, `concurrency` Concurrency, `system_design` System design, `security` Security, `behavioral` Behavioral. Gap topics are rolled from the first 7 technical topics except `tools`.
+Knowledge topics (labels for the Self-Taught's gap list): `algorithms` Algorithms, `data_structures` Data structures, `databases` Databases, `web` Web and HTTP, `tools` Git and testing, `concurrency` Concurrency, `system_design` System design, `security` Security, `behavioral` Behavioral. Gap topics are rolled from the the 7 technical topics other than `tools`.
 
 ### 1.3 Banned real brands (lint list)
 Case-insensitive, whole-word match over all player-facing JSON strings. Exceptions go in an explicit `lint_allow` list with a reason.
@@ -758,7 +758,7 @@ On screen, `ducky` lines are prefixed with `ducky_real_answer` ("Real answer:").
 
 ---
 
-## 10. UI strings and Ducky coach lines -> `data/content/barks.json` (section `ui`, `coach`)
+## 10. UI strings and Ducky coach lines -> `data/content/barks.json` (flat ids `ui_*`, `coach_*`)
 
 ### 10.1 UI strings
 
@@ -935,7 +935,7 @@ Fields: `id, short (<=120, on screen), more (Notebook extra), triggers`. GDD 8.3
 
 ---
 
-## 13. Offer letter, perks and fine print -> `data/content/emails.json` (section `offer`)
+## 13. Offer letter, perks and fine print -> `data/content/emails.json` (flat ids `offer_*`, `perk_*`, `fp_*`)
 
 ### 13.1 Offer modal template
 

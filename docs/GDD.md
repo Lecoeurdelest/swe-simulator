@@ -625,7 +625,7 @@ Numbers you tune in the Inspector live in `.tres` Resources; text lives in JSON 
 | `data/balance/balance_config.tres` | `BalanceConfig` | global constants (section 11) |
 | `data/backgrounds/intern.tres`, `graduate.tres`, `self_taught.tres` | `BackgroundData` | per-background numbers |
 | `data/tiers/startup.tres`, `mid.tres`, `big.tres` | `TierData` | per-tier numbers |
-| `data/content/naming.json` | JSON | world names, keyword labels, banned-brand list |
+| `data/content/naming.json` | JSON | world names, keyword and topic labels (the banned-brand list lives only in `tests/test_content_lint.gd`, so real brand names never ship: ARCHITECTURE 12.3) |
 | `data/content/backgrounds.json`, `tiers.json` | JSON | display text for backgrounds and tiers |
 | `data/content/companies.json` | JSON | 9 companies |
 | `data/content/postings.json` | JSON | 20 posting templates (+ the Unicorn, SHOULD) |
