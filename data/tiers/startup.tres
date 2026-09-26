@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="TierData" format=3 uid="uid://ub8v6do6a710"]
+
+[ext_resource type="Script" uid="uid://de3mbf138a37" path="res://data/types/tier_data.gd" id="1_o8sny"]
+
+[resource]
+script = ExtResource("1_o8sny")
+id = &"startup"
+base_invite = 0.1
+ghost_job_rate = 0.05
+silent_share = 0.4
+reply_delay_days = 1
+posted_days_min = 0
+posted_days_max = 5
+applicants_min = 20
+applicants_max = 120
+in_person = false
+doubt_hp = 118
+tier_difficulty = 40
+zone_jumps = true
+lie_probe_chance = 0.3
+bluff_detect = 0.0
+background_check = 0.0
+salary_min_k = 50
+salary_max_k = 70
+office_days = 0
+meeting_load = 0.2
+layoff_risk = 0.3
+growth_mult = 1.5

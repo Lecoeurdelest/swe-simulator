@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="TierData" format=3 uid="uid://c7itktiop1a4s"]
+
+[ext_resource type="Script" uid="uid://de3mbf138a37" path="res://data/types/tier_data.gd" id="1_36gya"]
+
+[resource]
+script = ExtResource("1_36gya")
+id = &"mid"
