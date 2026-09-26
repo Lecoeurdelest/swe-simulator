@@ -1,0 +1,133 @@
+{
+  "co_omniglobal": {
+    "name": "OmniGlobal Dynamics",
+    "tier": "big",
+    "mvp": true,
+    "tagline": "Synergizing Tomorrow, Yesterday.",
+    "card_joke": "Enterprise software, consulting, and printers.",
+    "insider": "You run payroll for 2M businesses.",
+    "dana_line": "Sorry. Reorg. As of two minutes ago I'm Partner III. Continue.",
+    "review": "2/5 - Great benefits. 6 managers in 11 months.",
+    "red_flags": [
+      "Return to office: 5 days",
+      "A reorg every quarter"
+    ],
+    "art": "glass atrium, badge gates, LED wall where the stock ticker goes up and a small HEADCOUNT counter goes down, ping-pong table \"RESERVED FOR Q3 OFFSITE\"."
+  },
+  "co_nimbus": {
+    "name": "Murkcloud",
+    "tier": "big",
+    "mvp": true,
+    "tagline": "Your Data. Somewhere.",
+    "card_joke": "Cloud and AI. Mostly AI. Humans sometimes.",
+    "insider": "Your cloud runs half of Byteburg.",
+    "dana_line": "Our AI screened you first. It rated you 6/10. It rates everything 6/10.",
+    "review": "3/5 - Interviewed, onboarded and laid off by the AI.",
+    "red_flags": [
+      "First interview is with an AI"
+    ],
+    "art": "server racks fading into parallax fog, cold blue light, floor decal \"AI-FIRST. HUMANS-SOMETIMES.\", an Employee of the Month frame showing a server."
+  },
+  "co_adverse": {
+    "name": "Engagement Farms Inc.",
+    "tier": "big",
+    "mvp": false,
+    "tagline": "Connecting People to Advertisers.",
+    "card_joke": "Parent company of ClikClok. Yes, that ClikClok.",
+    "insider": "You own ClikClok. I'm on it daily.",
+    "dana_line": "Every time someone here says 'family', a desk disappears. Watch.",
+    "review": "4/5 - Great free food. Ate it alone after the restructure.",
+    "red_flags": [
+      "'We're a family'",
+      "Return to office: 5 days"
+    ],
+    "art": "candy-colored open office, neon \"WE'RE A FAMILY\" sign, nap pod \"BOOKED UNTIL 2027\", engagement graphs on every wall."
+  },
+  "co_beigeware": {
+    "name": "Beigeware Financial",
+    "tier": "mid",
+    "mvp": true,
+    "tagline": "Boring on Purpose.",
+    "card_joke": "Payroll and insurance software since 1998.",
+    "insider": "You've been stable for 28 years.",
+    "dana_line": "Days since last incident: 0. Days since last reorg: 2,000. We like it that way.",
+    "review": "4/5 - Nothing exciting ever happens. I'm so happy.",
+    "red_flags": [
+      "Legacy code from 1998"
+    ],
+    "art": "beige cubicles, one flickering light, a fax machine taped \"DO NOT UNPLUG - PROD\", a sad ficus, a sign \"DAYS SINCE LAST INCIDENT: 0\"."
+  },
+  "co_bytebistro": {
+    "name": "Lukewarm Express",
+    "tier": "mid",
+    "mvp": true,
+    "tagline": "Your Food. Eventually.",
+    "card_joke": "Food delivery. The fries are in the lake again.",
+    "insider": "You deliver a million meals a week.",
+    "dana_line": "Sorry, that alert was the fries. They're on the highway. Again.",
+    "review": "3/5 - Free lunch every day. It arrives at 4 PM.",
+    "red_flags": [
+      "'Fast-paced' (no documentation)"
+    ],
+    "art": "converted warehouse, wall-sized live map of delivery scooters (some in the lake), neon burger sign, a \"SURGE PRICING\" gong."
+  },
+  "co_pixelpivot": {
+    "name": "Scope & Creep Digital",
+    "tier": "mid",
+    "mvp": false,
+    "tagline": "We'll Build Anything. Anything.",
+    "card_joke": "An agency. Your next client is a mattress store.",
+    "insider": "You shipped 14 client apps last year.",
+    "dana_line": "This interview is billed to a regional mattress chain. Please be concise.",
+    "review": "3/5 - Built 14 apps in a year. I dream in invoices.",
+    "red_flags": [
+      "'Wear many hats'",
+      "Client-facing (clients yell)"
+    ],
+    "art": "exposed-brick loft, a wall of parody client logos (mattress store, dentist, lettuce startup), a Gantt chart ending in a hand-drawn skull."
+  },
+  "co_synergai": {
+    "name": "Hierarchai",
+    "tier": "startup",
+    "mvp": true,
+    "tagline": "Agents All the Way Down.",
+    "card_joke": "An AI agent that manages your AI agents.",
+    "insider": "Your agents manage 10,000 agents.",
+    "dana_line": "Quick update: we're AI for pets now. Same questions though.",
+    "review": "5/5 (1 review, written by the founder)",
+    "red_flags": [
+      "Equity instead of salary",
+      "Pivots every week"
+    ],
+    "art": "co-working warehouse, neon \"HUSTLE\" sign, beanbags, kombucha tap, a hockey-stick graph with no axes."
+  },
+  "co_quantumleaf": {
+    "name": "Entangled Greens",
+    "tier": "startup",
+    "mvp": true,
+    "tagline": "Disrupting Lettuce.",
+    "card_joke": "Blockchain, quantum, and lettuce. Mostly lettuce.",
+    "insider": "You grow lettuce with sensors. Neat.",
+    "dana_line": "Part of your salary is LettuceCoin. Its value is: lettuce.",
+    "review": "4/5 - Great culture. Paid partly in lettuce.",
+    "red_flags": [
+      "Paid partly in tokens"
+    ],
+    "art": "greenhouse office, hydroponic lettuce under purple grow-lights, a padlocked box labelled \"QUANTUM\" with one blinking LED."
+  },
+  "co_stealth": {
+    "name": "Stealth Mode Inc.",
+    "tier": "startup",
+    "mvp": false,
+    "tagline": "We Can't Tell You.",
+    "card_joke": "Industry: [REDACTED]. Office: a basement.",
+    "insider": "Honestly? The mystery.",
+    "dana_line": "Please sign this NDA about the NDA. Great. Hello.",
+    "review": "?/5 - [Removed at the employer's request]",
+    "red_flags": [
+      "You can't know what you're applying for"
+    ],
+    "hired_extra": "You may now know what we do. ...It's a to-do app.",
+    "art": "basement, blacked-out windows, a whiteboard under a bedsheet, one humming server rack, a shredder with a \"BUSY\" light."
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "intro_p1": {
+    "order": 1,
+    "seconds": 6,
+    "captions": [
+      {
+        "speaker": "",
+        "text": "2022. You are 17."
+      },
+      {
+        "speaker": "",
+        "text": "You are supposed to be asleep."
+      }
+    ],
+    "visual": "Side-view cutaway of a small bedroom at night: warm desk lamp, chemistry textbook, a 17-year-old under a blanket lit by phone glow. Night-palette dithered clouds in the window (the reference's cloud style).",
+    "audio": "clock tick, phone buzz x2"
+  },
+  "intro_p2": {
+    "order": 2,
+    "seconds": 7,
+    "captions": [
+      {
+        "speaker": "Remy",
+        "text": "Woke up at 10:47. No alarm."
+      },
+      {
+        "speaker": "Remy",
+        "text": "Commute: 3 steps."
+      },
+      {
+        "speaker": "Remy",
+        "text": "Standup: 12 minutes. Pants: optional."
+      }
+    ],
+    "visual": "The phone fills nearly the whole panel: a thin bezel and the kid's thumb at the edges, bedroom blurred in the margins. ClikClok UI: \"@RemoteRemy - A DAY IN THE LIFE OF A SOFTWARE ENGINEER\". Inside: a sunlit studio (the reference's bright sky and fluffy clouds through a big window). Remy wakes; clock 10:47. Then his laptop grid: six sleepy faces, \"STANDUP 00:12:00\".",
+    "audio": "swipe whoosh, lo-fi beat drops in"
+  },
+  "intro_p3": {
+    "order": 3,
+    "seconds": 7,
+    "captions": [
+      {
+        "speaker": "Remy",
+        "text": "One room. Bedroom, office, gym. That's called efficiency."
+      },
+      {
+        "speaker": "Remy",
+        "text": "Six figures to think. Mostly about lunch."
+      },
+      {
+        "speaker": "Remy",
+        "text": "Just learn to code, bro. Link in bio."
+      }
+    ],
+    "visual": "Pan sideways across the one-room studio (panel up to 480 px wide, 270 visible); labels pop: BEDROOM, OFFICE, GYM (one kettlebell), KITCHEN (one espresso machine). Then a balcony at sunset, pixel coins raining, \"SALARY: $$$$$$\" with a sticker \"CENSORED FOR ENGAGEMENT\". Comments scroll up: \"HOW DO I START\", \"is math needed??\", \"bro lives in 2030\".",
+    "audio": "pop x4, cash register, crowd \"ooooh\""
+  },
+  "intro_p4": {
+    "order": 4,
+    "seconds": 6,
+    "captions": [
+      {
+        "speaker": "",
+        "text": "That night, you made a decision."
+      }
+    ],
+    "visual": "Close-up: your eyes become pixel sparkles. You close the chemistry book. A search bar types \"how to become software engineer fast easy remote\".",
+    "audio": "8-bit \"aaah\", key clicks"
+  },
+  "intro_p5": {
+    "order": 5,
+    "seconds": 7,
+    "captions": [
+      {
+        "speaker": "",
+        "text": "Four years of learning."
+      },
+      {
+        "speaker": "",
+        "text": "Some of it on purpose."
+      }
+    ],
+    "visual": "Calendar pages fly 2022 -> 2026 while seasons change outside the same window. Books and coffee cups pile up; a screen says \"Hello, World!\" and you fist-pump; a bug counter goes 99 -> 127. Keep it ambiguous: it could be classes, internships or tutorials.",
+    "audio": "upbeat chiptune, page flips"
+  },
+  "intro_p6": {
+    "order": 6,
+    "seconds": 7,
+    "captions": [
+      {
+        "speaker": "",
+        "text": "2026."
+      },
+      {
+        "speaker": "Remy",
+        "text": "So... I got laid off. Anyway! My course is 70% off."
+      },
+      {
+        "speaker": "",
+        "text": "SOFTWARE ENGINEER SIMULATOR",
+        "style": "title"
+      },
+      {
+        "speaker": "",
+        "text": "How did you spend those four years?"
+      }
+    ],
+    "visual": "Same room, desaturated, rain. You are 21. A sports-style ticker crawls: \"RECORD PROFITS, 12,000 LAYOFFS 'TO FOCUS ON AI' * ENTRY-LEVEL ROLE: 5+ YEARS REQUIRED * 4,000 APPLICANTS FOR 1 JUNIOR ROLE\". The phone buzzes: Remy, same studio, now full of moving boxes, ring light flickering. Smash to black; title slams in.",
+    "audio": "beat slows like a dying cassette, record scratch, 1 s silence, title sting"
+  }
+}

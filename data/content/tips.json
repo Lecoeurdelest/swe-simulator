@@ -1,0 +1,162 @@
+{
+  "tip_ats_knockouts": {
+    "short": "ATS software rarely auto-rejects on keywords. Knockout questions (degree, years, location) do.",
+    "more": "Answer knockout questions truthfully and apply where you meet them, or get a referral so a human reads your CV.",
+    "triggers": "knockout rejection"
+  },
+  "tip_keywords_honest": {
+    "short": "Use the posting's real terms for skills you actually have. Recruiters search for them.",
+    "more": "Don't paste the whole posting into your CV; mirror the terms that honestly describe your work.",
+    "triggers": "CV screen, low match"
+  },
+  "tip_quantify_impact": {
+    "short": "Use numbers: 'raised test coverage from 41% to 58%' beats 'worked on testing'.",
+    "more": "Action verb + what you did + a measurable result. Put your strongest line first.",
+    "triggers": "CV first open"
+  },
+  "tip_projects_count": {
+    "short": "Projects, TA work and freelance count as experience. Describe them honestly and concretely.",
+    "more": "Say what you built, for whom, and what happened. 'Capstone team of 4, shipped' is honest and strong.",
+    "triggers": "Polished Experience"
+  },
+  "tip_tailor_over_spray": {
+    "short": "A tailored application to a job you really fit is much more likely to get a reply than a one-click one.",
+    "more": "Tailor your summary and top bullets to each posting you really match.",
+    "triggers": "8 Quick Applies without an invite"
+  },
+  "tip_referrals": {
+    "short": "A referral gets a human to read your CV. Ask people who actually know your work.",
+    "more": "Make it easy for them: send a two-line blurb and the job link.",
+    "triggers": "first referral"
+  },
+  "tip_informational_chats": {
+    "short": "Network with curiosity: ask engineers for 15 minutes of advice, not for a job.",
+    "more": "Referrals often follow real conversations. It works best before you need it.",
+    "triggers": "Network (SHOULD)"
+  },
+  "tip_ghost_jobs": {
+    "short": "Postings open for months or reposted constantly may not be hiring. Prefer fresh ones.",
+    "more": "Check the company's own careers page and the posting date before investing effort.",
+    "triggers": "Research reveals a ghost job"
+  },
+  "tip_research_company": {
+    "short": "Research the company before interviews: news, product, reviews. It improves every answer.",
+    "more": "It also helps you judge them: layoffs, funding and reviews tell you what you're walking into.",
+    "triggers": "committee loss, rejection without research, eq_why_us"
+  },
+  "tip_rejection_numbers": {
+    "short": "In a tight market, many rejections are normal. Track applications and keep going.",
+    "more": "A simple spreadsheet (date, role, contact, stage) shows what's working. It's volume plus targeting.",
+    "triggers": "first rejection, every 10th"
+  },
+  "tip_rest": {
+    "short": "Rest before interviews. Tired answers go worse. Schedule the search like a job.",
+    "more": "A job search is a marathon. Plan breaks on purpose.",
+    "triggers": "Tired, eq_grind_culture"
+  },
+  "tip_think_aloud": {
+    "short": "In technical interviews, think out loud. Interviewers grade your reasoning, not just the answer.",
+    "more": "If you're stuck, say what you'd try first and why.",
+    "triggers": "red knowledge answer"
+  },
+  "tip_clarify_first": {
+    "short": "Ask clarifying questions before designing: users, scale, constraints.",
+    "more": "Jumping straight to a solution is a common junior mistake. Interviewers like the questions.",
+    "triggers": "kq_url_shortener"
+  },
+  "tip_star_stories": {
+    "short": "Prepare 5 STAR stories: conflict, failure, teamwork, a win, learning fast.",
+    "more": "Situation, Task, Action, Result, plus what you learned. Reuse them across questions.",
+    "triggers": "red behavioral answer, eq_weakness"
+  },
+  "tip_teamwork_without_job": {
+    "short": "No team yet? Open source, hackathons and freelance clients give you reviews and team stories.",
+    "more": "Code review from strangers is a fast way to learn how teams work.",
+    "triggers": "Self-Taught teamwork answer"
+  },
+  "tip_ask_questions": {
+    "short": "Always ask a question at the end: success in 90 days, code review, on-call.",
+    "more": "It shows interest, and the answers tell you whether you want the job.",
+    "triggers": "eq_any_questions"
+  },
+  "tip_say_i_dont_know": {
+    "short": "'I don't know, but here's how I'd find out' beats a bluff.",
+    "more": "Interviewers respect honesty and a clear way of solving problems.",
+    "triggers": "Come clean"
+  },
+  "tip_honesty_checks": {
+    "short": "Don't lie on a CV. Interviewers dig in, and degrees and dates get verified.",
+    "more": "Offers can be withdrawn, even after you start. Honest reframing gets you most of the benefit.",
+    "triggers": "BUSTED, rescinded"
+  },
+  "tip_fundamentals": {
+    "short": "Frameworks change fast. Fundamentals transfer: data structures, databases, networking, testing.",
+    "more": "Learn one stack well, but keep the basics sharp. They show up in every interview.",
+    "triggers": "first Study, several knowledge Qs"
+  },
+  "tip_ai_tools": {
+    "short": "Use AI tools where allowed, but understand and test every line. You'll be asked to explain it.",
+    "more": "Say what you used and how you checked it.",
+    "triggers": "eq_ai_takehome"
+  },
+  "tip_secrets": {
+    "short": "A leaked password or key is compromised. Report it so it gets rotated; deleting the message isn't enough.",
+    "more": "Never paste secrets into chat, tickets or code.",
+    "triggers": "eq_leaked_password"
+  },
+  "tip_small_changes": {
+    "short": "Ship small, tested changes early in the week. Friday deploys are how weekends die.",
+    "more": "Small changes are easier to review and easier to roll back.",
+    "triggers": "eq_friday_deploy"
+  },
+  "tip_give_credit": {
+    "short": "Credit teammates publicly. It builds trust, and people remember who shares.",
+    "more": "It also makes your own wins more believable.",
+    "triggers": "eq_credit_theft"
+  },
+  "tip_blameless": {
+    "short": "Good teams run blameless postmortems: what happened, how it was fixed, what prevents it.",
+    "more": "Owning your part calmly is a strength, not a confession.",
+    "triggers": "eq_outage_blame"
+  },
+  "tip_privacy": {
+    "short": "Customer data is off-limits without a business reason. Access is logged.",
+    "more": "Snooping is a fast way to lose a job and to hurt real people.",
+    "triggers": "eq_celebrity_orders"
+  },
+  "tip_focus_time": {
+    "short": "Protect focus time: decline meetings you aren't needed in and ask for notes.",
+    "more": "Say what you're working on and when you'll be free.",
+    "triggers": "eq_meeting_overload"
+  },
+  "tip_scope": {
+    "short": "When a deadline is impossible, offer a smaller first version and write down the risks.",
+    "more": "Flag slips early. Surprises are worse than bad news.",
+    "triggers": "eq_impossible_deadline, kq_estimate"
+  },
+  "tip_negotiate": {
+    "short": "A polite counter with a number and a reason is normal. It rarely backfires.",
+    "more": "Know your market rate first. The usual worst case is 'this is our best offer'. Tight deadline? Asking for a few more days is normal.",
+    "triggers": "offer opens (Negotiate shipped)"
+  },
+  "tip_total_comp": {
+    "short": "Compare total pay: salary, bonus, equity, benefits and commute. 3 hours a day on a bus is a pay cut.",
+    "more": "Ask about office days, on-call and real working hours too. Tight deadline? Asking for a few more days is normal.",
+    "triggers": "offer with a commute, eq_rto"
+  },
+  "tip_equity_lottery": {
+    "short": "Treat startup equity like a lottery ticket. Ask the percentage and the vesting schedule.",
+    "more": "A 1-year cliff means you get nothing if you leave or are laid off before 12 months. Also ask the strike price and how long you'd have to buy vested options after leaving.",
+    "triggers": "startup offer"
+  },
+  "tip_fine_print": {
+    "short": "Read non-compete, IP and probation clauses. Enforceability varies by country and state. Unsure? Ask a lawyer.",
+    "more": "Ask HR what a clause covers and get the answer in writing before you sign. Whether it's enforceable is a question for an employment lawyer or legal aid.",
+    "triggers": "fine print opened"
+  },
+  "tip_written_offer": {
+    "short": "Don't stop other applications until you have a signed, written offer.",
+    "more": "Check that it lists the start date, pay and work mode.",
+    "triggers": "Hired card"
+  }
+}

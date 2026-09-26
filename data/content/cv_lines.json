@@ -1,0 +1,401 @@
+{
+  "cv_intern_edu_honest": {
+    "background": "intern",
+    "line": "edu",
+    "variant": "honest",
+    "text": "B.Sc. Computer Science, Byteburg State (GPA 3.3)",
+    "tags": [
+      "python"
+    ],
+    "degree": true,
+    "passes_years": false,
+    "degree_claim": false,
+    "probe": ""
+  },
+  "cv_intern_edu_polished": {
+    "background": "intern",
+    "line": "edu",
+    "variant": "polished",
+    "text": "B.Sc. CS + Data minor (two electives count)",
+    "tags": [
+      "python",
+      "data"
+    ],
+    "degree": true,
+    "passes_years": false,
+    "degree_claim": false,
+    "probe": ""
+  },
+  "cv_intern_edu_lie": {
+    "background": "intern",
+    "line": "edu",
+    "variant": "lie",
+    "text": "M.Sc. AI, Very Famous University, top of class",
+    "tags": [
+      "python",
+      "data",
+      "ai"
+    ],
+    "degree": true,
+    "passes_years": false,
+    "degree_claim": true,
+    "probe": "Very Famous University! Who supervised your master's thesis, and on what?"
+  },
+  "cv_intern_exp_honest": {
+    "background": "intern",
+    "line": "exp",
+    "variant": "honest",
+    "text": "3 internships: fixed 14 bugs, coverage 41% to 58%",
+    "tags": [
+      "sql",
+      "testing",
+      "agile"
+    ],
+    "degree": false,
+    "passes_years": true,
+    "degree_claim": false,
+    "probe": ""
+  },
+  "cv_intern_exp_polished": {
+    "background": "intern",
+    "line": "exp",
+    "variant": "polished",
+    "text": "SWE Intern x3: built 3 internal APIs, on-call once",
+    "tags": [
+      "sql",
+      "testing",
+      "agile",
+      "apis"
+    ],
+    "degree": false,
+    "passes_years": true,
+    "degree_claim": false,
+    "probe": ""
+  },
+  "cv_intern_exp_lie": {
+    "background": "intern",
+    "line": "exp",
+    "variant": "lie",
+    "text": "Tech Lead, cloud platform team (2 years)",
+    "tags": [
+      "sql",
+      "testing",
+      "agile",
+      "apis",
+      "cloud"
+    ],
+    "degree": false,
+    "passes_years": true,
+    "degree_claim": false,
+    "probe": "As tech lead, how did you run performance reviews for your team?"
+  },
+  "cv_intern_proj_honest": {
+    "background": "intern",
+    "line": "proj",
+    "variant": "honest",
+    "text": "Standup-reminder bot, used by 30 coworkers",
+    "tags": [
+      "git"
+    ],
+    "degree": false,
+    "passes_years": false,
+    "degree_claim": false,
+    "probe": ""
+  },
+  "cv_intern_proj_polished": {
+    "background": "intern",
+    "line": "proj",
+    "variant": "polished",
+    "text": "Team bot on the cloud: 30 daily users, 0 outages",
+    "tags": [
+      "git",
+      "cloud"
+    ],
+    "degree": false,
+    "passes_years": false,
+    "degree_claim": false,
+    "probe": ""
+  },
+  "cv_intern_proj_lie": {
+    "background": "intern",
+    "line": "proj",
+    "variant": "lie",
+    "text": "Built an app with 1 million users",
+    "tags": [
+      "git",
+      "cloud",
+      "mobile"
+    ],
+    "degree": false,
+    "passes_years": false,
+    "degree_claim": false,
+    "probe": "Scaling to a million users: what broke first, and how did you fix it?"
+  },
+  "cv_graduate_edu_honest": {
+    "background": "graduate",
+    "line": "edu",
+    "variant": "honest",
+    "text": "B.Sc. Information Tech, Metro City University",
+    "tags": [
+      "java"
+    ],
+    "degree": true,
+    "passes_years": false,
+    "degree_claim": false,
+    "probe": ""
+  },
+  "cv_graduate_edu_polished": {
+    "background": "graduate",
+    "line": "edu",
+    "variant": "polished",
+    "text": "B.Sc. IT; courses: Databases, ML, Cloud",
+    "tags": [
+      "java",
+      "data"
+    ],
+    "degree": true,
+    "passes_years": false,
+    "degree_claim": false,
+    "probe": ""
+  },
+  "cv_graduate_edu_lie": {
+    "background": "graduate",
+    "line": "edu",
+    "variant": "lie",
+    "text": "B.Sc. in 2 years while working full-time",
+    "tags": [
+      "java",
+      "data",
+      "cloud"
+    ],
+    "degree": true,
+    "passes_years": false,
+    "degree_claim": false,
+    "probe": "Two years AND a full-time job? Walk me through a typical Tuesday."
+  },
+  "cv_graduate_exp_honest": {
+    "background": "graduate",
+    "line": "exp",
+    "variant": "honest",
+    "text": "Teaching Assistant, Intro to Programming (2 terms)",
+    "tags": [
+      "python"
+    ],
+    "degree": false,
+    "passes_years": false,
+    "degree_claim": false,
+    "probe": ""
+  },
+  "cv_graduate_exp_polished": {
+    "background": "graduate",
+    "line": "exp",
+    "variant": "polished",
+    "text": "Capstone team of 4 + TA for 120 students",
+    "tags": [
+      "python",
+      "agile"
+    ],
+    "degree": false,
+    "passes_years": true,
+    "degree_claim": false,
+    "probe": ""
+  },
+  "cv_graduate_exp_lie": {
+    "background": "graduate",
+    "line": "exp",
+    "variant": "lie",
+    "text": "Software Engineer at a delivery app (1.5 years)",
+    "tags": [
+      "python",
+      "agile",
+      "testing"
+    ],
+    "degree": false,
+    "passes_years": true,
+    "degree_claim": false,
+    "probe": "A delivery app! How did your team handle the Great Fries Outage?",
+    "note": "(It never happened. It's a trap.)"
+  },
+  "cv_graduate_proj_honest": {
+    "background": "graduate",
+    "line": "proj",
+    "variant": "honest",
+    "text": "Capstone: room-booking app (my part: backend + DB)",
+    "tags": [
+      "sql",
+      "git"
+    ],
+    "degree": false,
+    "passes_years": false,
+    "degree_claim": false,
+    "probe": ""
+  },
+  "cv_graduate_proj_polished": {
+    "background": "graduate",
+    "line": "proj",
+    "variant": "polished",
+    "text": "Built the REST API + database for a team app",
+    "tags": [
+      "sql",
+      "git",
+      "apis"
+    ],
+    "degree": false,
+    "passes_years": false,
+    "degree_claim": false,
+    "probe": ""
+  },
+  "cv_graduate_proj_lie": {
+    "background": "graduate",
+    "line": "proj",
+    "variant": "lie",
+    "text": "Published a paper on distributed consensus",
+    "tags": [
+      "sql",
+      "git",
+      "apis",
+      "ai"
+    ],
+    "degree": false,
+    "passes_years": false,
+    "degree_claim": false,
+    "probe": "Your paper: explain the leader-election step in one sentence."
+  },
+  "cv_self_taught_edu_honest": {
+    "background": "self_taught",
+    "line": "edu",
+    "variant": "honest",
+    "text": "High school diploma + 400 hrs of online courses",
+    "tags": [],
+    "degree": false,
+    "passes_years": false,
+    "degree_claim": false,
+    "probe": ""
+  },
+  "cv_self_taught_edu_polished": {
+    "background": "self_taught",
+    "line": "edu",
+    "variant": "polished",
+    "text": "Self-directed CS curriculum (11 certificates)",
+    "tags": [
+      "data"
+    ],
+    "degree": false,
+    "passes_years": false,
+    "degree_claim": false,
+    "probe": ""
+  },
+  "cv_self_taught_edu_lie": {
+    "background": "self_taught",
+    "line": "edu",
+    "variant": "lie",
+    "text": "B.Sc. Computer Science, Very Famous University",
+    "tags": [
+      "data",
+      "java"
+    ],
+    "degree": true,
+    "passes_years": false,
+    "degree_claim": true,
+    "probe": "Very Famous University! What was your final-year project about?"
+  },
+  "cv_self_taught_exp_honest": {
+    "background": "self_taught",
+    "line": "exp",
+    "variant": "honest",
+    "text": "Freelance: sites for a bakery, a tattoo shop, my uncle",
+    "tags": [
+      "javascript",
+      "apis"
+    ],
+    "degree": false,
+    "passes_years": false,
+    "degree_claim": false,
+    "probe": ""
+  },
+  "cv_self_taught_exp_polished": {
+    "background": "self_taught",
+    "line": "exp",
+    "variant": "polished",
+    "text": "Freelance dev, 3 clients, 2 yrs (+ a bakery chatbot)",
+    "tags": [
+      "javascript",
+      "apis",
+      "ai"
+    ],
+    "degree": false,
+    "passes_years": true,
+    "degree_claim": false,
+    "probe": ""
+  },
+  "cv_self_taught_exp_lie": {
+    "background": "self_taught",
+    "line": "exp",
+    "variant": "lie",
+    "text": "Senior Engineer, Stealth Mode Inc. (3 years)",
+    "tags": [
+      "javascript",
+      "apis",
+      "ai",
+      "agile"
+    ],
+    "degree": false,
+    "passes_years": true,
+    "degree_claim": false,
+    "probe": "Who approved your pull requests there?",
+    "probe_at": {
+      "co_stealth": "Three years? We're 8 months old. I'd know. I'm everyone here."
+    }
+  },
+  "cv_self_taught_proj_honest": {
+    "background": "self_taught",
+    "line": "proj",
+    "variant": "honest",
+    "text": "3 small apps deployed: budget, recipes, bus times",
+    "tags": [
+      "python",
+      "sql",
+      "git",
+      "mobile"
+    ],
+    "degree": false,
+    "passes_years": false,
+    "degree_claim": false,
+    "probe": ""
+  },
+  "cv_self_taught_proj_polished": {
+    "background": "self_taught",
+    "line": "proj",
+    "variant": "polished",
+    "text": "Shipped 3 apps, live, with READMEs and tests",
+    "tags": [
+      "python",
+      "sql",
+      "git",
+      "mobile",
+      "cloud"
+    ],
+    "degree": false,
+    "passes_years": false,
+    "degree_claim": false,
+    "probe": ""
+  },
+  "cv_self_taught_proj_lie": {
+    "background": "self_taught",
+    "line": "proj",
+    "variant": "lie",
+    "text": "Author of an open-source library, 10k stars",
+    "tags": [
+      "python",
+      "sql",
+      "git",
+      "mobile",
+      "cloud",
+      "testing"
+    ],
+    "degree": false,
+    "passes_years": false,
+    "degree_claim": false,
+    "probe": "10k stars! What was the hardest issue a contributor ever opened?"
+  }
+}

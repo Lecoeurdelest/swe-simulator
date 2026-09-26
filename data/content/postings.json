@@ -1,0 +1,350 @@
+{
+  "job_big_junior_swe": {
+    "tier": "big",
+    "company": "any",
+    "title": "Junior Software Engineer I",
+    "tags": [
+      "java",
+      "testing",
+      "agile"
+    ],
+    "degree": true,
+    "min_years": 5,
+    "ghost": "roll",
+    "joke": "Entry level. 5+ years required. PhD a plus.",
+    "salary_text": "Competitive",
+    "should": false
+  },
+  "job_big_cloud_associate": {
+    "tier": "big",
+    "company": "any",
+    "title": "Associate Cloud Engineer",
+    "tags": [
+      "cloud",
+      "python",
+      "data"
+    ],
+    "degree": true,
+    "min_years": 0,
+    "ghost": "roll",
+    "joke": "Must know our internal tools. Not sold outside.",
+    "salary_text": "$98k-$190k (you get $98k)",
+    "should": false
+  },
+  "job_big_future_talent": {
+    "tier": "big",
+    "company": "any",
+    "title": "Developer, Future Opportunities",
+    "tags": [
+      "java",
+      "python",
+      "cloud"
+    ],
+    "degree": true,
+    "min_years": 0,
+    "ghost": "always",
+    "joke": "Evergreen role. Building our talent pipeline.",
+    "salary_text": "Competitive",
+    "should": false
+  },
+  "job_big_new_grad_sre": {
+    "tier": "big",
+    "company": "any",
+    "title": "New Grad Reliability Engineer",
+    "tags": [
+      "python",
+      "cloud",
+      "testing"
+    ],
+    "degree": true,
+    "min_years": 1,
+    "ghost": "roll",
+    "joke": "On-call from day 2. The pager is named Gerald.",
+    "salary_text": "$105k + 1 energy drink/week",
+    "should": false
+  },
+  "job_big_frontend": {
+    "tier": "big",
+    "company": "any",
+    "title": "Frontend Engineer, Engagement",
+    "tags": [
+      "javascript",
+      "testing",
+      "data"
+    ],
+    "degree": false,
+    "min_years": 3,
+    "ghost": "roll",
+    "joke": "Make infinite scroll more infinite.",
+    "salary_text": "$100k-$120k",
+    "should": false
+  },
+  "job_big_ai_engineer": {
+    "tier": "big",
+    "company": "any",
+    "title": "AI Engineer (Junior)",
+    "tags": [
+      "ai",
+      "python",
+      "data"
+    ],
+    "degree": true,
+    "min_years": 3,
+    "ghost": "roll",
+    "joke": "3+ years with a model released 8 months ago.",
+    "salary_text": "$110k-$130k",
+    "should": false
+  },
+  "job_big_data_analyst": {
+    "tier": "big",
+    "company": "any",
+    "title": "Data Analyst II (Level 0.5)",
+    "tags": [
+      "sql",
+      "data",
+      "agile"
+    ],
+    "degree": false,
+    "min_years": 0,
+    "ghost": "roll",
+    "joke": "Build dashboards nobody opens. At scale.",
+    "salary_text": "$95k",
+    "should": false
+  },
+  "job_mid_backend": {
+    "tier": "mid",
+    "company": "any",
+    "title": "Backend Developer",
+    "tags": [
+      "java",
+      "sql",
+      "apis"
+    ],
+    "degree": false,
+    "min_years": 1,
+    "ghost": "roll",
+    "joke": "Read code from someone who left in 2009.",
+    "salary_text": "$78k-$88k",
+    "should": false
+  },
+  "job_mid_qa": {
+    "tier": "mid",
+    "company": "any",
+    "title": "QA Automation Engineer",
+    "tags": [
+      "testing",
+      "python",
+      "sql"
+    ],
+    "degree": false,
+    "min_years": 0,
+    "ghost": "roll",
+    "joke": "Find bugs. Not too many. Morale.",
+    "salary_text": "$70k-$80k",
+    "should": false
+  },
+  "job_mid_mobile": {
+    "tier": "mid",
+    "company": "any",
+    "title": "Junior Mobile Developer",
+    "tags": [
+      "mobile",
+      "apis",
+      "git"
+    ],
+    "degree": false,
+    "min_years": 0,
+    "ghost": "roll",
+    "joke": "Deliver cold fries in 45 minutes. In an app.",
+    "salary_text": "$72k-$85k + late lunch",
+    "should": false
+  },
+  "job_mid_data_eng": {
+    "tier": "mid",
+    "company": "any",
+    "title": "Data Analyst to Data Engineer",
+    "tags": [
+      "sql",
+      "python",
+      "data"
+    ],
+    "degree": false,
+    "min_years": 2,
+    "ghost": "roll",
+    "joke": "Title upgrade. Salary upgrade sold separately.",
+    "salary_text": "$68k",
+    "should": false
+  },
+  "job_mid_fullstack": {
+    "tier": "mid",
+    "company": "any",
+    "title": "Full-Stack Developer (Full-Full)",
+    "tags": [
+      "javascript",
+      "sql",
+      "cloud"
+    ],
+    "degree": false,
+    "min_years": 0,
+    "ghost": "roll",
+    "joke": "Frontend, backend, DevOps and the office plants.",
+    "salary_text": "$65k-$75k",
+    "should": false
+  },
+  "job_mid_web_rescue": {
+    "tier": "mid",
+    "company": "any",
+    "title": "Web Dev, Client Rescue Squad",
+    "tags": [
+      "javascript",
+      "git",
+      "testing"
+    ],
+    "degree": false,
+    "min_years": 1,
+    "ghost": "roll",
+    "joke": "Fix sites the last agency built. Also us.",
+    "salary_text": "$62k-$70k",
+    "should": false
+  },
+  "job_mid_platform": {
+    "tier": "mid",
+    "company": "any",
+    "title": "Junior Platform Engineer",
+    "tags": [
+      "cloud",
+      "git",
+      "agile"
+    ],
+    "degree": false,
+    "min_years": 0,
+    "ghost": "roll",
+    "joke": "CI takes 45 minutes. Your job: make it 44.",
+    "salary_text": "$75k-$85k",
+    "should": false
+  },
+  "job_st_founding": {
+    "tier": "startup",
+    "company": "any",
+    "title": "Founding Engineer #1 (of 1)",
+    "tags": [
+      "python",
+      "ai",
+      "apis"
+    ],
+    "degree": false,
+    "min_years": 0,
+    "ghost": "roll",
+    "joke": "Build the AI that builds the AI. By Friday.",
+    "salary_text": "$55k + 0.0001% equity",
+    "should": false
+  },
+  "job_st_fullstack_ninja": {
+    "tier": "startup",
+    "company": "any",
+    "title": "Full-Stack Ninja Rockstar",
+    "tags": [
+      "javascript",
+      "mobile",
+      "cloud"
+    ],
+    "degree": false,
+    "min_years": 0,
+    "ghost": "roll",
+    "joke": "Must thrive in chaos. Mostly chaos.",
+    "salary_text": "$58k + snacks",
+    "should": false
+  },
+  "job_st_ai_generalist": {
+    "tier": "startup",
+    "company": "any",
+    "title": "AI Generalist (Everything Engineer)",
+    "tags": [
+      "ai",
+      "python",
+      "data"
+    ],
+    "degree": false,
+    "min_years": 0,
+    "ghost": "roll",
+    "joke": "Ownership mindset: you own everything. Bugs too.",
+    "salary_text": "$60k + equity (vibes)",
+    "should": false
+  },
+  "job_st_mobile_barista": {
+    "tier": "startup",
+    "company": "any",
+    "title": "Mobile Dev (Also Barista)",
+    "tags": [
+      "mobile",
+      "javascript",
+      "git"
+    ],
+    "degree": false,
+    "min_years": 0,
+    "ghost": "roll",
+    "joke": "Snacks unlimited. Salary limited.",
+    "salary_text": "$52k + all the oat milk",
+    "should": false
+  },
+  "job_st_growth": {
+    "tier": "startup",
+    "company": "any",
+    "title": "Growth Engineer",
+    "tags": [
+      "javascript",
+      "data",
+      "apis"
+    ],
+    "degree": false,
+    "min_years": 0,
+    "ghost": "roll",
+    "joke": "Make the hockey-stick graph real. By Q3.",
+    "salary_text": "$56k + 0.0002% equity",
+    "should": false
+  },
+  "job_st_stealth_swe": {
+    "tier": "startup",
+    "company": "co_stealth",
+    "title": "Software Engineer (Under NDA)",
+    "tags": [
+      "apis",
+      "sql",
+      "cloud"
+    ],
+    "degree": false,
+    "min_years": 0,
+    "ghost": "roll",
+    "joke": "5 years of [REDACTED]. Sign NDA to see pay.",
+    "salary_text": "Competitive (NDA)",
+    "should": false
+  },
+  "job_unicorn_remote": {
+    "tier": "mid",
+    "company": "any",
+    "title": "Junior Dev, Fully Remote, 4-Day Week",
+    "tags": [],
+    "degree": false,
+    "min_years": 0,
+    "ghost": "always",
+    "joke": "Fully remote. $180k. Junior. 9,000 applicants.",
+    "salary_text": "$180k",
+    "should": true,
+    "research_reveal": "Posted 2,555 days ago. Reposted every week since 2019.",
+    "note": "tags: (the player's 3 best honest tags, so all 3 show green)"
+  },
+  "card_applicants": "{n} applicants",
+  "card_posted": "Posted {days} days ago",
+  "card_reposted": "Reposted",
+  "card_knockout": "Knockout: {knockout}",
+  "knock_degree": "Degree required",
+  "knock_years": "{n}+ years experience",
+  "research_ghost": "Posted {days} days ago. Reposted {n} times. Hmm.",
+  "research_clean": "Posted {days} days ago. Seems real. Probably.",
+  "research_salary": "Real salary band: {salary}",
+  "research_flags": "Red flags:",
+  "research_none": "No red flags found. Suspicious in itself.",
+  "hirebot_scan": "Parsinator 3000 is reading your CV...",
+  "hirebot_found": "Keywords found: {n}/3",
+  "stamp_sent": "SENT"
+}
