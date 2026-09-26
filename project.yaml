@@ -1,7 +1,10 @@
 # Structured index of the accepted plan (docs/GDD.md, docs/CONTENT.md, docs/ARCHITECTURE.md,
-# docs/ROADMAP.md). This file is GENERATED from those docs: it never overrides them.
+# docs/ROADMAP.md, docs/DECISIONS.md). This file is GENERATED from those docs: it never overrides them.
 # If this file and a doc disagree, the doc wins; regenerate this file.
 # Execution state lives in .project/state.json, not here.
+# 2026-09-27: regenerated for docs v1.1 (D1 portrait, D2 270x480, P1 iPhone first). Changed statements follow
+# the current docs; the prior wording is in git at 6f40919. Ids are never renumbered: replaced criteria and
+# decisions stay below as superseded, linked to their replacements.
 schema_version: 1
 
 project:
@@ -13,14 +16,16 @@ project:
     - docs/CONTENT.md
     - docs/ARCHITECTURE.md
     - docs/ROADMAP.md
+    - docs/DECISIONS.md
   model_authorship: generated
-  engine: Godot 4.7.2-stable, GDScript, gl_compatibility
+  engine: "Godot 4.7.2-stable, GDScript, gl_compatibility (Steam build on the Windows PC, godotengine.org zip on the MacBook)"
+  platform: "iPhone first, built on the MacBook (Xcode, free Personal Team signing); Android LATER (docs/DECISIONS.md P1)"
   authority_order:
     - "Rules and numbers: docs/GDD.md wins; fix ARCHITECTURE.md (ARCHITECTURE header)."
     - "Engine facts: docs/ARCHITECTURE.md wins; fix GDD.md (ARCHITECTURE header)."
     - "Every player-facing string and content id: docs/CONTENT.md."
     - "Step plan, task breakdown and Done-when criteria: docs/ROADMAP.md."
-    - "Design decision answers: docs/DECISIONS.md (one line each), once it exists (ROADMAP Step 0)."
+    - "Design decision answers: docs/DECISIONS.md (one line each; D1-D8, P1 and C1 since 2026-09-26). A change is a new superseding row there first, then the GDD section it points to (GDD 12)."
     - "Execution state and evidence: .project/state.json and .project/evidence/."
 
 preservation:
@@ -28,13 +33,20 @@ preservation:
     - id: BASE-DOCS
       source: docs/GDD.md, docs/CONTENT.md, docs/ARCHITECTURE.md, docs/ROADMAP.md (all v1.0, 2026-09-26)
       revision: 64ed38f (last commit touching docs/)
+      superseded_by: BASE-DOCS-PORTRAIT
+    - id: BASE-DOCS-PORTRAIT
+      source: "docs/GDD.md, docs/CONTENT.md, docs/ARCHITECTURE.md, docs/ROADMAP.md (all v1.1, portrait and iPhone first) and docs/DECISIONS.md (new)"
+      revision: "uncommitted on top of 6f40919 (Windows PC, 2026-09-27); sha256 of the four v1.1 docs in the 2026-09-27 .project/generated-manifest.json inputs; docs/DECISIONS.md, which render.py does not hash, e46ddcee7e7d1be9644f11456aca81f2eb8d79ae9ed26a055ee03d5d019c05d8. Replace with the commit id once pushed."
     - id: BASE-CODE
       source: Step 1 foundation code copied from ARCHITECTURE section 17
       revision: 64ed38f
+    - id: BASE-CODE-PORTRAIT
+      source: "Step 1 foundation plus the D1 portrait amendment (project.godot, autoload/device.gd, ui/components/safe_area_margin.gd)"
+      revision: "uncommitted on top of 6f40919 (Windows PC, 2026-09-27)"
   artifacts:
     - id: ART-GDD
       path: docs/GDD.md
-      role: design source of truth (rules, numbers, MUST/SHOULD/LATER scope, decisions D1-D8)
+      role: design source of truth (rules, numbers, MUST/SHOULD/LATER scope, decisions D1-D8 and P1 in section 12)
       disposition: preserve
     - id: ART-CONTENT
       path: docs/CONTENT.md
@@ -47,6 +59,10 @@ preservation:
     - id: ART-ROADMAP
       path: docs/ROADMAP.md
       role: step plan; each step's Tasks and Done-when are the human-readable task specification and sign-off checklist
+      disposition: preserve
+    - id: ART-DECISIONS
+      path: docs/DECISIONS.md
+      role: decision log (D1-D8, P1, C1); one line per decision, changed only by a new superseding row
       disposition: preserve
     - id: ART-CORE
       path: core/*.gd
@@ -67,7 +83,10 @@ preservation:
   conventions:
     - "ROADMAP step numbers are stable task ids (STEP-00 .. STEP-13); never renumber them."
     - "ROADMAP Done-when checkboxes are ticked by the developer; the three-marker index in docs/task/README.md is generated from .project/state.json and never replaces them."
-    - "A design change is one line with a reason in docs/DECISIONS.md; the GDD is not rewritten (ROADMAP Step 0 pitfalls)."
+    # 2026-09-27: the next convention replaces "A design change is one line with a reason in docs/DECISIONS.md;
+    # the GDD is not rewritten (ROADMAP Step 0 pitfalls)." The v1.1 docs (DECISIONS.md header, GDD 12) now update
+    # the GDD section after the superseding row. Semantic change: the developer should confirm it (approval_required_for).
+    - "A design change is first a new one-line row with a reason in docs/DECISIONS.md, superseding (never rewriting) the old row; then the GDD section it points to is updated to match (DECISIONS.md header; GDD 12; ROADMAP Step 0 pitfalls)."
     - "Claude never changes a design decision silently; open questions go to the step's design huddle (ROADMAP 10)."
     - "Scope is tagged MUST / SHOULD / LATER; a new idea replaces something and never just adds; new ideas go to docs/ideas_parking_lot.md (ROADMAP 1, risk 1)."
     - "ARCHITECTURE section 17 code skeletons are copied verbatim."
@@ -75,6 +94,7 @@ preservation:
     - "Every step keeps its You-do task for the developer's own hands; Claude does not do it for them (ROADMAP 4, risk 8)."
     - "The developer commits; Claude suggests the message and commits before script_patch or engine updates (ROADMAP 10, ARCHITECTURE 14.3)."
     - "The 2x rule: a task past twice its estimate stops and is cut or simplified (ROADMAP 1)."
+    - "Two machines share the GitHub repo: everyday building on the Windows PC, iPhone builds on the MacBook; pull before you start, push before you switch, and run the same Godot 4.7.2 on both (ROADMAP 10; ARCHITECTURE 14.1)."
   status_dimensions:
     - execution
     - relevance
@@ -98,15 +118,17 @@ components:
   - {id: CMP-ENDINGS, title: "Offer, Hired card, Plan B (S10-S12)", paths: ["features/offer/", "features/phase2_stub/", "features/game_over/"], source: "ARCHITECTURE 11.7; GDD 5.9-5.10"}
   - {id: CMP-DEV, title: "Debug-only tools (device check, run report)", paths: ["features/dev/"], source: "ROADMAP Step 2, Step 7"}
   - {id: CMP-TESTS, title: "godot-ai test suites", paths: ["tests/"], source: "ARCHITECTURE 12; GDD 10.6"}
-  - {id: CMP-EXPORT, title: "Android export and release", paths: [export_presets.cfg], source: "ARCHITECTURE 13"}
+  - {id: CMP-EXPORT, title: "iOS export from the MacBook and the TestFlight release (Android LATER)", paths: [export_presets.cfg], source: "ARCHITECTURE 13.1, 13.2"}
   - {id: CMP-ART, title: "Art assets and style guide", paths: ["art/", "art_src/", "features/*/art/"], source: "ROADMAP 5; GDD 2.5-2.6"}
   - {id: CMP-AUDIO, title: "Audio", paths: ["audio/"], source: "ROADMAP 6; GDD 9.2"}
   - {id: CMP-DOCS, title: "Decision log, credits, devlog", paths: [docs/DECISIONS.md, CREDITS.md, docs/devlog.md], source: "ROADMAP 1, 5, 9"}
 
 decisions:
   # ARCHITECTURE section 0: accepted engineering decisions.
-  - {id: AD-01, title: "480x270 base, viewport + expand + integer, runtime scale guard with fractional fallback", status: accepted, source: "ARCHITECTURE 0.1"}
-  - {id: AD-02, title: "Landscape only, either way up; only the job-card swipe reads raw touch", status: accepted, source: "ARCHITECTURE 0.2"}
+  # AD-01, AD-02 and AD-10 were superseded on 2026-09-27 by AD-11..AD-13, which mirror ARCHITECTURE 0.1, 0.2
+  # and 0.10 as rewritten for D2, D1 and P1. Ids are never renumbered.
+  - {id: AD-01, title: "480x270 base, viewport + expand + integer, runtime scale guard with fractional fallback", status: superseded, superseded_by: [AD-11], approval: "D2 in docs/DECISIONS.md (developer, 2026-09-26)", source: "ARCHITECTURE 0.1 (v1.0)"}
+  - {id: AD-02, title: "Landscape only, either way up; only the job-card swipe reads raw touch", status: superseded, superseded_by: [AD-12], approval: "D1 in docs/DECISIONS.md (developer, 2026-09-26)", source: "ARCHITECTURE 0.2 (v1.0)"}
   - {id: AD-03, title: "monogram 16 for body text; Press Start 2P only for logo, VS screen, banners", status: accepted, source: "ARCHITECTURE 0.3"}
   - {id: AD-04, title: "Folders by feature, plus core/, data/, ui/", status: accepted, source: "ARCHITECTURE 0.4"}
   - {id: AD-05, title: "Four autoloads, no event bus, four pure @tool classes", status: accepted, source: "ARCHITECTURE 0.5"}
@@ -114,17 +136,22 @@ decisions:
   - {id: AD-07, title: "One seeded RNG per run, one per interview from a checkpoint; 64-bit values saved as strings", status: accepted, source: "ARCHITECTURE 0.7"}
   - {id: AD-08, title: "One JSON save in user://, written only while a run is live, after every commit and on focus loss", status: accepted, source: "ARCHITECTURE 0.8"}
   - {id: AD-09, title: "Rules in pure code the editor tests can run; scenes only display and call GameState verbs", status: accepted, source: "ARCHITECTURE 0.9"}
-  - {id: AD-10, title: "Android first; iOS LATER", status: accepted, source: "ARCHITECTURE 0.10"}
-  # GDD section 12: open until the developer answers them in docs/DECISIONS.md (ROADMAP Step 0).
-  # Building proceeds on the recommended default (GDD 12), so dependent tasks are not blocked.
-  - {id: D1, title: "Orientation", status: proposed, default: "(a) landscape only, sensor", source: "GDD 12"}
-  - {id: D2, title: "Base resolution", status: proposed, default: "(a) 480x270, viewport + integer + guard", source: "GDD 12"}
-  - {id: D3, title: "Knowledge-question mechanic", status: proposed, default: "(a) one-tap Answer Meter", source: "GDD 12"}
-  - {id: D4, title: "Lying depth", status: proposed, default: "(a) 3 CV lines x Honest/Polished/Lie + Come clean/Bluff + background check for degree lies", source: "GDD 12"}
-  - {id: D5, title: "Fail state", status: proposed, default: "(a) one Plan B ending, grace day, one-tap retry", source: "GDD 12"}
-  - {id: D6, title: "Customization depth", status: proposed, default: "(a) background + name dice", source: "GDD 12"}
-  - {id: D7, title: "Negotiation", status: proposed, default: "(b) one-tap Negotiate, first SHOULD after Research", source: "GDD 12"}
-  - {id: D8, title: "Interview brutality (run length)", status: proposed, default: "(a) Doubt HP 118/128/132 for playtest #1, then decide", source: "GDD 12"}
+  - {id: AD-10, title: "Android first; iOS LATER", status: superseded, superseded_by: [AD-13], approval: "P1 in docs/DECISIONS.md (developer, 2026-09-26)", source: "ARCHITECTURE 0.10 (v1.0)"}
+  - {id: AD-11, title: "270x480 base (portrait), viewport + expand + integer, runtime scale guard with fractional fallback on SE- and 720p-class screens", status: accepted, supersedes: AD-01, source: "ARCHITECTURE 0.1; D2"}
+  - {id: AD-12, title: "Portrait only (orientation 1, no upside-down), one thumb; only the job-card and background-card swipes read raw touch", status: accepted, supersedes: AD-02, source: "ARCHITECTURE 0.2; D1"}
+  - {id: AD-13, title: "iPhone first: develop on the Windows PC, build on the MacBook (Xcode, free Personal Team signing); Android LATER", status: accepted, supersedes: AD-10, source: "ARCHITECTURE 0.10; P1"}
+  # GDD section 12 and docs/DECISIONS.md: answered by the developer on 2026-09-26 (proposed until then).
+  # `default` keeps the first draft's recommended default; `answer` is the decision.
+  - {id: D1, title: "Orientation", status: accepted, answer: "portrait only (orientation = 1, no upside-down)", default: "(a) landscape only, sensor", decided: "2026-09-26", source: "GDD 12; GDD 2.1; docs/DECISIONS.md"}
+  - {id: D2, title: "Base resolution", status: accepted, answer: "270x480 (the portrait mirror of 480x270), viewport + expand + integer + the Device scale guard", default: "(a) 480x270, viewport + integer + guard", decided: "2026-09-26", source: "GDD 12; GDD 2.2; docs/DECISIONS.md"}
+  - {id: D3, title: "Knowledge-question mechanic", status: accepted, answer: "the default: one-tap Answer Meter", default: "(a) one-tap Answer Meter", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
+  - {id: D4, title: "Lying depth", status: accepted, answer: "the default", default: "(a) 3 CV lines x Honest/Polished/Lie + Come clean/Bluff + background check for degree lies", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
+  - {id: D5, title: "Fail state", status: accepted, answer: "the default", default: "(a) one Plan B ending, grace day, one-tap retry", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
+  - {id: D6, title: "Customization depth", status: accepted, answer: "the default; cosmetics LATER", default: "(a) background + name dice", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
+  - {id: D7, title: "Negotiation", status: accepted, answer: "the default: once, never rescinded", default: "(b) one-tap Negotiate, first SHOULD after Research", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
+  - {id: D8, title: "Interview brutality (run length)", status: accepted, answer: "the default; revisit after Playtest #1 (Step 7)", default: "(a) Doubt HP 118/128/132 for playtest #1, then decide", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
+  - {id: P1, title: "Platform", status: accepted, answer: "iPhone first, built and deployed from the developer's MacBook (Xcode, free Personal Team signing); Android LATER (no Android phone to test on)", decided: "2026-09-26", source: "GDD 12; GDD 2.10; docs/DECISIONS.md"}
+  - {id: C1, title: "Parody names after a trademark web check", status: accepted, answer: "12 parody names renamed (e.g. SynergAI -> Hierarchai, HireBot 3000 -> Parsinator 3000); content ids unchanged; a real trademark search still runs before any public release", decided: "2026-09-26", source: "docs/DECISIONS.md; CONTENT 1.1, 4"}
 
 invariants:
   # Global rules every task must keep. Full text and sources: .agent/rules/invariants.md
@@ -154,22 +181,29 @@ requirements:
     risk: standard
     source: {file: docs/GDD.md, section: "10.1 item 1; 2.2; 2.3; 2.9"}
     acceptance:
-      - {id: AC-S00-1, statement: "git --version prints a version in a fresh terminal, and user.name and user.email are set.", verification: [document_check]}
-      - {id: AC-S01-1, statement: "F5 shows the title stub reading game (600, 270) (integer) in the 1200x540 window, or, when the game is embedded in the Game tab, the size the ARCHITECTURE 1.1 rule predicts for that window.", verification: [manual_review]}
+      - {id: AC-S00-1, statement: "Git works, user.name and user.email are set, and the repo is on GitHub.", verification: [document_check]}
+      - {id: AC-S01-1, statement: "F5 shows the title stub reading window (540, 960) / game (270, 480) (integer), or, when the game is embedded in the Game tab, the size the ARCHITECTURE 1.1 rule predicts for that window.", verification: [manual_review]}
       - {id: AC-S01-2, statement: "Resizing the window changes the game size, and nothing blurs or stretches.", verification: [manual_review]}
-      - {id: AC-S01-5, statement: "git log shows the foundation commit, git status is clean, and .godot/ is not tracked.", verification: [document_check]}
-      - {id: AC-S02-2, statement: "On the phone, the readout shows the game size ARCHITECTURE 1.1 predicts for that screen.", verification: [device_observation]}
-      - {id: AC-S02-3, statement: "On the phone, the safe-area outline clears the camera cutout.", verification: [device_observation]}
+      - {id: AC-S01-5, statement: "git status is clean, everything is pushed, and .godot/ is not tracked.", verification: [document_check]}
+      - {id: AC-S02-2, statement: "On the phone, the readout shows the game size ARCHITECTURE 1.1 predicts for that screen.", verification: [device_observation], relevance: superseded, superseded_by: [AC-S02-9], superseded_on: "2026-09-27", reason: "P1 iPhone first (ROADMAP v1.1 Step 2)"}
+      - {id: AC-S02-3, statement: "On the phone, the safe-area outline clears the camera cutout.", verification: [device_observation], relevance: superseded, superseded_by: [AC-S02-10], superseded_on: "2026-09-27", reason: "P1 iPhone first (ROADMAP v1.1 Step 2)"}
+      - {id: AC-S02-9, statement: "The readout shows the game size ARCHITECTURE 1.1 predicts for the iPhone model (for example, 1179x2556 gives 294x639 integer).", verification: [device_observation]}
+      - {id: AC-S02-10, statement: "The safe-area outline clears the Dynamic Island (or notch) and the home indicator: about 45 top and 26 bottom game px on an iPhone 15 or 16.", verification: [device_observation]}
   - id: MUST-02
-    title: "Debug build on the developer's own Android phone in week 1"
+    title: "Debug build on the developer's own iPhone in week 1, from the MacBook (portrait lock, fonts, safe area, thumb reach, ScrollContainer release test, haptics)"
     risk: standard
-    source: {file: docs/GDD.md, section: "10.1 item 2"}
+    source: {file: docs/GDD.md, section: "10.1 item 2; 2.10"}
     acceptance:
-      - {id: AC-S02-1, statement: "The app opens on the phone in landscape, both ways up.", verification: [device_observation]}
-      - {id: AC-S02-5, statement: "The answer to 'does dragging the list fire a button?' is written down, and the scroll deadzone feels right.", verification: [device_observation, document_check]}
-      - {id: AC-S02-6, statement: "The Haptic button vibrates.", verification: [device_observation]}
-      - {id: AC-S02-7, statement: "Output from the phone appears in the editor (remote debug).", verification: [device_observation]}
-      - {id: AC-DOD-01, statement: "The APK installs on an Android phone, opens in landscape either way up, and reaches the title quickly.", verification: [device_observation]}
+      - {id: AC-S02-1, statement: "The app opens on the phone in landscape, both ways up.", verification: [device_observation], relevance: superseded, superseded_by: [AC-S02-8], superseded_on: "2026-09-27", reason: "D1 portrait, P1 iPhone first (ROADMAP v1.1 Step 2)"}
+      - {id: AC-S02-5, statement: "The answer to 'does dragging the list fire a button?' is written down, and the scroll deadzone feels right.", verification: [device_observation, document_check], relevance: superseded, superseded_by: [AC-S02-13], superseded_on: "2026-09-27", reason: "P1 iPhone first (ROADMAP v1.1 Step 2)"}
+      - {id: AC-S02-6, statement: "The Haptic button vibrates.", verification: [device_observation], relevance: superseded, superseded_by: [AC-S02-14], superseded_on: "2026-09-27", reason: "P1 iPhone first (ROADMAP v1.1 Step 2)"}
+      - {id: AC-S02-7, statement: "Output from the phone appears in the editor (remote debug).", verification: [device_observation], relevance: superseded, superseded_by: [AC-S02-18], superseded_on: "2026-09-27", reason: "P1 iPhone first: remote debug with a Personal Team is unverified (ROADMAP v1.1 Step 2; ARCHITECTURE 13.1)"}
+      - {id: AC-DOD-01, statement: "The game installs on the developer's iPhone from Xcode, opens in portrait (it never rotates), and reaches the title quickly.", verification: [device_observation]}
+      - {id: AC-S02-8, statement: "The app opens on the iPhone in portrait and doesn't rotate.", verification: [device_observation]}
+      - {id: AC-S02-13, statement: "Dragging the list never fires a button, and a deadzone of 6 feels right; the answer is written down.", verification: [device_observation, document_check]}
+      - {id: AC-S02-14, statement: "The 40 ms haptic is felt, and whether the 10 ms one is felt is noted.", verification: [device_observation, document_check]}
+      - {id: AC-S02-18, statement: "The developer knows where logs appear: Xcode's console, or Godot's Output panel with one-click deploy.", verification: [manual_review]}
+      - {id: AC-S02-19, statement: "The install date is written down (the Personal Team build expires after 7 days).", verification: [document_check]}
   - id: MUST-03
     title: "Autoloads, pure classes, and godot-ai tests for every formula"
     risk: standard
@@ -187,17 +221,17 @@ requirements:
     acceptance:
       - {id: AC-DOD-02, statement: "The title offers tap-to-start, Continue when a save exists, and Replay intro.", verification: [manual_review]}
   - id: MUST-05
-    title: "Background select: 3 cards (3 stat bars, pips, runway, perk, flaw) plus name dice"
+    title: "Background select: one background card (3 stat bars, pips, runway, perk, flaw), a 3-button selector, name dice"
     risk: standard
     source: {file: docs/GDD.md, section: "10.1 item 5; 5.2"}
     acceptance:
-      - {id: AC-DOD-03, statement: "Background select shows 3 cards, each with 3 stat bars, energy pips, rent runway, 1 perk and 1 flaw, plus a name dice button.", verification: [manual_review]}
+      - {id: AC-DOD-03, statement: "Background select shows one full-width card at a time (3 stat bars, energy pips, rent runway, 1 perk and 1 flaw), a 3-button selector, and a name dice button.", verification: [manual_review]}
   - id: MUST-06
-    title: "Laptop-dashboard job hunt"
+    title: "Phone-app job hunt (DoomApply with a bottom dock)"
     risk: standard
     source: {file: docs/GDD.md, section: "10.1 item 6; 5.3; 5.6"}
     acceptance:
-      - {id: AC-DOD-04, statement: "6 new cards per day, at most 10 on the board; card front shows logo, title, 3 match tags, a joke and the odds band; swipe right or APPLY = Quick Apply (1 energy); flip gives Tailor & Apply (2); Study (2); the Intern's 2 referrals; Sleep; energy, rent and Radar always visible.", verification: [behavioral_test, manual_review]}
+      - {id: AC-DOD-04, statement: "The job hunt is the DoomApply phone app with a bottom dock: 6 new cards per day, at most 10 on the board; card front shows logo, title, 3 match tags, a joke and the odds band; swipe right or APPLY = Quick Apply (1 energy); flip gives Tailor & Apply (2); Study (2); the Intern's 2 referrals; Sleep; energy, rent and Radar always visible.", verification: [behavioral_test, manual_review]}
   - id: MUST-07
     title: "CV screen: 3 lines x Honest / Polished / Lie"
     risk: standard
@@ -217,7 +251,7 @@ requirements:
     risk: standard
     source: {file: docs/GDD.md, section: "10.1 item 9; 5.5; 7"}
     acceptance:
-      - {id: AC-S04-1, statement: "On the phone, interviews at the three tiers feel different: startup PIVOT, Big's fast needle.", verification: [device_observation]}
+      - {id: AC-S04-1, statement: "On the iPhone, interviews at the three tiers feel different: startup PIVOT, Big's fast needle.", verification: [device_observation]}
       - {id: AC-DOD-07, statement: "6 companies and 3 interview backgrounds exist; tiers differ in odds, reply speed, Doubt HP, needle speed, question pool, salary and work mode.", verification: [document_check, behavioral_test]}
   - id: MUST-10
     title: "VS intro (2 s, skippable after first view), player bust per background, Dana in 3 outfits"
@@ -230,7 +264,7 @@ requirements:
     risk: standard
     source: {file: docs/GDD.md, section: "10.1 item 11; 5.8"}
     acceptance:
-      - {id: AC-S04-2, statement: "The player sees the odds (zone width) before the needle moves, and Dana's reactions explain what happened.", verification: [manual_review]}
+      - {id: AC-S04-2, statement: "The player sees the odds (zone width) before the needle moves, the thumb never covers the needle, and Dana's reactions explain what happened.", verification: [manual_review]}
       - {id: AC-S04-3, statement: "Every outcome has been seen at least once: K.O., wheel win, wheel loss, Composure 0, BUSTED (via debug), and a rejection with a tip plus the model answer.", verification: [manual_review]}
       - {id: AC-DOD-09, statement: "The interview has Composure and Doubt bars, 5 prompts, the Answer Meter and the lie probe; it ends in K.O., the committee wheel or rejection; a loss always shows a tip plus the model answer.", verification: [behavioral_test, manual_review]}
   - id: MUST-12
@@ -253,19 +287,21 @@ requirements:
     acceptance:
       - {id: AC-MUST-14, statement: "Every failure shows the joke, then the cause, then exactly one true career tip from Ducky.", verification: [manual_review, document_check]}
   - id: MUST-15
-    title: "Autosave on every action and on pause; Android Back; pause during interview on focus loss"
+    title: "Autosave on every action and on pause; an on-screen Back on every screen (Android Back LATER); pause during interview on focus loss"
     risk: critical
     source: {file: docs/GDD.md, section: "10.1 item 15; 4.4; 5.11"}
     acceptance:
-      - {id: AC-S02-4, statement: "On the phone, Back doesn't quit: the device-check counter goes up.", verification: [device_observation]}
+      - {id: AC-S02-4, statement: "On the phone, Back doesn't quit: the device-check counter goes up.", verification: [device_observation], relevance: superseded, superseded_by: [AC-S02-17], superseded_on: "2026-09-27", reason: "P1 iPhone first: iOS has no Back button, so the check is the on-screen Back (ROADMAP v1.1 Step 2; ARCHITECTURE 9)"}
       - {id: AC-S03-2, statement: "Quit to title mid-hunt makes Continue appear, and Continue resumes the hunt; after Plan B or after leaving the Hired card, Continue is gone.", verification: [behavioral_test, manual_review]}
-      - {id: AC-S03-3, statement: "Back does the right thing on every screen, and every screen also has an on-screen way back.", verification: [manual_review]}
-      - {id: AC-S04-4, statement: "Killing the app mid-interview, then Continue, replays the same questions.", verification: [behavioral_test, device_observation]}
-      - {id: AC-S05-4, statement: "Killing the app right after Sleep, then Continue, shows the same morning.", verification: [behavioral_test, device_observation]}
+      - {id: AC-S03-3, statement: "Every screen has an on-screen Back that does the right thing, and desktop Esc does the same.", verification: [manual_review]}
+      - {id: AC-S04-4, statement: "Killing the app mid-interview (swiping it away in the app switcher), then Continue, replays the same questions.", verification: [behavioral_test, device_observation]}
+      - {id: AC-S05-4, statement: "Killing the app right after Sleep (swiping it away in the app switcher), then Continue, shows the same morning.", verification: [behavioral_test, device_observation]}
       - {id: AC-S06-2, statement: "All 5 kill tests resume correctly; a kill on the Hired card resumes at the offer; leaving the Hired card clears the save.", verification: [device_observation]}
-      - {id: AC-DOD-12, statement: "Autosave on every action and on focus loss; killing the app never loses more than the current screen; Android Back works everywhere and every screen has an on-screen way back.", verification: [behavioral_test, device_observation]}
+      - {id: AC-DOD-12, statement: "Autosave on every action and whenever the app loses focus; killing the app never loses more than the current screen; every screen has an on-screen Back (iOS has no Back button; Android Back is LATER); every control used more than once a day sits in the bottom 40%, within one thumb's reach.", verification: [behavioral_test, device_observation]}
+      - {id: AC-S02-15, statement: "After going home and reopening, the PAUSED and RESUMED counters went up and the state is intact; Control Center raises FOCUS_OUT; haptics still work after resuming.", verification: [device_observation]}
+      - {id: AC-S02-17, statement: "The on-screen Back counter goes up.", verification: [device_observation]}
   - id: MUST-16
-    title: "Intro: 6 panels with pan/zoom and captions, skippable; text slides first, art last"
+    title: "Intro: 6 still panels with pans/tilts and captions, skippable; text slides first, art last"
     risk: standard
     source: {file: docs/GDD.md, section: "10.1 item 16; CONTENT 2"}
     acceptance:
@@ -273,7 +309,7 @@ requirements:
       - {id: AC-S11-1, statement: "The illustrated intro is 40 s or less.", verification: [manual_review]}
       - {id: AC-S11-2, statement: "Skip works at any moment of the illustrated intro.", verification: [manual_review]}
       - {id: AC-S11-3, statement: "A tester who watched it all can say why the character wants a remote SWE job, and what went wrong by 2026.", verification: [manual_review]}
-      - {id: AC-DOD-14, statement: "6 panels with captions, 40 s or less; hold-to-skip and Back skip; plays on the first run only; Replay intro is on the title.", verification: [manual_review]}
+      - {id: AC-DOD-14, statement: "6 panels with captions, 40 s or less; hold-to-skip (desktop Esc also skips); plays on the first run only; Replay intro is on the title.", verification: [manual_review]}
   - id: MUST-17
     title: "Content minimums"
     risk: standard
@@ -294,13 +330,13 @@ requirements:
     risk: standard
     source: {file: docs/GDD.md, section: "10.2 item 1"}
     acceptance:
-      - {id: AC-S08-1, statement: "Research has shipped and been tested on the phone.", verification: [device_observation, behavioral_test]}
+      - {id: AC-S08-1, statement: "Research has shipped and been tested on the iPhone.", verification: [device_observation, behavioral_test]}
   - id: SHOULD-02
     title: "One-tap Negotiate"
     risk: standard
     source: {file: docs/GDD.md, section: "10.2 item 2"}
     acceptance:
-      - {id: AC-S08-2, statement: "Negotiate has shipped and been tested on the phone.", verification: [device_observation, behavioral_test]}
+      - {id: AC-S08-2, statement: "Negotiate has shipped and been tested on the iPhone.", verification: [device_observation, behavioral_test]}
   - {id: SHOULD-03, title: "Network action and 3 site tabs", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 3"}, acceptance: [{id: AC-SH-03, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
   - {id: SHOULD-04, title: "Static top-down room hub", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 4"}, acceptance: [{id: AC-SH-04, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
   - {id: SHOULD-05, title: "Hard-mode commute strip", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 5"}, acceptance: [{id: AC-SH-05, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
@@ -317,16 +353,19 @@ requirements:
     risk: standard
     source: {file: docs/GDD.md, section: "4.1; ROADMAP 2"}
     acceptance:
-      - {id: AC-S03-1, statement: "On the phone, Title > Intro > Background select > Hunt > Interview > Offer > Hired > Title, and Hunt > Plan B > Retry, work with thumbs only.", verification: [device_observation]}
-      - {id: AC-S06-1, statement: "3 full runs on the phone (Easy, Medium, Hard) with no crash.", verification: [device_observation]}
+      - {id: AC-S03-1, statement: "On the iPhone, Title > Intro > Background select > Hunt > Interview > Offer > Hired > Title, and Hunt > Plan B > Retry, work with one thumb.", verification: [device_observation]}
+      - {id: AC-S06-1, statement: "3 full runs on the iPhone (Easy, Medium, Hard) with no crash.", verification: [device_observation]}
   - id: REQ-UI
     title: "Touch-sized, readable UI at every supported screen size"
     risk: standard
     source: {file: docs/GDD.md, section: "2.7; 2.8; ARCHITECTURE 1.1, 10"}
     acceptance:
-      - {id: AC-S03-4, statement: "Body text is monogram 16 and readable at arm's length; no button is shorter than 32 px.", verification: [manual_review, device_observation]}
-      - {id: AC-S10-2, statement: "A pass at 480x270, 639x294 and 590x410, and a pass on the phone, show nothing broken.", verification: [manual_review, device_observation]}
+      - {id: AC-S03-4, statement: "Body text is monogram 16 and readable at arm's length; no hit area is smaller than 34x34 px.", verification: [manual_review, device_observation]}
+      - {id: AC-S10-2, statement: "A pass at 270x480, 294x639 and 330x717, and a pass on the iPhone, show nothing broken.", verification: [manual_review, device_observation]}
       - {id: AC-S12-3, statement: "Every screen passes the arm's-length squint test.", verification: [device_observation]}
+      - {id: AC-S02-11, statement: "monogram and Press Start 2P are crisp at 4x on the iPhone.", verification: [device_observation]}
+      - {id: AC-S02-12, statement: "One-handed, every thumb-band button is reachable; any that aren't are written down.", verification: [device_observation, document_check]}
+      - {id: AC-S02-16, statement: "A swipe up from the bottom edge needs two swipes to leave the game.", verification: [device_observation]}
   - id: REQ-TONE
     title: "Satire and tone rules: punch up, the joke is a rule, it is funny"
     risk: standard
@@ -334,17 +373,17 @@ requirements:
     acceptance:
       - {id: AC-S05-5, statement: "The developer laughed at least once during the hunt grey-box.", verification: [manual_review]}
   - id: REQ-DECISIONS
-    title: "Decision log: D1-D8 answered, one line each with a reason"
+    title: "Decision log: D1-D8 and P1 answered, one line each with a reason"
     risk: standard
     source: {file: docs/ROADMAP.md, section: "Step 0; 1 best practice 11"}
     acceptance:
-      - {id: AC-S00-3, statement: "docs/DECISIONS.md lists D1-D8, each with the developer's answer and one line of why.", verification: [document_check]}
+      - {id: AC-S00-3, statement: "docs/DECISIONS.md lists D1-D8 and P1, each with the developer's answer and one line of why.", verification: [document_check]}
   - id: REQ-TOOLCHAIN
-    title: "Pinned toolchain: Godot 4.7.2 and matching export templates"
+    title: "Pinned toolchain: Godot 4.7.2 on both machines and matching export templates"
     risk: standard
-    source: {file: docs/ROADMAP.md, section: "Step 0 task 2; 8 risk 4"}
+    source: {file: docs/ROADMAP.md, section: "Step 0 task 2; 8 risk 4; ARCHITECTURE 13.1, 14.1"}
     acceptance:
-      - {id: AC-S00-2, statement: "The Godot install will not update itself behind the developer's back.", verification: [manual_review]}
+      - {id: AC-S00-2, statement: "Steam won't update Godot on the Windows PC behind the developer's back (the MacBook uses the godotengine.org 4.7.2 zip, which never updates itself).", verification: [manual_review]}
   - id: REQ-LEARN
     title: "The developer understands their own code"
     risk: standard
@@ -382,18 +421,18 @@ requirements:
     risk: standard
     source: {file: docs/ROADMAP.md, section: "5; Steps 9-10; GDD 2.5-2.6"}
     acceptance:
-      - {id: AC-S09-1, statement: "A screenshot of the interview could go on a store page.", verification: [manual_review]}
+      - {id: AC-S09-1, statement: "A portrait screenshot of the interview could go on a store page.", verification: [manual_review]}
       - {id: AC-S09-3, statement: "The palette and sizes are written in the style guide.", verification: [document_check]}
       - {id: AC-S10-1, statement: "No magenta or grey placeholders are left.", verification: [manual_review]}
   - id: REQ-PERF
-    title: "60 fps on a cheap Android phone; no crash in repeated runs"
+    title: "60 fps on the oldest iPhone the developer can borrow; no crash in repeated runs"
     risk: standard
     source: {file: docs/ROADMAP.md, section: "2 Technical; ARCHITECTURE 15"}
     acceptance:
-      - {id: AC-S09-2, statement: "The finished interview runs at 60 fps on the developer's phone.", verification: [device_observation]}
-      - {id: AC-S12-2, statement: "60 fps on a low-end phone.", verification: [device_observation]}
-      - {id: AC-S13-2, statement: "10 clean runs on 3 different phones.", verification: [device_observation]}
-      - {id: AC-DOD-17, statement: "60 fps on a cheap Android phone; no crash in 10 runs in a row.", verification: [device_observation]}
+      - {id: AC-S09-2, statement: "The finished interview runs at 60 fps on the developer's iPhone.", verification: [device_observation]}
+      - {id: AC-S12-2, statement: "60 fps on the oldest iPhone the developer can borrow.", verification: [device_observation]}
+      - {id: AC-S13-2, statement: "10 clean runs on 3 different iPhones.", verification: [device_observation]}
+      - {id: AC-DOD-17, statement: "60 fps on the oldest iPhone the developer can borrow; no crash in 10 runs in a row.", verification: [device_observation]}
   - id: REQ-LICENSE
     title: "Every asset licensed and credited; parody names only"
     risk: critical
@@ -402,7 +441,7 @@ requirements:
       - {id: AC-S12-4, statement: "The Credits screen lists every asset and its license, including the OFL text for Press Start 2P.", verification: [document_check]}
       - {id: AC-DOD-18, statement: "Every asset's license is recorded, and only parody names are used (the content lint enforces it).", verification: [document_check, behavioral_test]}
   - id: REQ-REL
-    title: "Milestones and the Android release candidate"
+    title: "Milestones and the TestFlight release candidate (Android and Google Play LATER)"
     risk: standard
     source: {file: docs/ROADMAP.md, section: "2 Milestones; Step 13; ARCHITECTURE 13.1"}
     acceptance:
@@ -421,7 +460,7 @@ tasks:
     hours: 3
     requirement_ids: [MUST-01, REQ-TOOLCHAIN, REQ-DECISIONS]
     component_ids: [CMP-REPO, CMP-DOCS]
-    decision_ids: [D1, D2, D3, D4, D5, D6, D7, D8]
+    decision_ids: [D1, D2, D3, D4, D5, D6, D7, D8, P1]
     depends_on: []
     acceptance_ids: [AC-S00-1, AC-S00-2, AC-S00-3]
     outputs: [docs/DECISIONS.md]
@@ -432,23 +471,29 @@ tasks:
     hours: 3
     requirement_ids: [MUST-01, MUST-03, REQ-LEARN]
     component_ids: [CMP-REPO, CMP-CORE, CMP-AUTOLOAD, CMP-DATA, CMP-UI, CMP-TITLE, CMP-TESTS]
-    decision_ids: [AD-01, AD-04, AD-05, AD-07, AD-08, AD-09]
+    decision_ids: [D1, D2, AD-11, AD-12, AD-04, AD-05, AD-07, AD-08, AD-09]
     depends_on: []
     preconditions: ["Step 0 task 1 (git installed)"]
     acceptance_ids: [AC-S01-1, AC-S01-2, AC-S01-3, AC-S01-4, AC-S01-5, AC-S01-6]
     outputs: [project.godot, .gitignore, .gitattributes, core/, autoload/, data/types/, ui/components/safe_area_margin.gd, features/title/, tests/]
+    amendments: ["2026-09-26 portrait switch (D1, D2): viewport 270x480, window override 540x960, orientation 1; Device reads its base size from Project Settings (ROADMAP Step 1 status and task 10)"]
     out_of_scope: ["gui/theme/custom (Step 3)"]
   - id: STEP-02
-    title: "Hello phone: the Android debug build"
+    title: "Hello iPhone: the iOS debug build from the MacBook"
     source: {file: docs/ROADMAP.md, section: "Step 2"}
     hours: 5
     timebox_hours: 6
-    requirement_ids: [MUST-01, MUST-02, MUST-15]
-    component_ids: [CMP-EXPORT, CMP-DEV, CMP-TITLE]
-    decision_ids: [D1, AD-02, AD-10]
+    machine: "MacBook (the device-check scene can be built on either machine)"
+    requirement_ids: [MUST-01, MUST-02, MUST-15, REQ-UI]
+    component_ids: [CMP-EXPORT, CMP-DEV, CMP-TITLE, CMP-UI]
+    decision_ids: [D1, D2, P1, AD-11, AD-12, AD-13]
     depends_on: [STEP-01]
-    acceptance_ids: [AC-S02-1, AC-S02-2, AC-S02-3, AC-S02-4, AC-S02-5, AC-S02-6, AC-S02-7]
-    outputs: [features/dev/device_check.tscn, export_presets.cfg, "docs/ARCHITECTURE.md section 18.1 results"]
+    preconditions: ["The Step 1 portrait commit is pushed", "The MacBook, the iPhone and its USB cable are at hand"]
+    acceptance_ids: [AC-S02-8, AC-S02-9, AC-S02-10, AC-S02-11, AC-S02-12, AC-S02-13, AC-S02-14, AC-S02-15, AC-S02-16, AC-S02-17, AC-S02-18, AC-S02-19]
+    superseded_acceptance_ids: [AC-S02-1, AC-S02-2, AC-S02-3, AC-S02-4, AC-S02-5, AC-S02-6, AC-S02-7]
+    outputs: [features/dev/device_check.tscn, export_presets.cfg, ui/fonts/monogram.ttf, ui/fonts/PressStart2P-Regular.ttf, ui/fonts/OFL.txt, "docs/ARCHITECTURE.md section 18.1 results (and GDD 2.9 if the insets differ)"]
+    out_of_scope: ["Android export and Google Play (LATER, ARCHITECTURE 13.2)", "The paid Apple Developer Program and TestFlight (Step 13)"]
+    note: "Redefined on 2026-09-27 from the Android 'Hello phone' step (P1). AC-S02-1..7 were never evaluated; each links to its replacement."
   - id: STEP-03
     title: "Stub flow through every screen, plus the UI kit"
     source: {file: docs/ROADMAP.md, section: "Step 3"}
@@ -464,7 +509,7 @@ tasks:
     hours: 14
     requirement_ids: [MUST-03, MUST-09, MUST-10, MUST-11, MUST-14, MUST-15, MUST-17]
     component_ids: [CMP-INTERVIEW, CMP-CONTENT, CMP-CORE, CMP-TESTS, CMP-DEV]
-    decision_ids: [D3, D8]
+    decision_ids: [D3, D8, C1]
     depends_on: [STEP-03]
     acceptance_ids: [AC-S04-1, AC-S04-2, AC-S04-3, AC-S04-4, AC-S04-5]
   - id: STEP-05
@@ -548,9 +593,10 @@ tasks:
     hours: 10
     requirement_ids: [REQ-REL, REQ-PERF, MUST-02, MUST-03, MUST-04, MUST-05, MUST-06, MUST-07, MUST-08, MUST-09, MUST-10, MUST-11, MUST-12, MUST-13, MUST-14, MUST-15, MUST-16, MUST-17, MUST-18, REQ-LICENSE]
     component_ids: [CMP-EXPORT, CMP-DOCS]
-    decision_ids: [AD-10]
+    decision_ids: [P1, AD-13, C1]
     depends_on: [STEP-08, STEP-12]
     acceptance_ids: [AC-S13-1, AC-S13-2, AC-S13-3, AC-DOD-01, AC-DOD-02, AC-DOD-03, AC-DOD-04, AC-DOD-05, AC-DOD-06, AC-DOD-07, AC-DOD-08, AC-DOD-09, AC-DOD-10, AC-DOD-11, AC-MUST-14, AC-DOD-12, AC-DOD-13, AC-DOD-14, AC-DOD-15, AC-DOD-16, AC-DOD-17, AC-DOD-18]
+    note: "The release candidate goes out through TestFlight: join the paid Apple Developer Program at the start of the step (ROADMAP Step 13; ARCHITECTURE 13.1). Android and Google Play stay LATER (ARCHITECTURE 13.2)."
     milestone: v0.5-mvp
 
 verification:

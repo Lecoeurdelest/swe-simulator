@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Version | 1.0, 2026-09-26 |
-| Engine | Godot 4.7.2-stable (Steam build), GDScript, `gl_compatibility` renderer |
+| Version | 1.1, 2026-09-26 (portrait, iPhone first: `docs/DECISIONS.md` D1, D2, P1) |
+| Engine | Godot 4.7.2-stable on both machines (Steam build on the Windows PC, the godotengine.org zip on the MacBook), GDScript, `gl_compatibility` renderer |
 | Readers | You (the developer) and every future Claude session that implements the game |
 | Design source of truth | `docs/GDD.md` (rules and numbers) and `docs/CONTENT.md` (every string and id) |
 | Companion | `docs/ROADMAP.md` (the step-by-step plan) |
@@ -22,6 +22,7 @@ If this doc and the GDD disagree on a rule or a number, the GDD wins; fix this d
 - **(verified: scratch run)**: the section-17 code was compiled and run headless on Godot 4.7.2.stable.steam in a throwaway project outside the repo, with the common GDScript warnings turned into errors.
   - 24 unit tests passed.
   - 42 runtime checks passed: the scale guard at 8 screen sizes; the save rules for new game, Continue, Retry, Plan B and Hired; the interview checkpoint; the focus pause; the Answer Meter idle fix; and SafeAreaMargin.
+  - Those guard sizes were landscape. The portrait guard is the same math with the axes swapped, and was checked live in this project on 2026-09-26: the title stub reads `window (540, 960)` / `game (270, 480) (integer)`, and `test_run` passes 24/24.
 - **(verified: addon source)**: read in `res://addons/godot_ai` (v4.2.3).
 - **(unverified)**: test it on a device before you rely on it. The full list is in section 18.
 
@@ -29,8 +30,8 @@ If this doc and the GDD disagree on a rule or a number, the GDD wins; fix this d
 
 ## 0. The decisions in one list
 
-1. **480x270 base resolution**, with stretch mode `viewport`, aspect `expand` and scale mode `integer`. A runtime **scale guard** in `Device` grows the game area so it fills the screen with square pixels. On 720p-class phones it falls back to fractional scaling.
-2. **Landscape only, either way up** (sensor landscape). Touch goes through ordinary Control nodes. Only the job-card swipe reads raw touch events.
+1. **270x480 base resolution** (portrait), with stretch mode `viewport`, aspect `expand` and scale mode `integer`. A runtime **scale guard** in `Device` grows the game area so it fills the screen with square pixels. On iPhone SE- and 720p-class screens it falls back to fractional scaling.
+2. **Portrait only** (`orientation = 1`, no upside-down), played with one thumb. Touch goes through ordinary Control nodes. Only the job-card and background-card swipes read raw touch events.
 3. **Fonts:** **monogram at 16** for all body text. **Press Start 2P** only for the title logo, the VS screen and big banners. Its OFL license ships in the credits.
 4. **Folders are organized by feature** (`features/<screen>/`), plus `core/` (pure logic), `data/` (numbers and text) and `ui/` (theme, fonts, shared components).
 5. **Four autoloads:** `Content`, `GameState`, `Device`, `SceneRouter`.
@@ -44,7 +45,7 @@ If this doc and the GDD disagree on a rule or a number, the GDD wins; fix this d
    - It is written only while a run is live (hunt, interview, offer).
    - It is written after every committed action, and whenever the app loses focus.
 9. **Rules live in pure code** that the editor-side tests can run (autoloads don't exist there). Scenes only display state and call `GameState` verbs.
-10. **Android first.** JDK 17 is already on this PC. iOS needs a Mac and is LATER.
+10. **iPhone first.** You develop on the Windows PC and build for the iPhone on the MacBook (Xcode, free Personal Team signing). Git keeps the two machines in sync. Android is LATER; JDK 17 is already on the PC.
 
 ---
 
@@ -52,61 +53,63 @@ If this doc and the GDD disagree on a rule or a number, the GDD wins; fix this d
 
 ### 1.1 Base resolution and the scale guard
 
-**Why 480x270:** the reference art is about 400-500 px wide at its native resolution, so 480x270 matches its pixel density. A 640x360 base would need about 1.8x more art for the same look. A 12 px text line at 4x is physically the same size as a 16 px line at 3x, so you lose no text capacity.
+**Why 270x480** (D2, the portrait mirror of 480x270): the reference art is about 400-500 px wide at its native resolution, so one art pixel = 4 screen pixels on 1080-class phones matches its density. A 360x640 base would need about 1.8x more art for the same look. A 12 px text line at 4x is physically the same size as a 16 px line at 3x, so you lose no text capacity (about 40 characters x 40 lines, GDD 2.7).
 
 **Why `viewport` and not `canvas_items`:**
-- `viewport` renders at 480x270 and then scales up, so every pixel is the same size and pixel fonts stay crisp.
-- Only about 130-290k pixels are shaded per frame, which saves battery.
+- `viewport` renders at 270x480 and then scales up, so every pixel is the same size and pixel fonts stay crisp.
+- Only about 130-240k pixels are shaded per frame, which saves battery.
 - The 4.7 docs recommend `viewport` + integer for pixel art (verified 4.7.2).
 
-**Why the guard exists:** on its own, integer + expand **letterboxes**. For example, a 2556x1179 screen shows 585x270 with 108/50 px black bars (verified 4.7.2 source, `Window::_update_viewport_size`).
+**Why the guard exists:** on its own, integer + expand **letterboxes**. For example, a 1179x2556 screen shows 270x585 with 50/108 px black bars (verified 4.7.2 source, `Window::_update_viewport_size`).
 
-The guard (section 17.8) picks the integer scale `s = floor(min(W/480, H/270))`. It then sets `content_scale_size = floor(window / s)`, so the game area grows to use the leftover space. If integer scaling would use less than 80% of the exact scale, it switches to fractional instead.
+The guard (section 17.8) reads the base size from Project Settings, so the two never disagree. It picks the integer scale `s = floor(min(W/270, H/480))`, then sets `content_scale_size = floor(window / s)`, so the game area grows to use the leftover space. If integer scaling would use less than 80% of the exact scale, it switches to fractional instead.
 
-Every row below was checked (verified: scratch run), except 2340x1080, which uses the same math:
+The math is the scratch-run-verified landscape guard with the axes swapped. The 540x960 row was checked live on 2026-09-26; the other rows are computed, and Step 2 confirms your iPhone's row on the device:
 
-| Screen (landscape px) | Mode | Visible game area |
+| Screen (portrait px) | Mode | Visible game area |
 |---|---|---|
-| 1920x1080 | 4x integer | 480x270 |
-| 2400x1080 (20:9) | 4x integer | 600x270 |
-| 2340x1080 | 4x integer | 585x270 |
-| 2556x1179 (iPhone 14 Pro-16) | 4x integer | 639x294 |
-| 2778x1284 (Pro Max) | 4x integer | 694x321 |
-| 2360x1640 (iPad) | 4x integer | 590x410 |
-| 2560x1600 (Android tablet) | 5x integer | 512x320 |
-| 1600x720 (budget 20:9) | 2.67x fractional | 600x270 |
-| 1200x540 (the desktop test window) | 2x integer | 600x270 |
+| 540x960 (the desktop test window) | 2x integer | 270x480 |
+| 750x1334 (iPhone SE 2/3) | 2.78x fractional | 270x480 |
+| 828x1792 (iPhone 11) | 3x integer | 276x597 |
+| 1170x2532 (iPhone 12-14) | 4x integer | 292x633 |
+| 1179x2556 (iPhone 14 Pro-16) | 4x integer | 294x639 |
+| 1206x2622 (iPhone 16 Pro) | 4x integer | 301x655 |
+| 1290x2796 / 1320x2868 (Pro Max) | 4x integer | 322x699 / 330x717 |
+| 1640x2360 (iPad, LATER) | 4x integer | 410x590 |
+| 1080x2400 (Android 20:9, LATER) | 4x integer | 270x600 |
+| 720x1600 (budget Android, LATER) | 2.67x fractional | 270x600 |
 
 **Rules that follow:**
-- **All critical content fits the central 480x270.** Extra width or height shows more background, never more gameplay.
-- Backgrounds are built from layers that extend sideways and upward (sky, far, mid, near, ground), like the reference. Never stretch pixel art.
-- Test every screen at 480x270, 639x294 and 590x410. On desktop, resize the running window to **960x540, 1278x588 and 1180x820**. At 2x these give exactly those three areas.
-  - With godot-ai: `editor_manage game_eval` running `Engine.get_main_loop().root.size = Vector2i(1278, 588)`. This is unverified if the game runs embedded in the editor's Game tab; dragging the window edge always works.
+- **All critical content fits the central 270x480.** Extra width shows more background, never more UI: the UI column stays 254 px wide and centred. Extra height goes to the middle zone (GDD 2.8): the stage or card area grows, and backgrounds show more sky.
+- Backgrounds are built from layers that tile sideways and are anchored to the screen bottom (sky, far, mid, near, ground; GDD 2.5). Never stretch pixel art.
+- Test every screen at 270x480, 294x639 and 330x717. On desktop, resize the running window to **540x960, 588x1278 and 660x1434** (2x), or to 294x639 and 330x717 (1x) when the monitor is too short. Each gives exactly that area.
+  - Dragging the window edge always works. `editor_manage game_eval` with `Engine.get_main_loop().root.size = Vector2i(588, 1278)` is ignored by the window embedded in the editor's Game tab (seen in Step 1); in a floating game window it is unverified.
 - On desktop, `size_changed` doesn't always fire when you resize, so `Device` compares the window size every frame. Phones are fine, because their window size is fixed at launch.
 
-### 1.2 Project settings (apply in Step 1)
+### 1.2 Project settings (applied in Step 1, 2026-09-26)
 
-All of these keys exist in 4.7.2 (verified 4.7.2 with `settings_get`; a made-up key returns `Setting not found`).
-- Apply them with `project_manage op=settings_set`, **one key per call**.
+All of these keys exist in 4.7.2 (verified 4.7.2 with `settings_get`; a made-up key returns `Setting not found`). The "Applied" column is exactly what `project.godot` holds now.
+- They were applied with `project_manage op=settings_set`, **one key per call**.
 - The main scene is the one exception: `settings_set` refuses it, so use `project_manage set_main_scene`.
+- **`settings_set` does no type coercion:** a Color passed as a string or a dictionary is saved with the wrong type. Set typed values from a throwaway `@tool extends McpTestSuite` file that calls `ProjectSettings.set_setting()` and `ProjectSettings.save()`, run it with `test_run`, then delete it.
 
-| Key | Current | Set to | Why |
+| Key | Default | Applied | Why |
 |---|---|---|---|
-| `display/window/size/viewport_width` | 1152 | **480** | base resolution |
-| `display/window/size/viewport_height` | 648 | **270** | |
-| `display/window/size/window_width_override` | 0 | **1200** | desktop test window, 2400x1080 halved. Whether mobile ignores it is unverified |
-| `display/window/size/window_height_override` | 0 | **540** | |
+| `display/window/size/viewport_width` | 1152 | **270** | base resolution (D2) |
+| `display/window/size/viewport_height` | 648 | **480** | |
+| `display/window/size/window_width_override` | 0 | **540** | desktop test window, 270x480 at 2x. Whether iOS ignores it is unverified |
+| `display/window/size/window_height_override` | 0 | **960** | |
 | `display/window/stretch/mode` | "disabled" | **"viewport"** | renders at low resolution |
 | `display/window/stretch/aspect` | "keep" | **"expand"** | the guard does the rest |
-| `display/window/stretch/scale_mode` | "fractional" | **"integer"** | the guard switches to fractional on 720p-class screens |
-| `display/window/handheld/orientation` | 0 | **4** | `SCREEN_SENSOR_LANDSCAPE` (enum value verified 4.7.2) |
+| `display/window/stretch/scale_mode` | "fractional" | **"integer"** | the guard switches to fractional on SE- and 720p-class screens |
+| `display/window/handheld/orientation` | 0 | **1** | `SCREEN_PORTRAIT` (D1; enum value verified 4.7.2). The iOS exporter writes it as `UIInterfaceOrientationPortrait` only (verified: 4.7.2 exporter source) |
 | `rendering/textures/canvas_textures/default_texture_filter` | 1 (Linear) | **0** (Nearest) | crisp pixels |
 | `rendering/2d/snap/snap_2d_transforms_to_pixel` | false | **true** | no half-pixel shimmer |
-| `rendering/textures/vram_compression/import_etc2_astc` | false | **true** | **mandatory** for Android export, which stays greyed out until it's set. Reimport after setting it (Step 1 has no assets yet) |
+| `rendering/textures/vram_compression/import_etc2_astc` | false | **true** | **mandatory**: the iOS exporter marks the project invalid without it (verified: 4.7.2 exporter source), and Android export stays greyed out. Reimport after changing it |
 | `input_devices/pointing/emulate_touch_from_mouse` | false | **true** | your mouse acts like a finger on desktop, so the card swipe works there |
-| `application/config/quit_on_go_back` | true | **false** | Android Back goes back instead of quitting |
-| `application/run/max_fps` | 0 | **60** | stops 120 Hz phones rendering at 120 fps |
-| `gui/common/default_scroll_deadzone` | 0 | **6** | about 1.4 mm at 4x. The unit is unverified; test it in Step 2 |
+| `application/config/quit_on_go_back` | true | **false** | Android Back (LATER) goes back instead of quitting. No effect on iOS |
+| `application/run/max_fps` | 0 | **60** | stops 120 Hz iPhones rendering at 120 fps |
+| `gui/common/default_scroll_deadzone` | 0 | **6** | about 1.3 mm on an iPhone 15 if the unit is game px. The unit is unverified; test it in Step 2 |
 | `application/boot_splash/use_filter` | true | **false** | crisp pixel splash |
 | `application/boot_splash/bg_color` | grey | **Color(0.07, 0.07, 0.1, 1)** | near-black, so any 1-3 px leftover is invisible |
 | `rendering/environment/defaults/default_clear_color` | grey | **Color(0.07, 0.07, 0.1, 1)** | same near-black. Whether the letterbox uses it is unverified; with ≤ 3 px it doesn't matter |
@@ -117,7 +120,7 @@ All of these keys exist in 4.7.2 (verified 4.7.2 with `settings_get`; a made-up 
 
 **Keep as they are:**
 - `gl_compatibility` renderer, `vsync_mode` 1, `keep_screen_on` true, `resizable` true
-- the iOS keys `hide_home_indicator`, `hide_status_bar` and `suppress_ui_gesture` (all true)
+- the iOS keys `display/window/ios/hide_home_indicator`, `hide_status_bar`, `suppress_ui_gesture` and `allow_high_refresh_rate` (all true, checked 2026-09-26). `suppress_ui_gesture` makes system edge swipes need two swipes, which protects the card swipe
 - `low_processor_mode` false, `snap_2d_vertices_to_pixel` false, `snap_controls_to_pixels` true, `emulate_mouse_from_touch` true
 - **Do not add** `debug/gdscript/warnings/exclude_addons`. It doesn't exist in 4.7.2; `directory_rules = {"res://addons": 0}` replaced it.
 
@@ -135,14 +138,14 @@ boot_splash/bg_color=Color(0.07, 0.07, 0.1, 1)
 gdscript/warnings/untyped_declaration=1
 
 [display]
-window/size/viewport_width=480
-window/size/viewport_height=270
-window/size/window_width_override=1200
-window/size/window_height_override=540
+window/size/viewport_width=270
+window/size/viewport_height=480
+window/size/window_width_override=540
+window/size/window_height_override=960
 window/stretch/mode="viewport"
 window/stretch/aspect="expand"
 window/stretch/scale_mode="integer"
-window/handheld/orientation=4
+window/handheld/orientation=1
 
 [gui]
 common/default_scroll_deadzone=6
@@ -164,19 +167,22 @@ environment/defaults/default_clear_color=Color(0.07, 0.07, 0.1, 1)
   - Shakes and tweens move by whole pixels (use `roundf`).
   - Camera positions stay on whole pixels, and camera smoothing stays off in the MVP.
 - **Texture import:** the filter is Nearest (global), `compress/mode` is Lossless, mipmaps are off, and nothing is larger than 2048 px.
-- **Asset sizes** at 480x270 (GDD 2.6):
+- **Asset sizes** at 270x480 (GDD 2.6):
 
 | Asset | Size |
 |---|---|
 | Side-view full-body character | 40-48 px tall |
-| VS and interview busts | 96 px tall |
-| Interview background | 480x270 plus 80 px bleed on each side |
-| Intro panel | 480x270 (up to 640 wide for pans) |
+| VS and interview busts | 96 px tall, at most 80 px wide |
+| Interview background | 330x400, bottom-anchored at the desk line. The essential area is the bottom-centre 270x160 |
+| Title background | `Parallax2D` layers, tiles at least 270 wide, the sky layer 720 tall, bottom-anchored |
+| Intro panel | 270x480 (up to 480x480 for a sideways pan, 270x720 for a tilt) |
+| Ending illustration | 254x140 |
 | Company logos, icons | 16x16 (energy pip 6x8) |
-| UI panels | 9-slice with 4-6 px borders and whole-pixel margins |
+| UI panels | 9-slice, 4 px border + 3 px padding, whole-pixel margins |
 
-- **Parallax2D defaults** (`scroll_scale.x`): sky 0.1 (clouds `autoscroll` -4 px/s), far 0.3, buildings 0.6, props 0.9, ground 1.0.
-  - Set `repeat_size.x` to the texture width and `repeat_times` to 2-3, so 700 px wide screens are covered.
+- **Parallax2D defaults** (`scroll_scale.x`): sky 0.1 (clouds `autoscroll` -4 px/s), far 0.3, buildings 0.6, props 0.9, ground 1.0. Layers still scroll horizontally in portrait.
+  - Set `repeat_size.x` to the texture width and `repeat_times` to 2-3, so 330 px wide screens are covered.
+  - Anchor every layer to the screen bottom, so taller phones show more sky, never more floor.
   - The Parallax2D properties are verified 4.7.2.
 
 ### 1.4 Fonts
@@ -196,21 +202,25 @@ environment/defaults/default_clear_color=Color(0.07, 0.07, 0.1, 1)
   - `generate_mipmaps` = off
   - `multichannel_signed_distance_field` = off
 - Use each font only at its native size or whole multiples of it.
-  - monogram's exact cell at size 16 is unverified (the GDD assumes a 12 px line with 5-6 px glyphs).
+  - monogram's exact cell at size 16 is unverified. The GDD assumes a 12 px line and a 6 px advance, so a 240 px text column holds exactly 40 characters (GDD 2.7); answer buttons have zero slack.
   - Press Start 2P's 8 px grid is also unverified.
-  - Check both in the editor at 4x before building layouts.
+  - Check both in the editor at 4x before building layouts, and on the iPhone in Step 2.
 - Make monogram 16 the default font inside `main_theme.tres`. `gui/theme/custom_font` also exists, but the theme is the one place to change it.
 - If you plan Vietnamese or any other non-English language, **check glyph coverage before committing** (unverified for both fonts).
 
-### 1.5 Safe area (notches, Dynamic Island)
+### 1.5 Safe area (Dynamic Island, notch, home indicator)
 
-- Backgrounds are full-bleed.
-- **Everything the player taps goes inside a `SafeAreaMargin`** (section 17.10).
-- Left and right use the larger of the two insets on both sides. Rotating the phone 180 degrees moves the notch without firing any resize signal.
+Portrait only, so each device's insets are fixed: **top** = the Dynamic Island or notch, **bottom** = the home indicator, **left and right** = 0 on iPhones. There is no 180-degree flip.
+- Backgrounds are full-bleed: the sky runs up under the island, the ground down under the home indicator.
+- **Everything the player reads or taps goes inside a `SafeAreaMargin`** (section 17.10), at least 4 px per side.
+- Top and bottom are applied separately. Left and right use the larger of the two insets on both sides, in case a device reports them unevenly.
 
-In viewport stretch mode, `get_final_transform()` is the identity for the root (verified 4.7.2 source). So `Device.safe_insets()` converts device pixels to game pixels by hand: scale, then letterbox offset.
+In viewport stretch mode, `get_final_transform()` is the identity for the root (verified 4.7.2 source). On iOS, `get_display_safe_area()` returns native pixels: the view's `safeAreaInsets` in points times the screen scale (verified: 4.7.2 `display_server_apple_embedded.mm`). So `Device.safe_insets()` converts device pixels to game pixels by hand: scale, then letterbox offset.
 
-On an iPhone 15 that leaves about 45 game px per side, so 549 px for UI, which is more than 480. Preview a notch on desktop with `debug_fake_insets`.
+**Worked example, iPhone 15 (1179x2556 at 4x):** the game area is 294x639 with 3 px of side letterbox (2 left, 1 right). The insets are 59 pt top and 34 pt bottom, which is 177 and 102 device px, so 44.25 and 25.5 game px. SafeAreaMargin rounds up to 45 / 26, leaving 294x568 for UI, and the central 270x480 block (y about 80-560) sits entirely inside the safe area. The other iPhones are in GDD 2.9; an iPhone 16 Pro gives about 46.25 / 25.25 on 301x655.
+
+- Whether Godot still reports the 59 pt top inset while the status bar is hidden is unverified (section 18.1). Measure it in Step 2.
+- Preview on desktop: a 588x1278 window (294x639 game) with `debug_fake_insets = Vector4i(0, 45, 0, 26)` on the screen's SafeAreaMargin.
 
 ---
 
@@ -251,13 +261,13 @@ res://
 ├─ audio/sfx/   audio/music/
 ├─ tests/                          test_*.gd (excluded from exports)
 ├─ art_src/                        .aseprite sources (has a .gdignore, so Godot never imports it)
-├─ builds/                         APK/AAB output (.gdignore; git-ignored except that file)
+├─ builds/                         ios/ (the exported Xcode project), later APK/AAB (.gdignore; git-ignored except that file)
 └─ docs/                           GDD.md, CONTENT.md, ARCHITECTURE.md, ROADMAP.md
 ```
 
 | Thing | Convention | Example |
 |---|---|---|
-| Folders and files | **snake_case**. Android and iOS packs are case-sensitive; Windows is not | `features/job_hunt/job_card.tscn` |
+| Folders and files | **snake_case**. The exported pack is case-sensitive on the phone; the Windows and macOS file systems are not | `features/job_hunt/job_card.tscn` |
 | Script next to its scene | same base name | `job_card.tscn` + `job_card.gd` |
 | `class_name` | PascalCase, matching the file | `class_name AnswerMeter` in `answer_meter.gd` |
 | Autoload | PascalCase name, and **no `class_name`** in its script | `GameState` = `autoload/game_state.gd` |
@@ -579,32 +589,33 @@ Reading text:
 
 | Event | Handled by | Does |
 |---|---|---|
-| `NOTIFICATION_APPLICATION_PAUSED` (app sent to background) | `GameState` | `save()`. If the phase is INTERVIEW, pauses the tree |
-| `NOTIFICATION_APPLICATION_FOCUS_OUT` (notification shade, call, desktop alt-tab) | `GameState` | the same |
+| `NOTIFICATION_APPLICATION_PAUSED` (app sent to background: home swipe, app switcher) | `GameState` | `save()`. If the phase is INTERVIEW, pauses the tree |
+| `NOTIFICATION_APPLICATION_FOCUS_OUT` (iOS Control Center, Notification Center, call banners; desktop alt-tab) | `GameState` | the same |
 | `NOTIFICATION_WM_CLOSE_REQUEST` (desktop close) | `GameState` | `save()` |
-| `NOTIFICATION_WM_GO_BACK_REQUEST` (Android Back) | `Device` | `handle_back()` |
+| `NOTIFICATION_WM_GO_BACK_REQUEST` (Android Back, LATER; never sent on iOS) | `Device` | `handle_back()` |
 | Esc (`ui_cancel`) on desktop only | `Device` | `handle_back()` |
 | The tree gets paused during an interview | `interview.gd` (`NOTIFICATION_PAUSED`) | shows the "Ready? Tap to continue" overlay (`process_mode = WHEN_PAUSED`). A tap unpauses and re-arms the 250 ms input lock |
 | The intro loses focus | `intro.gd` | pauses its tween or AnimationPlayer |
 
-Android kills background apps without warning, which is why saving happens on pause and on focus loss, not on quit. The notification constants are verified 4.7.2.
+Phones kill background apps without warning, which is why saving happens on pause and on focus loss, not on quit. On iOS, after `APPLICATION_PAUSED` the app gets about 5 s before iOS may kill it, so keep `save()` small (verified: 4.7.2 `os_apple_embedded.mm`). The notification constants are verified 4.7.2.
+
+**iOS has no Back button** (`NOTIFICATION_WM_GO_BACK_REQUEST` is implemented only on Android; verified 4.7.2 `Node.xml`), and games get no edge-swipe back gesture. So every screen shows its own on-screen Back: the action bar's bottom-left `[ < Back ]`, `[=]` on the hub, `[II]` in the interview. There are **no Quit buttons on iOS**.
 
 **The Back chain:**
-1. **Every node** receives `WM_GO_BACK_REQUEST` (verified 4.7.2), so **scenes must not handle that notification themselves.**
-2. Instead, every screen root implements `handle_back() -> bool`. Return `true` if it used the press.
-3. `Device.handle_back()` ignores Back while `SceneRouter.busy`. Otherwise it asks the current scene. If the scene returns false, `Device` emits `back_unhandled`.
+1. On-screen Back buttons, Android Back (LATER) and desktop Esc all call `Device.handle_back()`.
+2. **Every node** receives `WM_GO_BACK_REQUEST` (verified 4.7.2), so **scenes must not handle that notification themselves.**
+3. Instead, every screen root implements `handle_back() -> bool`. Return `true` if it used the press.
+4. `Device.handle_back()` ignores Back while `SceneRouter.busy`. Otherwise it asks the current scene. If the scene returns false, `Device` emits `back_unhandled`.
 
 | Screen | `handle_back()` |
 |---|---|
-| Title | close an open dialog; else show "Quit?" (Android only). Confirm calls `get_tree().quit()` |
+| Title | close an open dialog; else show "Quit?" (Android and desktop only; iOS apps never quit themselves). Confirm calls `get_tree().quit()` |
 | Intro | `finish_intro()` (skip) |
-| Background select | unfocus the focused card; else `quit_to_title()` |
-| Job hunt | close the top modal, flip the card back or close the CV screen; else open Pause |
+| Background select | `quit_to_title()` |
+| Job hunt | close the top modal, flip the card back, or return from an app (CV, Mail, Study) to Jobs; else open Pause |
 | Interview | skip the VS intro if allowed; else open Pause |
 | Offer | open Pause. Back never declines an offer |
 | Hired / Plan B | `quit_to_title()` |
-
-**iOS has no Back button.** So every screen has an on-screen way back, and there are **no Quit buttons on iOS**.
 
 ---
 
@@ -614,16 +625,20 @@ Android kills background apps without warning, which is why saving happens on pa
 
 ```
 ScreenRoot (Control, full rect; script has handle_back())
-├─ Background (TextureRect or Parallax2D stage; full-bleed, OUTSIDE the safe area)
+├─ Background (TextureRect or Parallax2D stage; full-bleed, bottom-anchored, OUTSIDE the safe area)
 ├─ SafeArea (MarginContainer + SafeAreaMargin, full rect)
-│  └─ Layout (VBoxContainer, separation 4)
-│     ├─ TopBar (HBox, information only): day - energy pips - rent - Radar ... pause (top-right)
-│     ├─ Body (size_flags_vertical = EXPAND_FILL)
-│     └─ ActionBar (HBox, 32-40 px): back or secondary (bottom-left) ... spacer ... PRIMARY (bottom-right)
-└─ ModalLayer (CanvasLayer, layer 10): confirm dialogs, the offer paper, Ducky notes, the pause menu
+│  └─ Column (VBoxContainer, custom_minimum_size.x = 254, size_flags_horizontal = SHRINK_CENTER, separation 4)
+│     ├─ TopBand (information only, y 0-72 at most): HUD, HP bars or a header. Nothing tappable
+│     ├─ Body (size_flags_vertical = EXPAND_FILL): content; it takes all the extra height
+│     └─ ThumbBand (the bottom 40%, glued to the bottom safe edge): the controls used more than once a day
+│        └─ ActionBar (HBox, 36 px tall, separation 6): [ < Back ] 80 px (bottom-left) + PRIMARY 168 px (spans the centre)
+└─ ModalLayer (CanvasLayer, layer 10): confirm dialogs, the offer paper, Ducky notes, the pause sheet
 ```
 
 - Only the screen root uses anchors. Children are sized by containers and `size_flags`.
+- The column is always 254 px wide and centred, whatever the screen width (GDD 2.7). Extra height goes to Body, so the thumb band sits the same distance from the thumb on every iPhone (GDD 2.8).
+- 80 + 6 + 168 = 254. A screen with one action uses one full-width 254 px button, never a lone small primary in a corner.
+- **Pause (S13)** is a bottom sheet in the ModalLayer: full-width buttons stacked with the most used lowest (Quit to title on top, [Notebook], [Settings], RESUME at the bottom as the primary). Tapping outside the sheet = Resume.
 - Build layouts with `ui_manage build_layout`. It builds a whole tree in one go.
 
 ### 10.2 Theme
@@ -637,16 +652,20 @@ ScreenRoot (Control, full rect; script has handle_back())
 ### 10.3 Touch rules (GDD 2.8)
 
 **Size and placement**
-1. **Touch targets are at least 32x32 game px** (about 43 pt at 4x), with gaps of at least 4 px. A hit area may be larger than its art.
-2. **The primary action goes bottom-right; back or secondary goes bottom-left.** Nothing interactive sits in the top-centre 120 px.
+1. **Art is at least 32x32 game px; the hit area is at least 34x34**, with gaps of at least 4 px. At 4x on a 3x iPhone, 34 px is 45 pt (32 px would be 42.7 pt, under Apple's 44 pt minimum). Answer buttons and the action bar are 36 px tall. A hit area may be larger than its art.
+2. **Three zones** in the 270x480 frame, y measured from the safe-area top:
+   - **Top band, y 0-72:** information only (HUD, HP bars, headers).
+   - **Middle, y 72-288:** content. Large surfaces may be tappable anywhere (the job card, tap-anywhere); occasional small controls are allowed (Research, GO NOW, the interview's `[II]`).
+   - **Thumb band, y 288-480:** every control used more than once a day. The primary sits bottom-right and spans the screen centre (x 94-262); Back and secondary actions go bottom-left.
 
 **Input handling**
 
 3. **Controls handle mouse events only.** On phones, touches arrive as emulated mouse events (`emulate_mouse_from_touch`).
-4. **Only swipe code reads `InputEventScreenTouch/Drag`.** That's the job card, which handles its taps from the same touch events.
+4. **Only swipe code reads `InputEventScreenTouch/Drag`.** That's the job card and the S03 background card, which handle their taps from the same touch events.
    - Handling both kinds in one Control fires one tap twice.
-   - On desktop, `emulate_touch_from_mouse` feeds the card too.
-5. **Tap anywhere** advances text and stops the Answer Meter. The Answer Meter is a full-screen Control with `MOUSE_FILTER_STOP`.
+   - On desktop, `emulate_touch_from_mouse` feeds the cards too.
+   - Swipe surfaces stay out of the safe-area insets: `suppress_ui_gesture` only defers the home-indicator swipe, it doesn't disable it.
+5. **Tap anywhere** advances text and stops the Answer Meter. The Answer Meter is a full-screen Control with `MOUSE_FILTER_STOP`. A control that consumes its own tap (the interview's `[II]`) never counts as the needle tap (section 11.6).
 
 **Timing**
 
@@ -654,13 +673,14 @@ ScreenRoot (Control, full rect; script has handle_back())
 7. **Buttons use `action_mode` Button Release** (the default). Whether dragging a ScrollContainer triggers a release is **unverified**; test it in Step 2.
    - If it does, set list-row buttons to `mouse_filter = PASS`.
    - Then ignore a release when the pointer moved more than the deadzone since the press.
-8. **No typing** except the optional name field; the dice button is the main path. The on-screen keyboard covers half of a landscape screen.
+8. **No typing** except the optional name field (10 characters); the dice button is the main path. The iOS keyboard covers roughly the bottom 40% in portrait, so the name row lifts above it while typing, using `DisplayServer.virtual_keyboard_get_height()` (implemented on iOS; its unit, likely native px, is unverified).
 
 ### 10.4 Text
 
 - The typewriter runs at 40 chars/s (`typewriter_cps`). Tween `Label.visible_ratio` (verified 4.7.2). The first tap finishes the line; the second advances.
 - **Text always sits on solid panels**, never directly over dithered sky or parallax.
-- The GDD 2.7 text budgets (120 / 100 / 40 / 80 / 60 / 120 / 240) are enforced by `test_content_lint`.
+- A full-width panel is 254 px outside and 240 px of text: 40 characters at monogram 16.
+- The GDD 2.7 text budgets (120 / 100 / 40 / 80 / 60 / 120 / 240) and their line caps at 40 columns are enforced by `test_content_lint` (section 12.3).
 
 ---
 
@@ -668,86 +688,101 @@ ScreenRoot (Control, full rect; script has handle_back())
 
 ### 11.1 Title (S01)
 
-- Static art (parallax SHOULD), the logo in Press Start 2P, and the version from `application/config/version`.
-- **Tap anywhere** calls `start_new_game()`.
-  - When `SaveIO.exists()`, show two buttons instead: **Continue** bottom-right, New game bottom-left.
-  - A small "Replay intro" button calls `replay_intro()`.
-- `handle_back()` shows "Quit?" (Android only).
+- Static art in the GDD 2.5 portrait template (parallax SHOULD): the logo on a sign panel in the sky band (Press Start 2P 24 and 16), skyline and street in the middle, the road under the buttons, the version from `application/config/version` bottom-right.
+- **Tap anywhere** calls `start_new_game()` ("Tap to start" blinks in the thumb band).
+  - When `SaveIO.exists()`, show two stacked buttons instead: `[ New game ]` above a full-width primary `[ CONTINUE ]`.
+  - A small "Replay intro" text button bottom-left calls `replay_intro()`.
+- `handle_back()` shows "Quit?" on Android and desktop only; never on iOS.
 - The Step 1 stub (section 17.12) prints the window size, game size and scale mode. Keep it as a debug overlay.
 
 ### 11.2 Intro cutscene (S02)
 
 - **Build it data-driven from `cutscene.json`. Text slides first, art last.**
-  - Each panel: a `TextureRect` (a grey placeholder until art exists) that pans or zooms with one Tween over `seconds`.
-  - Captions are typed out in a `DialogueBox`.
+  - Each panel: a 270x480 `TextureRect` (a grey placeholder until art exists) that pans, tilts or zooms with one Tween over `seconds`. On taller phones it sits centred on the near-black clear color.
+  - Captions are typed out in a `DialogueBox` on a solid band (about y 360-432, up to 4 lines).
 - **Taps:** a tap finishes the current caption; the next tap shows the next caption. A tap never skips everything.
-- **Skip:** a visible button top-right that you **hold for 0.5 s** (a ring fills). Android Back also skips.
+- **Skip:** a "Hold to skip" pill bottom-right (96x34) that you **hold for 0.5 s** (a ring fills). Desktop Esc and Android Back (LATER) also skip.
 - Every exit goes through `finish_intro()`, so skipping is always safe.
 - It auto-plays only when `intro_seen` is false. It pauses on focus loss.
 - **Cost warning:** frame-by-frame animation is out of scope. This is a motion comic: pans, zooms, 2-4 frame loops and captions.
 
 ### 11.3 Background select (S03)
 
-- Three `background_card.tscn` instances in an HBox, showing numbers from `BackgroundData` and text from `backgrounds.json`:
-  - 3 stat bars, each 5 segments (value / 20, rounded)
-  - energy pips, with the commute pips greyed out
-  - runway days, a perk and a flaw
+- **One full-width `background_card.tscn`** (254 wide, about 250 tall), showing numbers from `BackgroundData` and text from `backgrounds.json`:
+  - the 96 px bust cropped to its top 72 px, the name and difficulty
+  - energy pips, with the commute pips greyed out; runway days
+  - the one-liner, 3 stat bars (each 5 segments, value / 20, rounded), a perk and a flaw
   - the Self-Taught's two rolled gaps
-- Tap a card to focus it; **CHOOSE** is bottom-right.
-- The name field shows "Alex" with a dice button that picks from `names.json`.
-- It calls `choose_background(id, name)`. `preselect_background` focuses a card after Retry.
+- Below it, in the thumb band: the name row, a **3-button selector** (80x40 each: INTERN / GRADUATE / SELF-TAUGHT) and `[ < Title ][ CHOOSE ]`.
+- **Switching:** tap a selector button, or swipe the card left or right (it reads touch like the job card). CHOOSE confirms.
+- The name field shows "Alex" with a dice button that picks from `names.json` (`LineEdit.max_length = 10`; section 10.3 rule 8 while typing).
+- It calls `choose_background(id, name)`. `preselect_background` picks the card after Retry; otherwise The Graduate.
+- Out: the chosen card flies up and the phone "boots" DoomApply (0.35 s).
 
 ### 11.4 Job hunt (S04-S06)
 
-- **`job_hunt.tscn` is one scene** with the TopBar and a left rail of 32x32 icons: Jobs, CV, Inbox, Study, [Network], and Sleep at the bottom.
-  - The body swaps **panels, not scenes:** Deck, CV, Inbox, Study.
-  - Morning and Night are overlays inside the same scene.
-- **The deck:** 6 new cards each morning (2 per tier), at most 10 on the board.
-  - **Card front:** logo, title, 3 tags with a check or cross against the CV as set, the joke, and the Quick Apply odds band. A red chip shows when the card fails a knockout.
+- **`job_hunt.tscn` is one scene: your phone running the DoomApply app** (GDD S04). From the top: the HUD (y 0-32, information only: day, rent, energy pips, Radar), the app header ("DoomApply" plus a gold "Invite waiting" pill), the body, the action row, and a **bottom dock**.
+  - **Dock:** 5 app slots of 47 px (6 of 39 px with Network, SHOULD), 4 px gaps, 40 px tall, each an icon plus a label of up to 6 characters: Jobs, CV, Mail, Study, [Network], and Sleep (the moon) at the right end. Mail shows a gold badge while an invite is waiting.
+  - The body swaps **panels, not scenes:** Jobs (the deck), CV, Mail (the inbox), Study. Every app except Jobs shows `[ < Back ]` to Jobs, which is also what `handle_back()` does.
+  - Morning (the inbox) and Night (a lock-screen notification card) are overlays inside the same scene.
+- **The deck:** 6 new cards each morning (2 per tier), at most 10 on the board. The card is 254 wide and anchored just above the action row; extra height goes above it.
+  - **Card front:** a 238x48 header strip cropped from the tier's interview background, logo, company and tier, title, 3 tags with a check or cross against the CV as set, the joke, and the Quick Apply odds band. A red chip shows when the card fails a knockout.
+  - **Action row:** `[=]` 34 px (Pause: the hub's on-screen Back), SKIP 80, APPLY 128 (APPLY spans the screen centre).
   - **Swipe right or APPLY** = Quick Apply (1 pip). **Swipe left or SKIP** = skip. **Tap** = flip.
-  - **Card back:** Research (SHOULD), a referral toggle, and TAILOR & APPLY (2) bottom-right.
-- **Card input:** `job_card.gd` reads `InputEventScreenDrag`, moving by the drag's x and tilting a few degrees. On `InputEventScreenTouch` released:
-  - a move over 48 px is a swipe;
+  - **Card back:** applicants, posted date, salary text and the tailored odds band; Research (SHOULD) and the referral toggle in its lower half. The action row becomes `[ < Back ][ TAILOR & APPLY  2 ]`.
+- **Card input:** `job_card.gd` reads `InputEventScreenDrag`, moving by the drag's x and tilting at most 6 degrees. It plays a 10 ms haptic when the drag crosses the threshold. On `InputEventScreenTouch` released:
+  - a move over 68 px (a quarter of 270), or a flick, is a swipe;
   - a move under the deadzone is a tap.
-- **The CV screen:** 3 rows with an Honest / Polished / Lie segmented control each. Header chips show "Degree" and "Counts as 1+ yrs", and a Lie-risk row shows up to 3 dots. It commits on leaving the screen.
+- **The CV screen (Buzzwordsmith):** a 2-row header (the tag set, the "Degree" and "Counts as 1+ yrs" chips, a Lie-risk row of up to 3 dots), then 3 stacked rows 254 wide, each with a full-width Honest / Polished / Lie segmented control (3 x 82 x 34). `[ < Back ][ DONE ]`. It commits on leaving the screen.
+- **Mail (the morning inbox):** a vertical `ScrollContainer` list: invites (with `[ Later ]` and `[ GO NOW  3 energy ]` inside the card), one rejection stack card with [Flip all], the quiet ghost footer, the Radar update. `[ Start day ]` is pinned full width below the scroll, always visible.
 - **Rules** all sit on `RunState` and `Odds`. The scene only shows `run` and calls verbs:
   - `quick_apply(card_uid)`, `tailor_apply(card_uid, use_referral)`, `skip_card(card_uid)`
   - `set_cv_level(line, level)`, `study()`, `sleep()`, `start_day()`
   - `start_interview(invite)`, `end_run_plan_b()`
-- **Sleep** asks first when 2 or more pips are left: "You still have N energy. Sleep anyway?"
+- **Sleep** asks first when 2 or more pips are left: "You still have N energy. Sleep anyway?" with `[ < Back ][ Sleep ]`.
 
 ### 11.5 VS intro (S07)
 
 - **One reusable `versus_intro.tscn`**, with `play(company_id, tier)` and a `finished` signal. Build it with an **AnimationPlayer** (`animation_create` + `animation_manage`) so you can retime it in the editor.
+- **Portrait split:** a diagonal across the middle (about y 210-270). Dana's half is on top (company color, tier background behind), her bust top-right with her plate to its left. Your half is below (hoodie color), your bust bottom-left with your plate to its right. The tier banner sits at the bottom.
 
 | Time | What happens |
 |---|---|
-| 0.00 s | 1-frame white flash; diagonal split (your color vs the company color); tier background behind |
-| 0.05-0.35 s | busts slide in, easing out with a small overshoot |
-| 0.35 s | "VS" (Press Start 2P 32) slams in, driven by a method track |
-| 0.4-0.9 s | name plates, and the tier banner from `barks.json` (`vs_banner_*`) |
+| 0.00 s | 1-frame white flash; the diagonal split appears |
+| 0.05-0.35 s | busts slide in along the diagonal (Dana down from the top-right, you up from the bottom-left), easing out with a small overshoot |
+| 0.35 s | "VS" (Press Start 2P 32) slams onto the diagonal, driven by a method track |
+| 0.4-0.9 s | name plates, and the tier banner from `barks.json` (`vs_banner_*`, Press Start 2P 16, up to 2 lines) |
 | 2.0 s | `finished` |
 
 - **The slam at 0.35 s** (the method track):
   - a 100 ms hit-stop: `anim.pause()`, a timer, then `anim.play()`;
   - a 4 px whole-pixel shake;
   - `Device.haptic(40)` and a sound effect.
-- **Skip:** after `vs_min_view_s` (1.0 s) on the first viewing of a run; immediately after that. Skip calls `_finish()`, which stops the animation and emits `finished`.
+- **Skip (tap anywhere):** after `vs_min_view_s` (1.0 s) on the first viewing of a run; immediately after that. Skip calls `_finish()`, which stops the animation and emits `finished`.
 
 ### 11.6 Interview (S08-S09)
 
 ```
 Interview (Control, full rect)  interview.gd
-├─ Stage: TierBackground (TextureRect / Parallax2D SHOULD), PlayerBust (96 px), DanaBust (96 px), Desk
-├─ SafeArea
-│  └─ VBox: TopBar [ComposureBar (hp_bar) · Round "2/5" · DoubtBar (hp_bar) · Pause]
-│           Spacer (expand)
-│           BottomBand (HBox, about 96 px): DialogueBox (left 40%) · AnswerColumn (VBox, right 60%)
-├─ AnswerMeter (full rect, hidden until a knowledge prompt)
+├─ Stage (full-bleed; its bottom edge, the desk line, follows the DialogueBox's top)
+│    TierBackground (330x400, bottom-anchored), PlayerBust (96 px, left), DanaBust (96 px, right), Desk
+├─ AnswerMeter (full rect, hidden until a knowledge prompt; BELOW SafeArea, see the tap rule)
+├─ SafeArea (every container and panel in it: mouse_filter = IGNORE)
+│  └─ Column (VBox, 254 wide, separation 0; y values from GDD S08)
+│     ├─ BarsBand (y 0-28): ComposureBar (hp_bar, 122x8) · "ROUND 2/5" · DoubtBar (hp_bar, 122x8)
+│     ├─ StageSpacer (EXPAND_FILL, empty: the stage shows through; 160 px on 270x480, 248 on an iPhone 15)
+│     ├─ DialogueBox (254x76): name tab, 4 lines, PauseButton [II] (34x34 hit area) at its top-right
+│     └─ AnswerArea (212 px, glued to the bottom safe edge)
+│        ├─ MeterRow (40 px): the Answer Meter's bar is drawn here
+│        └─ ThumbSlot: AnswerColumn (3 x 254x36, gap 6) | TapPad ("Tap anywhere!") | ProbeRow (2 x 124x44) | DuckyCard
 ├─ VersusIntro (instance, full rect)
-├─ ResultLayer: KOBanner, CommitteeWheel, DuckyCard
+├─ ResultLayer: KOBanner, CommitteeWheel (128 px, in the stage band)
 └─ ReadyOverlay (full rect, process_mode = When Paused)
 ```
+
+**The tap rule (GDD 2.8 rule 6):** any tap counts for the needle except `[II]`, which consumes its own tap. Containers default to `mouse_filter` PASS (verified 4.7.2 ClassDB), and a PASS container on top would swallow the tap. So the AnswerMeter sits below SafeArea in the tree, and every container and panel in SafeArea is set to IGNORE. A tap that misses a real control then falls through to the meter, while `[II]` (a Button, STOP) keeps its own.
+
+**Keeping the stage on the desk line:** on `resized` and `Device.layout_changed`, set the Stage's bottom to `%DialogueBox`'s top, so extra height shows more wall and sky above the characters, never more floor.
 
 **The flow in `interview.gd`** is one coroutine, written with `await`:
 
@@ -756,19 +791,20 @@ Interview (Control, full rect)  interview.gd
    - Build the 5 prompts (`[choice, knowledge, knowledge, knowledge, choice]`) from `question_ids`. A probe replaces knowledge prompt 2.
    - Doubt = `tier.doubt_hp`; Composure = `bg.composure_max`.
 2. **Open.** Play the VS intro, then the greeting: `bark_dana_greet_again` from the second interview, then the background opener on the first interview of a run.
-3. **Choice prompt.** Type out the prompt. Show 3 answer buttons, shuffled with `Odds.shuffled`, after the 250 ms lock. When one is tapped, apply `Odds.ethics_doubt_delta` and `ethics_composure_loss`, then show Dana's reaction.
-4. **Knowledge prompt.** Compute S, h and the needle speed, then `meter.start(...)` and `await meter.resolved`.
+3. **Choice prompt.** Type out the prompt in the dialogue box. Show 3 stacked answer buttons at the bottom of the thumb band, shuffled with `Odds.shuffled`, after the 250 ms lock. When one is tapped, apply `Odds.ethics_doubt_delta` and `ethics_composure_loss`, then show Dana's reaction.
+4. **Knowledge prompt.** Compute S, h and the needle speed, then show the TapPad, `meter.start(...)` and `await meter.resolved`.
    - Q from `Odds.answer_q`, then apply the deltas.
-   - Your character speaks the green, yellow or red line; on red, Ducky adds "Real answer: ...".
+   - Your character speaks the green, yellow or red line in the dialogue box; on red, Ducky's "Real answer: ..." appears as a full-width note in the thumb band.
    - **The zone width is visible before the needle moves.** That is the visible-luck rule.
-5. **Lie probe.** Two buttons, [Come clean] and [Bluff (odds band)], using `Odds.bluff_p`.
+5. **Lie probe.** Two half-width buttons (124x44) at the bottom of the thumb band: [Come clean] left, [Bluff] right with its odds band on a second line, using `Odds.bluff_p`.
 6. **After each prompt:** Doubt at or below 0 is a **K.O.**; Composure at or below 0 is a rejection.
 7. **After prompt 5:**
-   - If `committee_eligible`, spin the wheel with its win wedge drawn at `committee_win_p`, rolled on the interview RNG.
-   - Otherwise it's a rejection, followed by the Ducky card (one tip plus the model answer of your worst question).
+   - If `committee_eligible`, spin the wheel in the stage band with its win wedge drawn at `committee_win_p`, rolled on the interview RNG.
+   - Otherwise it's a rejection. The thumb band becomes the Ducky card: one tip, the model answer of your worst question, and a full-width `[ Back to the hunt ]`.
 8. **Finish.** Call `GameState.finish_interview(won, composure_left, busted)`.
 
 **The Answer Meter** (section 17.11):
+- **Position:** the skeleton draws its bar 40 px above its own bottom edge, which would put the needle under the thumb. In Step 4, draw it at the MeterRow's y instead (the scene passes it on `resized` and `Device.layout_changed`), so the TapPad sits under the thumb and never covers the needle. `answer_meter_width_px` stays 200 (GDD S08).
 - The tech-verified bug is fixed: it calls `set_process(false)` in `_ready()`, and `_process` returns when `_done`.
 - The needle speed is at least 0.6 bar-widths/s and the zone half-width at least 0.06, so the GOOD window is at least about 160 ms.
 - **Relaxed Timing** fixes the input quality at 0.9.
@@ -780,22 +816,21 @@ Interview (Control, full rect)  interview.gd
 
 ### 11.7 Offer, Hired card, Plan B (S10-S12)
 
-- **`offer.tscn`:** a dimmed tier background with a `PaperPanel` contract (`RichTextLabel`). It shows the role, the **yearly** salary (`$71,000/year`), the work mode, a commute preview (`offer_commute_office`), 2 perks and 1 fine-print joke.
-  - Buttons: **Decline** bottom-left (with a confirm dialog), [Negotiate] centre (SHOULD), **ACCEPT** bottom-right.
+- **`offer.tscn`:** the dimmed interview stage (Dana stays visible) with a `PaperPanel` contract (`RichTextLabel`, 254 wide, about 250 tall) that slides up from the bottom. One field per line after a 12-character label column, values wrapping at 28 columns: the role and company, the **yearly** salary (`$71,000/year`), the work mode, a commute preview (`offer_commute_office`, 2 lines), 2 perks and 1 fine-print joke (up to 4 lines).
+  - Buttons: [Negotiate] full width above the action bar (once, SHOULD), then `[ Decline ][ ACCEPT ]` (80 + 168). Decline opens a confirm dialog. SHOULD: ACCEPT becomes drag-to-sign along a 200 px line.
   - Tips: `tip_total_comp` or `tip_negotiate`, plus `tip_equity_lottery` at startups.
-- **`phase2_stub.tscn`:**
-  - a HIRED stamp;
-  - the Dream vs Reality score with its 5 rows (`Odds.dream_score`), the tier's hired line and `tip_written_offer`;
-  - "TO BE CONTINUED".
-  - Buttons: Title bottom-left, New run bottom-right.
-- **`game_over.tscn`:** the Plan B card with the background line, one tip and the run stats. Buttons: Title, and **Retry** bottom-right.
+- **`phase2_stub.tscn`** (the Hired card), in two beats, because everything at once needs about 500 px:
+  - beat 1: the HIRED stamp slams onto a 254x140 illustration, with company, role and salary and the tier's hired line below; tap anywhere to continue;
+  - beat 2: the Dream vs Reality panel slides up: its 5 rows (`Odds.dream_score`) tallying one by one, the score, `tip_written_offer` and "TO BE CONTINUED".
+  - Buttons: `[ Title ][ NEW RUN ]`.
+- **`game_over.tscn`:** the Plan B card in one beat (about 400 px): the stamp over a 254x140 illustration, the background line, one tip and the run stats. Buttons: `[ Title ][ RETRY ]`.
 
 ### 11.8 Viewpoints
 
-- **Side view** (title, intro, interview, endings): `Parallax2D` layers as described in section 1.3.
+- **Side view** (title, intro, interview, endings): `Parallax2D` layers as described in section 1.3, bottom-anchored in the GDD 2.5 portrait template. The interview, VS and commute stages are a wide vignette inside a band at least 270x160.
 - **Top-down** is SHOULD/LATER.
-  - The room hub (SHOULD) is **one static illustration with 4 tap hotspots**: invisible `TextureButton`s. There is no walking sprite.
-  - Phase 2's office uses `TileMapLayer` (16x16 tiles) with y-sorted characters.
+  - The room hub (SHOULD) is **one static 330x720 illustration with 4 tap hotspots** (at least 48x48, in the lower 60%): invisible `TextureButton`s. There is no walking sprite.
+  - Phase 2's office uses `TileMapLayer` (16x16 tiles) with y-sorted characters, scrolling vertically.
   - If you ever use `Area2D` input, turn on the viewport's `physics_object_picking`.
   - Every new viewpoint needs its own character sprite set. That doubles character art, so defer it.
 
@@ -830,7 +865,7 @@ Interview (Control, full rect)  interview.gd
 | `test_content_lint.gd` | `content_lint` | see 12.3 | Step 4, grows each step |
 | `test_balance.gd` | `balance` | the GDD 5.12 simulation, ported | Step 7 |
 
-The 5 Step-1 files contain 24 tests, and all pass against the section-17 code (verified: scratch run).
+The 5 Step-1 files contain 24 tests, and all pass against the section-17 code (verified: scratch run, and in this repo on 2026-09-26 after the portrait change).
 
 ### 12.3 `test_content_lint.gd` checks
 
@@ -841,18 +876,18 @@ The 5 Step-1 files contain 24 tests, and all pass against the section-17 code (v
    - question `tip` in `tips.json`; `weak_for` is a background or `"none"`; `exclusive.background`
    - perk and fine-print `tiers`
    - background ids match the `.tres` ids
-3. **Text budgets** from GDD 2.7, per field:
+3. **Text budgets** from GDD 2.7, per field. The test also word-wraps each string at 40 columns and checks the line cap:
 
-   | Field | Max chars |
-   |---|---|
-   | dialogue, reaction, bark, coach, `ducky` | 120 |
-   | `prompt` | 100 |
-   | answer `text` | 40 |
-   | `green` / `yellow` / `red` | 80 |
-   | posting `joke`, `card_joke`, `one_liner`, CV `text` | 60 |
-   | tip `short` | 120 |
-   | email `body` | 240 |
-   | `insider`, each `red_flags` entry, posting `title`, `salary_text` | 40 |
+   | Field | Max chars | Lines at 40 columns |
+   |---|---|---|
+   | dialogue, reaction, bark, coach, `ducky` | 120 | 4 |
+   | `prompt` | 100 | 3 |
+   | answer `text` | 40 | 1 |
+   | `green` / `yellow` / `red` | 80 | 3 |
+   | posting `joke`, `card_joke`, `one_liner`, CV `text` | 60 | 2 |
+   | tip `short` | 120 | 4 |
+   | email `body` | 240 | 7 |
+   | `insider`, each `red_flags` entry, posting `title`, `salary_text` | 40 | 1 |
 
 4. **Banned brands** (CONTENT 1.3): a case-insensitive, **whole-word** match (`RegEx` `\bword\b`) over every player-facing string.
    - The list and an allowlist of `{word, reason}` live as constants **in the test file**. `tests/` is never exported, so real brand names never ship.
@@ -881,83 +916,113 @@ The 5 Step-1 files contain 24 tests, and all pass against the section-17 code (v
 
 ## 13. Export
 
-### 13.1 Android from Windows (Step 2)
+### 13.1 iOS from the MacBook (Step 2)
 
-| Need | Value | This PC |
+Godot exports an Xcode project; Xcode signs it, builds it and installs it on the iPhone (verified: 4.7 docs). All of this happens on the Mac: the Windows PC can't build for iOS.
+
+| Need | Value | Notes |
 |---|---|---|
-| JDK | OpenJDK **17** | present: `C:\Program Files\Eclipse Adoptium\jdk-17.0.15.6-hotspot` |
-| Android SDK | Platform-Tools >= 35.0.0, Build-Tools **35.0.1**, Platform **35 and 36**, cmdline-tools latest, NDK **r28b (28.1.13356709)**, CMake **3.10.2.4988404** | missing (no SDK, `ANDROID_HOME` unset) |
-| Export templates | exactly **4.7.2.stable** | install them from the editor |
+| macOS | Godot 4.7 needs macOS 13+ on Apple silicon (11+ on Intel). **Xcode sets the real floor:** Xcode 26.0-26.3 need macOS 15.6+, Xcode 26.4-26.6 need macOS 26.2+, Xcode 27 needs macOS 26.6+ | verified: godot-docs 4.7 system requirements; developer.apple.com/support/xcode |
+| Xcode | the version that supports your iPhone's iOS. An iPhone on iOS 27 needs Xcode 27 (released 2026-09-14) | whether Xcode 26.x can deploy to an iOS 27 phone is unverified |
+| Godot | **4.7.2**, the universal zip from godotengine.org: the same version as the PC, and it never auto-updates. Its settings live in `~/Library/Application Support/Godot/` | verified: godotengine.org, 4.7 docs |
+| Export templates | exactly **4.7.2.stable**, iOS | installed from the editor (task 2) |
+| Apple account | a free Apple ID (Personal Team). The paid program only from Step 13 | limits below |
 
-**1. Install the SDK yourself, outside Claude.** Your setup note warns that AppData writes from a Claude-launched process can land in a virtualized location. There are two ways:
-- Android Studio, then its SDK Manager.
-- The command line:
+**1. Xcode.** Install it, launch it once and accept the license. In **Xcode > Settings > Accounts**, press **+** and add your Apple ID; it shows as "(Personal Team)". Then use **Manage Certificates... > + > Apple Development**. The iOS Simulator runtime isn't needed for device builds (unverified).
 
-  ```
-  sdkmanager --sdk_root=<android_sdk_path> "platform-tools" "build-tools;35.0.1" "platforms;android-35" "platforms;android-36" "cmdline-tools;latest" "cmake;3.10.2.4988404" "ndk;28.1.13356709"
-  ```
+**2. Export templates.** In the Mac editor, open **Editor > Manage Export Templates** and install the iOS templates (Install Selected Templates), or use "Install from file" with `export_templates.tpz`.
 
-  `--sdk_root` is required.
+**3. Team ID.** Godot needs the 10-character code (like `ABCDE12XYZ`), not your name; a wrong value causes a "JSON error" on export (verified: 4.7 docs). A free account can't see it on the developer website: open **Keychain Access > login > My Certificates**, double-click "Apple Development: <you>" and copy the **Organizational Unit** (community sources, not Apple docs).
 
-**2. Point Godot at the tools.** In **Editor > Editor Settings > Export > Android**, set:
-- the Java SDK path to the Adoptium JDK 17 folder;
-- the Android SDK path to the folder that contains `platform-tools\adb.exe`.
-
-**3. Install the export templates:** **Editor > Manage Export Templates > Download and Install.** They must match 4.7.2 exactly.
-
-**4. Create the preset:** **Project > Export > Add... > Android**, with these settings:
+**4. Create the preset:** **Project > Export > Add... > iOS**. `application/app_store_team_id` and `application/bundle_identifier` are required; export fails without them. Option names and defaults are verified against the 4.7 docs and the 4.7.2 exporter source unless marked.
 
 | Setting | Value |
 |---|---|
 | Runnable | ticked |
-| `package/unique_name` | `com.<you>.swesimulator`. Lowercase a-z, 0-9, `_` and `.` only. **Pick it once and never change it** |
-| `package/name` | SWE Simulator |
-| `version/code` / `version/name` | 1 / 0.1.0 |
-| `architectures/arm64-v8a` | on. Everything else off; add x86_64 only for an emulator |
-| `screen/immersive_mode` | on |
-| `permissions/vibrate` | on (haptics) |
+| `application/app_store_team_id` | the Team ID from task 3 (not a secret) |
+| `application/bundle_identifier` | `com.<you>.swesimulator`: lowercase letters, digits and dots only, so it is also a valid Android package name. **Pick it once and never change it**: a Personal Team allows 10 App IDs per 7 days |
+| `application/export_method_debug` | Development (the default) |
+| `application/export_project_only` | **on**: Godot writes the Xcode project and Xcode builds it. Off makes Godot also run `xcodebuild` to produce an .ipa, which is unverified with a Personal Team |
+| `application/min_ios_version` | 15.0 (the default; Xcode 27 accepts it) |
+| `application/targeted_device_family` | **0 = iPhone** (the default 2 is iPhone & iPad). iPad-native is LATER (GDD 2.10) |
+| `application/icon_interpolation` | **0 = Nearest neighbor** (the default 4, Lanczos, blurs pixel art) |
+| `icons/icon_1024x1024` | the 32 or 64 px icon upscaled by a whole number to 1024 (Step 12). Blank falls back to the project icon; whether the other sizes are generated from it is unverified |
+| `storyboard/use_custom_bg_color` + `storyboard/custom_bg_color` | on, `Color(0.07, 0.07, 0.1)`, matching the boot splash (the look is unverified) |
+| `storyboard/image_scale_mode` | Center |
+| `user_data/accessible_from_files_app` | off (the default): the save stays private |
+| `capabilities/*`, `privacy/*` | the defaults (all off): the game is offline |
 | Resources: exclude filter | `addons/godot_ai/*, tests/*`. Add `features/dev/*` for release builds. The addon's export plugin also strips `_mcp_game_helper` (verified: addon source) |
 | Resources: include non-resource files | `ui/fonts/*.txt` |
 
-**5. Keystore.** 4.3+ reportedly auto-generates a debug keystore (unverified). If export complains, create one with `keytool` from the JDK, using the standard `androiddebugkey` / `android` debug credentials.
+Orientation isn't a preset option: the exporter turns `display/window/handheld/orientation = 1` into `UIInterfaceOrientationPortrait` only (verified: 4.7.2 exporter source). The exporter also refuses the project without `import_etc2_astc`, which Step 1 set.
 
-**6. Deploy.** On the phone, turn on Developer options and USB debugging, plug it in and accept the prompt. Then use **one-click deploy**, the Android icon at the top right of the editor.
-- For wireless, use `adb pair <ip>:<port>`.
-- Keep **Debug > Deploy with Remote Debug** on, so errors from the phone appear in the editor's Output and Debugger panels.
-- **godot-ai cannot see device builds.** Use the Debugger panel or `adb logcat`.
+**5. Export and run from Xcode** (the guaranteed path):
+- **Project > Export > Export Project** into `builds/ios/` (git-ignored). You get an Xcode project folder with the `.xcodeproj`, the `.pck` and the Godot library (the exact file list is unverified).
+- Open the `.xcodeproj`. Under **Signing & Capabilities**, tick "Automatically manage signing" and choose Team = "<you> (Personal Team)".
+- Pick your iPhone as the run destination and press **Cmd+R**. Logs appear in Xcode's console (unverified).
 
-**Before any Google Play upload (Step 13):**
-- **AAB and Gradle:** run Project > Install Android Build Template, then set `gradle_build/use_gradle_build` on, `gradle_build/export_format` = AAB, and untick "Export With Debug".
-- **Target SDK:** since 2026-08-31 Play requires **target API 36** (with extensions to 2026-11-01). Confirm `gradle_build/target_sdk` shows 36 (whether 36 is the 4.7 default is unverified), and afterwards check the uploaded bundle's targetSdkVersion in the Play Console.
-- **Release keystore:** create it with `keytool -v -genkey -keystore swe_sim_release.keystore -alias swesim -keyalg RSA -validity 10000`.
-  - The keystore password and the key password must be the same.
-  - **Never commit it. Back it up in two places.**
-- **Play Console:** fill in the **Data safety form**, even though the game collects nothing. New personal accounts reportedly need a closed test with 12 testers for 14 days before a public release (unverified).
+**6. The iPhone:**
+- On the first USB connection, accept **Trust This Computer**.
+- **Developer Mode** (iOS 16+): Settings > Privacy & Security > Developer Mode, switch it on, tap Restart, then confirm Enable with your passcode. **The toggle appears only after the phone has been connected to Xcode** (verified: Apple, "Enabling Developer Mode on a device").
+- The first launch is blocked as "Untrusted Developer": **Settings > General > VPN & Device Management > your Apple ID > Trust** (verified: Apple Developer Forums).
+- Wi-Fi: after one USB pairing, tick "Connect via network" in Xcode's **Window > Devices and Simulators**, with both devices on the same Wi-Fi (community guides).
 
-### 13.2 iOS (LATER)
+**7. Remote debug (optional).** The macOS editor has one-click deploy for iOS: it exports with debugging on and runs the game on the connected iPhone, so errors from the phone appear in the Output and Debugger panels (verified: 4.7 docs; macOS editor only).
+- It needs Xcode signed in, and the phone paired, unlocked and in Developer Mode, over USB or the same network (Editor Settings > Network > Debug > Remote Host).
+- Build each new bundle ID once in Xcode first, so its provisioning profile exists.
+- Whether it works with a Personal Team is unverified. Xcode Run stays the guaranteed path.
+- **godot-ai cannot see device builds.** Read Xcode's console, or the Debugger panel with one-click deploy.
 
-- **Requirements:** macOS + Xcode + an Apple Developer Program membership (the 2026 fee is unverified), plus a Team ID and a Bundle ID.
-- **How it works:** Godot exports an Xcode project, and you build and deploy it from Xcode (verified: 4.7 docs).
-- **Simulator:** it only supports the Compatibility renderer, which we already use.
-- **Options:** a used Apple-silicon Mac mini (simplest), a rented cloud Mac, or macOS CI.
-- **Keep iOS possible now:**
-  - an on-screen way back on every screen;
-  - no Android-only plugins;
-  - haptics behind `Device.haptic()`. Very short iOS vibrations are untested.
+**Personal Team limits** (verified: developer.apple.com, compare memberships):
+- **Provisioning profiles expire 7 days after they are issued.** The app then stops launching; press Run in Xcode again to re-sign it. Write the install date down.
+- Up to 3 devices, 10 App IDs (each expiring after 7 days) and 3 apps per device.
+- Reinstalling over the same bundle ID should keep the save (unverified).
+
+**The paid Apple Developer Program** (99 USD a year; verified: Apple's enrollment page) is needed for TestFlight, App Store Connect and release, for profiles that don't expire weekly (about a year; unverified), and for Game Center, In-App Purchase and iCloud. Join it before Step 13, not before.
+- **Release build (Step 13):** keep `application/export_method_release` = App Store (the default), set `app_store_team_id` to the paid team's ID (it may differ from the Personal Team's; unverified), then archive in Xcode (Product > Archive) and upload to App Store Connect for TestFlight (the standard Xcode flow; unverified in the Godot docs).
+- App Store Connect uploads need Xcode 26+ with the iOS 26 SDK (since 2026-04-28; verified: developer.apple.com).
+
+### 13.2 Android (LATER)
+
+Android returns after the MVP and needs an Android phone to test on. Keep it possible now: no iOS-only plugins, haptics behind `Device.haptic()`, and one id (`com.<you>.swesimulator`) for both stores. The facts already checked:
+
+| Need | Value | Notes |
+|---|---|---|
+| JDK | OpenJDK **17** | already on the PC: `C:\Program Files\Eclipse Adoptium\jdk-17.0.15.6-hotspot` |
+| Android SDK | platform-tools, build-tools 35.0.1, **`platforms;android-35` and `platforms;android-36`**, cmdline-tools, CMake 3.10.2.4988404, NDK r28b | the 4.7 docs list API 35, but the 4.7.2 Gradle template targets compileSdk/targetSdk **36** (build-tools 36.1.0, NDK 29.0.14206865, minSdk 24; verified: 4.7.2 `config.gradle`) |
+| Export templates | exactly **4.7.2.stable**, Android | |
+
+- **Install the SDK yourself, outside Claude** (MSIX AppData virtualization, section 16): Android Studio's SDK Manager, or `sdkmanager --sdk_root=<android_sdk_path> "platform-tools" "build-tools;35.0.1" "platforms;android-35" "platforms;android-36" "cmdline-tools;latest" "cmake;3.10.2.4988404" "ndk;28.1.13356709"` (`--sdk_root` is required). Then set the Java SDK and Android SDK paths in **Editor > Editor Settings > Export > Android**.
+- **`import_etc2_astc`** is mandatory for Android too; Step 1 set it.
+- **Preset:** Runnable; `package/unique_name` = the iOS bundle id; `package/name` SWE Simulator; `version/code` 1, `version/name` 0.1.0; `architectures/arm64-v8a` only; `screen/immersive_mode` on; **`permissions/vibrate` on** (haptics); the same exclude and include filters as iOS.
+- **Debug keystore:** the editor generates one with `keytool` from the configured JDK when none is set (verified: 4.7.2 `platform/android/export/export_plugin.cpp`).
+- **Deploy:** Developer options and USB debugging on the phone, then one-click deploy with **Debug > Deploy with Remote Debug** on; `adb logcat` for logs.
+- **Before Google Play:**
+  - Project > Install Android Build Template, then `gradle_build/use_gradle_build` on, `gradle_build/export_format` = AAB, and untick "Export With Debug".
+  - **Target API 36:** required for new apps and updates since 2026-08-31, with extensions to 2026-11-01 (verified: developer.android.com). The 4.7.2 template targets 36; confirm the preset's `gradle_build/target_sdk` (its default is unverified) and the uploaded bundle's targetSdkVersion.
+  - **Release keystore:** `keytool -v -genkey -keystore swe_sim_release.keystore -alias swesim -keyalg RSA -validity 10000`, with the same password for the keystore and the key. **Never commit it. Back it up in two places.**
+  - **Play Console:** the Data safety form, even though the game collects nothing. New personal accounts reportedly need a closed test with 12 testers for 14 days (unverified).
 
 ---
 
 ## 14. Version control
 
-### 14.1 Git on this PC
+### 14.1 Git on both machines (Windows PC and MacBook)
 
-`git.exe` is not on PATH. There are two ways to get it:
-- **Recommended:** run `winget install --id Git.Git -e` **in your own terminal**, then restart the terminal and Claude so PATH picks it up.
-- **Fallback:** GitHub Desktop 3.6.6's bundled git at `%LOCALAPPDATA%\GitHubDesktop\app-3.6.6\resources\app\git\cmd\git.exe`. That path changes with every GitHub Desktop update, so don't hard-code it.
+- **Done:** git works on the PC, and the repo is `Lecoeurdelest/swe-simulator` on GitHub (branch `main`), with `.gitignore` and `.gitattributes` in history from the start.
+  - If a shell that Claude launched can't find `git`, restart Claude after changing PATH. GitHub Desktop also bundles git under `%LOCALAPPDATA%\GitHubDesktop\app-<version>\resources\app\git\cmd\git.exe`; the version folder changes with every update, so don't hard-code it.
+- **On the Mac:** git comes with Xcode's command-line tools (run `xcode-select --install` if `git --version` asks). Set the same `user.name` and `user.email`, sign in to GitHub the way you do on the PC (GitHub Desktop also runs on macOS), and `git clone https://github.com/Lecoeurdelest/swe-simulator.git`.
 
-Set your identity once with `git config --global user.name "..."` and `git config --global user.email "..."`.
-
-The repo exists with zero commits. **Add `.gitignore` and `.gitattributes` before the first commit**, so `.godot/` never enters history.
+**Working on two machines:**
+- **Pull before you start, push before you switch.** Work that isn't pushed doesn't exist on the other machine, and a conflict in a `.tscn` is painful to merge.
+- **Line endings:** `.gitattributes` forces LF (`* text=auto eol=lf`), so both machines write identical files.
+- **`.godot/` is ignored.** The first open on the Mac rebuilds it and reimports everything. It's slow once; that's expected.
+- **Commit the `*.uid` and `*.import` files** (173 `.uid` files are tracked; `.import` files arrive with the first assets). Move and rename files only in Godot's FileSystem dock.
+- **The `.claude/skills` symlink:** git stores it as a symlink (mode 120000) to `../.agent/skills`. This PC has `core.symlinks=false`, so here it's a plain text file containing `../.agent/skills`; git on macOS makes a real link, so the project skills load only on the Mac. Never replace the Windows placeholder with a real folder and commit it: that turns the symlink into a normal entry.
+- **Python caches** are ignored (`__pycache__/`, section 14.2). One `.pyc` under `.agent/skills/plan-driven-development/scripts/__pycache__/` was committed before that rule; remove it from the index once with `git rm -r --cached .agent/skills/plan-driven-development/scripts/__pycache__`.
+- **Path case:** both file systems are case-insensitive, but the exported pack is not. Match the case of every `res://` path exactly.
+- **Engine:** both machines run exactly 4.7.2. Commit before any update, and update both machines together.
+- `export_presets.cfg` is committed and holds the iOS preset (and the Android one, LATER). Export credentials live in `.godot/`, which is ignored (section 14.3).
 
 ### 14.2 The two files (exact content)
 
@@ -990,6 +1055,9 @@ addons/.godot_ai_update/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Python bytecode (skill helper scripts)
+__pycache__/
 ```
 
 `.gitattributes`:
@@ -1023,11 +1091,11 @@ desktop.ini
 | **`*.uid`** | **yes** | since 4.4, scenes point to scripts by `uid://` |
 | **`*.import`** | **yes** | per-asset import settings (filter, font antialiasing) |
 | `addons/godot_ai/` | yes | `project.godot` references its plugin and autoload |
-| `.godot/`, `addons/.godot_ai_update/`, `/android/`, `/builds/*` | no | cache, updater staging, regenerable build template, outputs |
+| `.godot/`, `addons/.godot_ai_update/`, `/android/`, `/builds/*`, `__pycache__/` | no | cache, updater staging, regenerable build template, outputs (including `builds/ios/`), Python caches |
 | `*.keystore`, `*.jks` | **never** | back the release keystore up separately |
 
 **Habits**
-- Commit every time something works. Use messages like `feat(interview): add doubt/composure bars`.
+- Commit every time something works, and push at the end of every session. Use messages like `feat(interview): add doubt/composure bars`.
 - **Always commit before a godot-ai `script_patch`** (it can't be undone with Ctrl+Z) and before any engine update.
 - Tag milestones: `v0.1-greybox`, `v0.5-mvp`.
 - Move and rename files only in Godot's FileSystem dock, never in Explorer. The `.uid` and `.import` files move with them.
@@ -1037,10 +1105,10 @@ desktop.ini
 
 ## 15. Performance and battery
 
-- **`viewport` stretch mode is the biggest win.** It shades 130-290k pixels per frame whatever the phone's resolution.
-- **`max_fps = 60` plus vsync** stops 120 Hz phones from rendering twice as often.
+- **`viewport` stretch mode is the biggest win.** It shades 130-240k pixels per frame whatever the phone's resolution.
+- **`max_fps = 60` plus vsync** stops 120 Hz iPhones from rendering twice as often.
 - **Leave low-processor mode off.** It's the default (verified 4.7.2); it helps only static screens and hurts frame pacing. If battery becomes a problem, try `OS.low_processor_usage_mode = true` on the CV and inbox panels only.
-- **Keep `gl_compatibility`.** It has the widest device support and starts fastest, and it's the only renderer the iOS simulator supports.
+- **Keep `gl_compatibility`.** It has the widest device support and starts fastest, and it's the only renderer the iOS simulator supports. On iOS it runs on native OpenGL ES 3.0, its only iOS driver in 4.7.2 (verified: 4.7.2 `main.cpp`); Apple has deprecated OpenGL ES since iOS 12, but it still runs.
 - **Habits:**
   - call `queue_redraw()` only while something moves (the Answer Meter stops processing when it's done);
   - use `create_tween()` on the node itself, so the tween dies with the node;
@@ -1050,14 +1118,16 @@ desktop.ini
   - use OGG for music and WAV for short sound effects.
 - **Measure:**
   - on desktop: `editor_manage monitors_get` (FPS, draw calls, memory);
-  - on a device: the remote Debugger's Monitors tab.
-  - Test on the **cheapest Android phone you can borrow**.
+  - on the iPhone: the remote Debugger's Monitors tab (with one-click deploy from the Mac), or Xcode's debug gauges.
+  - Test on the **oldest iPhone you can borrow** (an SE or an 11), and on a cheap Android phone once Android returns.
 
 ---
 
 ## 16. Working with godot-ai (the loop for every session)
 
-**0. Open Godot with this project before starting Claude.** Otherwise the godot-ai bridge doesn't connect (your setup note).
+**0. Pull, then open Godot with this project before starting Claude.**
+- **On the Windows PC this order is required.** The bridge authenticates with a capability file in AppData, and MSIX AppData virtualization can hide it from a Claude started first (your setup note).
+- **On the Mac it's only a good habit.** The file sits at `~/Library/Application Support/godot-ai/capabilities/http-8000.json`, and the editor and a Terminal-launched `claude` see the same path (verified: addon source). First-time setup is at the end of this section.
 
 **1. Check the editor.** Run `editor_state`: the editor must be ready and **not playing**. Edits during play are rejected; calling `editor_state` resyncs.
 
@@ -1087,7 +1157,7 @@ desktop.ini
 
 **7. Stop.** Run `project_manage stop`.
 
-**8. You play it.** Test it on the phone for feel, readability and thumb reach. Then commit.
+**8. You play it.** Test it on the iPhone for feel, readability and one-thumb reach (on the Mac: pull, export, Run in Xcode). Then commit and push.
 
 **Debug quick start.** Every feature scene starts like this, so `project_run mode="custom"` can launch it alone:
 
@@ -1108,6 +1178,14 @@ func _ready() -> void:
 | Data | `resource_manage create`, `filesystem_manage read_text` / `write_text` / `scan` |
 | Running and inspecting | `project_run`, `editor_screenshot`, `logs_read`, `game_manage`, `editor_manage game_eval` / `monitors_get` |
 | Phase 2 top-down | `tileset_manage`, `tilemap_manage` |
+
+**Setting up godot-ai on the Mac (once, in Step 2):**
+- Install **uv**, which provides `uvx`: `brew install uv`, or `curl -LsSf https://astral.sh/uv/install.sh | sh`. You don't need to install Python; uv downloads one when needed.
+- Install Claude Code (the `claude` CLI). The addon looks for `claude` and `uvx` in `~/.local/bin`, `~/.claude/local`, `~/.cargo/bin`, `/opt/homebrew/bin` and `/usr/local/bin`, then asks your login shell, so a Godot started from Finder still finds them (verified: addon source).
+- Open the project in Godot; the addon comes with the repo. In the Godot AI dock, pick Claude Code, set the scope to **local** (Editor Settings `godot_ai/mcp_client_scope`; the PC uses local too) and press **Configure**. It removes any old entry, then runs `claude mcp add --scope local godot-ai -- <uvx> ... godot-ai==4.2.3 ...`. The first server start installs 60+ packages, so it's slow once.
+- Start `claude` in the repo folder and check the connection with a read-only call such as `editor_state`.
+- **Never use the "project" scope.** It writes a `.mcp.json` holding a machine-specific absolute path; committed, it breaks the other OS.
+- Chat history and Claude's auto-memory stay on the machine that made them. `.agent/AGENTS.md` (loaded through the `.claude/CLAUDE.md` symlink), `docs/`, `project.yaml` and `.project/` carry the context (ROADMAP section 10).
 
 ---
 
@@ -2138,9 +2216,11 @@ extends Node
 signal layout_changed    # game-area size or scale mode changed: SafeAreaMargin re-applies
 signal back_unhandled    # Back pressed and the current scene didn't use it: Title shows "Quit?"
 
-const BASE := Vector2(480, 270)
-
 var haptics_enabled: bool = true
+## Base resolution (GDD 2.2: 270x480 portrait), read from Project Settings so the two never disagree.
+var _base := Vector2(
+	int(ProjectSettings.get_setting("display/window/size/viewport_width")),
+	int(ProjectSettings.get_setting("display/window/size/viewport_height")))
 var _last_window_size := Vector2i.ZERO
 
 
@@ -2169,14 +2249,14 @@ func _update_scale_mode() -> void:
 	var w := Vector2(win.size)
 	if w.x <= 0.0 or w.y <= 0.0:
 		return
-	var exact := minf(w.x / BASE.x, w.y / BASE.y)
+	var exact := minf(w.x / _base.x, w.y / _base.y)
 	var s := floorf(exact)
 	var stretch := Window.CONTENT_SCALE_STRETCH_INTEGER
-	var game_size := Vector2i(BASE)
+	var game_size := Vector2i(_base)
 	if s >= 1.0 and s / exact >= 0.8:
-		game_size = Vector2i(floori(w.x / s), floori(w.y / s))  # 2556x1179 -> 639x294 @4x
+		game_size = Vector2i(floori(w.x / s), floori(w.y / s))  # 1179x2556 (iPhone 15) -> 294x639 @4x
 	else:
-		stretch = Window.CONTENT_SCALE_STRETCH_FRACTIONAL       # 1600x720 -> 600x270 @2.67x
+		stretch = Window.CONTENT_SCALE_STRETCH_FRACTIONAL       # 720x1600 -> 270x600 @2.67x
 	if win.content_scale_stretch != stretch or win.content_scale_size != game_size:
 		win.content_scale_stretch = stretch
 		win.content_scale_size = game_size
@@ -2310,8 +2390,8 @@ func _fade_to(alpha: float) -> void:
 class_name SafeAreaMargin
 extends MarginContainer
 ## Put every tappable thing inside one of these; keep backgrounds outside it (full-bleed).
-## Left and right use the larger inset on both sides: a 180-degree flip moves the notch
-## without any resize signal.
+## Portrait: the Dynamic Island / notch is the top inset, the home indicator the bottom one.
+## Left and right use the larger inset on both sides, in case a device reports asymmetric insets.
 
 @export var min_margin: int = 4
 @export var debug_fake_insets := Vector4i.ZERO  # game px (left, top, right, bottom): preview a notch on desktop
@@ -2337,8 +2417,8 @@ func _apply() -> void:
 class_name AnswerMeter
 extends Control
 ## The one-tap "stop the needle" Answer Meter (GDD 5.8.4). Called TimingBar in earlier drafts.
-## Make it cover the whole screen (full rect) so a tap anywhere counts; it draws the bar in the
-## bottom band. Positions are fractions of the bar (0..1). The scene adds the zone labels.
+## Make it cover the whole screen (full rect) so a tap anywhere counts; it draws the bar 40 px above
+## its bottom edge (Step 4 moves it to the S08 meter row, section 11.6). Positions are fractions of the bar (0..1). The scene adds the zone labels.
 
 signal resolved(input_quality: float)
 signal zone_jumped  # startup "PIVOT!"
@@ -2448,6 +2528,8 @@ func _process(_delta: float) -> void:
 func handle_back() -> bool:
 	return false  # nothing to close here: Device emits back_unhandled (the "Quit?" dialog arrives in Step 3)
 ```
+
+Expected output in the 540x960 desktop window: `window (540, 960)` / `game (270, 480) (integer)` (checked live on 2026-09-26, with no runtime errors), then `save file: false` until a run is saved.
 
 ### 17.13 Tests: `tests/`
 
@@ -2831,40 +2913,42 @@ func test_dream_score_examples() -> void:
 
 ## 18. Unverified items and pitfalls
 
-### 18.1 Test these on a device (Step 2 unless noted)
+### 18.1 Test these on the iPhone (Step 2 unless noted)
 
 | # | Item | What to do if it's wrong |
 |---|---|---|
 | 1 | Does dragging a ScrollContainer fire a button release? | Set list-row buttons to `mouse_filter = PASS` and ignore a release when the pointer moved more than the deadzone |
 | 2 | The unit of `gui/common/default_scroll_deadzone` (assumed game px) | adjust the value until a flick scrolls and a tap taps |
-| 3 | Whether `window_width/height_override` are ignored on mobile | if not, clear them in an Android feature override |
+| 3 | Whether `window_width/height_override` are ignored on iOS | if not, clear them in an `ios` feature override (and `android`, LATER) |
 | 4 | Whether the letterbox uses `default_clear_color` | irrelevant with ≤ 3 px |
-| 5 | Safe-area math on a notched phone | preview with `debug_fake_insets`, then check on a real notch |
-| 6 | monogram's 16 px metrics and Press Start 2P's 8 px grid; glyph coverage for other languages | pick a native size before building layouts |
-| 7 | Debug keystore auto-generation (4.3+) | create one with `keytool` |
-| 8 | That the JSON texts load in the exported APK (Step 5) | add `data/content/*.json` to the include filter |
-| 9 | `gradle_build/target_sdk` = 36 in the 4.7 preset (Step 13) | set it, and install `platforms;android-36` |
-| 10 | Play's closed-testing rule for new personal accounts (12 testers x 14 days) | check the Play Console when you create the account |
-| 11 | The name of Steam's "update only on launch" option | find it; commit before any engine update |
-| 12 | Very short iOS haptics | keep them subtle, with a Settings toggle |
+| 5 | Safe area on a real Dynamic Island: does Godot still report the 59 pt top and 34 pt bottom insets with the status bar and home indicator hidden? | preview with `debug_fake_insets = (0, 45, 0, 26)`; measure on the phone and update GDD 2.9 |
+| 6 | Fonts on the iPhone at 4x: monogram's 16 px metrics (the 40-column budgets need a 6 px advance) and Press Start 2P's 8 px grid; glyph coverage for other languages | pick a native size before building layouts |
+| 7 | iOS haptics: is a 10 ms tap felt, and do haptics survive a background/resume? No entitlement is expected (unverified) | raise tap-level haptics to 20 ms, or add an amplitude parameter to `Device.haptic()` (GDD 9.3); keep the Settings toggle |
+| 8 | That the JSON texts load in the exported iOS build (Step 5) | add `data/content/*.json` to the include filter |
+| 9 | The 7-day Personal Team expiry: does reinstalling over the same bundle ID keep the save? | re-run from Xcode before every playtest; join the paid program before Step 13 |
+| 10 | One-click deploy and remote debug with a Personal Team (Mac editor) | build and run from Xcode, and read Xcode's console |
+| 11 | The name of Steam's "update only on launch" option (Windows PC) | find it; commit before any engine update. The Mac's zip never updates itself |
+| 12 | `DisplayServer.virtual_keyboard_get_height()` unit on iOS (likely native px; Step 5, S03 name field) | divide by the scale, as `safe_insets()` does |
 | 13 | `game_manage input_mouse` coordinate space | test on one button first |
-| 14 | When the editor runs the game embedded in its Game tab (possible since 4.4): the window size is the tab's size, and the 1200x540 override may not apply. Desktop-only | float or undock the game window to test exact sizes. The guard rule still holds at any size |
+| 14 | The game embedded in the editor's Game tab (possible since 4.4): the window size is the tab's size, the 540x960 override may not apply, and `game_eval` resizes are ignored (seen in Step 1). Desktop-only | float or undock the game window to test exact sizes. The guard rule still holds at any size |
+| 15 | (Android, LATER) `gradle_build/target_sdk` shows 36 in the preset; the 4.7.2 template already targets 36 | set it to 36 |
+| 16 | (Android, LATER) Play's closed-testing rule for new personal accounts (12 testers x 14 days) | check the Play Console when you create the account |
 
 ### 18.2 Pitfalls this architecture prevents (don't undo them)
 
 1. **Changing a loaded `.tres` at runtime.** It changes it for everyone, and can even save it to disk. Copy values into `RunState` instead.
 2. **An autoload with a `class_name`.** The autoload script needs none.
 3. **Blurry pixels.** Causes: a Linear filter, font antialiasing, non-integer scales, sub-pixel tweens.
-4. **Placing Controls by absolute position.** Layouts break on 20:9 phones and tablets. Use containers.
+4. **Placing Controls by absolute position.** Layouts break on tall iPhones and wider screens. Use containers.
 5. **An invisible full-screen Control eating taps.** Set `mouse_filter` to IGNORE unless it's meant to block.
 6. **One Control handling both touch and mouse events**, which fires double taps.
 7. **Back quitting the app, or not saving on pause.** Both are handled in `Device` and `GameState`.
-8. **Case-mismatched `res://` paths.** They work on Windows and break on phones. Never hand-type paths: drag them in or use `uid://`.
+8. **Case-mismatched `res://` paths.** They work on Windows and macOS and break on phones. Never hand-type paths: drag them in or use `uid://`.
 9. **JSON surprises.** Floats instead of ints; 64-bit values losing precision.
 10. **The global RNG, `Array.shuffle()` or `pick_random()` in gameplay.**
 11. **`if difficulty == HARD` anywhere.** Difficulty is only ever numbers from `BackgroundData`.
 12. **Reordering the `Phase` enum**, which breaks saves. Only append.
 13. **Loading anything but our own JSON or `settings.cfg` from `user://`.**
 14. **Tests that touch autoloads or `user://`, lack `@tool`, or make zero assertions.**
-15. **Engine or template drift.** A Steam update means templates no longer match 4.7.2. Commit first.
-16. **Testing only in the editor.** Fonts, notches, touch and performance only reveal themselves on the phone.
+15. **Engine or template drift.** A Steam update on the PC, or a different download on the Mac, means the two machines and the templates no longer match 4.7.2. Commit first and update both together.
+16. **Testing only in the editor.** Fonts, the Dynamic Island, touch and performance only reveal themselves on the iPhone.

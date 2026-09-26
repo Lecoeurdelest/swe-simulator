@@ -16,10 +16,10 @@ This table only projects execution state. Criteria ids are in [project.yaml](../
 
 | Status | ID | Title | Execution | Relevance | Depends on | Criteria passed | Detail | Evidence |
 |---|---|---|---|---|---|---|---|---|
-| [!] | `STEP-00` | Tools, decisions and reading | `in_progress` | `current` | — | 1/3 | Git done (AC-S00-1). Open: D1-D8 answers in docs/DECISIONS.md (AC-S00-3); Godot auto-update pin (AC-S00-2). | [2026-09-26-r1](../../.project/evidence/STEP-01/2026-09-26-r1/) |
-| [!] | `STEP-01` | Project foundation | `verifying` | `current` | — | 4/6 | Automated checks pass. Waiting on the developer: resize-by-drag check (AC-S01-2) and the three one-sentence explanations (AC-S01-6). | [2026-09-26-r1](../../.project/evidence/STEP-01/2026-09-26-r1/) |
-| [] | `STEP-02` | Hello phone: the Android debug build | `todo` | `current` | `STEP-01` | 0/7 | Needs STEP-01 done. ROADMAP/ARCHITECTURE 13.1 give Windows paths; macOS equivalents needed (ISSUE-01). | — |
-| [] | `STEP-03` | Stub flow through every screen, plus the UI kit | `todo` | `current` | `STEP-02` | 0/5 | Needs STEP-02; fonts are downloaded by the developer. | — |
+| [!] | `STEP-00` | Tools, decisions and reading | `in_progress` | `current` | — | 1/3 | The decisions are done (AC-S00-3: D1-D8 and P1 in docs/DECISIONS.md). Open: AC-S00-1 needs saved evidence that user.email is set and the repo is on GitHub (r2 shows git, user.name and the Mac's commit on the PC); the Steam auto-update pin on the Windows PC (AC-S00-2, developer); the reading and the You-do are the developer's. | [2026-09-27-r2](../../.project/evidence/STEP-01/2026-09-27-r2/), [docs](../../docs/) |
+| [!] | `STEP-01` | Project foundation | `verifying` | `current` | — | 3/6 | Portrait re-check (run r2) passes AC-S01-1, AC-S01-3, AC-S01-4 and the settings. Waiting on the developer: drag-resize check (AC-S01-2), the portrait commit and push (AC-S01-5), the three explanations (AC-S01-6). | [2026-09-27-r2](../../.project/evidence/STEP-01/2026-09-27-r2/) |
+| [] | `STEP-02` | Hello iPhone: the iOS debug build from the MacBook | `todo` | `current` | `STEP-01` | 0/12 | Hello iPhone on the MacBook (Xcode, free Personal Team). Needs STEP-01 done and the portrait commit pushed; the device-check scene can be built on either machine. | — |
+| [] | `STEP-03` | Stub flow through every screen, plus the UI kit | `todo` | `current` | `STEP-02` | 0/5 | Needs STEP-02; the fonts arrive in Step 2 (task 5). | — |
 | [] | `STEP-04` | Interview grey-box | `todo` | `current` | `STEP-03` | 0/5 | Needs STEP-03. | — |
 | [] | `STEP-05` | Job-hunt grey-box | `todo` | `current` | `STEP-04` | 0/5 | Needs STEP-04. | — |
 | [] | `STEP-06` | Offer, endings, save/resume, Back, intro text slides | `todo` | `current` | `STEP-05` | 0/4 | Needs STEP-05. | — |
@@ -29,7 +29,7 @@ This table only projects execution state. Criteria ids are in [project.yaml](../
 | [] | `STEP-10` | Art production for the rest | `todo` | `current` | `STEP-09` | 0/2 | Needs STEP-09. | — |
 | [] | `STEP-11` | Intro cutscene art | `todo` | `current` | `STEP-06`, `STEP-09` | 0/3 | Needs STEP-06 and STEP-09. | — |
 | [] | `STEP-12` | Audio, juice, accessibility, credits | `todo` | `current` | `STEP-10`, `STEP-11` | 0/4 | Needs STEP-10 and STEP-11. | — |
-| [] | `STEP-13` | Playtest #2 and the release candidate | `todo` | `current` | `STEP-08`, `STEP-12` | 0/22 | Needs STEP-08 and STEP-12. | — |
+| [] | `STEP-13` | Playtest #2 and the release candidate | `todo` | `current` | `STEP-08`, `STEP-12` | 0/22 | Needs STEP-08 and STEP-12. TestFlight release candidate (paid Apple Developer Program from the start of the step); Android and Google Play stay LATER. | — |
 
 ## Milestones
 
@@ -38,6 +38,9 @@ This table only projects execution state. Criteria ids are in [project.yaml](../
 
 ## Open issues
 
-- `ISSUE-01` (open): ROADMAP Steps 0/2 and ARCHITECTURE 13.1/14.1 assume Windows (PowerShell, winget, C:\ JDK path, Steam updates). This machine is macOS. Doc fix needs the developer's approval; ARCHITECTURE wins on engine/tool facts.
-- `ISSUE-02` (open): Confirmed on this editor: while the game runs in the Game tab, Window.size assignment is ignored (ARCHITECTURE 18.1 #14). Record it in 18.1 during Step 2 task 7.
-- `ISSUE-03` (resolved): A Python __pycache__ .pyc was committed with the skill. Added __pycache__/ to .gitignore and untracked the file (not committed yet).
+- `ISSUE-01` (resolved): The v1.0 docs assumed a Windows toolchain while the plan was set up on a Mac. Resolved 2026-09-27 by docs v1.1 (P1, iPhone first): ROADMAP Steps 0, 2 and 13 and ARCHITECTURE 13.1, 14.1 and 16 cover the Mac path; Android is LATER (ARCHITECTURE 13.2). The remaining Steam pin (AC-S00-2) applies to the Windows PC only.
+- `ISSUE-02` (resolved): While the game runs embedded in the editor's Game tab, game_eval window resizes (root.size) are ignored. Resolved 2026-09-27: recorded in ARCHITECTURE 1.1 and 18.1 #14 (and AGENTS.md); drag the window edge or float the game window to test sizes (AC-S01-2).
+- `ISSUE-03` (resolved): A Python __pycache__ .pyc was committed with the skill. __pycache__/ is in .gitignore (ARCHITECTURE 14.2); the file's removal from the index (git rm --cached) is now staged on the Windows PC too, still uncommitted, so it lands with the next commit.
+- `ISSUE-04` (open): On the Windows PC (core.symlinks=false) git checks out the symlinks .claude/CLAUDE.md, .code/AGENTS.md and .claude/skills as one-line text files, so Claude Code there loads neither .agent/AGENTS.md nor the project skill automatically. Options: enable Windows Developer Mode, set core.symlinks=true and re-checkout those three paths; or keep reading .agent/AGENTS.md by hand at the start of each session (ROADMAP 10). Never replace a placeholder with a real file or folder and commit it (ARCHITECTURE 14.1). Needs the developer's choice.
+- `ISSUE-05` (open): The Windows PC's Python (3.12, command python, not python3) has no PyYAML, so .project/render.py and check_project.py can't run there. The docs/task/README.md and .project/generated-manifest.json of the 2026-09-27 update were rendered by emulating render.py on the PC (its own functions, with project.yaml parsed by an existing js-yaml copy, files written as UTF-8 with LF); check_project's validate and audit functions passed on that parse. Re-render with python3 .project/render.py and run the three check_project.py commands on the Mac, or the developer approves installing PyYAML on the PC.
+- `ISSUE-06` (open): docs/DECISIONS.md is now a plan file and the authority for decision answers (project.yaml plan_files, ART-DECISIONS), but .project/render.py's manifest inputs still list only GDD, CONTENT, ARCHITECTURE, ROADMAP, project.yaml and state.json, so a DECISIONS.md change leaves no hash trace. Until render.py adds it (a tooling change the developer approves), project.yaml BASE-DOCS-PORTRAIT records its 2026-09-27 sha256.

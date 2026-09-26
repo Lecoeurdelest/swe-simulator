@@ -2,8 +2,9 @@
 
 | | |
 |---|---|
-| Version | 1.0, 2026-09-26 |
+| Version | 1.1, 2026-09-26 (portrait, iPhone first) |
 | For | You, a first-time game developer, building with Claude Code and godot-ai |
+| Target | A **portrait** game for **your iPhone**, developed on the Windows PC and built on the MacBook. Android is LATER (`docs/DECISIONS.md` D1, P1) |
 | What the game is | `docs/GDD.md` (design) and `docs/CONTENT.md` (every string) |
 | How it's built | `docs/ARCHITECTURE.md` (engine settings, code structure, verified code skeletons) |
 
@@ -29,13 +30,13 @@ Studios move through the same phases whatever the size of the game. Here's how e
 
 | Phase | The question it answers | What a studio does | Here |
 |---|---|---|---|
-| **Pre-production** | What are we making, for whom, and why is it fun? | pitch, pillars, design doc, scope | **Done:** the GDD, CONTENT and this roadmap. **Step 0** records your decisions |
-| **Foundation** | Can we build it and run it on the target device? | engine setup, pipelines, a build on the device | **Steps 1-2** |
-| **Prototype / grey-box** | Is the loop fun and understandable? | ugly, fast builds made of boxes and text | **Steps 3-7**: the whole loop in grey boxes on your phone, then Playtest #1 |
+| **Pre-production** | What are we making, for whom, and why is it fun? | pitch, pillars, design doc, scope | **Done:** the GDD, CONTENT, this roadmap, and your decisions in `docs/DECISIONS.md` (Step 0) |
+| **Foundation** | Can we build it and run it on the target device? | engine setup, pipelines, a build on the device | **Steps 1-2** (Step 1 done; Step 2 puts it on your iPhone) |
+| **Prototype / grey-box** | Is the loop fun and understandable? | ugly, fast builds made of boxes and text | **Steps 3-7**: the whole loop in grey boxes on your iPhone, then Playtest #1 |
 | **Vertical slice** | What does "finished" look like? | one part built to final quality | **Step 9**: the interview, fully drawn and polished |
 | **Production** | Build everything else to that bar | art and content at scale | **Steps 8, 10, 11** |
 | **Polish (alpha, beta)** | Does it feel good, and does it survive real phones? | juice, audio, bugs, performance | **Steps 12-13** |
-| **Release / live** | Can players get it? What comes next? | store builds, updates | after the MVP: Play release, then **Phase 2: The Working Life** |
+| **Release / live** | Can players get it? What comes next? | store builds, updates | after the MVP: the App Store release (TestFlight already runs in Step 13), Android LATER, then **Phase 2: The Working Life** |
 
 ### Best practices you'll use at every step
 
@@ -45,20 +46,20 @@ Studios move through the same phases whatever the size of the game. Here's how e
    - Text lives in JSON.
    - You should be able to rebalance the game without opening a script.
 3. **Keep rules separate from presentation.** Formulas live in pure classes (`Odds`, `RunState`), which tests and a balance simulation can run. Scenes only display.
-4. **Run it on the real phone early, then every week.** Touch, small text, notches, the Back button and performance only reveal themselves on the device.
+4. **Run it on the real phone early, then every week.** One-thumb reach, small text, the Dynamic Island and home indicator, touch and performance only reveal themselves on your iPhone.
 5. **Commit small and often.** Every time something works, commit. When something breaks, it then costs you minutes, not days.
 6. **Test automatically what a human shouldn't have to check.** That means the formulas, the save format, the flow rules and the content rules (text length, banned brand names).
 7. **Playtest in silence.** Watch people play and don't explain. Where they hesitate is where the design fails.
 8. **Cut scope early.** Everything is tagged MUST, SHOULD or LATER. A new idea replaces something; it never just adds.
 9. **The vertical slice sets the bar.** Make one screen beautiful, then match everything else to it.
 10. **Timebox, with the 2x rule.** If a task takes twice its estimate, stop, then cut it or simplify it.
-11. **Keep a decision log.** Each decision is one line with a reason, in `docs/DECISIONS.md`. It stops you from re-arguing the same thing in week 6.
+11. **Keep a decision log.** Each decision is one line with a reason, in `docs/DECISIONS.md` (it already holds D1-D8 and P1). It stops you from re-arguing the same thing in week 6.
 
 ---
 
 ## 2. The MVP
 
-**In one sentence:** on an Android phone, a player watches or skips the intro, picks a background, hunts for jobs until an interview invite lands, survives a fighting-game interview with Dana, and accepts or declines an offer. Every failure teaches a real career tip.
+**In one sentence:** on an iPhone held upright in one hand, a player watches or skips the intro, picks a background, hunts for jobs in the DoomApply phone app until an interview invite lands, survives a fighting-game interview with Dana, and accepts or declines an offer. Every failure teaches a real career tip.
 
 **Out of scope for the MVP:**
 - the Work loop (Phase 2), and walking characters
@@ -67,13 +68,13 @@ Studios move through the same phases whatever the size of the game. Here's how e
 
 ### Definition of done (player-visible, from GDD 10.1)
 
-- [ ] The APK installs on an Android phone, opens in landscape either way up, and reaches the title quickly.
+- [ ] The game installs on your iPhone from Xcode, opens in portrait (it never rotates), and reaches the title quickly.
 - [ ] **Intro:**
   - 6 panels with captions, 40 s or less.
-  - **Hold-to-skip**, and Back also skips.
+  - **Hold-to-skip** (desktop Esc also skips).
   - It plays on the first run only. "Replay intro" is on the title.
-- [ ] **Background select:** 3 cards, each with 3 stat bars, energy pips, rent runway, 1 perk and 1 flaw, plus a name dice button.
-- [ ] **Job hunt dashboard:**
+- [ ] **Background select:** one full-width card at a time (3 stat bars, energy pips, rent runway, 1 perk and 1 flaw), a 3-button selector, and a name dice button.
+- [ ] **Job hunt (the DoomApply phone app with a bottom dock):**
   - 6 new cards per day, at most 10 on the board. The card front shows the logo, title, 3 match tags, a joke and the odds band.
   - **Swipe right or APPLY** = Quick Apply (1 energy). **Flip** gives Tailor & Apply (2 energy).
   - Study (2 energy); the Intern's 2 referrals; Sleep.
@@ -90,11 +91,12 @@ Studios move through the same phases whatever the size of the game. Here's how e
 - [ ] **Endings:** a Hired card with the Dream vs Reality score; a Plan B ending with one-tap Retry; a grace day when an invite is waiting.
 - [ ] **Robustness:**
   - Autosave on every action and whenever the app loses focus. Killing the app never loses more than the current screen.
-  - Android Back works everywhere, and every screen has an on-screen way back.
+  - Every screen has an on-screen Back, because iOS has no Back button (Android Back is LATER).
+  - Every control used more than once a day sits in the bottom 40%, within one thumb's reach.
 - [ ] **Content minimums:** 15 knowledge questions, 10 ethics questions, 20 posting templates, 27 CV strings, 10 rejection lines, 15 tips (CONTENT.md has more), plus about 10 sound effects.
 - [ ] **Technical:**
   - All tests are green: flow, save, odds, interview, offer, content lint and balance.
-  - 60 fps on a cheap Android phone; no crash in 10 runs in a row.
+  - 60 fps on the oldest iPhone you can borrow; no crash in 10 runs in a row.
   - Every asset's license is recorded, and only parody names are used (the lint enforces it).
 
 **Milestones:**
@@ -107,9 +109,9 @@ Studios move through the same phases whatever the size of the game. Here's how e
 
 | Step | What | Your hours | Week (at 15-20 h/week) |
 |---|---|---|---|
-| 0 | Tools, decisions, reading | 3 | 1 |
-| 1 | **Project foundation** | 3 | 1 |
-| 2 | **Hello phone:** Android debug build | 5 (timebox 6) | 1 |
+| 0 | Tools, decisions, reading (git and decisions done) | 3 | 1 |
+| 1 | **Project foundation** (done 2026-09-26) | 3 | 1 |
+| 2 | **Hello iPhone:** iOS debug build from the MacBook | 5 (timebox 6), plus 1-2 h of downloads | 1 |
 | 3 | Stub flow through every screen, plus the UI kit | 8 | 2 |
 | 4 | **Interview grey-box** (the riskiest fun first) | 14 | 2-3 |
 | 5 | **Job-hunt grey-box** | 16 | 3 |
@@ -134,33 +136,28 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 
 - **Goal:** Git works, the engine version is pinned, and every open design decision has your answer.
 - **Best practice:** pre-production. Decide before you build, and pin your tools so they can't change under you.
+- **Status:** git and the decisions are done (2026-09-26). The Steam setting and the reading are yours to finish.
 
 **Tasks**
-1. **Install Git in your own PowerShell window** (not through Claude):
-   - Run `winget install --id Git.Git -e`.
-   - Close and reopen the terminal and Claude, then check `git --version`.
-   - Set your identity once with `git config --global user.name "..."` and `git config --global user.email "..."`.
-   - Optional: create a private GitHub repo for backup; GitHub Desktop is a friendly history viewer.
+1. **Git: done.** Git works on the PC, and the GitHub repo `Lecoeurdelest/swe-simulator` (branch `main`) holds the foundation, committed and pushed. The Mac gets its copy with `git clone` in Step 2 (ARCHITECTURE 14.1).
 2. **Pin Godot:**
    - In Steam, set Godot Engine to update only when you launch it. The exact option name is unverified; look under Properties > Updates.
-   - Never update the engine mid-step. Export templates must match 4.7.2 exactly.
+   - On the Mac you'll use the godotengine.org 4.7.2 zip, which never updates itself (Step 2).
+   - Never update the engine mid-step. Both machines and the export templates must match 4.7.2 exactly.
 3. **Read** (about 2 h):
-   - GDD section 0 (one page), 1.2 (the pillars), 4.1 (the flow) and 12 (the decisions).
+   - GDD section 0 (one page), 1.2 (the pillars), 2.8 (one-thumb touch rules), 4.1 (the flow) and 12 (the decisions).
    - Skim CONTENT.md to get the tone.
    - Godot docs, "Getting Started > Step by step": nodes and scenes, instancing, scripting, signals.
-4. **Design huddle:** answer D1-D8 in GDD section 12. Each has a recommended default, so "default" is a fine answer. Also confirm the names: the protagonist is **Alex** (re-rollable), and the interviewer is **Dana**.
+4. **Design huddle: done.** D1 is portrait only, D2 is 270x480, D3-D8 are the recommended defaults, and P1 is iPhone first. All are in `docs/DECISIONS.md`. The protagonist is **Alex** (re-rollable), and the interviewer is **Dana**.
 
-**Claude and godot-ai do**
-- Explain each decision with its trade-off, in plain words.
-- Write your answers into `docs/DECISIONS.md`, one line each with the reason.
-- Check that `git --version` works.
+**Claude and godot-ai do:** done. Claude explained each decision with its trade-off and wrote your answers into `docs/DECISIONS.md`, one line each with the reason.
 
-**You do (to learn):** answer the decisions in your own words, because you own the game's voice.
+**You do (to learn):** reread `docs/DECISIONS.md` and say each decision back in your own words, because you own the game's voice.
 
 **Done when**
-- [ ] `git --version` prints a version in a fresh terminal, and your name and email are set.
+- [x] Git works, your name and email are set, and the repo is on GitHub.
 - [ ] Steam won't update Godot behind your back.
-- [ ] `docs/DECISIONS.md` lists D1-D8, each with your answer and one line of why.
+- [x] `docs/DECISIONS.md` lists D1-D8 and P1, each with your answer and one line of why.
 
 **Pitfalls**
 - Running installers through Claude. Your setup note warns about MSIX AppData virtualization: files can land where other programs can't see them. Run installers yourself.
@@ -172,6 +169,7 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 
 - **Goal:** a correctly configured, version-controlled project that boots to a title stub, with the core architecture and 24 passing tests.
 - **Best practice:** decide resolution, folders, naming and architecture once, before any content. Commit the ignore files before the first commit. Have tests from day one.
+- **Status: done (applied 2026-09-26, including the switch to portrait).** The title stub reads `window (540, 960)` / `game (270, 480) (integer)` with no runtime errors, and `test_run` passes 24/24. The tasks below are the record of what was done. The "You do (to learn)" tasks are still yours.
 
 **Preconditions**
 - Godot is open on this project **before** Claude starts.
@@ -187,14 +185,14 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 
    | Key | Value |
    |---|---|
-   | `display/window/size/viewport_width` | 480 |
-   | `display/window/size/viewport_height` | 270 |
-   | `display/window/size/window_width_override` | 1200 |
-   | `display/window/size/window_height_override` | 540 |
+   | `display/window/size/viewport_width` | 270 |
+   | `display/window/size/viewport_height` | 480 |
+   | `display/window/size/window_width_override` | 540 |
+   | `display/window/size/window_height_override` | 960 |
    | `display/window/stretch/mode` | `"viewport"` |
    | `display/window/stretch/aspect` | `"expand"` |
    | `display/window/stretch/scale_mode` | `"integer"` |
-   | `display/window/handheld/orientation` | 4 |
+   | `display/window/handheld/orientation` | 1 (`SCREEN_PORTRAIT`) |
    | `rendering/textures/canvas_textures/default_texture_filter` | 0 |
    | `rendering/2d/snap/snap_2d_transforms_to_pixel` | true |
    | `rendering/textures/vram_compression/import_etc2_astc` | true |
@@ -209,6 +207,7 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
    | `application/config/version` | `"0.1.0"` |
 
    Then spot-check three of them with `settings_get`.
+   - `settings_set` does no type coercion, so the two Colors go through a throwaway `@tool` test file (ARCHITECTURE 1.2).
    - Don't set `gui/theme/custom` yet (that's Step 3).
    - Don't set `application/run/main_scene` here (see task 7).
 3. **Git files at the repo root:** `.gitignore` and `.gitattributes`, with the exact contents from ARCHITECTURE 14.2.
@@ -240,134 +239,151 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 8. **Tests.** `test_run` should report **24 passed, 0 failed** (flow 6, save 3, odds 8, interview 4, offer 3).
    - If a suite doesn't load, read `load_errors` in the result, or run `logs_read source="editor"`.
 9. **Run it.**
-   - Run `project_run`, then `editor_screenshot source="game"`. The label should read `window (1200, 540)`, `game (600, 270) (integer)` and `save file: false`.
-     - If the editor runs the game embedded in its Game tab (possible since 4.4), the window size is the tab's size. The rule to check is then: game size = floor(window / s), where s = floor(min(W/480, H/270)). For a real 1200x540 window, float or undock the game window from the Game tab's toolbar (exact option name in 4.7 unverified).
+   - Run `project_run`, then `editor_screenshot source="game"`. The label should read `window (540, 960)`, `game (270, 480) (integer)` and `save file: false`.
+     - If the editor runs the game embedded in its Game tab (possible since 4.4), the window size is the tab's size. The rule to check is then: game size = floor(window / s), where s = floor(min(W/270, H/480)). For a real 540x960 window, float or undock the game window from the Game tab's toolbar (exact option name in 4.7 unverified).
    - `logs_read source="game"` should show `Content: 0 backgrounds, 0 tiers, 0/16 JSON files` and no errors.
-   - Run `editor_manage game_eval` with `Engine.get_main_loop().root.size = Vector2i(1278, 588)`. The label should switch to `game (639, 294)`.
-     - This is unverified if the game runs embedded in the editor's Game tab. If it doesn't work, the developer drags the window edge instead.
+   - To see the guard grow the game area, drag the window to 588x1278: the label switches to `game (294, 639)`. The embedded Game tab ignores `game_eval` resizes (seen 2026-09-26), so a person drags the window edge.
    - Finally, `project_manage stop`.
-10. **First commit** (you). Run:
+10. **Commit and push** (you): done for the foundation. The portrait switch (2026-09-26) still needs its own commit:
     - `git add -A`
     - `git status`, and check that **no `.godot/` path** is listed
-    - `git commit -m "chore: project foundation"`
+    - `git commit -m "chore: portrait 270x480, iPhone first"`, then `git push`
 
-**Claude and godot-ai do:** tasks 1-9, then show you the screenshot and the test summary.
+**Claude and godot-ai do:** tasks 1-9 (done), then show you the screenshot and the test summary.
 
 **You do (to learn)**
 - Open **Project > Project Settings** with Advanced Settings on. Find 5 of the keys above, and say out loud why each one matters.
 - Read `core/game_flow.gd` and `core/run_state.gd` line by line, and ask Claude about anything unclear.
+- Read `autoload/device.gd`: see how the guard reads 270x480 from Project Settings, and why that meant the portrait switch needed no code change in the math.
 - Resize the running game window with your mouse and watch "game" change. Nothing stretches; you just see more or less.
-- Make the first commit yourself.
+- Make the portrait commit yourself, and push it.
 
 **Design huddle:** none. This is plumbing.
 
 **Done when**
-- [ ] F5 shows the title stub, reading `game (600, 270) (integer)` in the 1200x540 window. If the game is embedded in the Game tab, it shows the size the ARCHITECTURE 1.1 rule predicts for that window.
+- [x] F5 shows the title stub, reading `window (540, 960)` / `game (270, 480) (integer)`. If the game is embedded in the Game tab, it shows the size the ARCHITECTURE 1.1 rule predicts for that window.
 - [ ] Resizing the window changes the game size, and nothing blurs or stretches.
-- [ ] `test_run` shows 24 passed.
-- [ ] The Output panel shows no errors.
-- [ ] `git log` shows 1 commit, `git status` is clean, and `.godot/` is not tracked.
+- [x] `test_run` shows 24 passed.
+- [x] The Output panel shows no errors.
+- [ ] `git status` is clean, everything is pushed, and `.godot/` is not tracked.
 - [ ] You can explain in one sentence each:
   - what an autoload is;
   - why only `change_phase()` changes the phase;
   - why the RNG state is saved as a string.
 
 **Pitfalls**
-- **Moving or renaming files in Windows Explorer** breaks references. Always use Godot's FileSystem dock.
+- **Moving or renaming files in Windows Explorer or Finder** breaks references. Always use Godot's FileSystem dock.
 - **Editing while the game runs:** godot-ai rejects edits during play. Stop first.
 - **Skipping the scan:** forget `filesystem_manage op=scan` after a new `class_name` and you get "Could not find type".
 - **Setting `gui/theme/custom` before the theme exists.**
 - **Committing before `.gitignore` exists** puts `.godot/` in history forever.
+- **Switching to the Mac with unpushed work.** Push first (section 10).
 
 ---
 
-### Step 2: Hello phone, the Android debug build (about 5 h; timebox 6 h)
+### Step 2: Hello iPhone, the iOS debug build from the MacBook (about 5 h; timebox 6 h)
 
-- **Goal:** the project runs on your Android phone, plus a device-check screen that answers the questions no desk test can.
+- **Goal:** the project runs on your iPhone, plus a device-check screen that answers the questions no desk test can.
 - **Best practice:** test on the target device early. Toolchain pain is cheapest in week 1.
+- **Time:** about 5 h of your time, timebox 6 h, plus 1-2 h of unattended downloads (Xcode is large; the download time is unverified).
+
+**Preconditions**
+- The portrait commit from Step 1 is pushed.
+- You have the MacBook, your iPhone and a USB cable for it.
+- Most of this step happens on the Mac. The device-check scene can be built on either machine: push, then pull on the other.
 
 **Tasks**
-1. **Android SDK** (you). Follow ARCHITECTURE 13.1. Use either Android Studio's SDK Manager or:
-
-   ```
-   sdkmanager --sdk_root=<android_sdk_path> "platform-tools" "build-tools;35.0.1" "platforms;android-35" "platforms;android-36" "cmdline-tools;latest" "cmake;3.10.2.4988404" "ndk;28.1.13356709"
-   ```
-
-2. **Editor settings** (you). In **Editor > Editor Settings > Export > Android**, set:
-   - the Java SDK path to `C:\Program Files\Eclipse Adoptium\jdk-17.0.15.6-hotspot`;
-   - the Android SDK path to the folder that contains `platform-tools\adb.exe`.
-3. **Export templates** (you): **Editor > Manage Export Templates > Download and Install** (4.7.2).
-4. **Android preset** (you, with Claude reading the checklist). Use **Project > Export > Add... > Android**, with the ARCHITECTURE 13.1 table:
-   - package name `com.<you>.swesimulator` (pick it once)
-   - arm64-v8a
-   - immersive mode on, `permissions/vibrate` on
+1. **Check the Mac and the phone** (you, 10 min). On the Mac: Apple menu > About This Mac (chip and macOS version). On the iPhone: Settings > General > About (iOS version). Compare them with the ARCHITECTURE 13.1 table: an iPhone on iOS 27 needs Xcode 27, which needs macOS Tahoe 26.6 or later. If the Mac can't run the Xcode your phone needs, stop and tell Claude.
+2. **Xcode** (you): install it from the App Store, open it once and accept the license. In **Xcode > Settings > Accounts**, add your Apple ID (it shows as Personal Team), then **Manage Certificates... > + > Apple Development**.
+3. **Godot on the Mac** (you):
+   - Download the **4.7.2** universal zip and the export templates from godotengine.org. Use exactly 4.7.2, not a newer version, and move Godot to Applications.
+   - Clone the repo (`git clone https://github.com/Lecoeurdelest/swe-simulator.git`; ARCHITECTURE 14.1), open `project.godot` and let it reimport. The first open is slow.
+   - **Editor > Manage Export Templates**: install the iOS templates.
+4. **godot-ai and Claude Code on the Mac** (you; optional, recommended): follow "Setting up godot-ai on the Mac" in ARCHITECTURE 16. Then start `claude` in the repo and say "We're on Step 2". It reads `.agent/AGENTS.md` (through the `.claude/CLAUDE.md` symlink), which points it at `docs/` and the plan tracking, so it knows the project.
+5. **Fonts, early** (you download; Claude can't download files for you): **monogram** from datagoblin's itch.io page (CC0) and **Press Start 2P** (OFL) plus its license text saved as `OFL.txt`, all three in `res://ui/fonts/`. Moving this here from Step 3 lets the device check show real text.
+6. **Team ID** (you): Keychain Access > login > My Certificates > "Apple Development: <you>" > copy the **Organizational Unit** (ARCHITECTURE 13.1, task 3).
+7. **iOS preset** (you, with Claude reading the checklist). Use **Project > Export > Add... > iOS**, with the ARCHITECTURE 13.1 table:
+   - the Team ID, and the bundle id `com.<you>.swesimulator` (pick it once, never change it)
+   - `export_project_only` on, `targeted_device_family` iPhone, `icon_interpolation` Nearest neighbor
    - exclude `addons/godot_ai/*, tests/*`; include `ui/fonts/*.txt`
    - Runnable ticked
-5. **Device check** (Claude). Build `features/dev/device_check.tscn` (debug only), opened by a small "Device check" button on the title stub. It has:
-   - a readout of the window size, game size, stretch mode, `Device.safe_insets()` and the OS name;
-   - a 1 px outline of the SafeAreaMargin, so you can see the notch margin;
-   - a **ScrollContainer with 20 buttons (32 px tall)**, with a "pressed" counter and a "scrolled" counter;
-   - a **Haptic** button (`Device.haptic(40)`);
-   - a **Back counter** (its `handle_back()` returns true and counts).
-6. **Phone** (you):
-   - Settings > About > tap Build number 7 times, then turn on **USB debugging**.
-   - Plug the phone in and accept the prompt.
-   - Press the **one-click deploy** icon at the top right of the editor.
-7. **Record results** (Claude): update ARCHITECTURE 18.1 with what you saw.
+8. **Device check** (Claude, on either machine). Build `features/dev/device_check.tscn` (portrait, debug only), opened by a small "Device check" button on the title stub. It has:
+   - a readout of the window size, game size, stretch mode, `Device.safe_insets()` and `OS.get_name()`;
+   - a 1 px outline of the SafeAreaMargin, so you can see the island and home-indicator margins;
+   - a line of monogram 16 and one of Press Start 2P 8/16, with the font import settings from ARCHITECTURE 1.4;
+   - a **ScrollContainer with 20 buttons (36 px tall)**, with a "pressed" counter and a "scrolled" counter;
+   - **Haptic 10 ms** and **Haptic 40 ms** buttons (`Device.haptic()`);
+   - counters for `APPLICATION_PAUSED`, `APPLICATION_RESUMED` and `APPLICATION_FOCUS_OUT`;
+   - an **on-screen Back** button with a counter (its `handle_back()` returns true and counts).
+9. **Phone** (you):
+   - Connect it by USB and accept **Trust This Computer**.
+   - Once Xcode has seen the phone, turn on **Settings > Privacy & Security > Developer Mode**, restart, and confirm. The toggle doesn't appear before that.
+10. **Build and run** (you):
+    - **Project > Export > Export Project** into `builds/ios/`, open the `.xcodeproj` in Xcode, set Signing to your Personal Team, pick your iPhone and press Run (Cmd+R).
+    - The first launch says "Untrusted Developer": **Settings > General > VPN & Device Management > your Apple ID > Trust**, then open it again.
+    - Optional: try **one-click deploy** from the Mac editor, so errors from the phone appear in Godot's Output panel (unverified with a Personal Team).
+    - **Write down the install date.** The build stops launching after 7 days; press Run in Xcode again.
+11. **Record results** (Claude): update ARCHITECTURE 18.1 (and GDD 2.9 if the insets differ), then you commit and push.
 
-**Claude and godot-ai do:** the device-check scene, explaining any export error you paste, and updating the docs with the results.
+**Claude and godot-ai do:** the device-check scene, reading the preset checklist with you, explaining any export or Xcode error you paste, and updating the docs with the results. godot-ai can't see the phone, so paste what Xcode's console shows.
 
-**You do (to learn):** every install, the preset, the phone setup and pressing Deploy. Seeing the game on your own phone is the milestone.
+**You do (to learn):** every install, the Apple ID signing, the preset, the phone setup and pressing Run. Seeing the game on your own iPhone is the milestone.
 
-**Design huddle:** D1 (orientation) on real hardware. Hold the phone in both hands: can your thumbs reach the bottom corners? Is the top bar readable?
+**Design huddle:** D1 (portrait) on real hardware. Hold the phone in one hand: can your thumb reach every button in the thumb band (the bottom 40%, GDD 2.8), including the far corner? Is the top HUD readable at arm's length?
 
 **Done when**
-- [ ] The app opens on your phone in landscape, both ways up.
-- [ ] The readout shows the game size ARCHITECTURE 1.1 predicts for your screen. For example, 2400x1080 gives 600x270 integer.
-- [ ] The safe-area outline clears the camera cutout.
-- [ ] Back doesn't quit: the counter goes up.
-- [ ] You wrote down the answer to "does dragging the list fire a button?", and the deadzone feels right.
-- [ ] The Haptic button vibrates.
-- [ ] Output from the phone appears in the editor (remote debug).
+- [ ] The app opens on your iPhone in portrait and doesn't rotate.
+- [ ] The readout shows the game size ARCHITECTURE 1.1 predicts for your model. For example, 1179x2556 gives 294x639 integer.
+- [ ] The safe-area outline clears the Dynamic Island (or notch) and the home indicator: about 45 top and 26 bottom game px on an iPhone 15 or 16.
+- [ ] monogram and Press Start 2P are crisp at 4x.
+- [ ] One-handed, every thumb-band button is reachable. You wrote down any that aren't.
+- [ ] Dragging the list never fires a button, and a deadzone of 6 feels right. You wrote down the answer.
+- [ ] The 40 ms haptic is felt. You noted whether 10 ms is.
+- [ ] After going home and reopening, the PAUSED and RESUMED counters went up and the state is intact. Control Center raises FOCUS_OUT. Haptics still work after resuming.
+- [ ] A swipe up from the bottom edge needs two swipes to leave the game.
+- [ ] The on-screen Back counter goes up.
+- [ ] You know where logs appear: Xcode's console, or Godot's Output panel with one-click deploy.
+- [ ] You wrote down the install date (7-day expiry).
 
 **Pitfalls**
-- **Templates not matching the editor version.**
-- **"Target platform requires ETC2/ASTC"** means the Step 1 setting is missing. Set it, reimport, or use the dialog's Fix Import button.
-- **The USB-debugging prompt on the phone** was not accepted.
-- **The SDK installed by a Claude-launched process** into virtualized AppData.
+- **Templates not matching 4.7.2** exactly, or a different Godot version on the Mac.
+- **A Team ID that isn't the 10-character code:** export fails with a "JSON error".
+- **A bundle ID someone else already registered:** change the `<you>` part once, before anything ships.
+- **No Developer Mode toggle:** the phone hasn't been connected to Xcode yet.
+- **"Untrusted Developer" on first launch:** trust your Apple ID in VPN & Device Management.
+- **An iPhone on a newer iOS than your Xcode supports.**
+- **Personal Team limits:** 3 apps per device, 10 App IDs per 7 days, and the 7-day expiry.
+- **Steam auto-updating Godot on the PC**, so the two machines drift apart.
 - **Past 6 hours:** stop, and paste the exact error to Claude.
 
 ---
 
 ### Step 3: Stub flow through every screen, plus the UI kit (about 8 h)
 
-- **Goal:** you can tap through every screen and both endings on your phone. It's grey boxes and text, but the real navigation, save and Back rules are in place.
+- **Goal:** you can tap through every screen and both endings on your iPhone. It's grey boxes and text, but the real navigation, save and Back rules are in place.
 - **Best practice:** skeleton first, flesh later. One Theme makes everything consistent. Create data files before features need them.
 
 **Tasks**
-1. **Fonts** (you download; Claude can't download files for you).
-   - **monogram** from datagoblin's itch.io page (CC0).
-   - **Press Start 2P** (OFL), plus its license text saved as `OFL.txt`.
-   - Put all three in `res://ui/fonts/`.
+1. **Fonts:** already in `res://ui/fonts/` since Step 2. If not, download them now (you; Claude can't download files for you): monogram (CC0), Press Start 2P (OFL) and its `OFL.txt`.
 2. **Font import and theme** (Claude).
    - Font import settings from ARCHITECTURE 1.4, then reimport.
    - Build `ui/theme/main_theme.tres` with `theme_manage`:
      - default font monogram 16;
-     - Button minimum height 32;
+     - Button minimum height 34 (the GDD 2.8 hit area); answer and action-bar buttons are 36;
      - type variations `PrimaryButton`, `DangerButton`, `PaperPanel` and `HeaderLabel`, all flat colors for now.
    - Then `settings_set gui/theme/custom res://ui/theme/main_theme.tres`.
 3. **The 7 `.tres` data files** (Claude). Use `resource_manage create`, with the values in the ARCHITECTURE 6.2 tables.
 4. **Components** (Claude):
    - `confirm_dialog.tscn`: a full-screen dimmer set to STOP, a PaperPanel and 2 buttons;
-   - `pause_menu.tscn`: Resume and Quit to title;
-   - `ducky_note.tscn`: a placeholder tip card.
+   - `pause_menu.tscn`: a bottom sheet with Quit to title on top and RESUME at the bottom; tapping outside = Resume (ARCHITECTURE 10.1);
+   - `ducky_note.tscn`: a placeholder full-width tip note.
 5. **The real Title** (Claude), minus the art:
    - tap anywhere to call `start_new_game()`;
-   - **Continue** when a save exists;
+   - `[ New game ]` above a full-width **CONTINUE** when a save exists;
    - Replay intro;
    - the version label;
-   - "Quit?" on Back (Android only).
-6. **Stub scenes** (Claude) for INTRO, BACKGROUND_SELECT, JOB_HUNT, INTERVIEW, OFFER, PHASE2_STUB and GAME_OVER. Each shows its name, sits inside a SafeAreaMargin, implements `handle_back()` from ARCHITECTURE 9, and has buttons that call the real verbs:
+   - "Quit?" on Back (Android and desktop only; never on iOS).
+6. **Stub scenes** (Claude) for INTRO, BACKGROUND_SELECT, JOB_HUNT, INTERVIEW, OFFER, PHASE2_STUB and GAME_OVER. Each shows its name, sits inside a SafeAreaMargin with the ARCHITECTURE 10.1 skeleton, implements `handle_back()` from ARCHITECTURE 9, has an on-screen Back (`[ < Back ]`, or `[=]` on the hunt) that calls `Device.handle_back()`, and has buttons that call the real verbs:
    - Intro: Skip calls `finish_intro()`.
    - Background select: 3 buttons call `choose_background(id, "Alex")`.
    - Hunt: "Fake invite (Mid)" calls `start_interview({...})`, "Study", "Sleep", "Rent runs out" calls `end_run_plan_b()`, and Pause.
@@ -377,17 +393,17 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 
 **Claude and godot-ai do:** everything except downloading fonts. Then Claude clicks through the whole flow with `game_manage` input and takes screenshots.
 
-**You do (to learn):** build the **Background Select stub layout yourself** with Containers: an HBoxContainer of 3 PanelContainers inside the SafeArea, with CHOOSE bottom-right. Containers are the single most important Godot UI skill for this game.
+**You do (to learn):** build the **Background Select stub layout yourself** with Containers: inside the SafeArea, a 254 px wide VBoxContainer holding one PanelContainer card (it expands), an HBoxContainer of 3 selector buttons, and the `[ < Title ][ CHOOSE ]` action bar (80 + 168) at the bottom. Containers are the single most important Godot UI skill for this game.
 
 **Design huddle**
 - D5 (the fail state): now that Plan B is a real screen, is "one funny ending plus Retry" right?
 - Is the name dice pool good?
 
 **Done when**
-- [ ] On the phone, you can go Title > Intro > Background select > Hunt > Interview > Offer > Hired > Title, and Hunt > Plan B > Retry, using only your thumbs.
+- [ ] On the iPhone, you can go Title > Intro > Background select > Hunt > Interview > Offer > Hired > Title, and Hunt > Plan B > Retry, using one thumb.
 - [ ] **Quit to title** mid-hunt makes **Continue** appear, and Continue resumes the hunt. After Plan B or after leaving the Hired card, Continue is gone.
-- [ ] Back does the right thing on every screen, and every screen also has an on-screen way back.
-- [ ] Body text is monogram 16 and readable at arm's length. No button is shorter than 32 px.
+- [ ] Every screen has an on-screen Back that does the right thing; desktop Esc does the same.
+- [ ] Body text is monogram 16 and readable at arm's length. No hit area is smaller than 34x34 px.
 - [ ] `test_run` is still green.
 
 **Pitfalls**
@@ -413,11 +429,11 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
    - Store the ids in the checkpoint and mark them seen.
    - Put the picking in a pure helper and add a test.
 3. **`versus_intro.tscn`** (Claude): grey shapes on an AnimationPlayer, 2 s, skippable after 1 s the first time (ARCHITECTURE 11.5).
-4. **`interview.tscn`** (Claude), per ARCHITECTURE 11.6:
-   - the stage with a tier background color and magenta 96 px bust placeholders;
-   - the bars, and a dialogue box with the typewriter and tap-to-finish;
-   - answer buttons with the 250 ms lock;
-   - the **Answer Meter** (ARCHITECTURE 17.11) with zone labels;
+4. **`interview.tscn`** (Claude), per ARCHITECTURE 11.6 and GDD S08:
+   - the stage band on top, with a tier background color and magenta 96 px bust placeholders;
+   - the bars band, and a dialogue box with the typewriter, tap-to-finish and the `[II]` pause;
+   - stacked 254x36 answer buttons in the thumb band, with the 250 ms lock;
+   - the **Answer Meter** (ARCHITECTURE 17.11) in the meter row with zone labels, the tap pad under it, and the tap rule (`[II]` keeps its own taps);
    - the endings: K.O., committee wheel, rejection plus the Ducky card;
    - the ready overlay when the tree is paused, and the pause menu.
 5. **Lie-probe UI** (Claude): Come clean / Bluff, using `Odds.bluff_p`. The real trigger needs the CV, so it arrives in Step 5; until then a debug toggle forces a probe.
@@ -434,15 +450,15 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 - **D8, first look:** Doubt HP of 118 / 128 / 132, too easy or too hard?
 
 **Done when**
-- [ ] On the phone, interviews at the three tiers feel different: startup PIVOT, Big's fast needle.
-- [ ] You can see your odds (the zone width) before the needle moves, and Dana's reactions explain what happened.
+- [ ] On the iPhone, interviews at the three tiers feel different: startup PIVOT, Big's fast needle.
+- [ ] You can see your odds (the zone width) before the needle moves, your thumb never covers the needle, and Dana's reactions explain what happened.
 - [ ] You've seen every outcome at least once: K.O., wheel win, wheel loss, Composure 0, BUSTED (via debug), and a rejection with a tip plus the model answer.
-- [ ] Killing the app mid-interview, then Continue, replays the **same questions**.
+- [ ] Killing the app mid-interview (swipe it away in the app switcher), then Continue, replays the **same questions**.
 - [ ] `test_run` is green, including `test_content_lint`.
 
 **Pitfalls**
 - Letting the thumb matter more than the stats. Keep the formula: Q = 0.75 S + 25 I.
-- Answer buttons smaller than 32 px.
+- Answer buttons that aren't full width and 36 px tall, or a meter bar drawn where the thumb rests.
 - Shuffling with `Array.shuffle()`. Use `Odds.shuffled` with the interview RNG.
 - The tap that finishes the typewriter also picking an answer. That's what the 250 ms lock prevents.
 
@@ -472,12 +488,12 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
    - **The day-2 guarantee** (first run only).
    - **Sleep:** one commit that produces `morning_report`.
    - **Plan B:** the check, plus the grace day.
-3. **Background select, for real** (Claude): 3 cards built from data, with stat bars, pips, runway, perk, flaw and the Self-Taught's gaps, plus the name dice.
-4. **`job_hunt.tscn`** (Claude), per ARCHITECTURE 11.4:
-   - the top bar and left rail;
-   - the deck with swipe and buttons, and the card back;
-   - the CV screen;
-   - the morning inbox with "Flip all", the night summary, Study;
+3. **Background select, for real** (Claude), per ARCHITECTURE 11.3: one card built from data (stat bars, pips, runway, perk, flaw and the Self-Taught's gaps), the 3-button selector, the card swipe, and the name dice.
+4. **`job_hunt.tscn`** (Claude), per ARCHITECTURE 11.4 and GDD S04-S06: your phone running DoomApply:
+   - the HUD, the app header and the bottom dock (Jobs, CV, Mail, Study, Sleep);
+   - the deck with swipe and the `[=] SKIP APPLY` action row, and the card back;
+   - the CV screen (Buzzwordsmith);
+   - Mail (the morning inbox) with "Flip all", the lock-screen night summary, Study;
    - Ducky coach notes on the first run (GDD 4.3).
 5. **The real lie-probe trigger** (Claude), in `start_interview`, per GDD 5.8.5.
 
@@ -486,7 +502,7 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 **You do (to learn)**
 - Write 5 posting jokes of your own (60 characters or less) into `postings.json`. The lint tells you if one is too long.
 - Build the 5-segment **`stat_bar`** component yourself.
-- Judge the swipe feel on the phone.
+- Judge the one-thumb swipe feel on the iPhone.
 
 **Design huddle**
 - **D4** (lying depth), now that the CV screen exists.
@@ -497,7 +513,7 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 - [ ] On a Medium first run, an invite arrives on the morning of day 2, after 3-5 minutes of play.
 - [ ] Knockout rejections name the knockout, ghosts stay silent, and the Radar fills only with relevant applications.
 - [ ] Wasting energy until rent runs out reaches Plan B, with a grace day when an invite is waiting.
-- [ ] Killing the app right after Sleep, then Continue, shows the **same** morning.
+- [ ] Killing the app right after Sleep (swipe it away in the app switcher), then Continue, shows the **same** morning.
 - [ ] You laughed at least once.
 
 **Pitfalls**
@@ -522,21 +538,21 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
    - `offer.tscn` is a paper contract with **Decline + confirm**, and **ACCEPT**.
 3. **`phase2_stub.tscn`** (Claude): HIRED, the Dream vs Reality rows, `tip_written_offer`, and TO BE CONTINUED.
 4. **`game_over.tscn`** (Claude): the Plan B text, the background line, the run stats and **Retry**.
-5. **The intro as text slides** (Claude), driven by `cutscene.json`: typed captions, tap to advance, hold 0.5 s to skip, Back skips, and `intro_seen` is set.
-6. **Pause menu** on the hunt, interview and offer, and the Back chain on every screen (ARCHITECTURE 9). Claude writes a kill-test checklist.
+5. **The intro as text slides** (Claude), driven by `cutscene.json`: typed captions, tap to advance, hold 0.5 s to skip, desktop Esc skips, and `intro_seen` is set.
+6. **Pause sheet** on the hunt, interview and offer, and the on-screen Back and Back chain on every screen (ARCHITECTURE 9). Claude writes a kill-test checklist.
 
 **Claude and godot-ai do:** all of the above, keeping the round-trip tests green.
 
 **You do (to learn)**
 - Choose the fine-print jokes you like best.
-- **Kill the app on your phone at 5 moments** (mid-hunt, right after Sleep, mid-interview, on the offer, on the Hired card) and check Continue each time.
+- **Kill the app on your iPhone at 5 moments** (swipe it away in the app switcher: mid-hunt, right after Sleep, mid-interview, on the offer, on the Hired card) and check Continue each time.
 
 **Design huddle**
 - **D7:** should Negotiate be the second SHOULD?
 - Is the Dream vs Reality footer funny or smug?
 
 **Done when**
-- [ ] 3 full runs on the phone (Easy, Medium, Hard) with no crash.
+- [ ] 3 full runs on the iPhone (Easy, Medium, Hard) with no crash.
 - [ ] All 5 kill tests resume correctly. A kill on the Hired card resumes at the offer; leaving the Hired card clears the save.
 - [ ] The intro can be skipped at any moment and never auto-plays again.
 - [ ] Tag **`v0.1-greybox`**.
@@ -554,7 +570,7 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 - **Best practice:** playtest in silence, tune data rather than code, and automate the balance check.
 
 **Tasks**
-1. **Run Playtest #1** (you), following section 7, with 3-5 people on your phone.
+1. **Run Playtest #1** (you), following section 7, with 3-5 people on your iPhone. Re-run the build from Xcode the day before, so the 7-day signing can't expire mid-session.
 2. **Run Report screen** (Claude), debug builds only. It shows:
    - time to the first interview and applications per interview;
    - pass/fail and the worst question;
@@ -598,7 +614,7 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 Stop at the timebox. Anything unbuilt goes to the cut list (section 11).
 
 **Done when**
-- [ ] Research and Negotiate have shipped and been tested on the phone.
+- [ ] Research and Negotiate have shipped and been tested on the iPhone.
 - [ ] The sim has been rerun: GDD 5.12 predicts research pushes first-interview pass rates up by 10-15 points.
 - [ ] The cut list is updated.
 
@@ -612,7 +628,7 @@ Stop at the timebox. Anything unbuilt goes to the cut list (section 11).
 **Tasks**
 1. Write the style guide and export a palette file (section 5).
 2. Make the interview art:
-   - the tier backgrounds (1 first, then 3) at 480x270 plus 80 px bleed;
+   - the tier backgrounds (1 first, then 3) at 330x400, bottom-anchored at the desk line (the essential area is the bottom-centre 270x160);
    - the **Dana bust**: 3 outfits x 4 expressions, 96 px;
    - **3 player busts**;
    - the 9-slice panels and the bar art;
@@ -623,8 +639,8 @@ Stop at the timebox. Anything unbuilt goes to the cut list (section 11).
 4. **You:** draw, buy or commission (section 5), and judge what "feels right".
 
 **Done when**
-- [ ] A screenshot of the interview could go on a store page.
-- [ ] It runs at 60 fps on your phone.
+- [ ] A portrait screenshot of the interview could go on a store page.
+- [ ] It runs at 60 fps on your iPhone.
 - [ ] The palette and sizes are written in the style guide.
 
 ---
@@ -632,7 +648,7 @@ Stop at the timebox. Anything unbuilt goes to the cut list (section 11).
 ### Step 10: Art production for the rest (about 30 h)
 
 - **Order, by time spent on screen:**
-  1. the hunt dashboard skin and card art;
+  1. the DoomApply skin (HUD, dock icons) and card art;
   2. 6 company logos (16x16) and the icons;
   3. the background-select portraits;
   4. the title screen;
@@ -645,13 +661,13 @@ Stop at the timebox. Anything unbuilt goes to the cut list (section 11).
 
 **Done when**
 - [ ] No magenta or grey placeholders are left.
-- [ ] You've done a pass at 480x270, 639x294 and 590x410, and a pass on the phone.
+- [ ] You've done a pass at 270x480, 294x639 and 330x717, and a pass on the iPhone.
 
 ---
 
 ### Step 11: Intro cutscene art (about 12 h)
 
-- **The piece:** 6 panels from CONTENT.md section 2, as a motion comic: still panels, pans and zooms, 2-4 frame loops (a glowing phone screen, blinking), and typed captions.
+- **The piece:** 6 portrait panels (270x480; up to 480x480 for a sideways pan, 270x720 for a tilt) from CONTENT.md section 2, as a motion comic: still panels, pans, tilts and zooms, 2-4 frame loops (a glowing phone screen, blinking), and typed captions. Keep the focal content in the top 350 px: captions cover the bottom.
 - **The build:** the Step 6 slide system stays. You only swap in the art.
 - **The audio cues** are in the CONTENT table.
 
@@ -671,12 +687,12 @@ Stop at the timebox. Anything unbuilt goes to the cut list (section 11).
 - **Juice:** button press scale, typewriter blips, and the REJECTED stamp (GDD 9.1).
 - **Accessibility:** Reduced Motion, Relaxed Timing, text speed, and a haptics toggle.
 - **The Credits screen:** every asset and its license, and the OFL text for Press Start 2P.
-- **App icon and splash.**
-- **Performance:** a pass on the cheapest phone you can borrow.
+- **App icon and launch screen:** a 32 or 64 px pixel-art icon upscaled by a whole number to 1024x1024 for the iOS preset (icon interpolation Nearest neighbor), and the launch screen in the near-black splash color (ARCHITECTURE 13.1).
+- **Performance:** a pass on the oldest iPhone you can borrow.
 
 **Done when**
 - [ ] Sound can be muted.
-- [ ] 60 fps on a low-end phone.
+- [ ] 60 fps on the oldest iPhone you can borrow.
 - [ ] Every screen passes the arm's-length squint test.
 - [ ] Credits list every asset.
 
@@ -684,17 +700,18 @@ Stop at the timebox. Anything unbuilt goes to the cut list (section 11).
 
 ### Step 13: Playtest #2 and the release candidate (about 10 h)
 
-- **Playtest #2:** 5-8 people on **their own phones** (sideloaded APKs).
+- **Join the Apple Developer Program** (99 USD a year) at the start of this step, not before. TestFlight needs it; the free Personal Team can't reach other people's phones beyond the 3 devices you register yourself, and those builds expire every 7 days.
+- **The TestFlight release candidate** (ARCHITECTURE 13.1):
+  - create the app in App Store Connect with your bundle id `com.<you>.swesimulator`;
+  - set the preset's `app_store_team_id` to the paid team, export, then archive in Xcode (Product > Archive) and upload. Uploads need Xcode 26+ with the iOS 26 SDK;
+  - add testers in TestFlight. External testers need Apple's beta review first (unverified for 2026), so upload a few days before the playtest.
+- **Playtest #2:** 5-8 people on **their own iPhones**, through TestFlight.
 - **Fixing:** triage crashes and bugs, then do a last balance pass.
-- **The Android release build** (ARCHITECTURE 13.1):
-  - an **AAB** from a Gradle build, with target SDK **36**;
-  - a **release keystore**, backed up twice and never committed.
-- **Optional:** Google Play internal testing. That needs a developer account; the fee is unverified for 2026. New personal accounts reportedly need a closed test with 12 testers for 14 days before a public release; start recruiting testers now if you want to publish soon.
-- **The iOS decision:** borrow or buy a Mac, or leave iOS LATER.
+- **Android and Google Play stay LATER** (ARCHITECTURE 13.2). The **Android decision:** build it after the MVP, once you can test on an Android phone, or keep it LATER.
 
 **Done when**
 - [ ] Every item in the section 2 checklist is ticked.
-- [ ] 10 clean runs on 3 different phones.
+- [ ] 10 clean runs on 3 different iPhones.
 - [ ] Tag **`v0.5-mvp`**.
 
 ---
@@ -704,7 +721,8 @@ Stop at the timebox. Anything unbuilt goes to the cut list (section 11).
 ### Style guide (from the reference image and GDD 2.5)
 
 **The look**
-- **The resolution is 480x270, and 1 art pixel = 1 game pixel.** The reference is about 450 px wide natively, so match its density: big readable shapes, 2-4 shade ramps, and no noise textures.
+- **The resolution is 270x480 (portrait), and 1 art pixel = 1 game pixel.** The reference is about 450 px wide natively, so match its density: big readable shapes, 2-4 shade ramps, and no noise textures.
+- **Compose tall** (GDD 2.5): the reference's bands stack top to bottom, anchored to the screen bottom: sky (y 0-130), skyline (130-220), the character line (220-288), then foreground under the buttons (288-480). Crop the reference's width; never shrink it. Taller phones show more sky.
 - **Palette:** one master palette of about 32 colors (Endesga 32 from Lospec is a good start), plus at most 8 UI and brand accents.
   - The mood of each tier comes from which ramps dominate:
     - **Big corp:** cool blue-greys and glass.
@@ -718,11 +736,12 @@ Stop at the timebox. Anything unbuilt goes to the cut list (section 11).
 - **Silhouettes:** every character reads from one dominant outfit color. The hoodie colors are Intern teal, Graduate maroon and Self-Taught mustard.
 - **Sizes:**
   - full-body characters 40-48 px;
-  - busts 96 px;
-  - interview backgrounds 480x270 plus 80 px bleed on each side;
-  - intro panels 480x270 (up to 640 wide for pans);
+  - busts 96 px tall, at most 80 px wide;
+  - interview backgrounds 330x400, bottom-anchored at the desk line;
+  - intro panels 270x480 (up to 480x480 for pans, 270x720 for tilts);
+  - ending illustrations 254x140;
   - logos and icons 16x16;
-  - 9-slice borders 4-6 px.
+  - 9-slice panels with a 4 px border and 3 px padding.
 
 ### Tools
 
@@ -785,13 +804,13 @@ Keep sources in `art_src/` (Godot ignores that folder) and export PNGs into the 
 
 | When | Who | Build | Focus |
 |---|---|---|---|
-| Every step, from Step 2 | you | your phone | does it work, can you read it, does it feel OK |
-| **Playtest #1 (Step 7)** | 3-5 people: 2 job seekers or students (the target audience), 1 non-gamer, 1 developer friend | grey-box | Is the loop understandable, fair and funny? |
+| Every step, from Step 2 | you | your iPhone (re-run from Xcode at least weekly: the build expires after 7 days) | does it work, can you read it, can one thumb reach it |
+| **Playtest #1 (Step 7)** | 3-5 people: 2 job seekers or students (the target audience), 1 non-gamer, 1 developer friend | grey-box, on your iPhone | Is the loop understandable, fair and funny? |
 | Step 9 | 2 people | vertical slice | Is the art readable? Does the interview feel good? |
-| **Playtest #2 (Step 13)** | 5-8 people | release candidate, on **their own phones** | readability, devices, crashes, balance |
+| **Playtest #2 (Step 13)** | 5-8 people | release candidate, on **their own iPhones** via TestFlight | readability, devices, crashes, balance |
 
 **How to run a session**
-- Give them the phone and say only: "It's a game about getting a tech job. Think out loud."
+- Give them the phone and say only: "It's a game about getting a tech job. Think out loud." Note which hand they hold it in.
 - Then **stay quiet** and take notes.
 
 **What to watch for**
@@ -821,15 +840,17 @@ Keep sources in `art_src/` (Godot ignores that folder) and export PNGs into the 
 | # | Risk | Likelihood / impact | Mitigation | Early warning |
 |---|---|---|---|---|
 | 1 | **Scope creep** (Work loop, more mini-games, more companies) | High / High | The MVP checklist is the contract. New ideas go to `docs/ideas_parking_lot.md`; any addition replaces something | "While I'm here, let's also..." |
-| 2 | **Text-heavy UI on small screens** | High / High | monogram 16 only, and the lint's text budgets. Buttons at least 32 px. Test on the smallest phone weekly | Testers squint or skip text at Playtest #1 |
+| 2 | **Text-heavy UI on small screens** | High / High | monogram 16 only, the 40-column text budgets and line caps in the lint. Hit areas at least 34 px. Test on the smallest iPhone you can borrow | Testers squint or skip text at Playtest #1 |
 | 3 | **Art bottleneck and mismatched styles** | High / High | Grey-box first; one palette; the vertical slice; placeholders set the size; one pack family; commission only the hero art | Step 9 goes past 20 h, or two styles sit side by side |
-| 4 | **Android toolchain or engine drift** (SDK, templates, Steam updates) | Medium / High | The phone build happens in week 1. Pin Godot 4.7.2. Commit before any update | An export error after an update |
+| 4 | **Toolchain or engine drift** (Xcode and iOS updates, templates, Steam updates, two machines) | Medium / High | The iPhone build happens in week 1. Pin Godot 4.7.2 on both machines (the zip on the Mac). Commit before any update and update both machines together | An export error after an update, or the PC and Mac on different versions |
 | 5 | **The interview feels random or unfair** | Medium / High | The zone width shows the odds; stats weigh 3x the thumb; the wheel shows its wedge; a tip and the model answer after every loss | Testers say "it's just luck" |
 | 6 | **The hunt feels like a tedious clicker** | Medium / High | Energy caps each day; 6 cards a day; a joke on every card; the day-2 invite guarantee | Playtest #1 median time to the first interview is over 5 minutes |
 | 7 | **The satire misfires** (punching down, real brands) | Medium / High | GDD 1.3 rules; parody names only (the lint enforces it); Dana is the competent one; diverse testers read every joke; a trademark search before release | Testers wince instead of laugh |
 | 8 | **Code you don't understand** | Medium / High | A "you do" task in every step; you read every script Claude writes; tests for the rules; small commits | You can't explain what a script does |
-| 9 | **Device-only surprises** (scroll taps, notches, haptics, performance) | Medium / Medium | The Step 2 device check; the phone build weekly; the unverified list in ARCHITECTURE 18.1 | A bug that "only happens on my phone" |
-| 10 | **Store friction** (target API 36, closed testing, a Mac for iOS) | Certain / Medium | Android-first MVP; recruit testers early; iOS LATER | "iOS next week", with no Mac |
+| 9 | **Device-only surprises** (scroll taps, the Dynamic Island, one-thumb reach, haptics, performance) | Medium / Medium | The Step 2 device check; the iPhone build weekly; the unverified list in ARCHITECTURE 18.1 | A bug that "only happens on my phone" |
+| 10 | **The Mac isn't at hand** (every iPhone build needs the MacBook) | Medium / High | Develop on the PC, build on the Mac at least weekly; push after every session; set up Godot, godot-ai and Claude on the Mac in Step 2 so work can continue there | No build on the phone for two weeks |
+| 11 | **7-day signing:** Personal Team builds stop launching 7 days after install | Certain / Low | Write down the install date; re-run from Xcode before every playtest; paid program from Step 13 | "The app won't open" |
+| 12 | **Apple's fee and review for testers** (TestFlight needs the 99 USD a year program; external testers need a beta review) | Certain / Medium | Join the program at the start of Step 13, not before; upload a few days before Playtest #2. Android and Play stay LATER | Playtest #2 is next week and nobody can install the game |
 
 ---
 
@@ -837,7 +858,7 @@ Keep sources in `art_src/` (Godot ignores that folder) and export PNGs into the 
 
 | Week | Steps | You should have |
 |---|---|---|
-| 1 | 0, 1, 2 | the project on your phone, and the device questions answered |
+| 1 | 0, 1, 2 | the project on your iPhone, and the device questions answered |
 | 2 | 3, then start 4 | tap-through of every screen; interview bars and choices |
 | 3 | finish 4, then 5 | a playable interview; the hunt started |
 | 4 | finish 5, then 6 and 7 | **`v0.1-greybox`**, and Playtest #1 done |
@@ -848,7 +869,7 @@ Keep sources in `art_src/` (Godot ignores that folder) and export PNGs into the 
 
 **A normal week at 15-20 h**
 - **Monday (30 min), plan:** pick the step, reread its "Done when", and list the design questions for the huddle.
-- **Tuesday to Thursday, build:** 2-3 hour sessions, using the loop in section 10. Put a build on the phone at least once mid-week.
+- **Tuesday to Thursday, build:** 2-3 hour sessions, using the loop in section 10. Put a build on the iPhone at least once mid-week (on the Mac: pull, export, Run in Xcode).
 - **Friday or the weekend, playtest and retro:**
   - Play it yourself, or with one other person.
   - Spend 30 minutes on a retro: what worked, what to cut.
@@ -861,7 +882,7 @@ Keep sources in `art_src/` (Godot ignores that folder) and export PNGs into the 
 
 ### The session loop
 
-1. **Start** by opening Godot with this project, then starting Claude. Say: "We're on Step N. Last time we finished X."
+1. **Start** by pulling, opening Godot with this project, then starting Claude. Say: "We're on Step N. Last time we finished X."
 2. **Kickoff (2 min):** Claude restates the step's goal and its "Done when".
 3. **Design huddle (5-10 min):** this is where we brainstorm.
    - Claude brings 2-3 options for each open question, each with a recommended default and the trade-off.
@@ -870,8 +891,8 @@ Keep sources in `art_src/` (Godot ignores that folder) and export PNGs into the 
    - Claude never changes a design decision silently.
 4. **Build (Claude, with godot-ai):** in small increments. After each one Claude runs the game, takes a screenshot, reads the logs and runs the tests (ARCHITECTURE 16).
 5. **Your turn (15-30 min):** the step's "You do" task, done with your own hands.
-6. **Verify:** tests are green, you play it in the editor, and you play it on the phone at least weekly.
-7. **Commit:** you commit, using a message Claude suggests (for example `feat(interview): add doubt/composure bars`).
+6. **Verify:** tests are green, you play it in the editor, and you play it on the iPhone at least weekly.
+7. **Commit and push:** you commit, using a message Claude suggests (for example `feat(interview): add doubt/composure bars`), and push before you stop.
 8. **Wrap-up:** Claude lists the next tasks and any new cut-list items. You note what felt good and what felt bad.
 
 ### Ground rules
@@ -879,10 +900,18 @@ Keep sources in `art_src/` (Godot ignores that folder) and export PNGs into the 
 - **Who owns what:**
   - **You own** the design, the taste, the final say on every joke, and **the accuracy of every career tip** (GDD 8.1).
   - **Claude owns** the boilerplate, the wiring, the tests and keeping the docs true.
-- **One step per session**, when possible. The docs and `DECISIONS.md` carry memory between sessions. If you'd like a short `CLAUDE.md` that points future sessions at `docs/`, say so and Claude will draft one for your approval.
+- **One step per session**, when possible. `.agent/AGENTS.md`, the docs, `DECISIONS.md` and the plan tracking (`project.yaml`, `.project/state.json`, `docs/task/README.md`) carry memory between sessions. `AGENTS.md` points every new session at them.
 - **The 2x rule:** a task past twice its estimate stops, and gets cut or simplified.
 - **Commit before risky operations:** before `script_patch` and before any engine update.
 - **Report what Claude can't judge:** how it feels, whether it's readable on your phone, and whether it's funny to real people. Tell Claude after each session.
+
+### Switching between the PC and the Mac
+
+- **The repo carries the project context:** `.agent/AGENTS.md`, the docs, `DECISIONS.md`, this roadmap and the plan tracking. On Windows, `.claude/CLAUDE.md` is a one-line text file rather than a link unless git symlinks are enabled, so Claude Code there doesn't load `AGENTS.md` automatically; ask it to read `.agent/AGENTS.md` first. Claude's chat history and auto-memory stay on the machine where they were made, so on the other machine you start a new session in the repo and say "We're on Step N. Last time we finished X." (Copy the one memory note about the godot-ai setup by hand if you want it there.)
+- **Push before you switch; pull after.** Unpushed work doesn't exist on the other machine.
+- **Open Godot on the project before starting Claude**, so godot-ai connects. On the PC this is required; on the Mac it's a good habit.
+- **Same engine on both:** Godot 4.7.2 exactly, and the same godot-ai (the addon lives in the repo).
+- The PC is for everyday building with Claude; the Mac is for iPhone builds, and can host Claude sessions too. Remote Control can drive the PC session from another device, but the tools and files stay on the PC, so it can't build for iOS.
 
 ### Brainstorm menu (bring these to a huddle whenever you like)
 
@@ -906,7 +935,7 @@ These aren't blocking. They're good conversations for later steps:
 5. Parallax and idle animations; use static images.
 6. Drag-to-sign and the background-check screen. Degree lies are then only probed.
 7. The commute strip; show the text "-4 energy" instead.
-8. The top-down room hub; the laptop dashboard is enough.
+8. The top-down room hub; the DoomApply phone hub is enough.
 9. Network and the site tabs.
 10. Negotiate.
 11. Research. It's the last SHOULD to drop, because the balance leans on it. If it's cut, try GDD D8 option (c), gentler Doubt HP, and rerun the sim.
@@ -920,5 +949,5 @@ These aren't blocking. They're good conversations for later steps:
 - the Skip button;
 - touch-sized, readable UI;
 - saving on pause;
-- running on a real phone;
+- running on your real iPhone;
 - the parody-names-only rule.

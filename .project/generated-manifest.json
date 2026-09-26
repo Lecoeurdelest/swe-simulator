@@ -3,21 +3,21 @@
   "generator": ".project/render.py",
   "template_version": "task-index/1",
   "inputs": {
-    "docs/GDD.md": "c7ab11e8e1ee88760a714334e89f8fb26cc65b013c6ef52fb8a6dbde26726940",
-    "docs/CONTENT.md": "c3b08ef4456f9d378693ef34b168230d8514625683d46f70127b5b9bafe1d3c1",
-    "docs/ARCHITECTURE.md": "56185eb84438da9a5c6e69212f2ea677075d584b31b239982eedf81c780ed559",
-    "docs/ROADMAP.md": "b3491f07f1236d6b4a3279eca050bd989732c30e6817d8b11d105105ba81e3bd",
-    "project.yaml": "f929cddf78d00db56c49f8850a24d141c1fe8f46fc65a6e5c7beee6b34c4fb83",
-    ".project/state.json": "4897e1d2aea9c873cd8f190884826da8f734c89c1a309c2d191817ff668afc2b"
+    "docs/GDD.md": "3801b98e4daafc4a529a66a0118e019179772012be2d6f90541ba12c35c5046e",
+    "docs/CONTENT.md": "f17b8c1129c9ae450b5fb6b9eda17d6fd136d99d248d572f52b88891c85d8482",
+    "docs/ARCHITECTURE.md": "586b72e031c2b1d91117dc06ef76923405f660643ec3dddadce5db84bd651ef1",
+    "docs/ROADMAP.md": "92ec3bbefbb70154408dd6d3d520169eeb28f0799fa845d91ae8acc4e73339d5",
+    "project.yaml": "cc75b37c189d9c43605dbbb982dd5c0d113dc5295aa8f3559fcd37e696663cde",
+    ".project/state.json": "b2f469f805adf5fb499ccb4f67be3f4204f8b0ca12829800f8b0c273e7733b1f"
   },
   "outputs": {
     "docs/task/README.md": {
       "owner": "generated",
-      "sha256": "b2afa4e9b61f6755c1bdc0026ec1bbf2e7ff62faea918a35e2b3fa4c21aedb29"
+      "sha256": "bc38161714a9b229f6ef2000297e2705861f0194931f134fceed19eac023c1c3"
     },
     "project.yaml": {
       "owner": "generated-by-agent from docs/*.md; regenerate on doc change",
-      "sha256": "f929cddf78d00db56c49f8850a24d141c1fe8f46fc65a6e5c7beee6b34c4fb83"
+      "sha256": "cc75b37c189d9c43605dbbb982dd5c0d113dc5295aa8f3559fcd37e696663cde"
     }
   },
   "hand_owned": [

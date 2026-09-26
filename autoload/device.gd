@@ -4,9 +4,11 @@ extends Node
 signal layout_changed    # game-area size or scale mode changed: SafeAreaMargin re-applies
 signal back_unhandled    # Back pressed and the current scene didn't use it: Title shows "Quit?"
 
-const BASE := Vector2(480, 270)
-
 var haptics_enabled: bool = true
+## Base resolution (GDD 2.2: 270x480 portrait), read from Project Settings so the two never disagree.
+var _base := Vector2(
+	int(ProjectSettings.get_setting("display/window/size/viewport_width")),
+	int(ProjectSettings.get_setting("display/window/size/viewport_height")))
 var _last_window_size := Vector2i.ZERO
 
 
@@ -35,14 +37,14 @@ func _update_scale_mode() -> void:
 	var w := Vector2(win.size)
 	if w.x <= 0.0 or w.y <= 0.0:
 		return
-	var exact := minf(w.x / BASE.x, w.y / BASE.y)
+	var exact := minf(w.x / _base.x, w.y / _base.y)
 	var s := floorf(exact)
 	var stretch := Window.CONTENT_SCALE_STRETCH_INTEGER
-	var game_size := Vector2i(BASE)
+	var game_size := Vector2i(_base)
 	if s >= 1.0 and s / exact >= 0.8:
-		game_size = Vector2i(floori(w.x / s), floori(w.y / s))  # 2556x1179 -> 639x294 @4x
+		game_size = Vector2i(floori(w.x / s), floori(w.y / s))  # 1179x2556 (iPhone 15) -> 294x639 @4x
 	else:
-		stretch = Window.CONTENT_SCALE_STRETCH_FRACTIONAL       # 1600x720 -> 600x270 @2.67x
+		stretch = Window.CONTENT_SCALE_STRETCH_FRACTIONAL       # 720x1600 -> 270x600 @2.67x
 	if win.content_scale_stretch != stretch or win.content_scale_size != game_size:
 		win.content_scale_stretch = stretch
 		win.content_scale_size = game_size

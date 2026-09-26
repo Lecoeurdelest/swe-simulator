@@ -1,8 +1,8 @@
 class_name SafeAreaMargin
 extends MarginContainer
 ## Put every tappable thing inside one of these; keep backgrounds outside it (full-bleed).
-## Left and right use the larger inset on both sides: a 180-degree flip moves the notch
-## without any resize signal.
+## Portrait: the Dynamic Island / notch is the top inset, the home indicator the bottom one.
+## Left and right use the larger inset on both sides, in case a device reports asymmetric insets.
 
 @export var min_margin: int = 4
 @export var debug_fake_insets := Vector4i.ZERO  # game px (left, top, right, bottom): preview a notch on desktop

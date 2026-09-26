@@ -11,17 +11,18 @@ Status: v1.0, 2026-09-26. Everything here is a first draft for playtesting. You 
 - **ASCII only** in player-facing strings: no curly quotes, accents, emoji or special dashes. The pixel font may not have them, and `tests/test_content_lint.gd` rejects them.
 - **Ids are snake_case and stable.** Don't rename an id once code refers to it; change the text instead.
 - **Placeholders:** `{player_name}`, `{company}`, `{job_title}`, `{salary}`, `{work_mode}`, `{commute_min}`, `{office_days}`, `{hours}`, `{last_company}`, `{knockout}`, `{insider}`, `{days}`, `{n}`, `{day}`, `{topic_1}`, `{topic_2}`. Text in `[SQUARE_BRACKETS]` is deliberately left unfilled: that's the joke.
-- **Text budgets** (GDD 2.7, enforced by the lint test):
+- **Text budgets** (GDD 2.7, enforced by the lint test, which also word-wraps every string at the 40-column portrait text width and checks the line cap):
 
-| Field | Max |
+| Field | Max chars (lines at 40 columns) |
 |---|---|
-| Dialogue, reaction, bark | 120 chars (2 lines) |
-| Question prompt | 100 |
-| Answer button | 40 |
-| Knowledge spoken answer (green / yellow / red) | 80 |
-| Posting joke, company card joke, background one-liner, CV line | 60 |
-| Tip on screen (`short`) | 120 |
-| Email body | 240 |
+| Dialogue, reaction, bark | 120 (up to 4 lines) |
+| Question prompt | 100 (3) |
+| Answer button | 40 (1; exactly the button width, so nothing goes in front of the text) |
+| Knowledge spoken answer (green / yellow / red) | 80 (3) |
+| Posting joke, company card joke, background one-liner, CV line | 60 (2) |
+| Tip on screen (`short`) | 120 (4) |
+| Email body | 240 (7) |
+| Player name | 10 (1) |
 
 - **MVP amounts:** 9 companies (6 flagged `mvp`), 20 posting templates (+1 SHOULD), 27 CV lines, 13 choice questions (+ the Research opener), 22 knowledge questions, 32 tips, 10 rejection lines.
 - **Refreshable jokes:** topical 2026 AI-hype lines live in `news.json` and `events.json` so they can be updated without code changes.
@@ -37,7 +38,7 @@ Status: v1.0, 2026-09-26. Everything here is a first draft for playtesting. You 
 | `city` | Byteburg | the city everything happens in |
 | `app_video` | ClikClok | short-video app. "Your future, 15 seconds at a time." |
 | `influencer` | @RemoteRemy (Remy) | "Just learn to code, bro." |
-| `app_jobs` | DoomApply | the laptop job app. "Swipe right on your future." |
+| `app_jobs` | DoomApply | the phone job app; the hub screen is your phone. "Swipe right on your future." |
 | `site_mega` | MegaBoard | site tab 1 (SHOULD). "10 million jobs. Some of them real." |
 | `site_brag` | HumbleBrag | site tab 2 and the Network action (SHOULD). "Thrilled to announce: everything." |
 | `site_launch` | LaunchPadd | site tab 3, startups (SHOULD). "Equity instead of money since forever." |
@@ -71,13 +72,13 @@ google, alphabet, microsoft, macrohard, apple, amazon, amazoom, meta, facebook, 
 
 ## 2. Intro cutscene -> `data/content/cutscene.json`
 
-6 panels, 40 s total, 2022 to 2026. Background-neutral (it plays before the background pick). Tap = finish/advance a caption; hold Skip 0.5 s or Android Back = skip all. Build it as text slides first; art last. Visual notes are for the artist and are not shown.
+6 panels, 40 s total, 2022 to 2026. Background-neutral (it plays before the background pick). Tap = finish/advance a caption; hold the Skip pill (bottom-right) 0.5 s = skip all (Android Back too, LATER). Panels are portrait (270x480 on screen). Build it as text slides first; art last. Visual notes are for the artist and are not shown.
 
 | id | Time | Visual (not shown) | Captions (shown in order) | Audio |
 |---|---|---|---|---|
 | `intro_p1` | 6 s | Side-view cutaway of a small bedroom at night: warm desk lamp, chemistry textbook, a 17-year-old under a blanket lit by phone glow. Night-palette dithered clouds in the window (the reference's cloud style). | "2022. You are 17." / "You are supposed to be asleep." | clock tick, phone buzz x2 |
-| `intro_p2` | 7 s | A portrait phone fills the middle of the panel, bedroom blurred behind. ClikClok UI: "@RemoteRemy - A DAY IN THE LIFE OF A SOFTWARE ENGINEER". Inside: a sunlit studio (the reference's bright sky and fluffy clouds through a big window). Remy wakes; clock 10:47. Then his laptop grid: six sleepy faces, "STANDUP 00:12:00". | Remy: "Woke up at 10:47. No alarm." / "Commute: 3 steps." / "Standup: 12 minutes. Pants: optional." | swipe whoosh, lo-fi beat drops in |
-| `intro_p3` | 7 s | Pan across the one-room studio; labels pop: BEDROOM, OFFICE, GYM (one kettlebell), KITCHEN (one espresso machine). Then a balcony at sunset, pixel coins raining, "SALARY: $$$$$$" with a sticker "CENSORED FOR ENGAGEMENT". Comments scroll up: "HOW DO I START", "is math needed??", "bro lives in 2030". | Remy: "One room. Bedroom, office, gym. That's called efficiency." / "Six figures to think. Mostly about lunch." / "Just learn to code, bro. Link in bio." | pop x4, cash register, crowd "ooooh" |
+| `intro_p2` | 7 s | The phone fills nearly the whole panel: a thin bezel and the kid's thumb at the edges, bedroom blurred in the margins. ClikClok UI: "@RemoteRemy - A DAY IN THE LIFE OF A SOFTWARE ENGINEER". Inside: a sunlit studio (the reference's bright sky and fluffy clouds through a big window). Remy wakes; clock 10:47. Then his laptop grid: six sleepy faces, "STANDUP 00:12:00". | Remy: "Woke up at 10:47. No alarm." / "Commute: 3 steps." / "Standup: 12 minutes. Pants: optional." | swipe whoosh, lo-fi beat drops in |
+| `intro_p3` | 7 s | Pan sideways across the one-room studio (panel up to 480 px wide, 270 visible); labels pop: BEDROOM, OFFICE, GYM (one kettlebell), KITCHEN (one espresso machine). Then a balcony at sunset, pixel coins raining, "SALARY: $$$$$$" with a sticker "CENSORED FOR ENGAGEMENT". Comments scroll up: "HOW DO I START", "is math needed??", "bro lives in 2030". | Remy: "One room. Bedroom, office, gym. That's called efficiency." / "Six figures to think. Mostly about lunch." / "Just learn to code, bro. Link in bio." | pop x4, cash register, crowd "ooooh" |
 | `intro_p4` | 6 s | Close-up: your eyes become pixel sparkles. You close the chemistry book. A search bar types "how to become software engineer fast easy remote". | "That night, you made a decision." | 8-bit "aaah", key clicks |
 | `intro_p5` | 7 s | Calendar pages fly 2022 -> 2026 while seasons change outside the same window. Books and coffee cups pile up; a screen says "Hello, World!" and you fist-pump; a bug counter goes 99 -> 127. Keep it ambiguous: it could be classes, internships or tutorials. | "Four years of learning." / "Some of it on purpose." | upbeat chiptune, page flips |
 | `intro_p6` | 7 s | Same room, desaturated, rain. You are 21. A sports-style ticker crawls: "RECORD PROFITS, 12,000 LAYOFFS 'TO FOCUS ON AI' * ENTRY-LEVEL ROLE: 5+ YEARS REQUIRED * 4,000 APPLICANTS FOR 1 JUNIOR ROLE". The phone buzzes: Remy, same studio, now full of moving boxes, ring light flickering. Smash to black; title slams in. | "2026." / Remy: "So... I got laid off. Anyway! My course is 70% off." / (title) "SOFTWARE ENGINEER SIMULATOR" / "How did you spend those four years?" | beat slows like a dying cassette, record scratch, 1 s silence, title sting |
@@ -531,6 +532,8 @@ Background-specific openers are in section 3 (`dana_opener`); company one-liners
 | `vs_dana_stat_3` | Patience: [###--] |
 | `vs_dana_moves` | Special moves: The Five-Year Plan, The Salary Expectation Trap, The Awkward Silence |
 
+Banners at Press Start 2P 16 fit 15 characters a line, up to 3 lines (GDD 2.7). The portrait VS screen shows the two names on separate plates, so `vs_title` appears only where one line fits; there, use size 8.
+
 ### 8.4 Answer Meter labels
 
 | id | Text |
@@ -780,6 +783,12 @@ On screen, `ducky` lines are prefixed with `ducky_real_answer` ("Real answer:").
 | `ui_back` | Back |
 | `ui_done` | Done |
 | `ui_sleep` | Sleep |
+| `ui_tab_jobs` | Jobs |
+| `ui_tab_cv` | CV |
+| `ui_tab_mail` | Mail |
+| `ui_tab_study` | Study |
+| `ui_tab_network` (SHOULD) | Coffee |
+| `ui_invite_waiting` | Invite waiting |
 | `ui_sleep_confirm` | You still have {n} energy. Sleep anyway? |
 | `ui_night_summary` | Applied {n} - Rejected {r} - Ghosted {g} |
 | `ui_morning` | Morning, day {day}. |
@@ -820,6 +829,8 @@ On screen, `ducky` lines are prefixed with `ducky_real_answer` ("Real answer:").
 | `ui_study_joke_3` | Solved: Two Sum. Unsolved: rent. |
 | `ui_grace_day` | Your landlord gave you one more day. ONE. |
 | `ui_rent_warning` | Rent is due soon. Ramen budget activated. |
+
+The hub's bottom dock (GDD 4.2 S04) uses `ui_tab_*` plus `ui_sleep`; dock labels are at most 6 characters. `ui_quit_confirm` appears on Android (LATER) and desktop only: iOS apps never quit themselves (GDD 4.4).
 
 ### 10.2 Ducky coach lines (first run, GDD 4.3)
 
@@ -932,13 +943,18 @@ Fields: `id, short (<=120, on screen), more (Notebook extra), triggers`. GDD 8.3
 OFFER OF EMPLOYMENT - {company}
 Dear {player_name},
 We are thrilled (legally required wording) to offer you the role of {job_title}.
-Salary: {salary}/year          Work mode: {work_mode}
-Commute: {commute_line}
-Perks: {perk_1}. {perk_2}.
+Salary:     {salary}/year
+Work mode:  {work_mode}
+Commute:    {commute_line}
+Perks:      {perk_1}.
+            {perk_2}.
 Fine print: {fine_print}
 Please decide before you sleep.
-[ Decline ]            [ Negotiate ]            [ ACCEPT ]
+[               Negotiate               ]
+[ Decline ]  [          ACCEPT          ]
 ```
+
+One field per line after a 12-character label column; values wrap at 28 columns, fine print up to 4 lines (GDD 4.2 S10).
 
 | id | Text |
 |---|---|
