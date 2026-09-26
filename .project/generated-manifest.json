@@ -13,7 +13,7 @@
   "outputs": {
     "docs/task/README.md": {
       "owner": "generated",
-      "sha256": "bc38161714a9b229f6ef2000297e2705861f0194931f134fceed19eac023c1c3"
+      "sha256": "0bb74c1f9c6ca5ae99f95d34f8ea42756e60cfc92ba6754df6a8065456639ac8"
     },
     "project.yaml": {
       "owner": "generated-by-agent from docs/*.md; regenerate on doc change",

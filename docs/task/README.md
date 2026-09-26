@@ -16,20 +16,20 @@ This table only projects execution state. Criteria ids are in [project.yaml](../
 
 | Status | ID | Title | Execution | Relevance | Depends on | Criteria passed | Detail | Evidence |
 |---|---|---|---|---|---|---|---|---|
-| [!] | `STEP-00` | Tools, decisions and reading | `in_progress` | `current` | â€” | 1/3 | The decisions are done (AC-S00-3: D1-D8 and P1 in docs/DECISIONS.md). Open: AC-S00-1 needs saved evidence that user.email is set and the repo is on GitHub (r2 shows git, user.name and the Mac's commit on the PC); the Steam auto-update pin on the Windows PC (AC-S00-2, developer); the reading and the You-do are the developer's. | [2026-09-27-r2](../../.project/evidence/STEP-01/2026-09-27-r2/), [docs](../../docs/) |
-| [!] | `STEP-01` | Project foundation | `verifying` | `current` | â€” | 3/6 | Portrait re-check (run r2) passes AC-S01-1, AC-S01-3, AC-S01-4 and the settings. Waiting on the developer: drag-resize check (AC-S01-2), the portrait commit and push (AC-S01-5), the three explanations (AC-S01-6). | [2026-09-27-r2](../../.project/evidence/STEP-01/2026-09-27-r2/) |
-| [] | `STEP-02` | Hello iPhone: the iOS debug build from the MacBook | `todo` | `current` | `STEP-01` | 0/12 | Hello iPhone on the MacBook (Xcode, free Personal Team). Needs STEP-01 done and the portrait commit pushed; the device-check scene can be built on either machine. | â€” |
-| [] | `STEP-03` | Stub flow through every screen, plus the UI kit | `todo` | `current` | `STEP-02` | 0/5 | Needs STEP-02; the fonts arrive in Step 2 (task 5). | â€” |
-| [] | `STEP-04` | Interview grey-box | `todo` | `current` | `STEP-03` | 0/5 | Needs STEP-03. | â€” |
-| [] | `STEP-05` | Job-hunt grey-box | `todo` | `current` | `STEP-04` | 0/5 | Needs STEP-04. | â€” |
-| [] | `STEP-06` | Offer, endings, save/resume, Back, intro text slides | `todo` | `current` | `STEP-05` | 0/4 | Needs STEP-05. | â€” |
-| [] | `STEP-07` | Playtest #1, tuning and the balance sim | `todo` | `current` | `STEP-06` | 0/4 | Needs STEP-06 (v0.1-greybox). | â€” |
-| [] | `STEP-08` | SHOULD features, in GDD 10.2 order | `todo` | `current` | `STEP-07` | 0/4 | Needs STEP-07. | â€” |
-| [] | `STEP-09` | Art style lock and the vertical slice: the interview | `todo` | `current` | `STEP-07` | 0/3 | Needs STEP-07. | â€” |
-| [] | `STEP-10` | Art production for the rest | `todo` | `current` | `STEP-09` | 0/2 | Needs STEP-09. | â€” |
-| [] | `STEP-11` | Intro cutscene art | `todo` | `current` | `STEP-06`, `STEP-09` | 0/3 | Needs STEP-06 and STEP-09. | â€” |
-| [] | `STEP-12` | Audio, juice, accessibility, credits | `todo` | `current` | `STEP-10`, `STEP-11` | 0/4 | Needs STEP-10 and STEP-11. | â€” |
-| [] | `STEP-13` | Playtest #2 and the release candidate | `todo` | `current` | `STEP-08`, `STEP-12` | 0/22 | Needs STEP-08 and STEP-12. TestFlight release candidate (paid Apple Developer Program from the start of the step); Android and Google Play stay LATER. | â€” |
+| [!] | `STEP-00` | Tools, decisions and reading | `in_progress` | `current` | — | 1/3 | The decisions are done (AC-S00-3: D1-D8 and P1 in docs/DECISIONS.md). Open: AC-S00-1 needs saved evidence that user.email is set and the repo is on GitHub (r2 shows git, user.name and the Mac's commit on the PC); the Steam auto-update pin on the Windows PC (AC-S00-2, developer); the reading and the You-do are the developer's. | [2026-09-27-r2](../../.project/evidence/STEP-01/2026-09-27-r2/), [docs](../../docs/) |
+| [!] | `STEP-01` | Project foundation | `verifying` | `current` | — | 3/6 | Portrait re-check (run r2) passes AC-S01-1, AC-S01-3, AC-S01-4 and the settings. Waiting on the developer: drag-resize check (AC-S01-2), the portrait commit and push (AC-S01-5), the three explanations (AC-S01-6). | [2026-09-27-r2](../../.project/evidence/STEP-01/2026-09-27-r2/) |
+| [] | `STEP-02` | Hello iPhone: the iOS debug build from the MacBook | `todo` | `current` | `STEP-01` | 0/12 | Hello iPhone on the MacBook (Xcode, free Personal Team). Needs STEP-01 done and the portrait commit pushed; the device-check scene can be built on either machine. | — |
+| [] | `STEP-03` | Stub flow through every screen, plus the UI kit | `todo` | `current` | `STEP-02` | 0/5 | Needs STEP-02; the fonts arrive in Step 2 (task 5). | — |
+| [] | `STEP-04` | Interview grey-box | `todo` | `current` | `STEP-03` | 0/5 | Needs STEP-03. | — |
+| [] | `STEP-05` | Job-hunt grey-box | `todo` | `current` | `STEP-04` | 0/5 | Needs STEP-04. | — |
+| [] | `STEP-06` | Offer, endings, save/resume, Back, intro text slides | `todo` | `current` | `STEP-05` | 0/4 | Needs STEP-05. | — |
+| [] | `STEP-07` | Playtest #1, tuning and the balance sim | `todo` | `current` | `STEP-06` | 0/4 | Needs STEP-06 (v0.1-greybox). | — |
+| [] | `STEP-08` | SHOULD features, in GDD 10.2 order | `todo` | `current` | `STEP-07` | 0/4 | Needs STEP-07. | — |
+| [] | `STEP-09` | Art style lock and the vertical slice: the interview | `todo` | `current` | `STEP-07` | 0/3 | Needs STEP-07. | — |
+| [] | `STEP-10` | Art production for the rest | `todo` | `current` | `STEP-09` | 0/2 | Needs STEP-09. | — |
+| [] | `STEP-11` | Intro cutscene art | `todo` | `current` | `STEP-06`, `STEP-09` | 0/3 | Needs STEP-06 and STEP-09. | — |
+| [] | `STEP-12` | Audio, juice, accessibility, credits | `todo` | `current` | `STEP-10`, `STEP-11` | 0/4 | Needs STEP-10 and STEP-11. | — |
+| [] | `STEP-13` | Playtest #2 and the release candidate | `todo` | `current` | `STEP-08`, `STEP-12` | 0/22 | Needs STEP-08 and STEP-12. TestFlight release candidate (paid Apple Developer Program from the start of the step); Android and Google Play stay LATER. | — |
 
 ## Milestones
 
