@@ -1,0 +1,1 @@
+{"tool":"logs_read source=game","run_id":"r265687-1","lines":[{"level":"info","text":"[godot_ai game_helper] registered mcp capture (debugger active=true, logger=true)"},{"level":"info","text":"Content: 0 backgrounds, 0 tiers, 0/16 JSON files"}],"errors":0,"note":"Escape (back) sent during the run; game stayed live with no new errors."}

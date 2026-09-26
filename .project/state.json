@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "model": "project.yaml",
+  "updated": "2026-09-26",
+  "tasks": {
+    "STEP-00": {
+      "execution": "in_progress",
+      "relevance": "current",
+      "detail": "Git done (AC-S00-1). Open: D1-D8 answers in docs/DECISIONS.md (AC-S00-3); Godot auto-update pin (AC-S00-2).",
+      "criteria": {
+        "AC-S00-1": {"status": "pass", "by": "agent", "evidence": ".project/evidence/STEP-01/2026-09-26-r1/repo_and_settings.txt", "note": "git version 2.55.0; user.name and user.email set."},
+        "AC-S00-2": {"status": "pending", "by": "developer", "note": "Godot runs from /Applications/Godot.app on macOS; the ROADMAP's Steam instruction may not apply (see ISSUE-01)."},
+        "AC-S00-3": {"status": "pending", "by": "developer", "note": "docs/DECISIONS.md does not exist yet."}
+      },
+      "history": [{"date": "2026-09-26", "to": "in_progress", "reason": "Initialized from observed repo state: git installed and used for 2 commits."}]
+    },
+    "STEP-01": {
+      "execution": "verifying",
+      "relevance": "current",
+      "detail": "Automated checks pass. Waiting on the developer: resize-by-drag check (AC-S01-2) and the three one-sentence explanations (AC-S01-6).",
+      "criteria": {
+        "AC-S01-1": {"status": "pass", "by": "agent", "evidence": ".project/evidence/STEP-01/2026-09-26-r1/title-stub-game.png", "note": "Game tab window 1197x539: s=floor(min(2.49,1.996))=1 uses ~50% of the exact scale (<80%), so the guard goes fractional: 1197*270/539 -> 599x270. Matches the label 'game (599, 270) (fractional)' per the ARCHITECTURE 1.1 rule."},
+        "AC-S01-2": {"status": "inconclusive", "by": "developer", "evidence": ".project/evidence/STEP-01/2026-09-26-r1/resize_eval.json", "note": "game_eval root.size is ignored while the game runs in the editor's Game tab (confirms ARCHITECTURE 18.1 #14). Drag the window edge or undock/float the game window."},
+        "AC-S01-3": {"status": "pass", "by": "agent", "evidence": ".project/evidence/STEP-01/2026-09-26-r1/test_run.json", "note": "24 passed, 0 failed: flow 6, interview 4, odds 8, offer 3, save 3."},
+        "AC-S01-4": {"status": "pass", "by": "agent", "evidence": ".project/evidence/STEP-01/2026-09-26-r1/game_log.json", "note": "No errors in the game log; 'Content: 0 backgrounds, 0 tiers, 0/16 JSON files' as ROADMAP Step 1 task 9 expects."},
+        "AC-S01-5": {"status": "pass", "by": "agent", "evidence": ".project/evidence/STEP-01/2026-09-26-r1/repo_and_settings.txt", "note": "0 tracked .godot/ paths; status clean before this initialization. Deviation: 2 commits (init + skill), not 1, because the skill was committed after the foundation."},
+        "AC-S01-6": {"status": "pending", "by": "developer", "note": "Explain: what an autoload is; why only change_phase() changes the phase; why the RNG state is saved as a string."}
+      },
+      "checks": {
+        "project_settings": {"status": "pass", "evidence": ".project/evidence/STEP-01/2026-09-26-r1/repo_and_settings.txt", "note": "All 20 keys from ROADMAP Step 1 task 2 present with the listed values."}
+      },
+      "history": [{"date": "2026-09-26", "to": "verifying", "reason": "Foundation code already in commit 64ed38f; evidence run r1 collected during initialization."}]
+    },
+    "STEP-02": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-01 done. ROADMAP/ARCHITECTURE 13.1 give Windows paths; macOS equivalents needed (ISSUE-01).", "criteria": {}, "history": []},
+    "STEP-03": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-02; fonts are downloaded by the developer.", "criteria": {}, "history": []},
+    "STEP-04": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-03.", "criteria": {}, "history": []},
+    "STEP-05": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-04.", "criteria": {}, "history": []},
+    "STEP-06": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-05.", "criteria": {}, "history": []},
+    "STEP-07": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-06 (v0.1-greybox).", "criteria": {}, "history": []},
+    "STEP-08": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-07.", "criteria": {}, "history": []},
+    "STEP-09": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-07.", "criteria": {}, "history": []},
+    "STEP-10": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-09.", "criteria": {}, "history": []},
+    "STEP-11": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-06 and STEP-09.", "criteria": {}, "history": []},
+    "STEP-12": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-10 and STEP-11.", "criteria": {}, "history": []},
+    "STEP-13": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-08 and STEP-12.", "criteria": {}, "history": []}
+  },
+  "issues": [
+    {"id": "ISSUE-01", "kind": "plan_drift", "status": "open", "affects": ["STEP-00", "STEP-02", "STEP-13"], "summary": "ROADMAP Steps 0/2 and ARCHITECTURE 13.1/14.1 assume Windows (PowerShell, winget, C:\\ JDK path, Steam updates). This machine is macOS. Doc fix needs the developer's approval; ARCHITECTURE wins on engine/tool facts."},
+    {"id": "ISSUE-02", "kind": "device_fact", "status": "open", "affects": ["STEP-01", "STEP-02"], "summary": "Confirmed on this editor: while the game runs in the Game tab, Window.size assignment is ignored (ARCHITECTURE 18.1 #14). Record it in 18.1 during Step 2 task 7."},
+    {"id": "ISSUE-03", "kind": "repo_hygiene", "status": "resolved", "affects": [], "summary": "A Python __pycache__ .pyc was committed with the skill. Added __pycache__/ to .gitignore and untracked the file (not committed yet)."}
+  ]
+}

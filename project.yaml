@@ -1,0 +1,571 @@
+# Structured index of the accepted plan (docs/GDD.md, docs/CONTENT.md, docs/ARCHITECTURE.md,
+# docs/ROADMAP.md). This file is GENERATED from those docs: it never overrides them.
+# If this file and a doc disagree, the doc wins; regenerate this file.
+# Execution state lives in .project/state.json, not here.
+schema_version: 1
+
+project:
+  id: swe-simulator
+  title: SWE Simulator (MVP)
+  plan_file: docs/GDD.md
+  plan_files:
+    - docs/GDD.md
+    - docs/CONTENT.md
+    - docs/ARCHITECTURE.md
+    - docs/ROADMAP.md
+  model_authorship: generated
+  engine: Godot 4.7.2-stable, GDScript, gl_compatibility
+  authority_order:
+    - "Rules and numbers: docs/GDD.md wins; fix ARCHITECTURE.md (ARCHITECTURE header)."
+    - "Engine facts: docs/ARCHITECTURE.md wins; fix GDD.md (ARCHITECTURE header)."
+    - "Every player-facing string and content id: docs/CONTENT.md."
+    - "Step plan, task breakdown and Done-when criteria: docs/ROADMAP.md."
+    - "Design decision answers: docs/DECISIONS.md (one line each), once it exists (ROADMAP Step 0)."
+    - "Execution state and evidence: .project/state.json and .project/evidence/."
+
+preservation:
+  baselines:
+    - id: BASE-DOCS
+      source: docs/GDD.md, docs/CONTENT.md, docs/ARCHITECTURE.md, docs/ROADMAP.md (all v1.0, 2026-09-26)
+      revision: 64ed38f (last commit touching docs/)
+    - id: BASE-CODE
+      source: Step 1 foundation code copied from ARCHITECTURE section 17
+      revision: 64ed38f
+  artifacts:
+    - id: ART-GDD
+      path: docs/GDD.md
+      role: design source of truth (rules, numbers, MUST/SHOULD/LATER scope, decisions D1-D8)
+      disposition: preserve
+    - id: ART-CONTENT
+      path: docs/CONTENT.md
+      role: every player-facing string and content id
+      disposition: preserve
+    - id: ART-ARCH
+      path: docs/ARCHITECTURE.md
+      role: engine facts, codebase rules, verified code skeletons
+      disposition: preserve
+    - id: ART-ROADMAP
+      path: docs/ROADMAP.md
+      role: step plan; each step's Tasks and Done-when are the human-readable task specification and sign-off checklist
+      disposition: preserve
+    - id: ART-CORE
+      path: core/*.gd
+      role: pure rule classes GameFlow, RunState, SaveIO, Odds
+      disposition: preserve
+    - id: ART-AUTOLOAD
+      path: autoload/*.gd
+      role: autoloads Content, GameState, Device, SceneRouter
+      disposition: preserve
+    - id: ART-TESTS
+      path: tests/test_*.gd
+      role: godot-ai test suites (McpTestSuite, @tool)
+      disposition: preserve
+    - id: ART-DATA-TYPES
+      path: data/types/*.gd
+      role: TierData, BackgroundData, BalanceConfig resource classes
+      disposition: preserve
+  conventions:
+    - "ROADMAP step numbers are stable task ids (STEP-00 .. STEP-13); never renumber them."
+    - "ROADMAP Done-when checkboxes are ticked by the developer; the three-marker index in docs/task/README.md is generated from .project/state.json and never replaces them."
+    - "A design change is one line with a reason in docs/DECISIONS.md; the GDD is not rewritten (ROADMAP Step 0 pitfalls)."
+    - "Claude never changes a design decision silently; open questions go to the step's design huddle (ROADMAP 10)."
+    - "Scope is tagged MUST / SHOULD / LATER; a new idea replaces something and never just adds; new ideas go to docs/ideas_parking_lot.md (ROADMAP 1, risk 1)."
+    - "ARCHITECTURE section 17 code skeletons are copied verbatim."
+    - "Tuning lives in the 7 .tres files and text in the 16 JSON files; rebalancing never needs a script edit (ROADMAP 1)."
+    - "Every step keeps its You-do task for the developer's own hands; Claude does not do it for them (ROADMAP 4, risk 8)."
+    - "The developer commits; Claude suggests the message and commits before script_patch or engine updates (ROADMAP 10, ARCHITECTURE 14.3)."
+    - "The 2x rule: a task past twice its estimate stops and is cut or simplified (ROADMAP 1)."
+  status_dimensions:
+    - execution
+    - relevance
+  approval_required_for:
+    - remove
+    - semantic_change
+    - authority_change
+
+components:
+  - {id: CMP-REPO, title: "Project settings, git files, folders", paths: [project.godot, .gitignore, .gitattributes], source: "ARCHITECTURE 1.2, 2, 14"}
+  - {id: CMP-CORE, title: "Pure rule classes (GameFlow, RunState, SaveIO, Odds)", paths: ["core/"], source: "ARCHITECTURE 3, 4, 7, 8, 17.1-17.4"}
+  - {id: CMP-AUTOLOAD, title: "Autoloads (Content, GameState, Device, SceneRouter)", paths: ["autoload/"], source: "ARCHITECTURE 3, 5, 9, 17.6-17.9"}
+  - {id: CMP-DATA, title: "Tuning resources (.tres) and their classes", paths: ["data/types/", "data/balance/", "data/backgrounds/", "data/tiers/"], source: "ARCHITECTURE 6.2, 17.5; GDD 11"}
+  - {id: CMP-CONTENT, title: "JSON content (16 files keyed by id)", paths: ["data/content/"], source: "ARCHITECTURE 6.3-6.4; CONTENT"}
+  - {id: CMP-UI, title: "Theme, fonts, shared components", paths: ["ui/"], source: "ARCHITECTURE 1.4, 1.5, 10, 17.10"}
+  - {id: CMP-TITLE, title: "Title (S01)", paths: ["features/title/"], source: "ARCHITECTURE 11.1; GDD 4.2"}
+  - {id: CMP-INTRO, title: "Intro cutscene (S02)", paths: ["features/intro/"], source: "ARCHITECTURE 11.2; CONTENT 2"}
+  - {id: CMP-BGSELECT, title: "Background select (S03)", paths: ["features/background_select/"], source: "ARCHITECTURE 11.3; GDD 5.2"}
+  - {id: CMP-HUNT, title: "Job hunt (S04-S06)", paths: ["features/job_hunt/"], source: "ARCHITECTURE 11.4; GDD 5.3-5.7"}
+  - {id: CMP-INTERVIEW, title: "VS intro and interview (S07-S09)", paths: ["features/interview/"], source: "ARCHITECTURE 11.5-11.6, 17.11; GDD 5.8"}
+  - {id: CMP-ENDINGS, title: "Offer, Hired card, Plan B (S10-S12)", paths: ["features/offer/", "features/phase2_stub/", "features/game_over/"], source: "ARCHITECTURE 11.7; GDD 5.9-5.10"}
+  - {id: CMP-DEV, title: "Debug-only tools (device check, run report)", paths: ["features/dev/"], source: "ROADMAP Step 2, Step 7"}
+  - {id: CMP-TESTS, title: "godot-ai test suites", paths: ["tests/"], source: "ARCHITECTURE 12; GDD 10.6"}
+  - {id: CMP-EXPORT, title: "Android export and release", paths: [export_presets.cfg], source: "ARCHITECTURE 13"}
+  - {id: CMP-ART, title: "Art assets and style guide", paths: ["art/", "art_src/", "features/*/art/"], source: "ROADMAP 5; GDD 2.5-2.6"}
+  - {id: CMP-AUDIO, title: "Audio", paths: ["audio/"], source: "ROADMAP 6; GDD 9.2"}
+  - {id: CMP-DOCS, title: "Decision log, credits, devlog", paths: [docs/DECISIONS.md, CREDITS.md, docs/devlog.md], source: "ROADMAP 1, 5, 9"}
+
+decisions:
+  # ARCHITECTURE section 0: accepted engineering decisions.
+  - {id: AD-01, title: "480x270 base, viewport + expand + integer, runtime scale guard with fractional fallback", status: accepted, source: "ARCHITECTURE 0.1"}
+  - {id: AD-02, title: "Landscape only, either way up; only the job-card swipe reads raw touch", status: accepted, source: "ARCHITECTURE 0.2"}
+  - {id: AD-03, title: "monogram 16 for body text; Press Start 2P only for logo, VS screen, banners", status: accepted, source: "ARCHITECTURE 0.3"}
+  - {id: AD-04, title: "Folders by feature, plus core/, data/, ui/", status: accepted, source: "ARCHITECTURE 0.4"}
+  - {id: AD-05, title: "Four autoloads, no event bus, four pure @tool classes", status: accepted, source: "ARCHITECTURE 0.5"}
+  - {id: AD-06, title: "Numbers in 7 .tres files, text in 16 JSON files; companies are JSON only", status: accepted, source: "ARCHITECTURE 0.6"}
+  - {id: AD-07, title: "One seeded RNG per run, one per interview from a checkpoint; 64-bit values saved as strings", status: accepted, source: "ARCHITECTURE 0.7"}
+  - {id: AD-08, title: "One JSON save in user://, written only while a run is live, after every commit and on focus loss", status: accepted, source: "ARCHITECTURE 0.8"}
+  - {id: AD-09, title: "Rules in pure code the editor tests can run; scenes only display and call GameState verbs", status: accepted, source: "ARCHITECTURE 0.9"}
+  - {id: AD-10, title: "Android first; iOS LATER", status: accepted, source: "ARCHITECTURE 0.10"}
+  # GDD section 12: open until the developer answers them in docs/DECISIONS.md (ROADMAP Step 0).
+  # Building proceeds on the recommended default (GDD 12), so dependent tasks are not blocked.
+  - {id: D1, title: "Orientation", status: proposed, default: "(a) landscape only, sensor", source: "GDD 12"}
+  - {id: D2, title: "Base resolution", status: proposed, default: "(a) 480x270, viewport + integer + guard", source: "GDD 12"}
+  - {id: D3, title: "Knowledge-question mechanic", status: proposed, default: "(a) one-tap Answer Meter", source: "GDD 12"}
+  - {id: D4, title: "Lying depth", status: proposed, default: "(a) 3 CV lines x Honest/Polished/Lie + Come clean/Bluff + background check for degree lies", source: "GDD 12"}
+  - {id: D5, title: "Fail state", status: proposed, default: "(a) one Plan B ending, grace day, one-tap retry", source: "GDD 12"}
+  - {id: D6, title: "Customization depth", status: proposed, default: "(a) background + name dice", source: "GDD 12"}
+  - {id: D7, title: "Negotiation", status: proposed, default: "(b) one-tap Negotiate, first SHOULD after Research", source: "GDD 12"}
+  - {id: D8, title: "Interview brutality (run length)", status: proposed, default: "(a) Doubt HP 118/128/132 for playtest #1, then decide", source: "GDD 12"}
+
+invariants:
+  # Global rules every task must keep. Full text and sources: .agent/rules/invariants.md
+  - INV-01
+  - INV-02
+  - INV-03
+  - INV-04
+  - INV-05
+  - INV-06
+  - INV-07
+  - INV-08
+  - INV-09
+  - INV-10
+  - INV-11
+  - INV-12
+  - INV-13
+  - INV-14
+  - INV-15
+  - INV-16
+  - INV-17
+  - INV-18
+
+requirements:
+  # ---------- GDD 10.1 MUST (ids keep the GDD numbering) ----------
+  - id: MUST-01
+    title: "Foundation: GDD 2.3 settings, Device scale guard and safe area, git files before the first commit"
+    risk: standard
+    source: {file: docs/GDD.md, section: "10.1 item 1; 2.2; 2.3; 2.9"}
+    acceptance:
+      - {id: AC-S00-1, statement: "git --version prints a version in a fresh terminal, and user.name and user.email are set.", verification: [document_check]}
+      - {id: AC-S01-1, statement: "F5 shows the title stub reading game (600, 270) (integer) in the 1200x540 window, or, when the game is embedded in the Game tab, the size the ARCHITECTURE 1.1 rule predicts for that window.", verification: [manual_review]}
+      - {id: AC-S01-2, statement: "Resizing the window changes the game size, and nothing blurs or stretches.", verification: [manual_review]}
+      - {id: AC-S01-5, statement: "git log shows the foundation commit, git status is clean, and .godot/ is not tracked.", verification: [document_check]}
+      - {id: AC-S02-2, statement: "On the phone, the readout shows the game size ARCHITECTURE 1.1 predicts for that screen.", verification: [device_observation]}
+      - {id: AC-S02-3, statement: "On the phone, the safe-area outline clears the camera cutout.", verification: [device_observation]}
+  - id: MUST-02
+    title: "Debug build on the developer's own Android phone in week 1"
+    risk: standard
+    source: {file: docs/GDD.md, section: "10.1 item 2"}
+    acceptance:
+      - {id: AC-S02-1, statement: "The app opens on the phone in landscape, both ways up.", verification: [device_observation]}
+      - {id: AC-S02-5, statement: "The answer to 'does dragging the list fire a button?' is written down, and the scroll deadzone feels right.", verification: [device_observation, document_check]}
+      - {id: AC-S02-6, statement: "The Haptic button vibrates.", verification: [device_observation]}
+      - {id: AC-S02-7, statement: "Output from the phone appears in the editor (remote debug).", verification: [device_observation]}
+      - {id: AC-DOD-01, statement: "The APK installs on an Android phone, opens in landscape either way up, and reaches the title quickly.", verification: [device_observation]}
+  - id: MUST-03
+    title: "Autoloads, pure classes, and godot-ai tests for every formula"
+    risk: standard
+    source: {file: docs/GDD.md, section: "10.1 item 3; 10.6"}
+    acceptance:
+      - {id: AC-S01-3, statement: "test_run shows 24 passed, 0 failed (flow 6, save 3, odds 8, interview 4, offer 3).", verification: [behavioral_test]}
+      - {id: AC-S01-4, statement: "The Output panel shows no errors when the title stub runs.", verification: [manual_review]}
+      - {id: AC-S03-5, statement: "test_run is still green after the stub flow.", verification: [behavioral_test]}
+      - {id: AC-S04-5, statement: "test_run is green, including test_content_lint.", verification: [behavioral_test]}
+      - {id: AC-DOD-13, statement: "All tests are green: flow, save, odds, interview, offer, content lint and balance.", verification: [behavioral_test]}
+  - id: MUST-04
+    title: "Title: static art, Tap to start, Continue"
+    risk: standard
+    source: {file: docs/GDD.md, section: "10.1 item 4; 4.2 S01"}
+    acceptance:
+      - {id: AC-DOD-02, statement: "The title offers tap-to-start, Continue when a save exists, and Replay intro.", verification: [manual_review]}
+  - id: MUST-05
+    title: "Background select: 3 cards (3 stat bars, pips, runway, perk, flaw) plus name dice"
+    risk: standard
+    source: {file: docs/GDD.md, section: "10.1 item 5; 5.2"}
+    acceptance:
+      - {id: AC-DOD-03, statement: "Background select shows 3 cards, each with 3 stat bars, energy pips, rent runway, 1 perk and 1 flaw, plus a name dice button.", verification: [manual_review]}
+  - id: MUST-06
+    title: "Laptop-dashboard job hunt"
+    risk: standard
+    source: {file: docs/GDD.md, section: "10.1 item 6; 5.3; 5.6"}
+    acceptance:
+      - {id: AC-DOD-04, statement: "6 new cards per day, at most 10 on the board; card front shows logo, title, 3 match tags, a joke and the odds band; swipe right or APPLY = Quick Apply (1 energy); flip gives Tailor & Apply (2); Study (2); the Intern's 2 referrals; Sleep; energy, rent and Radar always visible.", verification: [behavioral_test, manual_review]}
+  - id: MUST-07
+    title: "CV screen: 3 lines x Honest / Polished / Lie"
+    risk: standard
+    source: {file: docs/GDD.md, section: "10.1 item 7; 5.4"}
+    acceptance:
+      - {id: AC-DOD-05, statement: "The CV screen has 3 lines, each settable to Honest, Polished or Lie.", verification: [manual_review]}
+  - id: MUST-08
+    title: "Morning inbox batch reveal, Recruiter Radar, first-run day-2 guarantee"
+    risk: standard
+    source: {file: docs/GDD.md, section: "10.1 item 8; 5.7"}
+    acceptance:
+      - {id: AC-S05-1, statement: "On a Medium first run, an invite arrives on the morning of day 2, after 3-5 minutes of play.", verification: [behavioral_test, manual_review]}
+      - {id: AC-S05-2, statement: "Knockout rejections name the knockout, ghosts stay silent, and the Radar fills only with relevant applications.", verification: [behavioral_test, manual_review]}
+      - {id: AC-DOD-06, statement: "The morning inbox shows invites first, rejections as one stack, ghosts silent; the first run guarantees an invite on day 2.", verification: [behavioral_test, manual_review]}
+  - id: MUST-09
+    title: "6 companies (2 per tier), 3 interview backgrounds; tiers differ at every stage"
+    risk: standard
+    source: {file: docs/GDD.md, section: "10.1 item 9; 5.5; 7"}
+    acceptance:
+      - {id: AC-S04-1, statement: "On the phone, interviews at the three tiers feel different: startup PIVOT, Big's fast needle.", verification: [device_observation]}
+      - {id: AC-DOD-07, statement: "6 companies and 3 interview backgrounds exist; tiers differ in odds, reply speed, Doubt HP, needle speed, question pool, salary and work mode.", verification: [document_check, behavioral_test]}
+  - id: MUST-10
+    title: "VS intro (2 s, skippable after first view), player bust per background, Dana in 3 outfits"
+    risk: standard
+    source: {file: docs/GDD.md, section: "10.1 item 10"}
+    acceptance:
+      - {id: AC-DOD-08, statement: "The VS intro lasts 2 s, is skippable after the first view, and shows a bust for each background and Dana in 3 outfits.", verification: [manual_review]}
+  - id: MUST-11
+    title: "Interview: bars, 5 prompts, Answer Meter, lie probe, K.O. / wheel / rejection"
+    risk: standard
+    source: {file: docs/GDD.md, section: "10.1 item 11; 5.8"}
+    acceptance:
+      - {id: AC-S04-2, statement: "The player sees the odds (zone width) before the needle moves, and Dana's reactions explain what happened.", verification: [manual_review]}
+      - {id: AC-S04-3, statement: "Every outcome has been seen at least once: K.O., wheel win, wheel loss, Composure 0, BUSTED (via debug), and a rejection with a tip plus the model answer.", verification: [manual_review]}
+      - {id: AC-DOD-09, statement: "The interview has Composure and Doubt bars, 5 prompts, the Answer Meter and the lie probe; it ends in K.O., the committee wheel or rejection; a loss always shows a tip plus the model answer.", verification: [behavioral_test, manual_review]}
+  - id: MUST-12
+    title: "Offer modal: role, yearly salary, work mode, commute preview, 2 perks, 1 fine print; Accept; Decline with confirm"
+    risk: standard
+    source: {file: docs/GDD.md, section: "10.1 item 12; 5.9"}
+    acceptance:
+      - {id: AC-DOD-10, statement: "The offer modal shows role, yearly salary, work mode, commute preview, 2 perks and 1 fine-print joke; Accept, or Decline with a confirm.", verification: [manual_review]}
+  - id: MUST-13
+    title: "Endings: Hired card with Dream vs Reality; Plan B with one-tap Retry; grace day"
+    risk: standard
+    source: {file: docs/GDD.md, section: "10.1 item 13; 5.10"}
+    acceptance:
+      - {id: AC-S05-3, statement: "Wasting energy until rent runs out reaches Plan B, with a grace day when an invite is waiting.", verification: [behavioral_test, manual_review]}
+      - {id: AC-DOD-11, statement: "A Hired card with the Dream vs Reality score; a Plan B ending with one-tap Retry; a grace day when an invite is waiting.", verification: [manual_review]}
+  - id: MUST-14
+    title: "Ducky tip card after failures"
+    risk: standard
+    source: {file: docs/GDD.md, section: "10.1 item 14; 1.2 pillar 4; 8"}
+    acceptance:
+      - {id: AC-MUST-14, statement: "Every failure shows the joke, then the cause, then exactly one true career tip from Ducky.", verification: [manual_review, document_check]}
+  - id: MUST-15
+    title: "Autosave on every action and on pause; Android Back; pause during interview on focus loss"
+    risk: critical
+    source: {file: docs/GDD.md, section: "10.1 item 15; 4.4; 5.11"}
+    acceptance:
+      - {id: AC-S02-4, statement: "On the phone, Back doesn't quit: the device-check counter goes up.", verification: [device_observation]}
+      - {id: AC-S03-2, statement: "Quit to title mid-hunt makes Continue appear, and Continue resumes the hunt; after Plan B or after leaving the Hired card, Continue is gone.", verification: [behavioral_test, manual_review]}
+      - {id: AC-S03-3, statement: "Back does the right thing on every screen, and every screen also has an on-screen way back.", verification: [manual_review]}
+      - {id: AC-S04-4, statement: "Killing the app mid-interview, then Continue, replays the same questions.", verification: [behavioral_test, device_observation]}
+      - {id: AC-S05-4, statement: "Killing the app right after Sleep, then Continue, shows the same morning.", verification: [behavioral_test, device_observation]}
+      - {id: AC-S06-2, statement: "All 5 kill tests resume correctly; a kill on the Hired card resumes at the offer; leaving the Hired card clears the save.", verification: [device_observation]}
+      - {id: AC-DOD-12, statement: "Autosave on every action and on focus loss; killing the app never loses more than the current screen; Android Back works everywhere and every screen has an on-screen way back.", verification: [behavioral_test, device_observation]}
+  - id: MUST-16
+    title: "Intro: 6 panels with pan/zoom and captions, skippable; text slides first, art last"
+    risk: standard
+    source: {file: docs/GDD.md, section: "10.1 item 16; CONTENT 2"}
+    acceptance:
+      - {id: AC-S06-3, statement: "The intro can be skipped at any moment and never auto-plays again.", verification: [manual_review]}
+      - {id: AC-S11-1, statement: "The illustrated intro is 40 s or less.", verification: [manual_review]}
+      - {id: AC-S11-2, statement: "Skip works at any moment of the illustrated intro.", verification: [manual_review]}
+      - {id: AC-S11-3, statement: "A tester who watched it all can say why the character wants a remote SWE job, and what went wrong by 2026.", verification: [manual_review]}
+      - {id: AC-DOD-14, statement: "6 panels with captions, 40 s or less; hold-to-skip and Back skip; plays on the first run only; Replay intro is on the title.", verification: [manual_review]}
+  - id: MUST-17
+    title: "Content minimums"
+    risk: standard
+    source: {file: docs/GDD.md, section: "10.1 item 17"}
+    acceptance:
+      - {id: AC-DOD-15, statement: "At least 15 knowledge questions, 10 ethics questions, 20 posting templates, 27 CV strings, 10 rejection lines and 15 tips ship in data/content.", verification: [behavioral_test]}
+  - id: MUST-18
+    title: "About 10 SFX"
+    risk: standard
+    source: {file: docs/GDD.md, section: "10.1 item 18; 9.2"}
+    acceptance:
+      - {id: AC-S12-1, statement: "Sound can be muted.", verification: [manual_review]}
+      - {id: AC-DOD-16, statement: "About 10 sound effects ship (tap, apply, reject stamp, invite, hit, K.O., VS slam, BUSTED, typewriter, error).", verification: [manual_review]}
+
+  # ---------- GDD 10.2 SHOULD (built in this order inside the Step 8 timebox) ----------
+  - id: SHOULD-01
+    title: "Research on the card back"
+    risk: standard
+    source: {file: docs/GDD.md, section: "10.2 item 1"}
+    acceptance:
+      - {id: AC-S08-1, statement: "Research has shipped and been tested on the phone.", verification: [device_observation, behavioral_test]}
+  - id: SHOULD-02
+    title: "One-tap Negotiate"
+    risk: standard
+    source: {file: docs/GDD.md, section: "10.2 item 2"}
+    acceptance:
+      - {id: AC-S08-2, statement: "Negotiate has shipped and been tested on the phone.", verification: [device_observation, behavioral_test]}
+  - {id: SHOULD-03, title: "Network action and 3 site tabs", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 3"}, acceptance: [{id: AC-SH-03, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
+  - {id: SHOULD-04, title: "Static top-down room hub", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 4"}, acceptance: [{id: AC-SH-04, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
+  - {id: SHOULD-05, title: "Hard-mode commute strip", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 5"}, acceptance: [{id: AC-SH-05, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
+  - {id: SHOULD-06, title: "Drag-to-sign and background check screen", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 6"}, acceptance: [{id: AC-SH-06, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
+  - {id: SHOULD-07, title: "Parallax and idle animations", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 7"}, acceptance: [{id: AC-SH-07, statement: "Shipped within Step 8 or Step 9, or recorded on the cut list.", verification: [document_check]}]}
+  - {id: SHOULD-08, title: "Morning event cards and the Unicorn posting", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 8"}, acceptance: [{id: AC-SH-08, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
+  - {id: SHOULD-09, title: "Career Notebook and Settings", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 9"}, acceptance: [{id: AC-SH-09, statement: "Shipped within the Step 8 timebox, or recorded on the cut list (Relaxed Timing is kept either way).", verification: [document_check]}]}
+  - {id: SHOULD-10, title: "Haptics and 2 music loops", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 10"}, acceptance: [{id: AC-SH-10, statement: "Shipped with Step 12, or recorded on the cut list.", verification: [document_check]}]}
+  - {id: SHOULD-11, title: "Dana's per-company lines, 'laid off too' gag, video-call frame, prop swaps", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 11"}, acceptance: [{id: AC-SH-11, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
+
+  # ---------- Cross-cutting requirements from GDD and ROADMAP ----------
+  - id: REQ-FLOW
+    title: "The full MVP loop runs start to finish without a crash"
+    risk: standard
+    source: {file: docs/GDD.md, section: "4.1; ROADMAP 2"}
+    acceptance:
+      - {id: AC-S03-1, statement: "On the phone, Title > Intro > Background select > Hunt > Interview > Offer > Hired > Title, and Hunt > Plan B > Retry, work with thumbs only.", verification: [device_observation]}
+      - {id: AC-S06-1, statement: "3 full runs on the phone (Easy, Medium, Hard) with no crash.", verification: [device_observation]}
+  - id: REQ-UI
+    title: "Touch-sized, readable UI at every supported screen size"
+    risk: standard
+    source: {file: docs/GDD.md, section: "2.7; 2.8; ARCHITECTURE 1.1, 10"}
+    acceptance:
+      - {id: AC-S03-4, statement: "Body text is monogram 16 and readable at arm's length; no button is shorter than 32 px.", verification: [manual_review, device_observation]}
+      - {id: AC-S10-2, statement: "A pass at 480x270, 639x294 and 590x410, and a pass on the phone, show nothing broken.", verification: [manual_review, device_observation]}
+      - {id: AC-S12-3, statement: "Every screen passes the arm's-length squint test.", verification: [device_observation]}
+  - id: REQ-TONE
+    title: "Satire and tone rules: punch up, the joke is a rule, it is funny"
+    risk: standard
+    source: {file: docs/GDD.md, section: "1.2; 1.3"}
+    acceptance:
+      - {id: AC-S05-5, statement: "The developer laughed at least once during the hunt grey-box.", verification: [manual_review]}
+  - id: REQ-DECISIONS
+    title: "Decision log: D1-D8 answered, one line each with a reason"
+    risk: standard
+    source: {file: docs/ROADMAP.md, section: "Step 0; 1 best practice 11"}
+    acceptance:
+      - {id: AC-S00-3, statement: "docs/DECISIONS.md lists D1-D8, each with the developer's answer and one line of why.", verification: [document_check]}
+  - id: REQ-TOOLCHAIN
+    title: "Pinned toolchain: Godot 4.7.2 and matching export templates"
+    risk: standard
+    source: {file: docs/ROADMAP.md, section: "Step 0 task 2; 8 risk 4"}
+    acceptance:
+      - {id: AC-S00-2, statement: "The Godot install will not update itself behind the developer's back.", verification: [manual_review]}
+  - id: REQ-LEARN
+    title: "The developer understands their own code"
+    risk: standard
+    source: {file: docs/ROADMAP.md, section: "8 risk 8; 10 ground rules"}
+    acceptance:
+      - {id: AC-S01-6, statement: "The developer can explain in one sentence each: what an autoload is; why only change_phase() changes the phase; why the RNG state is saved as a string.", verification: [manual_review]}
+  - id: REQ-PLAYTEST
+    title: "Playtests show the loop is understandable, fair and funny"
+    risk: standard
+    source: {file: docs/ROADMAP.md, section: "7; Step 7"}
+    acceptance:
+      - {id: AC-S07-1, statement: "3 of 5 testers finish a loop without help.", verification: [manual_review]}
+      - {id: AC-S07-4, statement: "There is a ranked fix list, and its top 3 are fixed.", verification: [document_check]}
+  - id: REQ-EDU
+    title: "Players leave with a real career tip"
+    risk: standard
+    source: {file: docs/GDD.md, section: "1.4; 8"}
+    acceptance:
+      - {id: AC-S07-3, statement: "Each tester can name one career tip afterwards.", verification: [manual_review]}
+  - id: REQ-BALANCE
+    title: "Balance simulation within the GDD 5.12 bands (or the D8 bands)"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.12; 10.6; ARCHITECTURE 12.4"}
+    acceptance:
+      - {id: AC-S07-2, statement: "test_balance is green against the GDD 5.12 bands, or the new ones chosen for D8 and written in DECISIONS.md.", verification: [behavioral_test]}
+      - {id: AC-S08-3, statement: "The sim has been rerun after Research; research pushes first-interview pass rates up by 10-15 points.", verification: [behavioral_test]}
+  - id: REQ-SCOPE
+    title: "Scope by priority and time; the cut list stays current"
+    risk: standard
+    source: {file: docs/ROADMAP.md, section: "11; Step 8"}
+    acceptance:
+      - {id: AC-S08-4, statement: "The cut list is updated with every unbuilt SHOULD.", verification: [document_check]}
+  - id: REQ-ART
+    title: "One art style at vertical-slice quality everywhere"
+    risk: standard
+    source: {file: docs/ROADMAP.md, section: "5; Steps 9-10; GDD 2.5-2.6"}
+    acceptance:
+      - {id: AC-S09-1, statement: "A screenshot of the interview could go on a store page.", verification: [manual_review]}
+      - {id: AC-S09-3, statement: "The palette and sizes are written in the style guide.", verification: [document_check]}
+      - {id: AC-S10-1, statement: "No magenta or grey placeholders are left.", verification: [manual_review]}
+  - id: REQ-PERF
+    title: "60 fps on a cheap Android phone; no crash in repeated runs"
+    risk: standard
+    source: {file: docs/ROADMAP.md, section: "2 Technical; ARCHITECTURE 15"}
+    acceptance:
+      - {id: AC-S09-2, statement: "The finished interview runs at 60 fps on the developer's phone.", verification: [device_observation]}
+      - {id: AC-S12-2, statement: "60 fps on a low-end phone.", verification: [device_observation]}
+      - {id: AC-S13-2, statement: "10 clean runs on 3 different phones.", verification: [device_observation]}
+      - {id: AC-DOD-17, statement: "60 fps on a cheap Android phone; no crash in 10 runs in a row.", verification: [device_observation]}
+  - id: REQ-LICENSE
+    title: "Every asset licensed and credited; parody names only"
+    risk: critical
+    source: {file: docs/ROADMAP.md, section: "2 Technical; 5 Licenses; GDD 1.3"}
+    acceptance:
+      - {id: AC-S12-4, statement: "The Credits screen lists every asset and its license, including the OFL text for Press Start 2P.", verification: [document_check]}
+      - {id: AC-DOD-18, statement: "Every asset's license is recorded, and only parody names are used (the content lint enforces it).", verification: [document_check, behavioral_test]}
+  - id: REQ-REL
+    title: "Milestones and the Android release candidate"
+    risk: standard
+    source: {file: docs/ROADMAP.md, section: "2 Milestones; Step 13; ARCHITECTURE 13.1"}
+    acceptance:
+      - {id: AC-S06-4, statement: "Tag v0.1-greybox exists at the end of Step 6.", verification: [document_check]}
+      - {id: AC-S13-1, statement: "Every item in the ROADMAP section 2 checklist is ticked.", verification: [document_check]}
+      - {id: AC-S13-3, statement: "Tag v0.5-mvp exists.", verification: [document_check]}
+
+tasks:
+  # One task per ROADMAP step. The step's "Tasks", "You do" and "Pitfalls" in docs/ROADMAP.md are the
+  # detailed specification; bundles in .project/bundles/ collect the context for one step.
+  # Estimate note: the ROADMAP's own step hours and the 2x rule replace the skill's 5-hour split guideline;
+  # the numbered tasks inside each step are the work units.
+  - id: STEP-00
+    title: "Tools, decisions and reading"
+    source: {file: docs/ROADMAP.md, section: "Step 0"}
+    hours: 3
+    requirement_ids: [MUST-01, REQ-TOOLCHAIN, REQ-DECISIONS]
+    component_ids: [CMP-REPO, CMP-DOCS]
+    decision_ids: [D1, D2, D3, D4, D5, D6, D7, D8]
+    depends_on: []
+    acceptance_ids: [AC-S00-1, AC-S00-2, AC-S00-3]
+    outputs: [docs/DECISIONS.md]
+    out_of_scope: ["Rewriting the GDD (ROADMAP Step 0 pitfalls)"]
+  - id: STEP-01
+    title: "Project foundation"
+    source: {file: docs/ROADMAP.md, section: "Step 1"}
+    hours: 3
+    requirement_ids: [MUST-01, MUST-03, REQ-LEARN]
+    component_ids: [CMP-REPO, CMP-CORE, CMP-AUTOLOAD, CMP-DATA, CMP-UI, CMP-TITLE, CMP-TESTS]
+    decision_ids: [AD-01, AD-04, AD-05, AD-07, AD-08, AD-09]
+    depends_on: []
+    preconditions: ["Step 0 task 1 (git installed)"]
+    acceptance_ids: [AC-S01-1, AC-S01-2, AC-S01-3, AC-S01-4, AC-S01-5, AC-S01-6]
+    outputs: [project.godot, .gitignore, .gitattributes, core/, autoload/, data/types/, ui/components/safe_area_margin.gd, features/title/, tests/]
+    out_of_scope: ["gui/theme/custom (Step 3)"]
+  - id: STEP-02
+    title: "Hello phone: the Android debug build"
+    source: {file: docs/ROADMAP.md, section: "Step 2"}
+    hours: 5
+    timebox_hours: 6
+    requirement_ids: [MUST-01, MUST-02, MUST-15]
+    component_ids: [CMP-EXPORT, CMP-DEV, CMP-TITLE]
+    decision_ids: [D1, AD-02, AD-10]
+    depends_on: [STEP-01]
+    acceptance_ids: [AC-S02-1, AC-S02-2, AC-S02-3, AC-S02-4, AC-S02-5, AC-S02-6, AC-S02-7]
+    outputs: [features/dev/device_check.tscn, export_presets.cfg, "docs/ARCHITECTURE.md section 18.1 results"]
+  - id: STEP-03
+    title: "Stub flow through every screen, plus the UI kit"
+    source: {file: docs/ROADMAP.md, section: "Step 3"}
+    hours: 8
+    requirement_ids: [REQ-FLOW, MUST-03, MUST-04, MUST-15, REQ-UI]
+    component_ids: [CMP-UI, CMP-DATA, CMP-TITLE, CMP-INTRO, CMP-BGSELECT, CMP-HUNT, CMP-INTERVIEW, CMP-ENDINGS]
+    decision_ids: [D5, AD-03, AD-06]
+    depends_on: [STEP-02]
+    acceptance_ids: [AC-S03-1, AC-S03-2, AC-S03-3, AC-S03-4, AC-S03-5]
+  - id: STEP-04
+    title: "Interview grey-box"
+    source: {file: docs/ROADMAP.md, section: "Step 4"}
+    hours: 14
+    requirement_ids: [MUST-03, MUST-09, MUST-10, MUST-11, MUST-14, MUST-15, MUST-17]
+    component_ids: [CMP-INTERVIEW, CMP-CONTENT, CMP-CORE, CMP-TESTS, CMP-DEV]
+    decision_ids: [D3, D8]
+    depends_on: [STEP-03]
+    acceptance_ids: [AC-S04-1, AC-S04-2, AC-S04-3, AC-S04-4, AC-S04-5]
+  - id: STEP-05
+    title: "Job-hunt grey-box"
+    source: {file: docs/ROADMAP.md, section: "Step 5"}
+    hours: 16
+    requirement_ids: [MUST-05, MUST-06, MUST-07, MUST-08, MUST-13, MUST-15, MUST-17, REQ-TONE]
+    component_ids: [CMP-HUNT, CMP-BGSELECT, CMP-CONTENT, CMP-CORE, CMP-TESTS]
+    decision_ids: [D4, D6]
+    depends_on: [STEP-04]
+    acceptance_ids: [AC-S05-1, AC-S05-2, AC-S05-3, AC-S05-4, AC-S05-5]
+  - id: STEP-06
+    title: "Offer, endings, save/resume, Back, intro text slides"
+    source: {file: docs/ROADMAP.md, section: "Step 6"}
+    hours: 10
+    requirement_ids: [REQ-FLOW, MUST-12, MUST-13, MUST-15, MUST-16, MUST-17, REQ-REL]
+    component_ids: [CMP-ENDINGS, CMP-INTRO, CMP-CONTENT, CMP-AUTOLOAD]
+    decision_ids: [D7]
+    depends_on: [STEP-05]
+    acceptance_ids: [AC-S06-1, AC-S06-2, AC-S06-3, AC-S06-4]
+    milestone: v0.1-greybox
+  - id: STEP-07
+    title: "Playtest #1, tuning and the balance sim"
+    source: {file: docs/ROADMAP.md, section: "Step 7"}
+    hours: 8
+    requirement_ids: [REQ-PLAYTEST, REQ-EDU, REQ-BALANCE]
+    component_ids: [CMP-TESTS, CMP-DEV, CMP-DATA]
+    decision_ids: [D8]
+    depends_on: [STEP-06]
+    acceptance_ids: [AC-S07-1, AC-S07-2, AC-S07-3, AC-S07-4]
+  - id: STEP-08
+    title: "SHOULD features, in GDD 10.2 order"
+    source: {file: docs/ROADMAP.md, section: "Step 8"}
+    hours: 16
+    timebox_hours: 16
+    requirement_ids: [SHOULD-01, SHOULD-02, SHOULD-03, SHOULD-04, SHOULD-05, SHOULD-06, SHOULD-07, SHOULD-08, SHOULD-09, SHOULD-10, SHOULD-11, REQ-BALANCE, REQ-SCOPE]
+    component_ids: [CMP-HUNT, CMP-ENDINGS, CMP-INTERVIEW, CMP-UI]
+    decision_ids: [D7]
+    depends_on: [STEP-07]
+    acceptance_ids: [AC-S08-1, AC-S08-2, AC-S08-3, AC-S08-4]
+    note: "SHOULD-03..11 are timeboxed: each is either shipped or moved to the cut list; only AC-S08-1..4 gate completion."
+  - id: STEP-09
+    title: "Art style lock and the vertical slice: the interview"
+    source: {file: docs/ROADMAP.md, section: "Step 9"}
+    hours: 20
+    requirement_ids: [REQ-ART, REQ-PERF]
+    component_ids: [CMP-ART, CMP-INTERVIEW, CMP-AUDIO]
+    decision_ids: []
+    depends_on: [STEP-07]
+    acceptance_ids: [AC-S09-1, AC-S09-2, AC-S09-3]
+  - id: STEP-10
+    title: "Art production for the rest"
+    source: {file: docs/ROADMAP.md, section: "Step 10"}
+    hours: 30
+    requirement_ids: [REQ-ART, REQ-UI]
+    component_ids: [CMP-ART]
+    decision_ids: []
+    depends_on: [STEP-09]
+    acceptance_ids: [AC-S10-1, AC-S10-2]
+  - id: STEP-11
+    title: "Intro cutscene art"
+    source: {file: docs/ROADMAP.md, section: "Step 11"}
+    hours: 12
+    requirement_ids: [MUST-16]
+    component_ids: [CMP-INTRO, CMP-ART]
+    decision_ids: []
+    depends_on: [STEP-06, STEP-09]
+    acceptance_ids: [AC-S11-1, AC-S11-2, AC-S11-3]
+  - id: STEP-12
+    title: "Audio, juice, accessibility, credits"
+    source: {file: docs/ROADMAP.md, section: "Step 12"}
+    hours: 10
+    requirement_ids: [MUST-18, REQ-PERF, REQ-UI, REQ-LICENSE]
+    component_ids: [CMP-AUDIO, CMP-UI, CMP-DOCS]
+    decision_ids: []
+    depends_on: [STEP-10, STEP-11]
+    acceptance_ids: [AC-S12-1, AC-S12-2, AC-S12-3, AC-S12-4]
+  - id: STEP-13
+    title: "Playtest #2 and the release candidate"
+    source: {file: docs/ROADMAP.md, section: "Step 13"}
+    hours: 10
+    requirement_ids: [REQ-REL, REQ-PERF, MUST-02, MUST-03, MUST-04, MUST-05, MUST-06, MUST-07, MUST-08, MUST-09, MUST-10, MUST-11, MUST-12, MUST-13, MUST-14, MUST-15, MUST-16, MUST-17, MUST-18, REQ-LICENSE]
+    component_ids: [CMP-EXPORT, CMP-DOCS]
+    decision_ids: [AD-10]
+    depends_on: [STEP-08, STEP-12]
+    acceptance_ids: [AC-S13-1, AC-S13-2, AC-S13-3, AC-DOD-01, AC-DOD-02, AC-DOD-03, AC-DOD-04, AC-DOD-05, AC-DOD-06, AC-DOD-07, AC-DOD-08, AC-DOD-09, AC-DOD-10, AC-DOD-11, AC-MUST-14, AC-DOD-12, AC-DOD-13, AC-DOD-14, AC-DOD-15, AC-DOD-16, AC-DOD-17, AC-DOD-18]
+    milestone: v0.5-mvp
+
+verification:
+  thresholds:
+    standard: 0.95
+    critical: 0.99
+  calibration_required_for_auto_advance: true
+  calibration_status: "none: no calibrated analyzer exists for GDScript here, so the automatic logic gate is never used to advance a task."
+  completion_policy: >-
+    ROADMAP policy: a step is done when every Done-when checkbox is met. Automated criteria need a current
+    godot-ai test_run artifact; manual_review and device_observation criteria need the developer's
+    confirmation recorded in .project/state.json. Manual confirmation is not automated confidence.
+  test_command: "godot-ai test_run (res://tests/test_*.gd, 300 s budget)"
+  comments: complex_logic_only
+  complexity:
+    cyclomatic_max: 10
+    cognitive_max: 15
+    nesting_max: 3

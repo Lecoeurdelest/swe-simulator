@@ -1,0 +1,30 @@
+## git (2026-09-26)
+git version 2.55.0
+user.name=Lecoeurdelest
+8547a13 feat: add skill plan
+64ed38f init
+status:
+?? .project/
+tracked .godot/ paths: 0
+
+## project.godot keys (ROADMAP Step 1 task 2)
+config/version="0.1.0"
+config/quit_on_go_back=false
+run/max_fps=60
+boot_splash/bg_color=Color(0.07, 0.07, 0.1, 1)
+boot_splash/use_filter=false
+gdscript/warnings/untyped_declaration=1
+window/size/viewport_width=480
+window/size/viewport_height=270
+window/size/window_width_override=1200
+window/size/window_height_override=540
+window/stretch/mode="viewport"
+window/stretch/aspect="expand"
+window/stretch/scale_mode="integer"
+window/handheld/orientation=4
+common/default_scroll_deadzone=6
+pointing/emulate_touch_from_mouse=true
+textures/canvas_textures/default_texture_filter=0
+textures/vram_compression/import_etc2_astc=true
+environment/defaults/default_clear_color=Color(0.07, 0.07, 0.1, 1)
+2d/snap/snap_2d_transforms_to_pixel=true
