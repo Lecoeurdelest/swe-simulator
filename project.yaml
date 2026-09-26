@@ -92,8 +92,15 @@ preservation:
     - "Scope is tagged MUST / SHOULD / LATER; a new idea replaces something and never just adds; new ideas go to docs/ideas_parking_lot.md (ROADMAP 1, risk 1)."
     - "ARCHITECTURE section 17 code skeletons are copied verbatim."
     - "Tuning lives in the 7 .tres files and text in the 16 JSON files; rebalancing never needs a script edit (ROADMAP 1)."
-    - "Every step keeps its You-do task for the developer's own hands; Claude does not do it for them (ROADMAP 4, risk 8)."
-    - "The developer commits; Claude suggests the message and commits before script_patch or engine updates (ROADMAP 10, ARCHITECTURE 14.3)."
+    # 2026-09-27 (W3, W6; developer approved in chat): replaces "Every step keeps its You-do task for the developer's own hands;
+    # Claude does not do it for them (ROADMAP 4, risk 8)." Still true; the placeholder and no-quiz rules are added.
+    - "Every step keeps its You-do task for the developer; Claude never does it. Where a You-do produces something the game needs to run, Claude builds a plain placeholder and the proper version stays queued for the developer. Explanation checks are recorded from the developer's statement and never quizzed (DECISIONS W3, W6)."
+    # 2026-09-27 (W1; developer approved in chat: "You can also push with git without stopping for my approvals"): replaces
+    # "The developer commits; Claude suggests the message and commits before script_patch or engine updates (ROADMAP 10, ARCHITECTURE 14.3)."
+    - "Claude commits after each verified increment on a per-step branch (step-NN-<slug>, each branched from the previous step's branch) and pushes without asking; it still commits before script_patch or engine updates. The developer reviews and merges on GitHub in step order with merge commits (DECISIONS W1; ARCHITECTURE 14.3)."
+    - "Dependency gate: a step may start when every earlier step is done or has only developer-owned criteria left (device, You-do, manual review); those steps stay in_progress/verifying until the developer confirms (DECISIONS W2)."
+    - "While the developer is away, design huddles take the documented recommended default, logged in docs/DECISIONS.md as 'agent default, please review'; scope, tone and tip accuracy wait for the developer (DECISIONS W4)."
+    - "Current mode (2026-09-27): PC only (P2); autonomous run from Step 2's PC part through Step 6, with a summary after each step (DECISIONS W5)."
     - "The 2x rule: a task past twice its estimate stops and is cut or simplified (ROADMAP 1)."
     - "Two machines share the GitHub repo: everyday building on the Windows PC, iPhone builds on the MacBook; pull before you start, push before you switch, and run the same Godot 4.7.2 on both (ROADMAP 10; ARCHITECTURE 14.1)."
   status_dimensions:
