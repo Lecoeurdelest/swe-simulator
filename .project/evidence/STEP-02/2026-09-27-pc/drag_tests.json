@@ -1,0 +1,21 @@
+{
+  "_what": "Desktop drag tests on the device-check list (Windows PC, 540x960 embedded game window = 270x480 game at 2x, emulate_touch_from_mouse = true, scroll_deadzone 6). Injected with game_eval: Input.parse_input_event() with InputEventMouseButton/InputEventMouseMotion carrying button_mask = LEFT and relative motion, one step per frame (a real mouse drag). godot-ai's input_mouse motion events carry no button mask or relative motion, so they only hover and cannot drag. Window coordinates; the game is at half scale.",
+  "tests": [
+    {"id": 1, "rows": "STOP (default)", "gesture": "press on Row 03 at window (262,626), 12 steps of -16 px, release at (262,434)",
+     "result": {"scroll_started": false, "scroll_vertical_per_step": [0,0,0,0,0,0,0,0,0,0,0,0], "row_pressed": false},
+     "reading": "A drag that starts on a STOP row does not scroll the list at all, and no row fires."},
+    {"id": 2, "rows": "PASS (toggled at runtime)", "gesture": "same as test 1",
+     "result": {"scroll_started": true, "scroll_vertical_per_step": [8,16,24,32,40,48,56,64,72,80,88,96], "scroll_ended": true, "scroll_vertical_after_inertia": 215, "row_pressed": false},
+     "reading": "PASS rows let the ScrollContainer drag: the list follows the pointer 1:1 in game px, then coasts. The pressed row does not fire."},
+    {"id": 3, "rows": "PASS", "gesture": "press on Row 03, 4 steps of -8 window px (past the 6 px deadzone), release still over the same row",
+     "result": {"scroll_started": true, "scroll_vertical_per_step": [0,4,8,12], "scroll_vertical_after_inertia": 42, "row_pressed": false},
+     "reading": "Once the ScrollContainer starts scrolling, the row's press is cancelled even when the release lands on the same row."},
+    {"id": 4, "rows": "PASS", "gesture": "tap (motion, press, release at the same point) on Row 03",
+     "result": {"row_pressed": true, "counters": "pressed 3 (row 3)"},
+     "reading": "PASS rows still fire on a plain tap."},
+    {"id": 5, "rows": "PASS via the new Rows toggle (clicked with input_mouse)", "gesture": "same as test 1",
+     "result": {"row_mode_label": "Rows PASS", "row_mouse_filter": 1, "counters": "pressed 0 (row 0)  scrolled 1 (y 215)"},
+     "reading": "The on-screen toggle switches every row to PASS; tapping it again shows 'Rows STOP' and mouse_filter 0."}
+  ],
+  "conclusion_desktop_only": "ARCHITECTURE 10.3 #7 / 18.1 #1 on desktop emulation: with default STOP buttons, a list made of buttons cannot be drag-scrolled at all (every drag starts on a button). PASS rows scroll, never fire on a drag, and still fire on a tap. The iPhone has to confirm this (AC-S02-13); the device check's 'Rows STOP/PASS' toggle lets the developer try both in one install."
+}
