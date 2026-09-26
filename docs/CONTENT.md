@@ -1,0 +1,1041 @@
+# Software Engineer Simulator - Content Pack (MVP)
+
+Companion to `docs/GDD.md`. Every player-facing string for the MVP, with the stable ids the GDD's data model uses (GDD section 5.0). Each section names the JSON file it becomes.
+
+Status: v1.0, 2026-09-26. Everything here is a first draft for playtesting. You (the developer) own the jokes and sign off every career tip before release.
+
+---
+
+## 0. Conventions
+
+- **ASCII only** in player-facing strings: no curly quotes, accents, emoji or special dashes. The pixel font may not have them, and `tests/test_content_lint.gd` rejects them.
+- **Ids are snake_case and stable.** Don't rename an id once code refers to it; change the text instead.
+- **Placeholders:** `{player_name}`, `{company}`, `{job_title}`, `{salary}`, `{work_mode}`, `{commute_min}`, `{office_days}`, `{hours}`, `{last_company}`, `{knockout}`, `{insider}`, `{days}`, `{n}`, `{day}`, `{topic_1}`, `{topic_2}`. Text in `[SQUARE_BRACKETS]` is deliberately left unfilled: that's the joke.
+- **Text budgets** (GDD 2.7, enforced by the lint test):
+
+| Field | Max |
+|---|---|
+| Dialogue, reaction, bark | 120 chars (2 lines) |
+| Question prompt | 100 |
+| Answer button | 40 |
+| Knowledge spoken answer (green / yellow / red) | 80 |
+| Posting joke, company card joke, background one-liner, CV line | 60 |
+| Tip on screen (`short`) | 120 |
+| Email body | 240 |
+
+- **MVP amounts:** 9 companies (6 flagged `mvp`), 20 posting templates (+1 SHOULD), 27 CV lines, 13 choice questions (+ the Research opener), 22 knowledge questions, 32 tips, 10 rejection lines.
+- **Refreshable jokes:** topical 2026 AI-hype lines live in `news.json` and `events.json` so they can be updated without code changes.
+
+---
+
+## 1. World naming sheet -> `data/content/naming.json`
+
+### 1.1 Names
+
+| Key | Name | Tagline / note |
+|---|---|---|
+| `city` | Byteburg | the city everything happens in |
+| `app_video` | ClikClok | short-video app. "Your future, 15 seconds at a time." |
+| `influencer` | @RemoteRemy (Remy) | "Just learn to code, bro." |
+| `app_jobs` | DoomApply | the laptop job app. "Swipe right on your future." |
+| `site_mega` | MegaBoard | site tab 1 (SHOULD). "10 million jobs. Some of them real." |
+| `site_brag` | HumbleBrag | site tab 2 and the Network action (SHOULD). "Thrilled to announce: everything." |
+| `site_launch` | LaunchPadd | site tab 3, startups (SHOULD). "Equity instead of money since forever." |
+| `app_reviews` | Cubicle Whispers | the Research lookup. "Anonymous reviews. Your manager knows it was you." |
+| `app_cv` | Buzzwordsmith | the CV screen. "Now with 40% more synergy." |
+| `app_study` | BigOhNo | the Study action. "Invert a binary tree. You will never do this at work." |
+| `app_ai` | Guessomatic | the AI assistant everyone pretends not to use |
+| `ats_robot` | Parsinator 3000 | the applicant-tracking robot |
+| `mascot` | Ducky | a rubber debugging duck that gives the real tips |
+| `interviewer` | Dana | one interviewer, three tier outfits |
+| `uni_intern` | Byteburg State University | the Intern's real school |
+| `uni_graduate` | Metro City University | the Graduate's real school |
+| `uni_fake` | Very Famous University | the school in every degree lie |
+
+Before any public release, run a trademark and app-store search on every name above and on every company in section 4.
+
+### 1.2 Keywords and topics
+
+Keywords (CV and posting tags): `python` Python, `javascript` JavaScript, `java` Java, `sql` SQL, `git` Git, `cloud` Cloud, `testing` Testing, `apis` APIs, `mobile` Mobile, `data` Data, `agile` Agile, `ai` AI.
+
+Knowledge topics (labels for the Self-Taught's gap list): `algorithms` Algorithms, `data_structures` Data structures, `databases` Databases, `web` Web and HTTP, `tools` Git and testing, `concurrency` Concurrency, `system_design` System design, `security` Security, `behavioral` Behavioral. Gap topics are rolled from the first 7 technical topics except `tools`.
+
+### 1.3 Banned real brands (lint list)
+Case-insensitive, whole-word match over all player-facing JSON strings. Exceptions go in an explicit `lint_allow` list with a reason.
+
+google, alphabet, microsoft, macrohard, apple, amazon, amazoom, meta, facebook, faceplant, instagram, whatsapp, tiktok, youtube, netflix, uber, lyft, airbnb, linkedin, linkedout, indeed, indeedn't, glassdoor, glassdoorknob, leetcode, hackerrank, github, gitlab, stackoverflow, openai, chatgpt, anthropic, claude, gemini, copilot, nvidia, tesla, twitter, reddit, discord, slack, zoom, salesforce, oracle, ibm, intel, samsung, spotify, stanford, stanfurd, harvard, mit, oxford, cambridge, berkeley, caltech, princeton, yale, ledgerly, kubernetes, docker, aws, azure, redis, bytedance, douyin, snapchat, pinterest, patreon, tinder, ziprecruiter, careerbuilder, wellfound, angellist, teamblind, taleo, icims, hirevue, jobvite, smartrecruiters, jobscan, zety, canva, neetcode, algoexpert, codesignal, codewars, duolingo, udemy, coursera, codecademy, freecodecamp, udacity, xai, deepseek, midjourney, replit, doordash, grubhub, deliveroo, instacart, postmates, adp, paychex, quickbooks, accenture, deloitte, hewlett, xerox, pagerduty, jira, bitcoin, dogecoin, coinbase, cmu, cornell, synergai, quantumleaf, nimbus, hirebot, jobdeck, glassceiling, resumeforge, promptpal, bytebistro, algogrind.
+
+(Why "LinkedOut" is banned: it is the name of a real inclusion program for people excluded from work, so mocking it would punch down. "Macrohard" is a real company name since 2025.)
+
+---
+
+## 2. Intro cutscene -> `data/content/cutscene.json`
+
+6 panels, 40 s total, 2022 to 2026. Background-neutral (it plays before the background pick). Tap = finish/advance a caption; hold Skip 0.5 s or Android Back = skip all. Build it as text slides first; art last. Visual notes are for the artist and are not shown.
+
+| id | Time | Visual (not shown) | Captions (shown in order) | Audio |
+|---|---|---|---|---|
+| `intro_p1` | 6 s | Side-view cutaway of a small bedroom at night: warm desk lamp, chemistry textbook, a 17-year-old under a blanket lit by phone glow. Night-palette dithered clouds in the window (the reference's cloud style). | "2022. You are 17." / "You are supposed to be asleep." | clock tick, phone buzz x2 |
+| `intro_p2` | 7 s | A portrait phone fills the middle of the panel, bedroom blurred behind. ClikClok UI: "@RemoteRemy - A DAY IN THE LIFE OF A SOFTWARE ENGINEER". Inside: a sunlit studio (the reference's bright sky and fluffy clouds through a big window). Remy wakes; clock 10:47. Then his laptop grid: six sleepy faces, "STANDUP 00:12:00". | Remy: "Woke up at 10:47. No alarm." / "Commute: 3 steps." / "Standup: 12 minutes. Pants: optional." | swipe whoosh, lo-fi beat drops in |
+| `intro_p3` | 7 s | Pan across the one-room studio; labels pop: BEDROOM, OFFICE, GYM (one kettlebell), KITCHEN (one espresso machine). Then a balcony at sunset, pixel coins raining, "SALARY: $$$$$$" with a sticker "CENSORED FOR ENGAGEMENT". Comments scroll up: "HOW DO I START", "is math needed??", "bro lives in 2030". | Remy: "One room. Bedroom, office, gym. That's called efficiency." / "Six figures to think. Mostly about lunch." / "Just learn to code, bro. Link in bio." | pop x4, cash register, crowd "ooooh" |
+| `intro_p4` | 6 s | Close-up: your eyes become pixel sparkles. You close the chemistry book. A search bar types "how to become software engineer fast easy remote". | "That night, you made a decision." | 8-bit "aaah", key clicks |
+| `intro_p5` | 7 s | Calendar pages fly 2022 -> 2026 while seasons change outside the same window. Books and coffee cups pile up; a screen says "Hello, World!" and you fist-pump; a bug counter goes 99 -> 127. Keep it ambiguous: it could be classes, internships or tutorials. | "Four years of learning." / "Some of it on purpose." | upbeat chiptune, page flips |
+| `intro_p6` | 7 s | Same room, desaturated, rain. You are 21. A sports-style ticker crawls: "RECORD PROFITS, 12,000 LAYOFFS 'TO FOCUS ON AI' * ENTRY-LEVEL ROLE: 5+ YEARS REQUIRED * 4,000 APPLICANTS FOR 1 JUNIOR ROLE". The phone buzzes: Remy, same studio, now full of moving boxes, ring light flickering. Smash to black; title slams in. | "2026." / Remy: "So... I got laid off. Anyway! My course is 70% off." / (title) "SOFTWARE ENGINEER SIMULATOR" / "How did you spend those four years?" | beat slows like a dying cassette, record scratch, 1 s silence, title sting |
+
+---
+
+## 3. Backgrounds -> `data/content/backgrounds.json` (numbers live in `BackgroundData`)
+
+### 3.1 Text
+
+**`intern`** - THE INTERN - EASY
+- `one_liner`: "Three internships, 214 connections, one mentor who texts."
+- `perk`: "WARM INTROS: 2 referrals. A referral gets a human to read your CV and skips knockout filters."
+- `flaw`: "BIG-TECH AURA: startups think you'll leave in 6 months. Your algorithms are rusty."
+- `vs_nickname`: "THE CONNECTED"
+- `dana_opener`: "Three internships. Why didn't they keep you? ...Budget freeze. Right. Same."
+- `commute_line`: "Coffee shop Wi-Fi. 20 minutes away."
+- `plan_b_line`: "Your old internship mentor liked your first video. Then unfollowed."
+- Hoodie color: teal.
+
+**`graduate`** - THE GRADUATE - MEDIUM
+- `one_liner`: "One diploma, one student loan, zero callbacks."
+- `perk`: "DIPLOMA: passes 'degree required' filters. TEXTBOOK ANSWER: wider zone on your first tech question."
+- `flaw`: "ENTRY-LEVEL PARADOX: '1+ years' filters reject you unless your Experience line is Polished."
+- `vs_nickname`: "THE THEORIST"
+- `dana_opener`: "A fresh grad. The ATS wants 3 years. I want to hear what you built."
+- `commute_line`: "Campus library, alumni pass. 45 minutes."
+- `plan_b_line`: "Your diploma now holds up the ring light."
+- Hoodie color: maroon.
+
+**`self_taught`** - THE SELF-TAUGHT - HARD
+- `one_liner`: "437 hours of tutorials, 6 languages, 2 bus transfers."
+- `perk`: "BREADTH: 6 skills on your CV. SCRAPPY BUILDER: startups love shipped projects."
+- `flaw`: "THE LONG WAY: 2-bus commute, no degree, knowledge gaps, no team stories yet."
+- `gaps_line`: "Gaps: {topic_1}, {topic_2}"
+- `vs_nickname`: "THE SELF-MADE"
+- `dana_opener`: "Our ATS hates 'no degree'. I don't. Show me what you shipped."
+- `commute_line`: "Home Wi-Fi: one bar. Library: two buses away."
+- `commute_strip` (SHOULD): "Bus 1 of 2. -4 energy."
+- `plan_b_line`: "Your course is called 'Self-Taught, Self-Employed'. It sells."
+- Hoodie color: mustard.
+
+Background select header: "How did you spend those four years?" Button: "CHOOSE".
+
+### 3.2 Name dice -> `data/content/names.json`
+Default: **Alex**. Dice pool (20, gender-neutral, none shared with Dana, Remy or Jordan, the teammate in eq_credit_theft):
+Alex, Sam, Morgan, Taylor, Riley, Casey, Jamie, Avery, Quinn, Rowan, Kai, Sky, Drew, Robin, Jesse, Parker, Reese, Emerson, Charlie, Finley.
+
+---
+
+## 4. Companies -> `data/content/companies.json`
+Fields: `id, name, tier, mvp, tagline, card_joke (<=60), insider (<=40; the insider "Why us?" answer button), dana_line (<=120), review (<=60), red_flags (<=40 each), art (not shown)`. Numbers come from the tier (`TierData`).
+
+### Big corp
+
+**`co_omniglobal`** - OmniGlobal Dynamics - `big` - mvp: true
+- tagline: "Synergizing Tomorrow, Yesterday."
+- card_joke: "Enterprise software, consulting, and printers."
+- insider: "You run payroll for 2M businesses."
+- dana_line: "Sorry. Reorg. As of two minutes ago I'm Partner III. Continue."
+- review: "2/5 - Great benefits. 6 managers in 11 months."
+- red_flags: "Return to office: 5 days", "A reorg every quarter"
+- art: glass atrium, badge gates, LED wall where the stock ticker goes up and a small HEADCOUNT counter goes down, ping-pong table "RESERVED FOR Q3 OFFSITE".
+
+**`co_nimbus`** - Murkcloud - `big` - mvp: true
+- tagline: "Your Data. Somewhere."
+- card_joke: "Cloud and AI. Mostly AI. Humans sometimes."
+- insider: "Your cloud runs half of Byteburg."
+- dana_line: "Our AI screened you first. It rated you 6/10. It rates everything 6/10."
+- review: "3/5 - Interviewed, onboarded and laid off by the AI."
+- red_flags: "First interview is with an AI"
+- art: server racks fading into parallax fog, cold blue light, floor decal "AI-FIRST. HUMANS-SOMETIMES.", an Employee of the Month frame showing a server.
+
+**`co_adverse`** - Engagement Farms Inc. - `big` - mvp: false
+- tagline: "Connecting People to Advertisers."
+- card_joke: "Parent company of ClikClok. Yes, that ClikClok."
+- insider: "You own ClikClok. I'm on it daily."
+- dana_line: "Every time someone here says 'family', a desk disappears. Watch."
+- review: "4/5 - Great free food. Ate it alone after the restructure."
+- red_flags: "'We're a family'", "Return to office: 5 days"
+- art: candy-colored open office, neon "WE'RE A FAMILY" sign, nap pod "BOOKED UNTIL 2027", engagement graphs on every wall.
+
+### Mid-size
+
+**`co_beigeware`** - Beigeware Financial - `mid` - mvp: true
+- tagline: "Boring on Purpose."
+- card_joke: "Payroll and insurance software since 1998."
+- insider: "You've been stable for 28 years."
+- dana_line: "Days since last incident: 0. Days since last reorg: 2,000. We like it that way."
+- review: "4/5 - Nothing exciting ever happens. I'm so happy."
+- red_flags: "Legacy code from 1998"
+- art: beige cubicles, one flickering light, a fax machine taped "DO NOT UNPLUG - PROD", a sad ficus, a sign "DAYS SINCE LAST INCIDENT: 0".
+
+**`co_bytebistro`** - Lukewarm Express - `mid` - mvp: true
+- tagline: "Your Food. Eventually."
+- card_joke: "Food delivery. The fries are in the lake again."
+- insider: "You deliver a million meals a week."
+- dana_line: "Sorry, that alert was the fries. They're on the highway. Again."
+- review: "3/5 - Free lunch every day. It arrives at 4 PM."
+- red_flags: "'Fast-paced' (no documentation)"
+- art: converted warehouse, wall-sized live map of delivery scooters (some in the lake), neon burger sign, a "SURGE PRICING" gong.
+
+**`co_pixelpivot`** - Scope & Creep Digital - `mid` - mvp: false
+- tagline: "We'll Build Anything. Anything."
+- card_joke: "An agency. Your next client is a mattress store."
+- insider: "You shipped 14 client apps last year."
+- dana_line: "This interview is billed to a regional mattress chain. Please be concise."
+- review: "3/5 - Built 14 apps in a year. I dream in invoices."
+- red_flags: "'Wear many hats'", "Client-facing (clients yell)"
+- art: exposed-brick loft, a wall of parody client logos (mattress store, dentist, lettuce startup), a Gantt chart ending in a hand-drawn skull.
+
+### Startup
+
+**`co_synergai`** - Hierarchai - `startup` - mvp: true
+- tagline: "Agents All the Way Down."
+- card_joke: "An AI agent that manages your AI agents."
+- insider: "Your agents manage 10,000 agents."
+- dana_line: "Quick update: we're AI for pets now. Same questions though."
+- review: "5/5 (1 review, written by the founder)"
+- red_flags: "Equity instead of salary", "Pivots every week"
+- art: co-working warehouse, neon "HUSTLE" sign, beanbags, kombucha tap, a hockey-stick graph with no axes.
+
+**`co_quantumleaf`** - Entangled Greens - `startup` - mvp: true
+- tagline: "Disrupting Lettuce."
+- card_joke: "Blockchain, quantum, and lettuce. Mostly lettuce."
+- insider: "You grow lettuce with sensors. Neat."
+- dana_line: "Part of your salary is LettuceCoin. Its value is: lettuce."
+- review: "4/5 - Great culture. Paid partly in lettuce."
+- red_flags: "Paid partly in tokens"
+- art: greenhouse office, hydroponic lettuce under purple grow-lights, a padlocked box labelled "QUANTUM" with one blinking LED.
+
+**`co_stealth`** - Stealth Mode Inc. - `startup` - mvp: false
+- tagline: "We Can't Tell You."
+- card_joke: "Industry: [REDACTED]. Office: a basement."
+- insider: "Honestly? The mystery."
+- dana_line: "Please sign this NDA about the NDA. Great. Hello."
+- review: "?/5 - [Removed at the employer's request]"
+- red_flags: "You can't know what you're applying for"
+- hired_extra: "You may now know what we do. ...It's a to-do app."
+- art: basement, blacked-out windows, a whiteboard under a bedsheet, one humming server rack, a shredder with a "BUSY" light.
+
+---
+
+## 5. Job postings -> `data/content/postings.json`
+Templates are tier-bound. `company: any` = paired with a random company of that tier when the card is generated. Fields: `id, tier, company, title (<=40), tags (3), degree, min_years, ghost (roll | always), joke (<=60), salary_text (<=40)`. Knockout counts match GDD section 7: Big has a degree knockout on 5 of 7 and a years knockout on 4 of 7; Mid has a years knockout on 3 of 7; startups have none.
+
+### Big corp (7)
+
+| id | title | tags | degree | min_years | ghost | joke | salary_text |
+|---|---|---|---|---|---|---|---|
+| `job_big_junior_swe` | Junior Software Engineer I | java, testing, agile | yes | 5 | roll | Entry level. 5+ years required. PhD a plus. | Competitive |
+| `job_big_cloud_associate` | Associate Cloud Engineer | cloud, python, data | yes | 0 | roll | Must know our internal tools. Not sold outside. | $98k-$190k (you get $98k) |
+| `job_big_future_talent` | Developer, Future Opportunities | java, python, cloud | yes | 0 | always | Evergreen role. Building our talent pipeline. | Competitive |
+| `job_big_new_grad_sre` | New Grad Reliability Engineer | python, cloud, testing | yes | 1 | roll | On-call from day 2. The pager is named Gerald. | $105k + 1 energy drink/week |
+| `job_big_frontend` | Frontend Engineer, Engagement | javascript, testing, data | no | 3 | roll | Make infinite scroll more infinite. | $100k-$120k |
+| `job_big_ai_engineer` | AI Engineer (Junior) | ai, python, data | yes | 3 | roll | 3+ years with a model released 8 months ago. | $110k-$130k |
+| `job_big_data_analyst` | Data Analyst II (Level 0.5) | sql, data, agile | no | 0 | roll | Build dashboards nobody opens. At scale. | $95k |
+
+### Mid-size (7)
+
+| id | title | tags | degree | min_years | ghost | joke | salary_text |
+|---|---|---|---|---|---|---|---|
+| `job_mid_backend` | Backend Developer | java, sql, apis | no | 1 | roll | Read code from someone who left in 2009. | $78k-$88k |
+| `job_mid_qa` | QA Automation Engineer | testing, python, sql | no | 0 | roll | Find bugs. Not too many. Morale. | $70k-$80k |
+| `job_mid_mobile` | Junior Mobile Developer | mobile, apis, git | no | 0 | roll | Deliver cold fries in 45 minutes. In an app. | $72k-$85k + late lunch |
+| `job_mid_data_eng` | Data Analyst to Data Engineer | sql, python, data | no | 2 | roll | Title upgrade. Salary upgrade sold separately. | $68k |
+| `job_mid_fullstack` | Full-Stack Developer (Full-Full) | javascript, sql, cloud | no | 0 | roll | Frontend, backend, DevOps and the office plants. | $65k-$75k |
+| `job_mid_web_rescue` | Web Dev, Client Rescue Squad | javascript, git, testing | no | 1 | roll | Fix sites the last agency built. Also us. | $62k-$70k |
+| `job_mid_platform` | Junior Platform Engineer | cloud, git, agile | no | 0 | roll | CI takes 45 minutes. Your job: make it 44. | $75k-$85k |
+
+### Startup (6)
+
+| id | company | title | tags | joke | salary_text |
+|---|---|---|---|---|---|
+| `job_st_founding` | any | Founding Engineer #1 (of 1) | python, ai, apis | Build the AI that builds the AI. By Friday. | $55k + 0.0001% equity |
+| `job_st_fullstack_ninja` | any | Full-Stack Ninja Rockstar | javascript, mobile, cloud | Must thrive in chaos. Mostly chaos. | $58k + snacks |
+| `job_st_ai_generalist` | any | AI Generalist (Everything Engineer) | ai, python, data | Ownership mindset: you own everything. Bugs too. | $60k + equity (vibes) |
+| `job_st_mobile_barista` | any | Mobile Dev (Also Barista) | mobile, javascript, git | Snacks unlimited. Salary limited. | $52k + all the oat milk |
+| `job_st_growth` | any | Growth Engineer | javascript, data, apis | Make the hockey-stick graph real. By Q3. | $56k + 0.0002% equity |
+| `job_st_stealth_swe` | co_stealth | Software Engineer (Under NDA) | apis, sql, cloud | 5 years of [REDACTED]. Sign NDA to see pay. | Competitive (NDA) |
+
+Startup templates: degree no, min_years 0, ghost roll. `job_st_stealth_swe` is only generated when `co_stealth` is enabled.
+
+### The Unicorn (SHOULD, once per run via `evt_unicorn`)
+
+| id | tier | company | title | tags | ghost | joke | salary_text |
+|---|---|---|---|---|---|---|---|
+| `job_unicorn_remote` | mid | any | Junior Dev, Fully Remote, 4-Day Week | (the player's 3 best honest tags, so all 3 show green) | always | Fully remote. $180k. Junior. 9,000 applicants. | $180k |
+
+Research reveal: "Posted 2,555 days ago. Reposted every week since 2019." It is the influencer's dream, and it never replies.
+
+### Card and research strings
+
+| id | Text |
+|---|---|
+| `card_applicants` | "{n} applicants" |
+| `card_posted` | "Posted {days} days ago" |
+| `card_reposted` | "Reposted" |
+| `card_knockout` | "Knockout: {knockout}" |
+| `knock_degree` | "Degree required" |
+| `knock_years` | "{n}+ years experience" |
+| `research_ghost` | "Posted {days} days ago. Reposted {n} times. Hmm." |
+| `research_clean` | "Posted {days} days ago. Seems real. Probably." |
+| `research_salary` | "Real salary band: {salary}" |
+| `research_flags` | "Red flags:" |
+| `research_none` | "No red flags found. Suspicious in itself." |
+| `hirebot_scan` | "Parsinator 3000 is reading your CV..." |
+| `hirebot_found` | "Keywords found: {n}/3" |
+| `stamp_sent` | "SENT" |
+
+---
+
+## 6. CV lines -> `data/content/cv_lines.json`
+Fields: `id, background, line (edu | exp | proj), variant (honest | polished | lie), text (<=60), tags, degree (edu only: shows a degree), passes_years (exp only), degree_claim (lie that claims a degree -> background check risk), probe (lie only, <=100)`. Polished = honest reframing (true). Lie = false.
+
+Header chips on the CV screen: "Degree: yes" / "Degree: no", "Counts as 1+ yrs: yes" / "no", "Lie risk" (one red dot per Lie line). Coach line on first open: see section 10.2.
+
+### The Intern (honest tags: python, sql, testing, agile, git)
+
+| id | text | tags | gates | probe (lie only) |
+|---|---|---|---|---|
+| `cv_intern_edu_honest` | B.Sc. Computer Science, Byteburg State (GPA 3.3) | python | degree | |
+| `cv_intern_edu_polished` | B.Sc. CS + Data minor (two electives count) | python, data | degree | |
+| `cv_intern_edu_lie` | M.Sc. AI, Very Famous University, top of class | python, data, ai | degree, degree_claim | "Very Famous University! Who supervised your master's thesis, and on what?" |
+| `cv_intern_exp_honest` | 3 internships: fixed 14 bugs, coverage 41% to 58% | sql, testing, agile | passes_years | |
+| `cv_intern_exp_polished` | SWE Intern x3: built 3 internal APIs, on-call once | sql, testing, agile, apis | passes_years | |
+| `cv_intern_exp_lie` | Tech Lead, cloud platform team (2 years) | sql, testing, agile, apis, cloud | passes_years | "As tech lead, how did you run performance reviews for your team?" |
+| `cv_intern_proj_honest` | Standup-reminder bot, used by 30 coworkers | git | | |
+| `cv_intern_proj_polished` | Team bot on the cloud: 30 daily users, 0 outages | git, cloud | | |
+| `cv_intern_proj_lie` | Built an app with 1 million users | git, cloud, mobile | | "Scaling to a million users: what broke first, and how did you fix it?" |
+
+### The Graduate (honest tags: java, python, sql, git)
+
+| id | text | tags | gates | probe (lie only) |
+|---|---|---|---|---|
+| `cv_graduate_edu_honest` | B.Sc. Information Tech, Metro City University | java | degree | |
+| `cv_graduate_edu_polished` | B.Sc. IT; courses: Databases, ML, Cloud | java, data | degree | |
+| `cv_graduate_edu_lie` | B.Sc. in 2 years while working full-time | java, data, cloud | degree | "Two years AND a full-time job? Walk me through a typical Tuesday." |
+| `cv_graduate_exp_honest` | Teaching Assistant, Intro to Programming (2 terms) | python | | |
+| `cv_graduate_exp_polished` | Capstone team of 4 + TA for 120 students | python, agile | passes_years | |
+| `cv_graduate_exp_lie` | Software Engineer at a delivery app (1.5 years) | python, agile, testing | passes_years | "A delivery app! How did your team handle the Great Fries Outage?" (It never happened. It's a trap.) |
+| `cv_graduate_proj_honest` | Capstone: room-booking app (my part: backend + DB) | sql, git | | |
+| `cv_graduate_proj_polished` | Built the REST API + database for a team app | sql, git, apis | | |
+| `cv_graduate_proj_lie` | Published a paper on distributed consensus | sql, git, apis, ai | | "Your paper: explain the leader-election step in one sentence." |
+
+### The Self-Taught (honest tags: javascript, apis, python, sql, git, mobile)
+
+| id | text | tags | gates | probe (lie only) |
+|---|---|---|---|---|
+| `cv_self_taught_edu_honest` | High school diploma + 400 hrs of online courses | (none) | | |
+| `cv_self_taught_edu_polished` | Self-directed CS curriculum (11 certificates) | data | | |
+| `cv_self_taught_edu_lie` | B.Sc. Computer Science, Very Famous University | data, java | degree, degree_claim | "Very Famous University! What was your final-year project about?" |
+| `cv_self_taught_exp_honest` | Freelance: sites for a bakery, a tattoo shop, my uncle | javascript, apis | | |
+| `cv_self_taught_exp_polished` | Freelance dev, 3 clients, 2 yrs (+ a bakery chatbot) | javascript, apis, ai | passes_years | |
+| `cv_self_taught_exp_lie` | Senior Engineer, Stealth Mode Inc. (3 years) | javascript, apis, ai, agile | passes_years | "Who approved your pull requests there?" At `co_stealth`: "Three years? We're 8 months old. I'd know. I'm everyone here." |
+| `cv_self_taught_proj_honest` | 3 small apps deployed: budget, recipes, bus times | python, sql, git, mobile | | |
+| `cv_self_taught_proj_polished` | Shipped 3 apps, live, with READMEs and tests | python, sql, git, mobile, cloud | | |
+| `cv_self_taught_proj_lie` | Author of an open-source library, 10k stars | python, sql, git, mobile, cloud, testing | | "10k stars! What was the hardest issue a contributor ever opened?" |
+
+The Graduate's Education lie is not a degree claim (the degree is real; the timeline is the lie), so it is probed but never background-checked.
+
+---
+
+## 7. Choice (ethics) questions -> `data/content/questions_choice.json`
+Format per entry: header `id | teamwork | tiers | tip`, the prompt, then one line per answer: `+` good, `~` neutral, `-` bad, `*` background-exclusive answer (replaces the neutral button for that background). Each answer line is `kind | text (<=40) | Dana's reaction (<=120)`. Buttons are shuffled at runtime. Effects are in GDD 5.8.3.
+
+```
+eq_why_us | teamwork: no | tiers: all | tip: tip_research_company
+Q: So. Why do you want to work here?
++ insider | {insider} | ...You actually read about us. That's rarer than you'd think.
+~ neutral | Honestly? Rent. | Fair. Relatable. Not an answer, but fair.
+- bad | What do you do again? | We have a website. It has an About page. It's right there.
+```
+(`eq_why_us` is only used as the opener after Research. `{insider}` is the company's insider line from section 4. It can repeat across interviews.)
+
+```
+eq_friday_deploy | teamwork: no | tiers: all | tip: tip_small_changes
+Q: Friday, 4:55 PM. Your change is untested. What do you do?
++ good | Test it, get a review, ship Monday. | Correct. Weekends are for sleeping, not rollbacks.
+~ neutral | Ask the team channel what to do. | Safe. The channel replies 'LGTM' (looks good to me) to everything.
+- bad | Deploy and turn off my phone. | Bold. You just described our last three incidents.
+```
+
+```
+eq_credit_theft | teamwork: yes | tiers: all | tip: tip_give_credit
+Q: Your teammate fixed the bug. In the meeting, your manager thanks YOU.
++ good | Say it was Jordan's fix, not mine. | Correct. Steal credit once and nobody reviews your code again.
+~ neutral | Say nothing, thank Jordan later. | Half credit. Jordan noticed. Jordan remembers.
+- bad | 'Thanks, it was really hard.' | Jordan is in this meeting. Jordan is looking at you.
+* intern | good | At my internship we shared credit. | You mention the internship a lot. Correct answer, though.
+```
+
+```
+eq_outage_blame | teamwork: yes | tiers: all | tip: tip_blameless
+Q: Your change took checkout down for 10 minutes. The postmortem is tomorrow.
++ good | Own it: cause, fix, and prevention. | Perfect. Postmortems fix systems, not people.
+~ neutral | Say it was 'a config issue'. | True. And who changed the config? (You. It was you.)
+- bad | Blame the intern. | We don't have an intern. We have you.
+```
+
+```
+eq_ai_takehome | teamwork: no | tiers: all | tip: tip_ai_tools
+Q: Did you use an AI assistant on your take-home?
++ good | Yes. I reviewed and tested every line. | Great. We allow tools. We don't allow mysteries.
+~ neutral | A little. Mostly for vibes. | Vibes don't pass code review. Close, though.
+- bad | Never. What's an AI? | Your screen share shows Guessomatic. Open. Right now.
+```
+
+```
+eq_leaked_password | teamwork: no | tiers: all | tip: tip_secrets
+Q: The production database password is posted in a public team channel.
++ good | Tell security so it gets rotated. | Exactly. A leaked secret is a burned secret.
+~ neutral | Delete the message and move on. | Deleted is not rotated. The bots already saw it.
+- bad | Screenshot it. Might be handy. | Please stay seated. Legal is walking over.
+```
+
+```
+eq_celebrity_orders | teamwork: no | tiers: all | tip: tip_privacy
+Q: A coworker dares you to look up a celebrity customer's order history.
++ good | No. No business reason, no access. | Correct. Also: every query is logged.
+~ neutral | Only if we anonymize it first. | Nice try. It's still a person's data.
+- bad | Sure, in incognito mode. | Incognito hides it from your browser. Not from our audit logs.
+```
+
+```
+eq_meeting_overload | teamwork: no | tiers: big, mid | tip: tip_focus_time
+Q: Six hours of meetings today. Your deadline is tomorrow.
++ good | Skip the optional ones, ask for notes. | Healthy boundaries! Rare here, but healthy.
+~ neutral | Attend all, camera off, code quietly. | Relatable. Our nod-detection AI flagged you anyway.
+- bad | Book a meeting about fewer meetings. | Accepted. It's recurring now. Weekly.
+```
+
+```
+eq_impossible_deadline | teamwork: yes | tiers: all | tip: tip_scope
+Q: Your product manager wants a 3-month feature by Friday.
++ good | Offer a smaller v1 and flag the risks. | Scope, risks, in writing. Someone's been burned before.
+~ neutral | Say yes and hope. | Hope is not a sprint plan.
+- bad | Ship a 'Coming Soon' button. | ...That is literally our roadmap.
+* graduate | good | Per my PM course: cut scope, flag risk. | Textbook. Literally. But right.
+```
+
+```
+eq_harsh_review | teamwork: yes | tiers: all | tip: tip_teamwork_without_job
+Q: A senior dev comments 'this is garbage' on your pull request.
++ good | Ask what to fix; raise tone privately. | Mature. And yes, raise it. 'Garbage' isn't feedback.
+~ neutral | Fix it silently and seethe. | Fixed code, unfixed feelings. Half marks.
+- bad | Reply 'no u'. | A classic. Not a career move.
+* self_taught | neutral | My only reviewer so far is Guessomatic. | Honest. Open-source code reviews would change that. Try it.
+```
+
+```
+eq_weakness | teamwork: no | tiers: all | tip: tip_star_stories
+Q: What's your greatest weakness?
++ good | I over-polish, so now I timebox. | A real answer! I'm writing that down in pen.
+~ neutral | I'm a perfectionist who works too hard. | That's the 3,000th time I've heard that. Second today.
+- bad | Garlic. And sunlight. | ...Okay. We do have a night shift.
+```
+
+```
+eq_grind_culture | teamwork: no | tiers: startup | tip: tip_rest
+Q: We work 80-hour weeks here. Grind culture. You in?
++ good | Committed, but at a sustainable pace. | Most people just say yes. You didn't. That's... reassuring, actually.
+~ neutral | Is the pay 80 hours' worth too? | Great question. Next question.
+- bad | I'll sleep under my desk. | Love the energy. Our insurance does not.
+```
+
+```
+eq_rto | teamwork: no | tiers: big | tip: tip_total_comp
+Q: Five days in the office, starting Monday. Thoughts?
++ good | I'd ask why, then plan around it. | A mature answer. I'm almost suspicious.
+~ neutral | Is it negotiable? | Everything is negotiable. Except this.
+- bad | Badge in, grab coffee, leave. | 'Coffee badging.' The badge readers have feelings now.
+```
+
+```
+eq_any_questions | teamwork: no | tiers: all | tip: tip_ask_questions
+Q: Do you have any questions for us?
++ good | What does success look like in 90 days? | Oh, a good question. Let me actually think.
+~ neutral | How soon can I take vacation? | Day 91. After probation. Noted.
+- bad | No, I'm good. | Not having questions is also an answer.
+```
+
+Pool sizes per tier (no repeats within a run, 2 per interview): Big 12, Mid 11, Startup 11. Teamwork-tagged: 4 of 13.
+
+---
+
+## 8. Dana, the VS announcer and the Answer Meter -> `data/content/barks.json`
+
+### 8.1 Dana: titles and greetings
+
+| id | Text |
+|---|---|
+| `dana_title_startup` | Head of People & Vibes & Snacks |
+| `dana_title_mid` | Recruiter (also Office Manager) |
+| `dana_title_big` | Senior Talent Acquisition Partner II |
+| `bark_dana_greet_startup` | Hi! Grab a beanbag. The founder's on a podcast, so it's you and me. |
+| `bark_dana_greet_mid` | Welcome! Coffee? It's bad. Let's begin. |
+| `bark_dana_greet_big` | Welcome to {company}. You have 45 minutes. I have 11 more of these today. |
+| `bark_dana_greet_again` | Didn't I interview you at {last_company}? ...Yeah. Laid off. Rehired. Hi. |
+| `bark_dana_tired` | You look like you took two buses. Water? ...Okay, let's start. |
+
+Background-specific openers are in section 3 (`dana_opener`); company one-liners in section 4 (`dana_line`, SHOULD). Order in an interview: greeting (or `greet_again`), then the background opener on the first interview of a run, then the company line.
+
+### 8.2 Dana: reactions and outcomes
+
+| id | Text |
+|---|---|
+| `bark_dana_great_1` | That's a good answer. I've heard maybe three today. |
+| `bark_dana_great_2` | Crisp. I'm writing 'strong' in pen. |
+| `bark_dana_great_3` | Nice. You'd be surprised how rare that is. |
+| `bark_dana_ok_1` | Mm-hm. That'll do. |
+| `bark_dana_ok_2` | Logged as 'meets expectations (adjacent)'. |
+| `bark_dana_ok_3` | Okay. Some 'um's, but okay. |
+| `bark_dana_bad_1` | I'll write 'did not demonstrate'. Neutrally. Very neutrally. |
+| `bark_dana_bad_2` | Hm. Confident. Not correct, but confident. |
+| `bark_dana_bad_3` | Let's... move on. |
+| `bark_dana_pivot` | Quick update: we pivoted. Keep going. |
+| `bark_dana_probe_intro` | Quick question about your CV. |
+| `bark_dana_come_clean` | Thank you for being honest. Genuinely rare. Noted, kindly. |
+| `bark_dana_bluff_win` | ...Okay. I'll allow it. |
+| `bark_dana_busted` | I checked. During your answer. We're done with that line. |
+| `bark_dana_ko` | That's a yes from me. Don't tell the committee I said that. |
+| `bark_dana_committee` | It's close. The Hiring Committee decides. It's three people and a spreadsheet. |
+| `bark_dana_committee_win` | The spreadsheet likes you. Congratulations. |
+| `bark_dana_committee_lose` | The spreadsheet said no. I argued. The spreadsheet won. |
+| `bark_dana_reject` | Off the record, here's the feedback nobody gives you: |
+| `bark_dana_composure_zero` | Let's stop here. Get some rest. Seriously. Apply again. |
+| `bark_dana_decline` | No worries! (Our ATS will remember this.) |
+| `bark_dana_nego_win` | I asked. They said yes. Don't get used to it. |
+| `bark_dana_nego_lose` | This is our best and final. I did try. |
+
+### 8.3 VS screen and announcer
+
+| id | Text |
+|---|---|
+| `vs_title` | {player_name} VS DANA |
+| `vs_banner_startup` | ROUND 1: VIBE CHECK |
+| `vs_banner_mid` | ROUND 1: CULTURE FIT |
+| `vs_banner_big` | ROUND 1 OF 7 |
+| `vs_start` | INTERVIEW! |
+| `vs_ko` | K.O.! |
+| `vs_offer` | OFFER! |
+| `vs_committee` | TIME OVER! THE COMMITTEE DECIDES... |
+| `vs_reject` | ...WE'LL KEEP YOUR CV ON FILE. |
+| `vs_perfect` | PERFECT! (Reply in 3-5 business weeks) |
+| `vs_busted` | BUSTED! |
+| `vs_warmup` | WARM-UP - DOESN'T COUNT |
+| `vs_pivot` | PIVOT! |
+| `vs_dana_stat_1` | Candidates today: 11 |
+| `vs_dana_stat_2` | Coffee: 4th cup |
+| `vs_dana_stat_3` | Patience: [###--] |
+| `vs_dana_moves` | Special moves: The Five-Year Plan, The Salary Expectation Trap, The Awkward Silence |
+
+### 8.4 Answer Meter labels
+
+| id | Text |
+|---|---|
+| `meter_left` | Rambling |
+| `meter_near` | Vague |
+| `meter_zone` | NAILED IT |
+| `meter_right` | Overthinking |
+| `meter_hint` | Tap anywhere! |
+| `meter_perfect` | PERFECT |
+| `meter_good` | GOOD |
+| `meter_close` | CLOSE |
+| `meter_miss` | ...uhh |
+| `ducky_real_answer` | Real answer: |
+
+---
+
+## 9. Knowledge questions -> `data/content/questions_knowledge.json`
+Header: `id | topic | kind (tech | behavioral) | difficulty (1-3) | weak_for (background id or none) | tiers | tip`. Then `Q` (<=100), the three spoken answers `green` / `yellow` / `red` (<=80 each; your character says one depending on Q, GDD 5.8.4) and `ducky` (<=120, shown after a red answer and in the Notebook).
+
+Totals: 22 questions (18 tech, 4 behavioral). Difficulty 1: 8, 2: 10, 3: 4. weak_for: intern 5, graduate 6, self_taught 7, none 4. Eligible per tier: Big 21, Mid 22, Startup 19.
+
+```
+kq_binary_search | algorithms | tech | 1 | intern | all | tip_think_aloud
+Q: Binary search on a sorted array of n items. What's the time complexity?
+green: O(log n). Each step halves the range.
+yellow: Log-something? It halves stuff... O(log n), I think.
+red: O(n). It checks every item, just faster.
+ducky: O(log n). Each comparison halves what's left to search.
+```
+
+```
+kq_nested_loops | algorithms | tech | 1 | self_taught | all | tip_think_aloud
+Q: A loop over n items inside another loop over n items. Complexity?
+green: O(n squared): n times n steps.
+yellow: Quadratic-ish? n times n... O(n^2)?
+red: O(2n). Two loops, so two n.
+ducky: O(n^2). Nested loops multiply; loops one after another add.
+```
+
+```
+kq_hash_map | data_structures | tech | 1 | self_taught | all | tip_fundamentals
+Q: What's the average time to look up a key in a hash map?
+green: O(1) on average; O(n) worst case with lots of collisions.
+yellow: Fast? Constant... unless collisions. Probably O(1).
+red: O(log n), because hash maps keep their keys sorted.
+ducky: O(1) on average. Hash maps aren't sorted; heavy collisions can make it O(n).
+```
+
+```
+kq_two_sum | algorithms | tech | 3 | intern | big, mid | tip_think_aloud
+Q: Does any pair in an array add up to a target? What's the fast approach?
+green: One pass with a hash set: check if target minus x was seen.
+yellow: Maybe a set? Store what I've seen, then... check it?
+red: Two nested loops. Brute force is honest work.
+ducky: One pass plus a hash set is O(n). Nested loops work too, but they're O(n^2).
+```
+
+```
+kq_recursion_base | algorithms | tech | 1 | intern | all | tip_think_aloud
+Q: A recursive function has no base case. What happens?
+green: It never stops calling itself: stack overflow.
+yellow: It loops forever? Something overflows. The stack?
+red: It returns zero. The compiler adds a base case.
+ducky: It recurses until the call stack overflows. Write the base case first.
+```
+
+```
+kq_left_join | databases | tech | 2 | self_taught | all | tip_fundamentals
+Q: Users LEFT JOIN Orders. What do you get back?
+green: Every user, plus their orders; no orders means NULLs.
+yellow: All the users? And some orders? With blanks, maybe.
+red: Only the users who have orders.
+ducky: All left rows are kept; missing right-side values are NULL. INNER JOIN drops them.
+```
+
+```
+kq_index_tradeoff | databases | tech | 2 | graduate | all | tip_fundamentals
+Q: What's the main trade-off of adding a database index?
+green: Faster reads, but more storage and slower writes.
+yellow: Faster queries... and it costs something. Space?
+red: No trade-off. Index every column.
+ducky: Indexes speed up lookups but use storage and slow down inserts and updates.
+```
+
+```
+kq_http_403 | web | tech | 2 | graduate | all | tip_think_aloud
+Q: You're logged in, but the admin page refuses you. Best HTTP status code?
+green: 403 Forbidden: we know who you are; you're not allowed.
+yellow: Four-oh-something. 403? Or 401. Probably 403.
+red: 500. The server is clearly upset with me.
+ducky: 403: logged in, not allowed. 401: not logged in. Some sites send 404 to hide that a page exists.
+```
+
+```
+kq_idempotent | web | tech | 2 | self_taught | all | tip_fundamentals
+Q: Name an idempotent HTTP method: sending it 5 times has the same effect as once.
+green: PUT. Same request, same final state.
+yellow: Not POST... GET-ish? PUT, I think.
+red: POST. It posts the same thing every time.
+ducky: PUT (also GET and DELETE). POST usually creates something new on each call.
+```
+
+```
+kq_rebase_merge | tools | tech | 2 | graduate | all | tip_think_aloud
+Q: Git: what's the difference between merge and rebase?
+green: Merge adds a merge commit; rebase replays my commits on top.
+yellow: Rebase is... cleaner? It moves the commits somewhere.
+red: Rebase deletes the other branch. Merge is the free version.
+ducky: Rebase rewrites your commits onto a new base. Never rebase commits others already pulled.
+```
+
+```
+kq_testing_pyramid | tools | tech | 1 | graduate | all | tip_fundamentals
+Q: In the testing pyramid, which tests should you have the most of?
+green: Unit tests: fast and cheap. Fewest end-to-end tests.
+yellow: The small ones? Unit tests. Mostly.
+red: End-to-end UI tests. Click everything, every time.
+ducky: Many unit tests, fewer integration tests, fewest slow end-to-end tests.
+```
+
+```
+kq_race_condition | concurrency | tech | 2 | self_taught | all | tip_think_aloud
+Q: Two threads each add 1 to a counter 1,000 times. The result is 1,734. Why?
+green: A race: read-modify-write isn't atomic. Use a lock.
+yellow: The threads fight? Something about locks, maybe.
+red: Integer overflow. The CPU got tired.
+ducky: Unsynchronized updates overwrite each other. Use a lock or an atomic counter.
+```
+
+```
+kq_deadlock | concurrency | tech | 3 | intern | big, mid | tip_think_aloud
+Q: Thread A holds lock 1 and wants lock 2. Thread B holds 2 and wants 1. What is this?
+green: A deadlock. Fix it by always taking locks in the same order.
+yellow: They're stuck? A... deadlock. Yes. Deadlock.
+red: A memory leak. Restart and pray.
+ducky: A deadlock. A consistent lock order, or timeouts, prevents it.
+```
+
+```
+kq_cache_first_fix | system_design | tech | 3 | graduate | all | tip_think_aloud
+Q: The same rarely-changing data is read 10,000 times a second. The DB is struggling. First fix?
+green: Put a cache with an expiry time in front of the database.
+yellow: Cache it? In memory, somewhere? Yes. Cache.
+red: Rewrite the app in a trendier language.
+ducky: Cache hot, rarely-changing reads with a time-to-live. Measure first, then optimize.
+```
+
+```
+kq_load_balancer | system_design | tech | 1 | none | all | tip_fundamentals
+Q: What does a load balancer do?
+green: Spreads requests across servers and skips unhealthy ones.
+yellow: Balances... load. Across the servers. Evenly?
+red: Decides who gets laid off.
+ducky: It distributes traffic across servers and routes around the unhealthy ones.
+```
+
+```
+kq_url_shortener | system_design | tech | 3 | self_taught | big, mid | tip_clarify_first
+Q: Design a URL shortener. What happens when someone opens a short link?
+green: Look up the code in a fast key-value store, then redirect.
+yellow: Find the long URL... and send them there? A redirect?
+red: Generate a brand-new short link every time.
+ducky: A cached key-value lookup, then an HTTP 301 or 302 redirect. Ask about scale first!
+```
+
+```
+kq_sql_injection | security | tech | 2 | none | all | tip_fundamentals
+Q: What's the best defense against SQL injection?
+green: Parameterized queries. Never glue user input into SQL.
+yellow: Sanitize... stuff? Escape the quotes, I guess.
+red: Check the input in the browser. Done.
+ducky: Parameterized queries (prepared statements). Browser-side checks are easy to bypass.
+```
+
+```
+kq_password_storage | security | tech | 2 | intern | all | tip_fundamentals
+Q: How should an app store user passwords?
+green: A salted hash with a slow algorithm made for passwords.
+yellow: Encrypted? Hashed? Hashed. With salt, I think.
+red: Base64. It looks secure.
+ducky: Slow, salted password hashing. If a site can email you your password, it's stored wrong.
+```
+
+```
+kq_star_conflict | behavioral | behavioral | 1 | self_taught | all | tip_star_stories
+Q: Tell me about a time you disagreed with a teammate.
+green: We tested both ideas, the data picked one, and I learned why.
+yellow: Um, once? We disagreed. Then we... agreed?
+red: I don't disagree. I'm always right.
+ducky: Use STAR: Situation, Task, Action, Result. No team yet? Use open source or clients.
+```
+
+```
+kq_failure_story | behavioral | behavioral | 2 | graduate | all | tip_star_stories
+Q: Tell me about a project that failed.
+green: It shipped late. I learned to cut scope early. Here's how.
+yellow: Everything worked out in the end, honestly. Mostly.
+red: Nothing I build fails. Some of it just never runs.
+ducky: Pick a real failure, own your part, and show what you changed afterwards.
+```
+
+```
+kq_learn_fast | behavioral | behavioral | 1 | none | startup, mid | tip_fundamentals
+Q: How do you learn a new technology quickly?
+green: Build a tiny project, read the docs, ask for a review.
+yellow: Videos? Lots of videos. At 2x speed.
+red: I ask Guessomatic and paste whatever it says.
+ducky: A small project, the official docs, and feedback. Explain it back to check you get it.
+```
+
+```
+kq_estimate | behavioral | behavioral | 2 | none | all | tip_scope
+Q: Your task will take twice as long as planned. What do you do?
+green: Tell my lead early, with options to cut scope or move dates.
+yellow: Tell my lead? Soon-ish? Maybe cut... something?
+red: Say it's 90% done. For three weeks.
+ducky: Flag slips early and bring options. Surprises are worse than bad news.
+```
+
+On screen, `ducky` lines are prefixed with `ducky_real_answer` ("Real answer:").
+
+---
+
+## 10. UI strings and Ducky coach lines -> `data/content/barks.json` (section `ui`, `coach`)
+
+### 10.1 UI strings
+
+| id | Text |
+|---|---|
+| `ui_tap_to_start` | Tap to start |
+| `ui_continue` | Continue |
+| `ui_new_game` | New game |
+| `ui_replay_intro` | Replay intro |
+| `ui_skip_hold` | Hold to skip |
+| `ui_choose` | CHOOSE |
+| `ui_day` | Day {day} |
+| `ui_energy` | Energy |
+| `ui_rent_due` | Rent due in {days} days |
+| `ui_rent_due_one` | Rent due TOMORROW |
+| `ui_radar` | Recruiter Radar |
+| `ui_apply` | APPLY |
+| `ui_skip` | SKIP |
+| `ui_tailor` | TAILOR & APPLY |
+| `ui_research` | RESEARCH |
+| `ui_use_referral` | Use referral ({n} left) |
+| `ui_back` | Back |
+| `ui_done` | Done |
+| `ui_sleep` | Sleep |
+| `ui_sleep_confirm` | You still have {n} energy. Sleep anyway? |
+| `ui_night_summary` | Applied {n} - Rejected {r} - Ghosted {g} |
+| `ui_morning` | Morning, day {day}. |
+| `ui_go_now` | GO NOW |
+| `ui_later` | Later |
+| `ui_flip_all` | Flip all |
+| `ui_rejections` | {n} rejections |
+| `ui_ghost_footer` | {n} applications: no reply. Probably ever. |
+| `ui_start_day` | Start day |
+| `ui_come_clean` | Come clean |
+| `ui_bluff` | Bluff |
+| `ui_accept` | ACCEPT |
+| `ui_decline` | Decline |
+| `ui_negotiate` | Negotiate |
+| `ui_decline_confirm` | Decline this offer? Rent keeps ticking. |
+| `ui_ready` | Ready? Tap to continue. |
+| `ui_quit_confirm` | Quit the game? |
+| `ui_pause_resume` | Resume |
+| `ui_pause_title` | Quit to title |
+| `ui_retry` | Retry |
+| `ui_new_run` | New run |
+| `ui_title` | Title |
+| `ui_odds_1` | Long shot |
+| `ui_odds_2` | Unlikely |
+| `ui_odds_3` | Possible |
+| `ui_odds_4` | Decent |
+| `ui_odds_5` | Good |
+| `ui_cv_degree` | Degree: {yes_no} |
+| `ui_cv_years` | Counts as 1+ yrs: {yes_no} |
+| `ui_cv_risk` | Lie risk |
+| `ui_honest` | Honest |
+| `ui_polished` | Polished |
+| `ui_lie` | Lie |
+| `ui_tired` | TIRED: needle is faster |
+| `ui_study_title` | BigOhNo: Knowledge +5 (2 energy) |
+| `ui_study_joke_1` | Invert a binary tree. You will never do this at work. |
+| `ui_study_joke_2` | Day 400 of your streak. The streak is the job now. |
+| `ui_study_joke_3` | Solved: Two Sum. Unsolved: rent. |
+| `ui_grace_day` | Your landlord gave you one more day. ONE. |
+| `ui_rent_warning` | Rent is due soon. Ramen budget activated. |
+
+### 10.2 Ducky coach lines (first run, GDD 4.3)
+
+| id | Text |
+|---|---|
+| `coach_apply` | Swipe right or tap APPLY to send your CV. Costs 1 energy. |
+| `coach_flip` | Tap a card to flip it. Tailor & Apply sends a better CV. |
+| `coach_sleep` | Out of energy? Tap the moon to sleep. Replies come in the morning. |
+| `coach_invite` | An interview! Research the company first: it unlocks a secret answer. |
+| `coach_invite_no_research` | An interview! Rest up: tired thumbs are slow thumbs. |
+| `coach_meter` | Tap anywhere when the needle is in NAILED IT. A wider zone means you know this. |
+| `coach_first_reject` | Rejections happen to everyone. Each one leaves a tip in your Notebook. |
+| `coach_radar` | The Recruiter Radar fills with relevant applications. Full means a human reads one. |
+| `coach_cv` | Polished is honest spin. Lie is... a lie. Dana checks. |
+
+---
+
+## 11. Career tips -> `data/content/tips.json`
+Fields: `id, short (<=120, on screen), more (Notebook extra), triggers`. GDD 8.3 maps moments to tips. The developer signs off every tip before release.
+
+| id | short | more | triggers |
+|---|---|---|---|
+| `tip_ats_knockouts` | ATS software rarely auto-rejects on keywords. Knockout questions (degree, years, location) do. | Answer knockout questions truthfully and apply where you meet them, or get a referral so a human reads your CV. | knockout rejection |
+| `tip_keywords_honest` | Use the posting's real terms for skills you actually have. Recruiters search for them. | Don't paste the whole posting into your CV; mirror the terms that honestly describe your work. | CV screen, low match |
+| `tip_quantify_impact` | Use numbers: 'raised test coverage from 41% to 58%' beats 'worked on testing'. | Action verb + what you did + a measurable result. Put your strongest line first. | CV first open |
+| `tip_projects_count` | Projects, TA work and freelance count as experience. Describe them honestly and concretely. | Say what you built, for whom, and what happened. 'Capstone team of 4, shipped' is honest and strong. | Polished Experience |
+| `tip_tailor_over_spray` | A tailored application to a job you really fit is much more likely to get a reply than a one-click one. | Tailor your summary and top bullets to each posting you really match. | 8 Quick Applies without an invite |
+| `tip_referrals` | A referral gets a human to read your CV. Ask people who actually know your work. | Make it easy for them: send a two-line blurb and the job link. | first referral |
+| `tip_informational_chats` | Network with curiosity: ask engineers for 15 minutes of advice, not for a job. | Referrals often follow real conversations. It works best before you need it. | Network (SHOULD) |
+| `tip_ghost_jobs` | Postings open for months or reposted constantly may not be hiring. Prefer fresh ones. | Check the company's own careers page and the posting date before investing effort. | Research reveals a ghost job |
+| `tip_research_company` | Research the company before interviews: news, product, reviews. It improves every answer. | It also helps you judge them: layoffs, funding and reviews tell you what you're walking into. | committee loss, rejection without research, `eq_why_us` |
+| `tip_rejection_numbers` | In a tight market, many rejections are normal. Track applications and keep going. | A simple spreadsheet (date, role, contact, stage) shows what's working. It's volume plus targeting. | first rejection, every 10th |
+| `tip_rest` | Rest before interviews. Tired answers go worse. Schedule the search like a job. | A job search is a marathon. Plan breaks on purpose. | Tired, `eq_grind_culture` |
+| `tip_think_aloud` | In technical interviews, think out loud. Interviewers grade your reasoning, not just the answer. | If you're stuck, say what you'd try first and why. | red knowledge answer |
+| `tip_clarify_first` | Ask clarifying questions before designing: users, scale, constraints. | Jumping straight to a solution is a common junior mistake. Interviewers like the questions. | `kq_url_shortener` |
+| `tip_star_stories` | Prepare 5 STAR stories: conflict, failure, teamwork, a win, learning fast. | Situation, Task, Action, Result, plus what you learned. Reuse them across questions. | red behavioral answer, `eq_weakness` |
+| `tip_teamwork_without_job` | No team yet? Open source, hackathons and freelance clients give you reviews and team stories. | Code review from strangers is a fast way to learn how teams work. | Self-Taught teamwork answer |
+| `tip_ask_questions` | Always ask a question at the end: success in 90 days, code review, on-call. | It shows interest, and the answers tell you whether you want the job. | `eq_any_questions` |
+| `tip_say_i_dont_know` | 'I don't know, but here's how I'd find out' beats a bluff. | Interviewers respect honesty and a clear way of solving problems. | Come clean |
+| `tip_honesty_checks` | Don't lie on a CV. Interviewers dig in, and degrees and dates get verified. | Offers can be withdrawn, even after you start. Honest reframing gets you most of the benefit. | BUSTED, rescinded |
+| `tip_fundamentals` | Frameworks change fast. Fundamentals transfer: data structures, databases, networking, testing. | Learn one stack well, but keep the basics sharp. They show up in every interview. | first Study, several knowledge Qs |
+| `tip_ai_tools` | Use AI tools where allowed, but understand and test every line. You'll be asked to explain it. | Say what you used and how you checked it. | `eq_ai_takehome` |
+| `tip_secrets` | A leaked password or key is compromised. Report it so it gets rotated; deleting the message isn't enough. | Never paste secrets into chat, tickets or code. | `eq_leaked_password` |
+| `tip_small_changes` | Ship small, tested changes early in the week. Friday deploys are how weekends die. | Small changes are easier to review and easier to roll back. | `eq_friday_deploy` |
+| `tip_give_credit` | Credit teammates publicly. It builds trust, and people remember who shares. | It also makes your own wins more believable. | `eq_credit_theft` |
+| `tip_blameless` | Good teams run blameless postmortems: what happened, how it was fixed, what prevents it. | Owning your part calmly is a strength, not a confession. | `eq_outage_blame` |
+| `tip_privacy` | Customer data is off-limits without a business reason. Access is logged. | Snooping is a fast way to lose a job and to hurt real people. | `eq_celebrity_orders` |
+| `tip_focus_time` | Protect focus time: decline meetings you aren't needed in and ask for notes. | Say what you're working on and when you'll be free. | `eq_meeting_overload` |
+| `tip_scope` | When a deadline is impossible, offer a smaller first version and write down the risks. | Flag slips early. Surprises are worse than bad news. | `eq_impossible_deadline`, `kq_estimate` |
+| `tip_negotiate` | A polite counter with a number and a reason is normal. It rarely backfires. | Know your market rate first. The usual worst case is 'this is our best offer'. Tight deadline? Asking for a few more days is normal. | offer opens (Negotiate shipped) |
+| `tip_total_comp` | Compare total pay: salary, bonus, equity, benefits and commute. 3 hours a day on a bus is a pay cut. | Ask about office days, on-call and real working hours too. Tight deadline? Asking for a few more days is normal. | offer with a commute, `eq_rto` |
+| `tip_equity_lottery` | Treat startup equity like a lottery ticket. Ask the percentage and the vesting schedule. | A 1-year cliff means you get nothing if you leave or are laid off before 12 months. Also ask the strike price and how long you'd have to buy vested options after leaving. | startup offer |
+| `tip_fine_print` | Read non-compete, IP and probation clauses. Enforceability varies by country and state. Unsure? Ask a lawyer. | Ask HR what a clause covers and get the answer in writing before you sign. Whether it's enforceable is a question for an employment lawyer or legal aid. | fine print opened |
+| `tip_written_offer` | Don't stop other applications until you have a signed, written offer. | Check that it lists the start date, pay and work mode. | Hired card |
+
+---
+
+## 12. Emails and notifications -> `data/content/emails.json`
+
+### 12.1 Invites (morning inbox; valid today and tomorrow)
+
+| id | subject | body |
+|---|---|---|
+| `mail_invite_startup` | yo | yo {player_name} loved ur profile. can u do a video call today or tmrw?? - {company} (founder is busy, this is Dana) |
+| `mail_invite_mid` | Interview: {job_title} | Hi {player_name}! We'd love to chat. One conversation with Dana from People, today or tomorrow. A real human. We know. Rare. |
+| `mail_invite_big` | Next steps: Stage 1 of 7 | Congratulations! You've reached Stage 1 of 7 for {job_title}. Please attend an in-person interview today or tomorrow. Parking is not validated. |
+| `mail_invite_radar` | A human actually read it! | Hi {player_name}, a recruiter at {company} read your CV. On purpose. Interview today or tomorrow? |
+| `mail_invite_guarantee` | Saw your profile! | Hi {player_name}! {company} saw your application. Fast. Suspiciously fast. Interview today or tomorrow? |
+| `mail_invite_grace` | Landlord | Your landlord gave you one more day. ONE. Make this interview count. |
+| `mail_invite_expired` | Update | The role was filled internally. It always was. |
+
+### 12.2 Knockout auto-rejection (next morning, any tier)
+
+| id | subject | body |
+|---|---|---|
+| `mail_knockout` | Update on your application | Hi {player_name}, after careful consideration (0.4 seconds, at 3:07 AM), we won't be moving forward. Knockout: {knockout}. - Parsinator 3000 |
+
+### 12.3 Rejections (one short line each in the "Flip all" stack)
+
+| id | Line |
+|---|---|
+| `mail_reject_01` | After careful consideration, we've decided to move forward with other candidates. |
+| `mail_reject_02` | Dear [FIRST_NAME], we regret to inform you about [JOB_TITLE]. Warmly, [RECRUITER]. |
+| `mail_reject_03` | You're overqualified for this entry-level role and underqualified for its salary. |
+| `mail_reject_04` | The role went to an internal candidate. It always was. We had to post it anyway. |
+| `mail_reject_05` | We loved you! We chose someone equally lovable with 7 more years of experience. |
+| `mail_reject_06` | Our AI screener made a decision. It declined to explain. It declined us too. |
+| `mail_reject_07` | Due to shifting priorities, this role no longer exists. Neither does the team. |
+| `mail_reject_08` | We'll keep your CV on file. The file is very large. It is also a shredder. |
+| `mail_reject_09` | Thanks for applying! This is an automated message. So was the decision. |
+| `mail_reject_10` | Great news: you made the top 3,000! Bad news: we're hiring one. |
+
+### 12.4 Ghosting and notifications
+
+| id | Text |
+|---|---|
+| `notif_ghosted` | Ghosted: {company} - {job_title} ({days} days, no reply) |
+| `notif_profile_view` | HumbleBrag: a recruiter viewed your profile! See who with Premium Gold+. (It was a bot.) |
+| `notif_typing` | The recruiter is typing... |
+| `notif_typing_stop` | The recruiter stopped typing. |
+| `mail_rescinded` | Our background check found that 'Very Famous University' has no record of you. Or of itself. The offer is withdrawn. |
+
+---
+
+## 13. Offer letter, perks and fine print -> `data/content/emails.json` (section `offer`)
+
+### 13.1 Offer modal template
+
+```
+OFFER OF EMPLOYMENT - {company}
+Dear {player_name},
+We are thrilled (legally required wording) to offer you the role of {job_title}.
+Salary: {salary}/year          Work mode: {work_mode}
+Commute: {commute_line}
+Perks: {perk_1}. {perk_2}.
+Fine print: {fine_print}
+Please decide before you sleep.
+[ Decline ]            [ Negotiate ]            [ ACCEPT ]
+```
+
+| id | Text |
+|---|---|
+| `offer_mode_startup` | Fully remote |
+| `offer_mode_mid` | Hybrid: 2 office days a week |
+| `offer_mode_big` | Office: 4 days a week |
+| `offer_commute_remote` | 0 minutes. The influencer was right about one thing. |
+| `offer_commute_office` | {office_days} days x {commute_min} min each way = {hours} h a week |
+| `offer_equity_doubled` | Equity doubled! 0.0001% -> 0.0002%. |
+| `offer_signon` | Paid as a sign-on bonus. (Big corps love a one-time thing.) |
+
+### 13.2 Perks (2 shown per offer)
+
+| id | tier | Text |
+|---|---|---|
+| `perk_pingpong` | startup | Ping-pong table |
+| `perk_kombucha` | startup | Kombucha on tap |
+| `perk_unlimited_pto` | startup | Unlimited PTO* (*average taken: 4 days) |
+| `perk_pizza` | mid | Pizza Friday (Fridays subject to change) |
+| `perk_banana` | mid | Free snacks (1 banana a week) |
+| `perk_pto20` | mid | 20 days PTO |
+| `perk_insurance` | big | Great insurance |
+| `perk_rsu` | big | Stock units (1-year cliff) |
+| `perk_pto15` | big | 15 days PTO |
+
+### 13.3 Fine print (1 shown; 3 behind the magnifier, SHOULD)
+
+| id | tiers | Text |
+|---|---|---|
+| `fp_probation` | mid, big | Probation: you may be let go for any reason, including 'Q3'. |
+| `fp_rto` | big | Hybrid policy: work from home on any day that is not a weekday. |
+| `fp_unlimited_pto` | startup | Unlimited PTO*. *Subject to approval, deadlines, and vibes. |
+| `fp_non_compete` | big | Non-compete: for 24 months you won't work in, near, or think about software. |
+| `fp_equity` | startup | Equity: 0.0001%, 4-year vest, 1-year cliff. Worth one sandwich at target valuation. |
+| `fp_ip_clause` | big, startup | All ideas you have during employment, including dreams, belong to the Company. |
+| `fp_on_call` | mid, startup | You will join the on-call rotation. The rotation is you. |
+| `fp_perks` | mid | Pizza parties are provided in lieu of raises. |
+| `fp_laptop` | big | Your laptop ships in 6-8 weeks. Please be productive meanwhile. |
+| `fp_salary_review` | all | Salary is reviewed annually. Reviewing is not increasing. |
+| `fp_runway` | startup | Your role is secure for the full runway (7 months, give or take a Tuesday). |
+| `fp_family` | startup, big | The Company reserves the right to call itself 'a family'. |
+
+---
+
+## 14. Endings -> `data/content/endings.json`
+
+| id | Text |
+|---|---|
+| `end_hired_title` | HIRED! |
+| `end_hired_startup` | Founding Engineer energy. Runway: 7 months. Chair: bring your own. |
+| `end_hired_mid` | There's a sweater on your chair. The fax machine blinks at you. It knows. |
+| `end_hired_big` | Your badge is printing. Your laptop ships in 6-8 weeks. Your first reorg is being planned. |
+| `end_dream_header` | DREAM vs REALITY |
+| `end_dream_row_salary` | Salary vs the video's $150k |
+| `end_dream_row_remote` | Remote days |
+| `end_dream_row_commute` | Commute |
+| `end_dream_row_flags` | Red flags |
+| `end_dream_row_rent` | Rent left |
+| `end_dream_grade_1` | Reality |
+| `end_dream_grade_2` | Doable |
+| `end_dream_grade_3` | Pretty good |
+| `end_dream_grade_4` | Suspiciously close to the video |
+| `end_dream_footer` | The video scored 100. The video was sponsored. |
+| `end_tbc` | TO BE CONTINUED - Phase 2: The Working Life |
+| `end_plan_b_title` | PLAN B |
+| `end_plan_b` | Rent's due. You became a ClikClok career coach. Your course 'How I Almost Got Into Tech' has 40,000 students. |
+| `end_plan_b_final` | Somewhere, a 17-year-old is watching your video. At night. Under a blanket. |
+| `end_decline` | You declined. Bold. The market respects confidence. The market does not care. |
+| `end_rescinded` | Offer rescinded. Back to the job boards. |
+| `end_stats` | Days: {day} - Applications: {n} - Interviews: {i} - Rejections: {r} |
+| `end_remy_dm` (SHOULD) | @RemoteRemy liked your post 'I got a job!' New DM: 'Guest spot in my course? Pay: exposure.' |
+
+Background lines for Plan B are in section 3 (`plan_b_line`). The Stealth Mode Hired card adds its `hired_extra` from section 4.
+
+---
+
+## 15. Events, news and myths (SHOULD) -> `data/content/events.json`, `news.json`
+
+### 15.1 Morning event cards (one per morning, 50% chance, never on day 1)
+
+| id | Text | Effect |
+|---|---|---|
+| `evt_layoff_news` | Layoffs: Round 14. Everyone you know is applying today. | invite odds x0.8 today |
+| `evt_hiring_spree` | Hierarchai raised $40M to pivot. Startups are hiring! | startup invite odds x1.3 today |
+| `evt_recruiter_spam` | Recruiter: 'Senior Principal COBOL Architect. 3-month contract. Relocate to the Moon.' | none |
+| `evt_remy_course` | @RemoteRemy: 'Hired in 30 days or your money back!*' (*money back not available) | none; Ducky: "Reality: fundamentals, projects and consistency. No 30-day shortcut." |
+| `evt_mom_call` | Mom asks if you've tried 'just applying online'. Emotional support: +1 energy. | +1 pip today |
+| `evt_streak_lost` | BigOhNo: you lost your 400-day streak. Pity discount: Study costs 1 today. | Study costs 1 today |
+| `evt_unicorn` | A posting appears: Junior, fully remote, $180k. 9,000 applicants in an hour. | adds `job_unicorn_remote` (once per run) |
+
+### 15.2 News ticker (title screen, intro panel 6)
+
+| id | Headline |
+|---|---|
+| `news_01` | OmniGlobal posts record profits, announces 'strategic headcount rightsizing' |
+| `news_02` | Murkcloud AI now writes 40% of Murkcloud code, says Murkcloud AI |
+| `news_03` | Engagement Farms Inc. orders 5-day office return, sells office buildings same week |
+| `news_04` | Study: 1 in 3 job postings 'may not technically be jobs' |
+| `news_05` | Hierarchai raises $40M to pivot |
+| `news_06` | Entry-level role now requires 5 years with a 2-year-old tool |

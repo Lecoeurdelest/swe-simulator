@@ -1,0 +1,18 @@
+# Normalize text files to LF (the Godot 4 docs' recommendation)
+* text=auto eol=lf
+
+# Binary assets: never diff them or convert line endings
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.ogg binary
+*.wav binary
+*.mp3 binary
+*.ttf binary
+*.otf binary
+*.aseprite binary
+*.ase binary
+*.res binary
+*.scn binary

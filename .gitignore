@@ -1,0 +1,26 @@
+# Godot 4.1+ cache and generated files
+.godot/
+*.translation
+
+# godot-ai updater staging (it also ignores itself)
+addons/.godot_ai_update/
+
+# Build outputs (keep the folder's .gdignore so Godot never scans it)
+/builds/*
+!/builds/.gdignore
+/android/
+*.apk
+*.aab
+*.idsig
+
+# Signing keys: never commit; back the release keystore up separately
+*.keystore
+*.jks
+
+# Local tool settings
+.claude/settings.local.json
+
+# OS junk
+Thumbs.db
+desktop.ini
+.DS_Store
