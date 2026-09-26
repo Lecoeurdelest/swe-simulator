@@ -60,7 +60,7 @@ const BANNED_BRANDS: PackedStringArray = [
 ]
 
 ## Banned words allowed anyway, each as {"word": "...", "reason": "..."} (CONTENT.md 1.3 lint_allow).
-const BRAND_ALLOW: Array = []
+const LINT_ALLOW: Array = []
 
 ## Never linted: notes for the artist (ARCHITECTURE 6.3).
 const NOTE_KEYS: PackedStringArray = ["art", "visual", "audio", "note", "_notes"]
@@ -346,8 +346,13 @@ func test_budget_wrap_counts_like_a_label() -> void:
 func test_banned_brands_absent() -> void:
 	var problems: Array[String] = []
 	var allowed: Array[String] = []
-	for entry: Dictionary in BRAND_ALLOW:
-		allowed.append(str(entry.get("word", "")))
+	for entry: Dictionary in LINT_ALLOW:
+		var word: String = str(entry.get("word", ""))
+		if not word in BANNED_BRANDS:
+			problems.append("LINT_ALLOW: '%s' is not on the banned list" % word)
+		if str(entry.get("reason", "")).strip_edges().is_empty():
+			problems.append("LINT_ALLOW: '%s' has no reason" % word)
+		allowed.append(word)
 	var words: Array[String] = []
 	for word: String in BANNED_BRANDS:
 		if not word in allowed:
@@ -541,7 +546,8 @@ func _collect(file: String, id: String, value: Variant, path: String, keyed_by_i
 	elif value is Dictionary:
 		var dict: Dictionary = value
 		for key: String in dict:
-			if key in NOTE_KEYS or key in DATA_KEYS:
+			# Keys of an id-keyed dictionary are ids, not field names, so they are never filtered out.
+			if not keyed_by_id and (key in NOTE_KEYS or key in DATA_KEYS):
 				continue
 			var segment := "*" if keyed_by_id else key
 			_collect(file, id, dict[key], segment if path.is_empty() else path + "." + segment, key in ID_KEYED)
