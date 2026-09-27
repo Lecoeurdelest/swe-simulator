@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://cb0wx7kft1lh8"]
+
+[ext_resource type="Script" uid="uid://dfx7pi5lxmpth" path="res://ui/components/stat_bar.gd" id="1_stat"]
+
+[node name="StatBar" type="Label" unique_id=1600314867]
+text = "[-----]"
+script = ExtResource("1_stat")

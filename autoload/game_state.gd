@@ -116,10 +116,30 @@ func quit_to_title() -> void:
 
 
 func choose_background(bg_id: String, player_name: String, run_seed: int = 0) -> void:
-	_init_run(bg_id, player_name, run_seed if run_seed != 0 else randi())  # the global RNG only picks the seed
+	_init_run(bg_id, player_name, run_seed if run_seed != 0 else new_run_seed())
 	preselect_background = bg_id
 	set_setting("meta", "last_background", bg_id)
 	change_phase(GameFlow.Phase.JOB_HUNT)
+
+
+## A fresh run seed: the global RNG only ever picks seeds. Never 0, which means "pick one" above.
+## Background select picks it when it opens, so its card can show the gaps this seed will roll.
+func new_run_seed() -> int:
+	var run_seed := 0
+	while run_seed == 0:
+		run_seed = randi()
+	return run_seed
+
+
+## The gap topics a run with this seed will roll (GDD S03 shows them before CHOOSE). It matches
+## _init_run() because the gap roll is the run RNG's first draw after seeding.
+func preview_gap_topics(bg_id: String, run_seed: int) -> Array:
+	var bg := Content.background(bg_id)
+	if bg == null:
+		return []
+	var preview := RandomNumberGenerator.new()
+	preview.seed = run_seed
+	return Odds.pick(preview, _gap_pool(), bg.gap_topics_count)
 
 
 ## Debug only: set a run up in place so `project_run mode="custom"` can launch one feature scene.
@@ -131,7 +151,8 @@ func debug_quick_start(bg_id: String, phase: GameFlow.Phase, run_seed: int = 202
 
 
 ## The background's starting numbers, the name, the seed, the gap topics, first_run, then the
-## day-1 board, all on the run RNG in this order.
+## day-1 board, all on the run RNG in this order. Keep the gap roll the first draw after seeding:
+## preview_gap_topics() shows it on the Background select card.
 func _init_run(bg_id: String, player_name: String, run_seed: int) -> void:
 	var bg := Content.background(bg_id)
 	var cfg := Content.balance
@@ -139,10 +160,13 @@ func _init_run(bg_id: String, player_name: String, run_seed: int) -> void:
 	run.rng_seed = str(run_seed)
 	run.set_background(cfg, bg)
 	run.player_name = player_name
-	var gap_pool: Array = Content.entries("naming").get("_gap_topic_pool", [])
-	run.gap_topics.assign(Odds.pick(rng, gap_pool, bg.gap_topics_count))
+	run.gap_topics.assign(Odds.pick(rng, _gap_pool(), bg.gap_topics_count))
 	run.first_run = int(setting("meta", "run_count", 0)) == 0
 	run.deal_board(cfg, _tiers(), _hunt_content(), rng)
+
+
+func _gap_pool() -> Array:
+	return Content.entries("naming").get("_gap_topic_pool", [])
 
 
 # ---------- job hunt verbs (each committed action ends with _commit()) ----------

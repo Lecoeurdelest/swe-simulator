@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://byxxkoxystgjx" path="res://features/background_select/background_select.gd" id="1_bgsel"]
 [ext_resource type="Script" uid="uid://b2qm2ai3fh743" path="res://ui/components/safe_area_margin.gd" id="2_safe"]
+[ext_resource type="PackedScene" uid="uid://ndmowagip72x" path="res://features/background_select/background_card.tscn" id="3_card"]
+[ext_resource type="Script" uid="uid://d353a8cfxhso" path="res://features/background_select/dice_button.gd" id="4_dice"]
 
 [node name="BackgroundSelect" type="Control" unique_id=915326938]
 layout_mode = 3
@@ -24,6 +26,7 @@ mouse_filter = 2
 color = Color(0.11, 0.12, 0.17, 1)
 
 [node name="SafeArea" type="MarginContainer" parent="." unique_id=1498958619]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -34,6 +37,7 @@ mouse_filter = 2
 script = ExtResource("2_safe")
 
 [node name="Column" type="VBoxContainer" parent="SafeArea" unique_id=369637740]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(254, 0)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -48,60 +52,86 @@ theme_override_constants/separation = 4
 [node name="Header" type="Label" parent="SafeArea/Column/TopBand" unique_id=521998923]
 unique_name_in_owner = true
 layout_mode = 2
-theme_type_variation = &"HeaderLabel"
-text = "BACKGROUND SELECT"
-
-[node name="Prompt" type="Label" parent="SafeArea/Column/TopBand" unique_id=316827698]
-unique_name_in_owner = true
-layout_mode = 2
 text = "How did you spend those four years?"
+horizontal_alignment = 1
 autowrap_mode = 3
 
 [node name="Body" type="VBoxContainer" parent="SafeArea/Column" unique_id=119524792]
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
+alignment = 2
 
-[node name="Card" type="PanelContainer" parent="SafeArea/Column/Body" unique_id=1427165576]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="Text" type="Label" parent="SafeArea/Column/Body/Card" unique_id=1205577762]
+[node name="Card" parent="SafeArea/Column/Body" unique_id=1409749049 instance=ExtResource("3_card")]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Stub: three plain buttons, name Alex.
-The highlighted one is preselected."
-autowrap_mode = 3
 
 [node name="ThumbBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=17545195]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 6
 
-[node name="Choices" type="VBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=906844648]
+[node name="NameRow" type="HBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=213959091]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 6
 
-[node name="InternButton" type="Button" parent="SafeArea/Column/ThumbBand/Choices" unique_id=899391329]
+[node name="NameLabel" type="Label" parent="SafeArea/Column/ThumbBand/NameRow" unique_id=1574898950]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
-text = "THE INTERN - EASY"
+text = "NAME"
+vertical_alignment = 1
 
-[node name="GraduateButton" type="Button" parent="SafeArea/Column/ThumbBand/Choices" unique_id=38325836]
+[node name="NameField" type="LineEdit" parent="SafeArea/Column/ThumbBand/NameRow" unique_id=357246670]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 36)
+custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
-text = "THE GRADUATE - MEDIUM"
+size_flags_horizontal = 3
+text = "Alex"
+max_length = 10
+select_all_on_focus = true
 
-[node name="SelfTaughtButton" type="Button" parent="SafeArea/Column/ThumbBand/Choices" unique_id=1221308590]
+[node name="DiceButton" type="Button" parent="SafeArea/Column/ThumbBand/NameRow" unique_id=1498637097]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 36)
+custom_minimum_size = Vector2(34, 34)
 layout_mode = 2
-text = "THE SELF-TAUGHT - HARD"
+script = ExtResource("4_dice")
+
+[node name="Selector" type="HBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=1671290115]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 7
+
+[node name="InternButton" type="Button" parent="SafeArea/Column/ThumbBand/Selector" unique_id=899391329]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+theme_type_variation = &"SelectorButton"
+toggle_mode = true
+text = "INTERN
+EASY"
+
+[node name="GraduateButton" type="Button" parent="SafeArea/Column/ThumbBand/Selector" unique_id=38325836]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+theme_type_variation = &"SelectorButton"
+toggle_mode = true
+text = "GRADUATE
+MEDIUM"
+
+[node name="SelfTaughtButton" type="Button" parent="SafeArea/Column/ThumbBand/Selector" unique_id=1221308590]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+theme_type_variation = &"SelectorButton"
+toggle_mode = true
+text = "SELF-TAUGHT
+HARD"
 
 [node name="ActionBar" type="HBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=10321468]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 mouse_filter = 2
@@ -112,6 +142,19 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(80, 36)
 layout_mode = 2
 text = "< Title"
+
+[node name="ChooseButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionBar" unique_id=510383313]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(168, 36)
+layout_mode = 2
+theme_type_variation = &"PrimaryButton"
+text = "CHOOSE"
+
+[node name="KeyboardSpacer" type="Control" parent="SafeArea/Column/ThumbBand" unique_id=1293248311]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
 
 [node name="ModalLayer" type="CanvasLayer" parent="." unique_id=1828533686]
 layer = 10

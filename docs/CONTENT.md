@@ -90,6 +90,7 @@ google, alphabet, microsoft, macrohard, apple, amazon, amazoom, meta, facebook, 
 ### 3.1 Text
 
 **`intern`** - THE INTERN - EASY
+- `selector`: "INTERN"
 - `one_liner`: "Three internships, 214 connections, one mentor who texts."
 - `perk`: "WARM INTROS: 2 referrals. A referral gets a human to read your CV and skips knockout filters."
 - `flaw`: "BIG-TECH AURA: startups think you'll leave in 6 months. Your algorithms are rusty."
@@ -100,6 +101,7 @@ google, alphabet, microsoft, macrohard, apple, amazon, amazoom, meta, facebook, 
 - Hoodie color: teal.
 
 **`graduate`** - THE GRADUATE - MEDIUM
+- `selector`: "GRADUATE"
 - `one_liner`: "One diploma, one student loan, zero callbacks."
 - `perk`: "DIPLOMA: passes 'degree required' filters. TEXTBOOK ANSWER: wider zone on your first tech question."
 - `flaw`: "ENTRY-LEVEL PARADOX: '1+ years' filters reject you unless your Experience line is Polished."
@@ -110,6 +112,7 @@ google, alphabet, microsoft, macrohard, apple, amazon, amazoom, meta, facebook, 
 - Hoodie color: maroon.
 
 **`self_taught`** - THE SELF-TAUGHT - HARD
+- `selector`: "SELF-TAUGHT"
 - `one_liner`: "437 hours of tutorials, 6 languages, 2 bus transfers."
 - `perk`: "BREADTH: 6 skills on your CV. SCRAPPY BUILDER: startups love shipped projects."
 - `flaw`: "THE LONG WAY: 2-bus commute, no degree, knowledge gaps, no team stories yet."
@@ -121,7 +124,7 @@ google, alphabet, microsoft, macrohard, apple, amazon, amazoom, meta, facebook, 
 - `plan_b_line`: "Your course is called 'Self-Taught, Self-Employed'. It sells."
 - Hoodie color: mustard.
 
-Background select header: "How did you spend those four years?" (`ui_background_header`). Button: "CHOOSE" (`ui_choose`). Both live in section 10.1.
+Background select header: "How did you spend those four years?" (`ui_background_header`). Button: "CHOOSE" (`ui_choose`). Both live in section 10.1. `selector` is the short name on the S03 selector button (80 px wide, 13 characters), above the difficulty; added 2026-09-27 with the text of the GDD S03 mockup and ARCHITECTURE 11.3.
 
 ### 3.2 Name dice -> `data/content/names.json`
 Default: **Alex**. Dice pool (20, gender-neutral, none shared with Dana, Remy or Jordan, the teammate in eq_credit_theft):
@@ -843,8 +846,11 @@ On screen, `ducky` lines are prefixed with `ducky_real_answer` ("Real answer:").
 | `ui_stat_knw` | KNOWLEDGE |
 | `ui_stat_exp` | EXPERIENCE |
 | `ui_stat_net` | NETWORK |
+| `ui_energy_per_day` | Energy/day |
+| `ui_rent_runway` | Rent runway: {days} days |
+| `ui_name` | NAME |
 
-The hub's bottom dock (GDD 4.2 S04) uses `ui_tab_*` plus `ui_sleep`; dock labels are at most 6 characters. `ui_quit_confirm` appears on Android (LATER) and desktop only: iOS apps never quit themselves (GDD 4.4); `ui_quit` is its confirm button (added 2026-09-27 with no source text: developer, please sign off). `ui_logo_1`-`ui_logo_3` are the title logo's three lines (GDD S01). Added 2026-09-27 for the Step 4 interview, with text from the GDD mockups: `ui_composure`, `ui_doubt` and `ui_round` are the S08 bars band ("ROUND 2/5"; `{total}` is the number of prompts), `ui_back_to_hunt` and `bark_dana_other_candidates` are S09 (and GDD 5.8.6), `ui_stat_*` are the S03 stat bar labels (also on the S07 VS plate), and `vs_versus` is the S07 "VS" (ARCHITECTURE 11.5).
+The hub's bottom dock (GDD 4.2 S04) uses `ui_tab_*` plus `ui_sleep`; dock labels are at most 6 characters. `ui_quit_confirm` appears on Android (LATER) and desktop only: iOS apps never quit themselves (GDD 4.4); `ui_quit` is its confirm button (added 2026-09-27 with no source text: developer, please sign off). `ui_logo_1`-`ui_logo_3` are the title logo's three lines (GDD S01). Added 2026-09-27 for the Step 4 interview, with text from the GDD mockups: `ui_composure`, `ui_doubt` and `ui_round` are the S08 bars band ("ROUND 2/5"; `{total}` is the number of prompts), `ui_back_to_hunt` and `bark_dana_other_candidates` are S09 (and GDD 5.8.6), `ui_stat_*` are the S03 stat bar labels (also on the S07 VS plate), and `vs_versus` is the S07 "VS" (ARCHITECTURE 11.5). Added 2026-09-27 for the Step 5 Background select, with text from the GDD S03 mockup: `ui_energy_per_day` (the card's energy pips row), `ui_rent_runway` and `ui_name` (the name row).
 
 A primary button shows its label in capitals (`UiText.primary()` upper-cases it, as the GDD 4.2 mockups do: `[ CONTINUE ]`, `[ NEW RUN ]`), and a Back-style button puts "< " in front (`UiText.back()`). Write the text here in its normal case. (Agent default, please review.)
 

@@ -1,0 +1,21 @@
+STEP-05 background select stage - test_run (all suites), 2026-09-27, Windows PC, Godot 4.7.2-stable (steam)
+
+Baseline before this stage: 184 passed / 0 failed / 18 suites (after the wiring stage).
+After the content edits (barks.json, backgrounds.json):     184 passed / 0 failed / 0 skipped / 18 suites, 1059 ms.
+Final run after this stage (all edits, game stopped):        184 passed / 0 failed / 0 skipped / 18 suites, 1045 ms.
+
+Suites: content_lint, data_files, flow, hunt_apply, hunt_board, hunt_defaults, hunt_edges, hunt_reveal,
+hunt_sim, hunt_sleep, interview, interview_plan, lie_probe, odds, offer, probe_trigger, save, ui_text.
+
+No new suite: this stage is a screen. content_lint now also covers the new strings
+(barks ui_energy_per_day, ui_rent_runway, ui_name; backgrounds.*.selector): parse, ASCII, brands,
+placeholders ({days} is on the CONTENT.md 0 list) and the "other"/"dialogue" budgets all pass.
+
+One throwaway suite ran once and was deleted (gotcha list: typed theme writes go through a
+throwaway McpTestSuite): tests/test_zz_tmp_selector_theme.gd, 1 test / 2 assertions, pass. It added
+the SelectorButton type variation to ui/theme/main_theme.tres. The file and its .uid were removed and
+the filesystem rescanned; the final run above lists 18 suites, without it.
+
+cache_warning (preloaded GDScript may be stale) was present on every run, as always. No test preloads
+the changed scripts (game_state.gd, device.gd and the S03 scripts are autoload/scene code, never
+loaded by tests), so the warning does not affect this stage's result.
