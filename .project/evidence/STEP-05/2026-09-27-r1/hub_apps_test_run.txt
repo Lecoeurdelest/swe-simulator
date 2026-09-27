@@ -1,0 +1,34 @@
+STEP-05 hub apps stage (DoomApply part 2): test_run, all suites
+Date 2026-09-27, Windows PC, Godot 4.7.2-stable (steam), editor open on res://features/job_hunt/job_hunt.tscn
+
+Baseline before this stage: 187 passed / 0 failed / 18 suites.
+
+Final run (after the last code change):
+  passed 199, failed 0, skipped 0, total 199, suites 19
+  suites: content_lint, data_files, flow, hunt_apply, hunt_board, hunt_defaults, hunt_edges, hunt_reveal,
+          hunt_sim, hunt_sleep, hunt_tips (new), interview, interview_plan, lie_probe, odds, offer,
+          probe_trigger, save, ui_text
+
+New suite hunt_tips (tests/test_hunt_tips.gd), 12 tests, all passed:
+  test_a_first_knockout_after_plain_rejections_still_teaches_knockouts   1 assertion
+  test_cv_line_is_this_backgrounds_entry                                 4
+  test_first_knockout_rejection_shows_the_ats_tip                        4
+  test_first_open_and_first_study_tips_once                              4
+  test_first_plain_rejection_and_every_tenth_show_the_numbers_tip       10
+  test_had_invite_counts_every_trace_of_one                              6
+  test_new_fields_survive_a_save                                         4
+  test_night_tip_eight_quick_applies_without_an_invite                   4
+  test_night_tip_first_referral_once                                     3
+  test_polished_experience_tip_follows_the_lines_not_the_background      9
+  test_start_day_keeps_the_mail_until_the_next_sleep                     6
+  test_the_real_morning_reveal_feeds_the_inbox_tip                       2
+
+Existing suites that also cover this stage's scripts:
+  ui_text/test_screen_text_ids_exist  - every literal Content.text()/field() id in features/ and ui/ exists
+                                        (includes cv_row, cv_screen, invite_card, mail_screen, night_screen, job_hunt)
+  flow/test_screens_never_change_phase_or_scene - no change_scene / change_phase / phase assignment in features/
+  hunt_sleep, hunt_defaults - the kill-after-Sleep replays still match with the new day_mail field
+
+Intermediate runs this stage: 199/199 after the rule side (HuntTips + RunState fields), 199/199 after the UI,
+199/199 after each verification fix (scroll mode, coach spacer, tip pin, invite header). No failure at any point.
+Editor log: only the known "Identifier not found: Content/GameState/SceneRouter/Device" autoload errors.

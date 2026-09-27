@@ -1,0 +1,65 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://dg73vvi5d0w0n" path="res://features/job_hunt/cv_row.gd" id="1_row"]
+
+[node name="CvRow" type="VBoxContainer"]
+custom_minimum_size = Vector2(254, 0)
+mouse_filter = 2
+theme_override_constants/separation = 2
+script = ExtResource("1_row")
+
+[node name="Label" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "Education"
+
+[node name="Text" type="Label" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+text = "B.Sc. Information Tech, Metro City University"
+autowrap_mode = 3
+max_lines_visible = 2
+
+[node name="Segments" type="HBoxContainer" parent="."]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Honest" type="Button" parent="Segments"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(82, 34)
+layout_mode = 2
+focus_mode = 0
+mouse_filter = 1
+theme_type_variation = &"SelectorButton"
+toggle_mode = true
+text = "Honest"
+
+[node name="Polished" type="Button" parent="Segments"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(82, 34)
+layout_mode = 2
+focus_mode = 0
+mouse_filter = 1
+theme_type_variation = &"SelectorButton"
+toggle_mode = true
+text = "Polished"
+
+[node name="Lie" type="Button" parent="Segments"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(82, 34)
+layout_mode = 2
+focus_mode = 0
+mouse_filter = 1
+theme_type_variation = &"SelectorButton"
+toggle_mode = true
+text = "Lie"
+
+[node name="Tags" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.54509807, 0.60784316, 0.7058824, 1)
+text = "Java"
+clip_text = true

@@ -54,6 +54,8 @@ var dropped: Array[String] = []           # "template_id|company_id" pairs that 
 #   kind: rolled | radar | guarantee | profile (the guarantee's "saw your profile!" from a board card)
 var invites: Array[Dictionary] = []
 var morning_report: Dictionary = {}       # built by Sleep; the hunt scene shows it, "Start day" clears it
+var day_mail: Dictionary = {}             # the morning report after "Start day": Mail keeps showing it until the next Sleep
+var tips_shown: Array[String] = []        # tip ids a once-per-run trigger already showed (HuntTips, GDD 8.3)
 var blacklist: Array[String] = []         # company ids: declined, BUSTED or rescinded
 var researched: Array[String] = []        # company ids (SHOULD)
 var seen_question_ids: Array[String] = []
@@ -303,6 +305,7 @@ func sleep(cfg: BalanceConfig, tiers: Dictionary = {}, bg: BackgroundData = null
 	energy = cfg.energy_max - commute_pips
 	interviews_today = 0
 	rescinded = {}
+	day_mail = {}
 	for card: Dictionary in board:
 		card["posted_days_ago"] = int(card["posted_days_ago"]) + 1
 	if tiers.is_empty() or bg == null or rng == null:
@@ -311,10 +314,12 @@ func sleep(cfg: BalanceConfig, tiers: Dictionary = {}, bg: BackgroundData = null
 	return morning_report
 
 
-## Mail "Start day": the morning has been seen and the report is cleared.
+## Mail "Start day": the morning has been seen and the report is cleared. It moves to day_mail, so
+## Mail still shows the day's mail (expiry notices, rejections, the grace-day line) until the next Sleep.
 ## Returns true when this morning ended the run (GameState then calls end_run_plan_b()).
 func start_day() -> bool:
 	var plan_b := bool(morning_report.get("plan_b", false))
+	day_mail = morning_report
 	morning_report = {}
 	return plan_b
 
@@ -680,6 +685,13 @@ func _quote(cfg: BalanceConfig, tier: TierData, bg: BackgroundData, posting: Dic
 ## digits, so an unrounded P reads back a hair different and a Continue would roll against another P.
 static func _frozen_p(p: float) -> float:
 	return ("%.9f" % p).to_float()
+
+
+## This background's cv_lines.json entry for a line at a level (the CV screen shows its text and
+## tags), or {} if the content has none.
+func cv_line(cv_lines: Dictionary, line: String, level: String) -> Dictionary:
+	var id := _cv_line_id(cv_lines, line, level)
+	return cv_lines[id] if not id.is_empty() else {}
 
 
 ## The cv_lines.json id for this background's line at a level (the fields decide, not the id's spelling).

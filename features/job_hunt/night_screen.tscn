@@ -1,0 +1,68 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://bxig86e6ygurc" path="res://features/job_hunt/night_screen.gd" id="1_night"]
+[ext_resource type="Script" uid="uid://b2qm2ai3fh743" path="res://ui/components/safe_area_margin.gd" id="2_safe"]
+[ext_resource type="PackedScene" uid="uid://cv7u0us1tep67" path="res://ui/components/ducky_note.tscn" id="3_duck"]
+
+[node name="NightScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_night")
+
+[node name="Sky" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.043137256, 0.043137256, 0.08235294, 1)
+
+[node name="SafeArea" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_safe")
+
+[node name="Column" type="VBoxContainer" parent="SafeArea"]
+custom_minimum_size = Vector2(254, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="Notice" type="PanelContainer" parent="SafeArea/Column"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="NoticeRows" type="VBoxContainer" parent="SafeArea/Column/Notice"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="AppName" type="Label" parent="SafeArea/Column/Notice/NoticeRows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "DoomApply"
+
+[node name="Summary" type="Label" parent="SafeArea/Column/Notice/NoticeRows"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Applied 4 - Rejected 2 - Ghosted 1 - Rent due in 9 days"
+autowrap_mode = 3
+
+[node name="Tip" parent="SafeArea/Column" instance=ExtResource("3_duck")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2

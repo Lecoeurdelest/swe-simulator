@@ -273,6 +273,13 @@ func card_odds(card: Dictionary) -> Dictionary:
 	return run.card_odds(Content.balance, _tiers(), _bg(), _hunt_content(), card)
 
 
+## A Ducky tip a once-per-run trigger just showed (HuntTips, GDD 8.3). Not a player action: it is
+## saved with the next commit.
+func mark_tip_shown(tip_id: String) -> void:
+	if not run.tips_shown.has(tip_id):
+		run.tips_shown.append(tip_id)
+
+
 ## The hunt rules' data arguments (RunState, "job hunt" section).
 func _tiers() -> Dictionary:
 	var out: Dictionary = {}
@@ -300,11 +307,9 @@ func _bg() -> BackgroundData:
 func start_interview(invite: Dictionary) -> void:
 	var cfg := Content.balance
 	var tier_data := Content.tier(str(invite.get("tier", "")))
-	if tier_data == null:
+	if tier_data == null or not can_take_interview(invite):
 		return
-	var cost := cfg.cost_interview + (_bg().interview_travel_pips if tier_data.in_person else 0)
-	if run.interviews_today >= cfg.max_interviews_per_day or run.energy < cost:
-		return
+	var cost := interview_cost(invite)
 	var taken := run.take_invite(int(invite.get("uid", -1)))
 	if taken.is_empty():
 		return  # expired, withdrawn or already taken
@@ -324,6 +329,22 @@ func start_interview(invite: Dictionary) -> void:
 	}
 	InterviewPlan.mark_seen(run.seen_question_ids, plan["question_ids"] + [plan["warmup_id"]])
 	change_phase(GameFlow.Phase.INTERVIEW)  # saves the checkpoint
+
+
+## GDD 5.3: an interview costs cfg.cost_interview pips, plus the background's travel pips when the
+## tier interviews in person (the Self-Taught's +1). -1 for an unknown tier.
+func interview_cost(invite: Dictionary) -> int:
+	var tier_data := Content.tier(str(invite.get("tier", "")))
+	if tier_data == null:
+		return -1
+	return Content.balance.cost_interview + (_bg().interview_travel_pips if tier_data.in_person else 0)
+
+
+## GO NOW is possible: today's interview isn't used yet and the pips are there (GDD 5.3). Mail greys
+## GO NOW out otherwise.
+func can_take_interview(invite: Dictionary) -> bool:
+	var cost := interview_cost(invite)
+	return cost >= 0 and run.interviews_today < Content.balance.max_interviews_per_day and run.energy >= cost
 
 
 ## won = K.O. or committee win. busted = the lie probe ended in BUSTED (company blacklisted).

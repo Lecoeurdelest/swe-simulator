@@ -153,6 +153,12 @@ func is_back() -> bool:
 	return _back
 
 
+## Where the front's header strip ends, measured from the card's top at rest: first-run coach marks sit
+## over the strip (GDD 4.3), so the hub keeps them this far above the card's bottom.
+func strip_bottom() -> float:
+	return _rest.y + _front.position.y + _strip.position.y + _strip.size.y
+
+
 ## True while the back's [Use referral] toggle is on.
 func use_referral() -> bool:
 	return _referral
