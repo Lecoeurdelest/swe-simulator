@@ -2,10 +2,11 @@ class_name MailScreen
 extends VBoxContainer
 ## DoomApply's Mail (GDD S06, ARCHITECTURE 11.4): one scrolling list, in this order: the grace-day line,
 ## the first-run coach mark, the waiting invites ([ Later ][ GO NOW ] inside each card), a rescinded
-## offer, the expiry notices, the rejections as one stack card with [Flip all], the tip under it, the
-## quiet no-reply footer and the Radar update. It shows the morning report, or later that day
-## run.day_mail; the invites are always the live run.invites. [ Start day ] is the hub's pinned action
-## row, outside the list. Buttons in the list PASS their input on, so a drag scrolls (Step 2 result).
+## offer (with the tip under it), the expiry notices, the rejections as one stack card with [Flip all]
+## (the tip under it otherwise), the quiet no-reply footer and the Radar update. It shows the morning
+## report, or later that day run.day_mail; the invites are always the live run.invites. [ Start day ] is
+## the hub's pinned action row, outside the list. Buttons in the list PASS their input on, so a drag
+## scrolls (Step 2 result).
 
 signal go_now(invite: Dictionary)
 
@@ -53,18 +54,17 @@ func show_mail(report: Dictionary, morning: bool, coach: bool) -> void:
 	if _coach != null and not _invite_cards.is_empty():
 		_coach.point(Content.text("barks", "coach_invite_no_research"), _invite_cards[0].go_button())
 		_coach.visible = not _invite_cards[0].is_folded()  # it points at GO NOW: gone while Later folds it
+	var tip := HuntTips.inbox(run, report)
 	if not run.rescinded.is_empty():
 		_add(_mail_card("", _from(run.rescinded, false), Content.text("emails", "mail_rescinded")))
+		_add_tip(tip)  # its tip right under it: joke, then tip (GDD 8.1 rule 1)
 	for notice: Variant in report.get("expired", []):
 		var mail_id := str((notice as Dictionary).get("mail_id", "mail_invite_expired"))
 		_add(_mail_card(Content.field("emails", mail_id, "subject"), _from(notice, true),
 			Content.field("emails", mail_id, "body")))
 	_add_rejections(report)
-	var tip := HuntTips.inbox(run, report)
-	if not tip.is_empty():
-		_tip = DUCKY_NOTE.instantiate()
-		_add(_tip)
-		_tip.tip_text = Content.field("tips", tip, "short")
+	if run.rescinded.is_empty():
+		_add_tip(tip)
 	var no_reply := int(report.get("no_reply", 0))
 	if no_reply > 0:
 		_add(_label(Content.text("barks", "ui_ghost_footer", {"n": no_reply}), DIM_COLOR))
@@ -102,6 +102,15 @@ func _clear() -> void:
 
 func _add(node: Control) -> void:
 	_list.add_child(node)
+
+
+## Mail's one Ducky note (HuntTips.inbox); "" adds nothing.
+func _add_tip(tip_id: String) -> void:
+	if tip_id.is_empty():
+		return
+	_tip = DUCKY_NOTE.instantiate()
+	_add(_tip)
+	_tip.tip_text = Content.field("tips", tip_id, "short")
 
 
 func _add_invite(invite: Dictionary, plan_b: bool) -> void:

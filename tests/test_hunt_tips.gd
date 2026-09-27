@@ -108,6 +108,19 @@ func test_the_real_morning_reveal_feeds_the_inbox_tip() -> void:
 	assert_eq(HuntTips.inbox(run, report), "tip_ats_knockouts")
 
 
+func test_a_rescinded_offer_takes_the_mail_tip() -> void:
+	var run := _run("intern")
+	var report := _rejected_morning(run, [true])
+	assert_eq(HuntTips.inbox(run, report), "tip_ats_knockouts", "before the rescind")
+	run.offer = {"company_id": "co_beigeware", "template_id": "job_mid_qa", "tier": "mid"}
+	run.rescind_offer()
+	assert_eq(HuntTips.inbox(run, report), "tip_honesty_checks", "GDD 8.3 'BUSTED or rescinded', one tip per screen")
+	assert_eq(HuntTips.inbox(run, {}), "tip_honesty_checks", "also on a day without rejections")
+	_sleep(run, _rng(35))
+	assert_true(run.rescinded.is_empty(), "the next Sleep clears the rescind")
+	assert_eq(HuntTips.inbox(run, {"rejections": []}), "", "and its tip")
+
+
 func test_night_tip_first_referral_once() -> void:
 	var run := _run("intern")
 	assert_eq(HuntTips.night(run), "", "nothing sent yet")

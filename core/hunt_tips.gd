@@ -11,11 +11,14 @@ const REJECTION_TIP_EVERY := 10  # GDD 8.3: "first rejection email / every 10th 
 const INVITED_STATUSES: PackedStringArray = ["invited", "interview", "expired"]
 
 
-## The morning inbox's tip, under the rejection stack (GDD S06, 8.3): the run's first knockout
-## rejection -> tip_ats_knockouts; else its first rejection, or every 10th -> tip_rejection_numbers;
-## "" for none. The run is read after the Sleep that built the report (its rejections are counted),
-## so one report always gives the same tip: in the morning, and in Mail later that day.
+## Mail's one tip (GDD S06, 8.1 rule 2, 8.3): an offer rescinded today -> tip_honesty_checks
+## ("BUSTED or rescinded"); else, under the rejection stack, the run's first knockout rejection ->
+## tip_ats_knockouts; else its first rejection, or every 10th -> tip_rejection_numbers; "" for none.
+## The run is read after the Sleep that built the report (its rejections are counted), so one report
+## gives the same tip in the morning and in Mail later that day, until a rescind takes the slot.
 static func inbox(run: RunState, report: Dictionary) -> String:
+	if not run.rescinded.is_empty():
+		return "tip_honesty_checks"
 	var rejections: Array = report.get("rejections", [])
 	if rejections.is_empty():
 		return ""

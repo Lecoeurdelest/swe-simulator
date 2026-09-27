@@ -128,6 +128,8 @@ func _ready() -> void:
 	_setup_debug()
 	if _morning_pending():
 		_open_night()  # a Continue between Sleep and Start day replays the night, then the same morning
+	elif not GameState.run.rescinded.is_empty():
+		_app = App.MAIL  # Accept just ended in OFFER RESCINDED (GDD 5.9.4): show its mail and tip first
 	_refresh()
 
 
