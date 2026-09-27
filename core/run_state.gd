@@ -152,6 +152,16 @@ func deal_board(cfg: BalanceConfig, tiers: Dictionary, content: Dictionary, rng:
 	return dealt_count
 
 
+## Declined offer, BUSTED or rescinded (GDD 5.7): the company is blacklisted for the run and its
+## cards leave the board at once, not only at the next morning's deal.
+func blacklist_company(company_id: String) -> void:
+	if not blacklist.has(company_id):
+		blacklist.append(company_id)
+	for i: int in range(board.size() - 1, -1, -1):
+		if str(board[i]["company_id"]) == company_id:
+			board.remove_at(i)
+
+
 ## Swipe left: the card goes to the back of the deck.
 func skip_card(card_uid: int) -> bool:
 	var i := _card_index(card_uid)
@@ -214,10 +224,11 @@ func card_odds(cfg: BalanceConfig, tiers: Dictionary, bg: BackgroundData, conten
 ## Quick Apply (tailored = false) or Tailor & Apply (tailored = true), optionally with a referral
 ## token (GDD 5.3, 5.6). Pays the energy, freezes P_invite with today's stats and schedules the
 ## reply. The outcome is NOT rolled now: the reveal morning rolls it (GDD 5.7).
-## Returns the new application, or {} when the card is gone or it can't be paid for.
+## Returns the new application, or {} when the card is gone, its company is blacklisted or it
+## can't be paid for.
 func apply_card(cfg: BalanceConfig, tiers: Dictionary, bg: BackgroundData, content: Dictionary, card_uid: int, tailored: bool, referral: bool) -> Dictionary:
 	var i := _card_index(card_uid)
-	if i < 0:
+	if i < 0 or blacklist.has(str(board[i]["company_id"])):
 		return {}
 	var card: Dictionary = board[i]
 	var tier := _tier(tiers, str(card["tier"]))
@@ -234,7 +245,7 @@ func apply_card(cfg: BalanceConfig, tiers: Dictionary, bg: BackgroundData, conte
 		"uid": card["uid"], "template_id": card["template_id"], "company_id": card["company_id"],
 		"tier": card["tier"], "day_sent": day,
 		"reveal_day": Odds.reply_day(cfg, tier, day, not knockout.is_empty()),
-		"p": quote["p"], "hits": quote["hits"], "relevant": quote["relevant"],
+		"p": _frozen_p(quote["p"]), "hits": quote["hits"], "relevant": quote["relevant"],
 		"knockout": not knockout.is_empty(), "knockout_reason": knockout,
 		"is_ghost": card["is_ghost"], "referral": referral, "tailored": tailored,
 		"lies": quote["lies"], "status": "pending",
@@ -310,11 +321,11 @@ func _morning(cfg: BalanceConfig, tiers: Dictionary, bg: BackgroundData, content
 	var outcomes := _reveal_outcomes(tiers, bg, rng)
 	var guarantee_due := _guarantee_due(cfg, outcomes)
 	if guarantee_due:
-		pity_count = 0
 		var best := _best_day1_application()
 		if not best.is_empty():
 			_set_outcome(outcomes, best, "guarantee")
 			report["guarantee"] = "guarantee"
+			pity_count = 0
 	_apply_outcomes(outcomes, report)
 	_ghost_silent(cfg, report)
 	report["board_new"] = deal_board(cfg, tiers, content, rng)
@@ -323,6 +334,7 @@ func _morning(cfg: BalanceConfig, tiers: Dictionary, bg: BackgroundData, content
 		if not invite.is_empty():
 			(report["invites"] as Array).append(invite)
 			report["guarantee"] = "profile"
+			pity_count = 0
 	(report["radar"] as Dictionary)["after"] = pity_count
 	var rent := Odds.rent_check(cfg, rent_days_left, grace_used, not invites.is_empty())
 	if rent == "grace":
@@ -446,6 +458,8 @@ func _ghost_silent(cfg: BalanceConfig, report: Dictionary) -> void:
 
 ## The guarantee's fallback (GDD 5.7): the highest-odds startup card on the board "saw your profile".
 ## A real posting beats a ghost job; the card leaves the board and its pair counts as applied.
+## Ties go to the oldest card (lowest uid), never to deck order: skips aren't saved, so a replayed
+## Sleep after a kill must not depend on them.
 func _profile_invite(cfg: BalanceConfig, tiers: Dictionary, bg: BackgroundData, content: Dictionary) -> Dictionary:
 	var best: Dictionary = {}
 	var best_score := -1.0
@@ -455,9 +469,9 @@ func _profile_invite(cfg: BalanceConfig, tiers: Dictionary, bg: BackgroundData, 
 		var odds := card_odds(cfg, tiers, bg, content, card)
 		if odds.is_empty():
 			continue
-		# P is at most 0.60, so the +1 puts every real posting above every ghost job.
-		var score := float((odds["tailored"] as Dictionary)["p"]) + (0.0 if bool(card["is_ghost"]) else 1.0)
-		if score > best_score:
+		# P is at most 1, so the +2 puts every real posting above every ghost job.
+		var score := float((odds["tailored"] as Dictionary)["p"]) + (0.0 if bool(card["is_ghost"]) else 2.0)
+		if score > best_score or (score == best_score and int(card["uid"]) < int(best["uid"])):
 			best = card
 			best_score = score
 	if best.is_empty():
@@ -560,6 +574,12 @@ func _quote(cfg: BalanceConfig, tier: TierData, bg: BackgroundData, posting: Dic
 			bool(sent["degree"]), bool(sent["passes_years"]), referral),
 		"lies": sent["lies"],
 	}
+
+
+## P as frozen in an application, rounded to 9 decimals: the JSON save keeps about 15 significant
+## digits, so an unrounded P reads back a hair different and a Continue would roll against another P.
+static func _frozen_p(p: float) -> float:
+	return ("%.9f" % p).to_float()
 
 
 ## The cv_lines.json id for this background's line at a level (the fields decide, not the id's spelling).
