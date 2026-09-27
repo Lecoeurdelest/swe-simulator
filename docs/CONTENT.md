@@ -279,6 +279,8 @@ Research reveal: "Posted 2,555 days ago. Reposted every week since 2019." It is 
 |---|---|
 | `card_applicants` | "{n} applicants" |
 | `card_posted` | "Posted {days} days ago" |
+| `card_posted_one` | "Posted 1 day ago" |
+| `card_posted_today` | "Posted today" |
 | `card_reposted` | "Reposted" |
 | `card_knockout` | "Knockout: {knockout}" |
 | `knock_degree` | "Degree required" |
@@ -291,6 +293,8 @@ Research reveal: "Posted 2,555 days ago. Reposted every week since 2019." It is 
 | `hirebot_scan` | "Parsinator 3000 is reading your CV..." |
 | `hirebot_found` | "Keywords found: {n}/3" |
 | `stamp_sent` | "SENT" |
+
+`card_posted_one` and `card_posted_today` are grammatical variants of `card_posted` for 1 and 0 days (startups can post 0 days ago), added 2026-09-27 for Step 6 (developer, please sign off).
 
 ---
 
@@ -773,6 +777,7 @@ On screen, `ducky` lines are prefixed with `ducky_real_answer` ("Real answer:").
 | `ui_logo_2` | ENGINEER |
 | `ui_logo_3` | SIMULATOR |
 | `ui_tap_to_start` | Tap to start |
+| `ui_tap_to_continue` | Tap to continue |
 | `ui_continue` | Continue |
 | `ui_new_game` | New game |
 | `ui_replay_intro` | Replay intro |
@@ -783,6 +788,7 @@ On screen, `ducky` lines are prefixed with `ducky_real_answer` ("Real answer:").
 | `ui_energy` | Energy |
 | `ui_rent_due` | Rent due in {days} days |
 | `ui_rent_due_one` | Rent due TOMORROW |
+| `ui_rent_due_today` | Rent due today |
 | `ui_radar` | Recruiter Radar |
 | `ui_apply` | APPLY |
 | `ui_skip` | SKIP |
@@ -806,6 +812,7 @@ On screen, `ducky` lines are prefixed with `ducky_real_answer` ("Real answer:").
 | `ui_flip_all` | Flip all |
 | `ui_rejections` | {n} rejections |
 | `ui_ghost_footer` | {n} applications: no reply. Probably ever. |
+| `ui_ghost_footer_one` | 1 application: no reply. Probably ever. |
 | `ui_start_day` | Start day |
 | `ui_come_clean` | Come clean |
 | `ui_bluff` | Bluff |
@@ -813,6 +820,7 @@ On screen, `ducky` lines are prefixed with `ducky_real_answer` ("Real answer:").
 | `ui_decline` | Decline |
 | `ui_negotiate` | Negotiate |
 | `ui_decline_confirm` | Decline this offer? Rent keeps ticking. |
+| `ui_decline_confirm_grace` | Decline this offer? Rent is due today, so this ends the run. |
 | `ui_ready` | Ready? Tap to continue. |
 | `ui_quit_confirm` | Quit the game? |
 | `ui_quit` | Quit |
@@ -860,7 +868,7 @@ On screen, `ducky` lines are prefixed with `ducky_real_answer` ("Real answer:").
 | `ui_cv_proj` | Projects |
 | `ui_invite_line` | Interview with {company}: today or tomorrow |
 
-The hub's bottom dock (GDD 4.2 S04) uses `ui_tab_*` plus `ui_sleep`; dock labels are at most 6 characters. `ui_quit_confirm` appears on Android (LATER) and desktop only: iOS apps never quit themselves (GDD 4.4); `ui_quit` is its confirm button (added 2026-09-27 with no source text: developer, please sign off). `ui_logo_1`-`ui_logo_3` are the title logo's three lines (GDD S01). Added 2026-09-27 for the Step 4 interview, with text from the GDD mockups: `ui_composure`, `ui_doubt` and `ui_round` are the S08 bars band ("ROUND 2/5"; `{total}` is the number of prompts), `ui_back_to_hunt` and `bark_dana_other_candidates` are S09 (and GDD 5.8.6), `ui_stat_*` are the S03 stat bar labels (also on the S07 VS plate), and `vs_versus` is the S07 "VS" (ARCHITECTURE 11.5). Added 2026-09-27 for the Step 5 Background select, with text from the GDD S03 mockup: `ui_energy_per_day` (the card's energy pips row), `ui_rent_runway` and `ui_name` (the name row). Added 2026-09-27 for the Step 5 hub (DoomApply, part 1), with text from the GDD: `ui_radar_short` is the S04 HUD's "Radar [###---]" (the long `ui_radar` doesn't fit the HUD row), `ui_odds_quick` the card front's "Quick apply [##---] Unlikely" (S04 mockup), `ui_odds_tailored` the card back's tailored odds label (GDD 5.6 "Tailored"), and `ui_deck_empty` the empty-deck line (S04 "6 new cards per morning"; `{n}` is `board_new_per_day`). Agent default, please review. Added 2026-09-27 for the Step 5 hub (part 2), with text from the GDD: `ui_yes` / `ui_no` fill `{yes_no}` in `ui_cv_degree` and `ui_cv_years` (S05 "Degree: yes/no"), `ui_cv_edu` / `ui_cv_exp` / `ui_cv_proj` are the CV row labels (S05 and 5.4 "Education, Experience, Projects"), and `ui_invite_line` is the invite card's line (S06 "Interview with {company}: today or tomorrow"). Agent default, please review.
+The hub's bottom dock (GDD 4.2 S04) uses `ui_tab_*` plus `ui_sleep`; dock labels are at most 6 characters. `ui_quit_confirm` appears on Android (LATER) and desktop only: iOS apps never quit themselves (GDD 4.4); `ui_quit` is its confirm button (added 2026-09-27 with no source text: developer, please sign off). `ui_logo_1`-`ui_logo_3` are the title logo's three lines (GDD S01). Added 2026-09-27 for the Step 4 interview, with text from the GDD mockups: `ui_composure`, `ui_doubt` and `ui_round` are the S08 bars band ("ROUND 2/5"; `{total}` is the number of prompts), `ui_back_to_hunt` and `bark_dana_other_candidates` are S09 (and GDD 5.8.6), `ui_stat_*` are the S03 stat bar labels (also on the S07 VS plate), and `vs_versus` is the S07 "VS" (ARCHITECTURE 11.5). Added 2026-09-27 for the Step 5 Background select, with text from the GDD S03 mockup: `ui_energy_per_day` (the card's energy pips row), `ui_rent_runway` and `ui_name` (the name row). Added 2026-09-27 for the Step 5 hub (DoomApply, part 1), with text from the GDD: `ui_radar_short` is the S04 HUD's "Radar [###---]" (the long `ui_radar` doesn't fit the HUD row), `ui_odds_quick` the card front's "Quick apply [##---] Unlikely" (S04 mockup), `ui_odds_tailored` the card back's tailored odds label (GDD 5.6 "Tailored"), and `ui_deck_empty` the empty-deck line (S04 "6 new cards per morning"; `{n}` is `board_new_per_day`). Agent default, please review. Added 2026-09-27 for the Step 5 hub (part 2), with text from the GDD: `ui_yes` / `ui_no` fill `{yes_no}` in `ui_cv_degree` and `ui_cv_years` (S05 "Degree: yes/no"), `ui_cv_edu` / `ui_cv_exp` / `ui_cv_proj` are the CV row labels (S05 and 5.4 "Education, Experience, Projects"), and `ui_invite_line` is the invite card's line (S06 "Interview with {company}: today or tomorrow"). Agent default, please review. Added 2026-09-27 for the Step 6 offer, with no source text (developer, please sign off): `ui_decline_confirm_grace` replaces `ui_decline_confirm` on the grace day, when Decline ends the run (GDD 5.10), because "Rent keeps ticking" would be false there. Added 2026-09-27 for the Step 6 Hired card, with no source text (developer, please sign off): `ui_tap_to_continue` is the hint under beat 1 (GDD S11 "Tap anywhere to continue"). Added 2026-09-27 for the Step 6 endings, a grammatical variant of `ui_rent_due` (developer, please sign off): `ui_rent_due_today` replaces "Rent due in 0 days" in the HUD and the night summary on the grace day and the Plan B morning. Added 2026-09-27 for Step 6, a grammatical variant of `ui_ghost_footer` (developer, please sign off): `ui_ghost_footer_one` replaces "1 applications: no reply" in Mail's footer.
 
 A primary button shows its label in capitals (`UiText.primary()` upper-cases it, as the GDD 4.2 mockups do: `[ CONTINUE ]`, `[ NEW RUN ]`), and a Back-style button puts "< " in front (`UiText.back()`). Write the text here in its normal case. (Agent default, please review.)
 
@@ -988,17 +996,27 @@ Please decide before you sleep.
 
 One field per line after a 12-character label column; values wrap at 28 columns, fine print up to 4 lines (GDD 4.2 S10).
 
-The template's first line is `offer_title`; the salary value (without its "Salary:" label) is `offer_salary`, where `{salary}` is the whole-dollar amount with its "$" and thousands commas ("$71,000"). The Hired card reuses `offer_salary`. The other template lines get ids when Step 6 builds the paper.
+The template's first line is `offer_title`; the salary value (without its "Salary:" label) is `offer_salary`, where `{salary}` is the whole-dollar amount with its "$" and thousands commas ("$71,000"). The Hired card reuses `offer_salary`. The other template lines got ids when Step 6 built the paper (2026-09-27): `offer_dear`, `offer_role`, the field labels `offer_label_*` and `offer_deadline`, copied from the template above. Two are new and need your sign-off: `offer_label_equity` and `offer_equity`, the startup's joke equity (GDD 5.9.2 and 7: "$50-70k + 0.0001% equity") shown as its own field under the salary (agent default, please review). `{hours}` is the weekly commute (`office_days` x 2 x `commute_min` / 60) with one decimal ("12.7").
 
 | id | Text |
 |---|---|
 | `offer_title` | OFFER OF EMPLOYMENT - {company} |
+| `offer_dear` | Dear {player_name}, |
+| `offer_role` | We are thrilled (legally required wording) to offer you the role of {job_title}. |
+| `offer_label_salary` | Salary: |
 | `offer_salary` | {salary}/year |
+| `offer_label_equity` | Equity: |
+| `offer_equity` | 0.0001% |
+| `offer_label_mode` | Work mode: |
 | `offer_mode_startup` | Fully remote |
 | `offer_mode_mid` | Hybrid: 2 office days a week |
 | `offer_mode_big` | Office: 4 days a week |
+| `offer_label_commute` | Commute: |
 | `offer_commute_remote` | 0 minutes. The influencer was right about one thing. |
 | `offer_commute_office` | {office_days} days x {commute_min} min each way = {hours} h a week |
+| `offer_label_perks` | Perks: |
+| `offer_label_fine_print` | Fine print: |
+| `offer_deadline` | Please decide before you sleep. |
 | `offer_equity_doubled` | Equity doubled! 0.0001% -> 0.0002%. |
 | `offer_signon` | Paid as a sign-on bonus. (Big corps love a one-time thing.) |
 
@@ -1029,7 +1047,7 @@ The template's first line is `offer_title`; the salary value (without its "Salar
 | `fp_on_call` | mid, startup | You will join the on-call rotation. The rotation is you. |
 | `fp_perks` | mid | Pizza parties are provided in lieu of raises. |
 | `fp_laptop` | big | Your laptop ships in 6-8 weeks. Please be productive meanwhile. |
-| `fp_salary_review` | all | Salary is reviewed annually. Reviewing is not increasing. |
+| `fp_salary_review` | startup, mid, big | Salary is reviewed annually. Reviewing is not increasing. |
 | `fp_runway` | startup | Your role is secure for the full runway (7 months, give or take a Tuesday). |
 | `fp_family` | startup, big | The Company reserves the right to call itself 'a family'. |
 

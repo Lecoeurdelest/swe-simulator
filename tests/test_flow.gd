@@ -72,6 +72,38 @@ func test_save_deleted_on_plan_b_and_after_hired() -> void:
 	assert_false(GameFlow.deletes_save(GameFlow.Phase.JOB_HUNT, GameFlow.Phase.TITLE), "Quit to title keeps the run")
 
 
+## GameState counts a finished run (settings meta run_count) exactly when change_phase() deletes the
+## save. Replays the ROADMAP Step 6 kill test: Accept -> Hired card -> app killed (the last save is
+## from OFFER) -> Continue -> the offer -> Accept -> New run. The run counts once, not on each Accept.
+func test_a_hired_kill_counts_the_run_once() -> void:
+	var paths: Dictionary = {
+		"hired, killed, resumed, accepted again, New run": [
+			[GameFlow.Phase.OFFER, GameFlow.Phase.PHASE2_STUB], [GameFlow.Phase.TITLE, GameFlow.Phase.OFFER],
+			[GameFlow.Phase.OFFER, GameFlow.Phase.PHASE2_STUB], [GameFlow.Phase.PHASE2_STUB, GameFlow.Phase.BACKGROUND_SELECT]],
+		"hired, Title": [[GameFlow.Phase.OFFER, GameFlow.Phase.PHASE2_STUB], [GameFlow.Phase.PHASE2_STUB, GameFlow.Phase.TITLE]],
+		"Plan B, Retry": [[GameFlow.Phase.JOB_HUNT, GameFlow.Phase.GAME_OVER], [GameFlow.Phase.GAME_OVER, GameFlow.Phase.BACKGROUND_SELECT]],
+		"grace-day Decline, Title": [[GameFlow.Phase.OFFER, GameFlow.Phase.GAME_OVER], [GameFlow.Phase.GAME_OVER, GameFlow.Phase.TITLE]],
+	}
+	for name: String in paths:
+		var counted := 0
+		for step: Array in paths[name]:
+			assert_true(GameFlow.can_transition(step[0], step[1]), "%s: legal step" % name)
+			if GameFlow.deletes_save(step[0], step[1]):
+				counted += 1
+		assert_eq(counted, 1, "%s: the run counts once" % name)
+	assert_true(GameFlow.can_resume(GameFlow.Phase.OFFER), "Continue after a kill on the Hired card")
+
+
+## The count lives in one place, next to the save deletion (read as text: tests never load autoloads).
+func test_run_count_moves_only_with_the_save_deletion() -> void:
+	var src := FileAccess.get_file_as_string("res://autoload/game_state.gd")
+	assert_eq(RegEx.create_from_string("\\n\\s+_count_finished_run\\(\\)").search_all(src).size(), 1,
+		"game_state.gd calls _count_finished_run() once")
+	assert_true(RegEx.create_from_string(
+		"if GameFlow\\.deletes_save\\(from, to\\):[^\\n]*\\n\\s+SaveIO\\.delete\\(\\)\\n\\s+_count_finished_run\\(\\)").search(src) != null,
+		"right after change_phase() deletes the save")
+
+
 func test_continue_only_resumes_live_runs() -> void:
 	for phase: int in GameFlow.Phase.values():
 		var live := phase in [GameFlow.Phase.JOB_HUNT, GameFlow.Phase.INTERVIEW, GameFlow.Phase.OFFER]

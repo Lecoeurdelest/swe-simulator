@@ -15,6 +15,9 @@ const CV_LINES: PackedStringArray = ["edu", "exp", "proj"]
 const CV_LEVELS: PackedStringArray = ["honest", "polished", "lie"]
 const GUARANTEE_DAY := 2              # the first-run guarantee: day-1 applications, the morning of day 2
 const REJECT_MAIL_PREFIX := "mail_reject_"   # emails.json: the plain rejection lines
+const OFFER_PERKS := 2                # GDD 5.9, S10: every offer lists 2 perks and 1 fine-print joke
+const EQUITY_TIER := "startup"        # GDD 7: only startups add the joke equity to the salary
+const OFFER_SEED_SALT := "|offer"     # offer_rng(): the interview seed plus this names the offer's dice
 
 # --- flow and RNG ---
 var phase: GameFlow.Phase = GameFlow.Phase.TITLE
@@ -67,9 +70,11 @@ var times_met_dana: int = 0
 var dana_last_company: String = ""
 
 # --- offer, job, result ---
-var offer: Dictionary = {}            # {company_id, template_id, job_title, salary, work_mode, office_days, perks, fine_print, equity_text, negotiated}
+# the offer on the table (make_offer): {company_id, template_id, tier, job_title, salary, work_mode, office_days,
+#   commute {id, args}, perks [ids], fine_print, equity_text, negotiated}; texts are emails.json ids, job_title the posting's title
+var offer: Dictionary = {}
 var rescinded: Dictionary = {}        # the offer a background check withdrew: {company_id, template_id, tier, mail_id}; the next Sleep clears it
-var employment: Dictionary = {}       # the accepted offer + tier + red_flags (Phase 2 reads this)
+var employment: Dictionary = {}       # the accepted offer + red_flags (hire(); Phase 2 reads this)
 var dream_score: int = -1
 var total_applications: int = 0
 var total_rejections: int = 0
@@ -389,6 +394,73 @@ func rescind_offer() -> void:
 	blacklist_company(company_id)
 
 
+## GDD 5.9, S10: the whole offer, built by GameState.finish_interview from the interview checkpoint
+## (so call it before the checkpoint is cleared). Plain data only (INV-07): the numbers, the posting's
+## title (the raw JSON text; the screen tr()s it) and emails.json ids for every other text, so the
+## paper can be drawn again after a resume. The perks and the fine print are picked on offer_rng(),
+## seeded from the checkpoint's seed: a replayed interview builds the same contract, and neither the
+## run RNG nor the global RNG moves. Returns a copy of the new offer.
+func make_offer(cfg: BalanceConfig, tier: TierData, bg: BackgroundData, content: Dictionary, composure_left: float) -> Dictionary:
+	var tier_id := String(tier.id)
+	var template_id := str(interview.get("template_id", ""))
+	var emails := _file(content, "emails")
+	var rng := offer_rng(str(interview.get("seed", "")))
+	var perks := Odds.pick(rng, _tier_entries(emails, "perk_", tier_id), OFFER_PERKS)
+	var fine_print := Odds.pick(rng, _tier_entries(emails, "fp_", tier_id), 1)
+	offer = {
+		"company_id": str(interview.get("company_id", "")), "template_id": template_id, "tier": tier_id,
+		"job_title": str(_posting(content, template_id).get("title", "")),
+		"salary": Odds.offer_salary(cfg, tier, bg, composure_left, bg.composure_max),
+		"work_mode": "offer_mode_" + tier_id, "office_days": tier.office_days,
+		"commute": offer_commute(tier.office_days, commute_minutes),
+		"perks": perks, "fine_print": str(fine_print[0]) if not fine_print.is_empty() else "",
+		"equity_text": "offer_equity" if tier_id == EQUITY_TIER else "",
+		"negotiated": false,
+	}
+	return offer.duplicate(true)
+
+
+## The offer's own dice (ARCHITECTURE 7.2): a generator seeded from the interview checkpoint's seed
+## (a String) and a salt, so it never replays the interview's own rolls.
+static func offer_rng(interview_seed: String) -> RandomNumberGenerator:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = (interview_seed + OFFER_SEED_SALT).hash()
+	return rng
+
+
+## The contract's commute line (GDD S10) as {id, args} into emails.json: no office days is the remote
+## line; otherwise days x minutes each way and the weekly hours (GDD 5.9.5), one decimal: "12.7".
+static func offer_commute(office_days: int, commute_minutes: int) -> Dictionary:
+	if office_days <= 0:
+		return {"id": "offer_commute_remote", "args": {}}
+	var hours := office_days * 2.0 * commute_minutes / 60.0
+	return {"id": "offer_commute_office",
+		"args": {"office_days": office_days, "commute_min": commute_minutes, "hours": "%.1f" % hours}}
+
+
+## GDD 5.9.4-5.9.5, an Accept that passed the background check: the offer becomes the job, with its
+## company's red flags (GDD 10.4; company_red_flags is that company's companies.json list), and is
+## scored Dream vs Reality with the rent days left today. The offer stays as it was.
+func hire(cfg: BalanceConfig, bg: BackgroundData, company_red_flags: Array) -> void:
+	employment = offer.duplicate(true)
+	employment["red_flags"] = company_red_flags.duplicate()
+	dream_score = Odds.dream_score(cfg, int(employment.get("salary", 0)), int(employment.get("office_days", 0)),
+		commute_minutes, company_red_flags.size(), rent_days_left, bg.runway_days)
+
+
+## The Hired card's five rows (Odds.dream_breakdown) for the job taken, from the numbers hire() scored:
+## their rounded sum is dream_score.
+func dream_breakdown(cfg: BalanceConfig, bg: BackgroundData) -> Array[float]:
+	return Odds.dream_breakdown(cfg, int(employment.get("salary", 0)), int(employment.get("office_days", 0)),
+		commute_minutes, (employment.get("red_flags", []) as Array).size(), rent_days_left, bg.runway_days)
+
+
+## GDD 5.10: Decline on the grace day (0 rent days: the only way an offer is open with no rent left)
+## is Plan B, not back to the hunt. The offer screen asks with the matching question.
+func decline_ends_run() -> bool:
+	return rent_days_left <= 0
+
+
 ## A plain rejection's email (GDD S06), picked without dice: the application uid chooses one of the
 ## mail_reject_* lines (sorted ids), so a resume or a replayed Sleep shows the same line.
 ## "" when the content has no emails.
@@ -595,7 +667,7 @@ func _add_invite(source: Dictionary, kind: String, mail_id: String) -> Dictionar
 ## company of the tier (a pinned template only with its own company). Never a pair that was applied
 ## to or is already on the board; templates not on the board yet go first. The MVP companies deal
 ## first; once none of their pairs is free, the tier's other companies step in, so the board never
-## starves (GDD 5.6's "about 60 combinations" counts all 9 companies).
+## starves (GDD 5.6: 38 pairs with the 6 MVP companies, 58 with all 9).
 func _deal_card(cfg: BalanceConfig, tier: TierData, postings: Dictionary, companies: Dictionary, dealt: Array[Dictionary], rng: RandomNumberGenerator) -> Dictionary:
 	var tier_id := String(tier.id)
 	var on_board: Array[String] = []
@@ -734,6 +806,15 @@ static func _file(content: Dictionary, file: String) -> Dictionary:
 	if d is Dictionary:
 		return d
 	return {}
+
+
+## The sorted ids starting with prefix whose "tiers" list this tier (perk_*, fp_* in emails.json).
+static func _tier_entries(entries: Dictionary, prefix: String, tier_id: String) -> Array[String]:
+	var ids: Array[String] = []
+	for id: String in _ids(entries):
+		if id.begins_with(prefix) and ((entries[id] as Dictionary).get("tiers", []) as Array).has(tier_id):
+			ids.append(id)
+	return ids
 
 
 ## A content file's entry ids, sorted, so dealing never depends on dictionary order. Plain-string UI

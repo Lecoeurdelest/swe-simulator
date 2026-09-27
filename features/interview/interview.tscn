@@ -308,6 +308,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(124, 44)
 layout_mode = 2
 focus_mode = 0
+theme_type_variation = &"ProbeButton"
 text = "Come clean"
 
 [node name="BluffButton" type="Button" parent="SafeArea/Column/AnswerArea/ThumbSlot/ProbeRow" unique_id=1097649146]
@@ -315,6 +316,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(124, 44)
 layout_mode = 2
 focus_mode = 0
+theme_type_variation = &"ProbeButton"
 text = "Bluff"
 
 [node name="DuckyCard" type="VBoxContainer" parent="SafeArea/Column/AnswerArea/ThumbSlot" unique_id=1195574348]

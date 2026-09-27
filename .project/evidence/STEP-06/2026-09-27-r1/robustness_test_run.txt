@@ -1,0 +1,36 @@
+STEP-06 robustness stage: godot-ai test_run (all suites), Windows PC, Godot 4.7.2-stable (steam)
+Date 2026-09-27, branch step-06-offer-endings. Final run after every edit of this stage
+(features/interview/interview.gd + interview.tscn, features/job_hunt/job_card.gd, mail_screen.gd,
+features/background_select/background_select.gd, core/run_state.gd, ui/theme/main_theme.tres,
+data/content/postings.json + barks.json, tests/test_hunt_defaults.gd, tests/test_ui_text.gd).
+
+passed 225, failed 0, skipped 0, total 225, 21 suites, 1130 ms
+(before this stage: 224/224 in 21 suites)
+
+suites_run (tests): content_lint 32, data_files 4, endings 6, flow 10, hunt_apply 12, hunt_board 10,
+hunt_defaults 12, hunt_edges 25, hunt_reveal 14, hunt_sim 2, hunt_sleep 10, hunt_tips 13, interview 4,
+interview_plan 15, intro 4, lie_probe 5, odds 8, offer 13, probe_trigger 11, save 3, ui_text 12
+
+New or changed tests (verbose run, all pass):
+  ui_text: test_probe_button_fits_two_lines_in_44      6 assertions  (ProbeButton's base type is
+                                                         Button; for normal/pressed/hover/
+                                                         hover_pressed/disabled: padding 19 + two
+                                                         13 px lines + line_spacing -1 = 44)
+  hunt_defaults: test_the_deck_holds_58_pairs_across_all_9_companies   63 assertions
+                                                        (renamed from ..._about_60_...: now asserts
+                                                         exactly 38 MVP pairs and 58 pairs with all
+                                                         9 companies, GDD 5.6; the deal loop and its
+                                                         checks are unchanged)
+
+Other suites that read this stage's code, all pass:
+  ui_text: test_screen_text_ids_exist (job_card.gd asks for postings card_posted_one and
+           card_posted_today; mail_screen.gd for barks ui_ghost_footer_one)
+  content_lint: all 32 (the 3 new strings: ASCII, within budget, no unknown placeholder)
+  flow: test_every_phase_has_a_screen_with_handle_back (17), test_screens_never_change_phase_or_scene (73)
+
+The throwaway suite tests/test_tmp_probe_theme.gd (it added the ProbeButton variation to
+main_theme.tres through Theme.set_type_variation / set_stylebox / ResourceSaver.save, the documented
+way to write typed values) ran once and was deleted with its .uid; it is not in the count above.
+
+Editor log: only the known stale "Identifier not found: GameState/Content/SceneRouter" lines
+(device.gd, game_state.gd, mail_screen.gd, background_select.gd); runs 73-78 of the game were clean.

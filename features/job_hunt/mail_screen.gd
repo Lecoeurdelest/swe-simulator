@@ -66,7 +66,9 @@ func show_mail(report: Dictionary, morning: bool, coach: bool) -> void:
 	if run.rescinded.is_empty():
 		_add_tip(tip)
 	var no_reply := int(report.get("no_reply", 0))
-	if no_reply > 0:
+	if no_reply == 1:
+		_add(_label(Content.text("barks", "ui_ghost_footer_one"), DIM_COLOR))
+	elif no_reply > 1:
 		_add(_label(Content.text("barks", "ui_ghost_footer", {"n": no_reply}), DIM_COLOR))
 	if report.has("radar"):
 		_add(_label(_radar_text(report["radar"]), Color.WHITE))

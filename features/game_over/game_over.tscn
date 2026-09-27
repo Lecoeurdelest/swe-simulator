@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://bahfgo0rb6hpt" path="res://features/game_over/game_over.gd" id="1_planb"]
 [ext_resource type="Script" uid="uid://b2qm2ai3fh743" path="res://ui/components/safe_area_margin.gd" id="2_safe"]
+[ext_resource type="PackedScene" uid="uid://884ngaroijqg" path="res://ui/components/ending_art.tscn" id="3_art"]
+[ext_resource type="PackedScene" uid="uid://cv7u0us1tep67" path="res://ui/components/ducky_note.tscn" id="4_duck"]
 
 [node name="GameOver" type="Control" unique_id=470269401]
 layout_mode = 3
@@ -40,42 +42,55 @@ size_flags_horizontal = 4
 mouse_filter = 2
 theme_override_constants/separation = 4
 
-[node name="TopBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=916564964]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 4
-
-[node name="Header" type="Label" parent="SafeArea/Column/TopBand" unique_id=612329459]
+[node name="Art" parent="SafeArea/Column" unique_id=1574291264 instance=ExtResource("3_art")]
 unique_name_in_owner = true
 layout_mode = 2
-theme_type_variation = &"HeaderLabel"
-text = "PLAN B"
 
-[node name="Body" type="VBoxContainer" parent="SafeArea/Column" unique_id=1537179400]
-layout_mode = 2
-size_flags_vertical = 3
-mouse_filter = 2
-
-[node name="Card" type="PanelContainer" parent="SafeArea/Column/Body" unique_id=1190226474]
+[node name="Story" type="PanelContainer" parent="SafeArea/Column" unique_id=1190226474]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="Rows" type="VBoxContainer" parent="SafeArea/Column/Body/Card" unique_id=1445573377]
+[node name="Rows" type="VBoxContainer" parent="SafeArea/Column/Story" unique_id=1445573377]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 4
 
-[node name="Text" type="Label" parent="SafeArea/Column/Body/Card/Rows" unique_id=946877063]
+[node name="Text" type="Label" parent="SafeArea/Column/Story/Rows" unique_id=946877063]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Rent's due. You became a ClikClok career coach. Your course 'How I Almost Got Into Tech' has 40,000 students."
 autowrap_mode = 3
 
-[node name="Stats" type="Label" parent="SafeArea/Column/Body/Card/Rows" unique_id=1250754540]
+[node name="BackgroundLine" type="Label" parent="SafeArea/Column/Story/Rows" unique_id=1975106605]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Days: 1 - Applications: 0 - Interviews: 0 - Rejections: 0"
+text = "Your diploma now holds up the ring light."
 autowrap_mode = 3
+
+[node name="FinalLine" type="Label" parent="SafeArea/Column/Story/Rows" unique_id=1431856120]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Somewhere, a 17-year-old is watching your video. At night. Under a blanket."
+autowrap_mode = 3
+
+[node name="TipNote" parent="SafeArea/Column" unique_id=612329459 instance=ExtResource("4_duck")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="StatsPanel" type="PanelContainer" parent="SafeArea/Column" unique_id=916564964]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Stats" type="Label" parent="SafeArea/Column/StatsPanel" unique_id=1250754540]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Days: 13 - Applications: 24 - Interviews: 2 - Rejections: 9"
+autowrap_mode = 3
+
+[node name="Body" type="Control" parent="SafeArea/Column" unique_id=1537179400]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
 
 [node name="ThumbBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=252634284]
 layout_mode = 2

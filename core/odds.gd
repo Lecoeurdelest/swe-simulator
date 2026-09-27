@@ -5,6 +5,11 @@ extends RefCounted
 ## anything random takes the run's RandomNumberGenerator. Tested by test_odds / test_interview / test_offer.
 ## Never call randf(), randi(), Array.shuffle() or Array.pick_random() in gameplay: they use the global RNG.
 
+## Dream vs Reality (GDD 5.9.5): the rows in dream_breakdown's order (endings.json end_dream_row_<id>),
+## and the lowest score of grades 2-4: <40 Reality, 40-59 Doable, 60-79 Pretty good, 80+.
+const DREAM_ROWS: PackedStringArray = ["salary", "remote", "commute", "flags", "rent"]
+const DREAM_GRADE_MINS: Array[int] = [40, 60, 80]
+
 # ---------- dice ----------
 
 static func roll(rng: RandomNumberGenerator, p: float) -> bool:
@@ -208,6 +213,29 @@ static func dream_score(cfg: BalanceConfig, salary: int, office_days: int, commu
 	pts += maxf(0.0, cfg.dream_w_flags - cfg.dream_flag_penalty * red_flags)
 	pts += cfg.dream_w_runway * rent_days_left / float(runway_days)
 	return roundi(pts)
+
+
+## The five Dream vs Reality rows (GDD 5.9.5), unrounded, in DREAM_ROWS order. They are dream_score's
+## terms, added in the same order, so their rounded sum is always dream_score. The Hired card shows them.
+static func dream_breakdown(cfg: BalanceConfig, salary: int, office_days: int, commute_minutes: int, red_flags: int, rent_days_left: int, runway_days: int) -> Array[float]:
+	var weekly_commute_h := office_days * 2.0 * commute_minutes / 60.0
+	var parts: Array[float] = [
+		cfg.dream_w_salary * minf(1.0, float(salary) / cfg.dream_salary_target),
+		cfg.dream_w_remote * (5 - office_days) / 5.0,
+		cfg.dream_w_commute * maxf(0.0, 1.0 - weekly_commute_h / cfg.dream_commute_zero_h),
+		maxf(0.0, cfg.dream_w_flags - cfg.dream_flag_penalty * red_flags),
+		cfg.dream_w_runway * rent_days_left / float(runway_days),
+	]
+	return parts
+
+
+## The score's grade, 1-4 (endings.json end_dream_grade_N): below the first DREAM_GRADE_MINS value is 1.
+static func dream_grade(score: int) -> int:
+	var grade := 1
+	for min_score: int in DREAM_GRADE_MINS:
+		if score >= min_score:
+			grade += 1
+	return grade
 
 
 # ---------- job hunt: board, apply, reveal (GDD 5.6-5.10, Step 5) ----------

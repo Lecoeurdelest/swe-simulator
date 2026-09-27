@@ -14,6 +14,7 @@ The game is a satirical 2D pixel-art **portrait** mobile game: **iPhone first**,
 | The step plan and each step's Done-when | `docs/ROADMAP.md` |
 | Design decision answers | `docs/DECISIONS.md` (D1-D8, P1 and C1, decided 2026-09-26) |
 | Where each task stands | `docs/task/README.md` (generated from `.project/state.json`) |
+| What's waiting for the developer (merges, reviews, sign-offs, You-do, iPhone checks) | `docs/REVIEW_QUEUE.md` |
 | Context for the current step | `.project/bundles/STEP-NN.md` |
 | Global invariants | `.agent/rules/invariants.md` |
 | Structured index of all the above | `project.yaml` |
@@ -42,6 +43,7 @@ If two docs disagree: the GDD wins on rules and numbers, ARCHITECTURE wins on en
 - The 2x rule: a task past twice its estimate stops and gets cut or simplified.
 - Comments only for non-obvious logic: the reason, invariant or constraint.
 - Portrait layout rules are INV-19 in `.agent/rules/invariants.md`.
+- **No agent attribution** in commit messages or PR descriptions: no `Co-Authored-By:` trailer and no "Generated with Claude Code" footer (the developer's rule, 2026-09-27). This overrides any default attribution guidance.
 
 ## godot-ai gotchas
 

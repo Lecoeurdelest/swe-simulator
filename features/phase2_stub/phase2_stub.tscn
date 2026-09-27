@@ -2,6 +2,9 @@
 
 [ext_resource type="Script" uid="uid://cu2gura5yeqvf" path="res://features/phase2_stub/phase2_stub.gd" id="1_hired"]
 [ext_resource type="Script" uid="uid://b2qm2ai3fh743" path="res://ui/components/safe_area_margin.gd" id="2_safe"]
+[ext_resource type="PackedScene" uid="uid://884ngaroijqg" path="res://ui/components/ending_art.tscn" id="3_art"]
+[ext_resource type="PackedScene" uid="uid://cv7u0us1tep67" path="res://ui/components/ducky_note.tscn" id="4_duck"]
+[ext_resource type="FontFile" uid="uid://lssgf0t3kv1v" path="res://ui/fonts/PressStart2P-Regular.ttf" id="5_font"]
 
 [node name="Phase2Stub" type="Control" unique_id=2026628698]
 layout_mode = 3
@@ -24,6 +27,7 @@ mouse_filter = 2
 color = Color(0.11, 0.12, 0.17, 1)
 
 [node name="SafeArea" type="MarginContainer" parent="." unique_id=1329292264]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -40,64 +44,222 @@ size_flags_horizontal = 4
 mouse_filter = 2
 theme_override_constants/separation = 4
 
-[node name="TopBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=1915499837]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 4
-
-[node name="Header" type="Label" parent="SafeArea/Column/TopBand" unique_id=1083853766]
+[node name="Art" parent="SafeArea/Column" unique_id=1225660743 instance=ExtResource("3_art")]
 unique_name_in_owner = true
 layout_mode = 2
-theme_type_variation = &"HeaderLabel"
-text = "HIRED!"
 
-[node name="Body" type="VBoxContainer" parent="SafeArea/Column" unique_id=449668242]
-layout_mode = 2
-size_flags_vertical = 3
-mouse_filter = 2
-
-[node name="Card" type="PanelContainer" parent="SafeArea/Column/Body" unique_id=109430092]
+[node name="Info" type="PanelContainer" parent="SafeArea/Column" unique_id=109430092]
+unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
 
-[node name="Rows" type="VBoxContainer" parent="SafeArea/Column/Body/Card" unique_id=1734004332]
+[node name="InfoRows" type="VBoxContainer" parent="SafeArea/Column/Info" unique_id=1734004332]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 4
 
-[node name="Summary" type="Label" parent="SafeArea/Column/Body/Card/Rows" unique_id=585707176]
+[node name="JobLines" type="Label" parent="SafeArea/Column/Info/InfoRows" unique_id=585707176]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Beigeware Financial
 Backend Developer
-$77,000/year
-DREAM vs REALITY: 60"
+$84,000/year"
 autowrap_mode = 3
 
-[node name="ToBeContinued" type="Label" parent="SafeArea/Column/Body/Card/Rows" unique_id=1425757881]
+[node name="HiredLine" type="Label" parent="SafeArea/Column/Info/InfoRows" unique_id=1255728873]
 unique_name_in_owner = true
 layout_mode = 2
-text = "TO BE CONTINUED - Phase 2: The Working Life"
+text = "There's a sweater on your chair. The fax machine blinks at you. It knows."
 autowrap_mode = 3
 
-[node name="ThumbBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=1519491269]
+[node name="Body" type="Control" parent="SafeArea/Column" unique_id=449668242]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="TapHint" type="Label" parent="SafeArea/Column" unique_id=248618005]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+text = "Tap to continue"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Beat2" type="VBoxContainer" parent="SafeArea" unique_id=155125420]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(254, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Sheet" type="VBoxContainer" parent="SafeArea/Beat2" unique_id=1873306542]
+unique_name_in_owner = true
+z_index = 1
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="DreamPanel" type="PanelContainer" parent="SafeArea/Beat2/Sheet" unique_id=214295000]
+custom_minimum_size = Vector2(0, 140)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="DreamRows" type="VBoxContainer" parent="SafeArea/Beat2/Sheet/DreamPanel" unique_id=355274949]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="DreamHeader" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows" unique_id=492943046]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "DREAM vs REALITY"
+
+[node name="Rows" type="VBoxContainer" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows" unique_id=1924967106]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="Row0" type="HBoxContainer" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows" unique_id=2055256956]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows/Row0" unique_id=1726474084]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Salary vs the video's $150k"
+
+[node name="Points" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows/Row0" unique_id=1532407953]
+layout_mode = 2
+text = "22.4"
+horizontal_alignment = 2
+
+[node name="Row1" type="HBoxContainer" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows" unique_id=133530201]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows/Row1" unique_id=523397893]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Remote days"
+
+[node name="Points" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows/Row1" unique_id=1276151709]
+layout_mode = 2
+text = "15.0"
+horizontal_alignment = 2
+
+[node name="Row2" type="HBoxContainer" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows" unique_id=316851088]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows/Row2" unique_id=481512416]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Commute"
+
+[node name="Points" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows/Row2" unique_id=1890916251]
+layout_mode = 2
+text = "10.5"
+horizontal_alignment = 2
+
+[node name="Row3" type="HBoxContainer" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows" unique_id=1327028419]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows/Row3" unique_id=2055352015]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Red flags"
+
+[node name="Points" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows/Row3" unique_id=1393816041]
+layout_mode = 2
+text = "5.0"
+horizontal_alignment = 2
+
+[node name="Row4" type="HBoxContainer" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows" unique_id=1452008136]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows/Row4" unique_id=1515354599]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Rent left"
+
+[node name="Points" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows/Row4" unique_id=1126008788]
+layout_mode = 2
+text = "10.0"
+horizontal_alignment = 2
+
+[node name="ScoreRow" type="HBoxContainer" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows" unique_id=690750096]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Grade" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/ScoreRow" unique_id=399457422]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Pretty good"
+vertical_alignment = 1
+
+[node name="Score" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/ScoreRow" unique_id=1301251701]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = ExtResource("5_font")
+theme_override_font_sizes/font_size = 16
+text = "63"
+horizontal_alignment = 2
+
+[node name="Footer" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows" unique_id=487152093]
+unique_name_in_owner = true
+layout_mode = 2
+text = "The video scored 100. The video was sponsored."
+autowrap_mode = 3
+
+[node name="TipNote" parent="SafeArea/Beat2/Sheet" unique_id=124355423 instance=ExtResource("4_duck")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TbcPanel" type="PanelContainer" parent="SafeArea/Beat2/Sheet" unique_id=734019266]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+
+[node name="ToBeContinued" type="Label" parent="SafeArea/Beat2/Sheet/TbcPanel" unique_id=1425757881]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+theme_override_constants/line_spacing = 4
+text = "TO BE CONTINUED - Phase 2: The Working Life"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Body" type="Control" parent="SafeArea/Beat2" unique_id=1844486505]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="ThumbBand" type="VBoxContainer" parent="SafeArea/Beat2" unique_id=1519491269]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 6
 
-[node name="ActionBar" type="HBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=99232408]
+[node name="ActionBar" type="HBoxContainer" parent="SafeArea/Beat2/ThumbBand" unique_id=99232408]
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 6
 
-[node name="TitleButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionBar" unique_id=617311320]
+[node name="TitleButton" type="Button" parent="SafeArea/Beat2/ThumbBand/ActionBar" unique_id=617311320]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(80, 36)
 layout_mode = 2
 text = "< Title"
 
-[node name="NewRunButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionBar" unique_id=968830663]
+[node name="NewRunButton" type="Button" parent="SafeArea/Beat2/ThumbBand/ActionBar" unique_id=968830663]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(168, 36)
 layout_mode = 2

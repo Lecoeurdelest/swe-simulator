@@ -155,16 +155,23 @@ func _notification(what: int) -> void:
 
 
 ## ARCHITECTURE 9: Pause open = Resume; the Ready overlay = Pause; Ducky's card = Back to the hunt;
-## the VS intro = skip it when allowed; anything else = Pause.
+## the VS intro = skip it when allowed; anything else = Pause. Once an ending beat starts (K.O., the
+## wheel, a rejection) Pause is out of reach: [II] hides, the Ready overlay's Back only resumes and
+## other Backs do nothing, so Quit to title can't replay an interview whose ending you have seen.
 func handle_back() -> bool:
 	if _pause.is_open():
 		return _pause.handle_back()
 	if _ready_overlay.visible:
-		_open_pause()
+		if _ending:
+			_resume_from_ready()
+		else:
+			_open_pause()
 		return true
 	if _hunt_offered():
 		_on_back_to_hunt()
 		return true
+	if _ending:
+		return true  # the beat plays out: taps advance it
 	if _versus.try_skip():
 		return true
 	_open_pause()
@@ -505,6 +512,7 @@ func _rejection_tip() -> String:
 
 func _begin_ending() -> void:
 	_ending = true
+	_pause_button.hide()  # see handle_back(): no Pause once the outcome is showing
 	if _debug_enabled:
 		_debug_layer.hide()
 
@@ -661,8 +669,12 @@ func _rearm_locks() -> void:
 func _on_ready_overlay_input(event: InputEvent) -> void:
 	var mb := event as InputEventMouseButton  # touches arrive as emulated mouse events
 	if mb != null and mb.button_index == MOUSE_BUTTON_LEFT and not mb.pressed:
-		_ready_overlay.hide()
-		get_tree().paused = false
+		_resume_from_ready()
+
+
+func _resume_from_ready() -> void:
+	_ready_overlay.hide()
+	get_tree().paused = false
 
 
 func _open_pause() -> void:

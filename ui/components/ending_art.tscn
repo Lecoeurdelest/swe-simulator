@@ -1,0 +1,101 @@
+[gd_scene format=3 uid="uid://884ngaroijqg"]
+
+[ext_resource type="Script" uid="uid://dxx3wfvu6j2t2" path="res://ui/components/ending_art.gd" id="1_art"]
+[ext_resource type="FontFile" uid="uid://lssgf0t3kv1v" path="res://ui/fonts/PressStart2P-Regular.ttf" id="2_font"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stamp"]
+content_margin_left = 6.0
+content_margin_top = 4.0
+content_margin_right = 6.0
+content_margin_bottom = 4.0
+bg_color = Color(0.91764706, 0.83137256, 0.6666667, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.78, 0.16, 0.16, 1)
+anti_aliasing = false
+
+[node name="EndingArt" type="Control" unique_id=1040161234]
+clip_contents = true
+custom_minimum_size = Vector2(254, 140)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 254.0
+offset_bottom = 140.0
+mouse_filter = 2
+script = ExtResource("1_art")
+
+[node name="Shaker" type="Control" parent="." unique_id=691427481]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Sky" type="ColorRect" parent="Shaker" unique_id=1003028546]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.37254903, 0.34117648, 0.30980393, 1)
+
+[node name="Floor" type="ColorRect" parent="Shaker" unique_id=1712185823]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -24.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+color = Color(0.07, 0.07, 0.1, 0.6)
+
+[node name="Bust" type="ColorRect" parent="Shaker" unique_id=2118717656]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -96.0
+offset_top = -104.0
+offset_right = -32.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+color = Color(1, 0, 1, 1)
+
+[node name="StampCenter" type="CenterContainer" parent="Shaker" unique_id=652722599]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Stamp" type="PanelContainer" parent="Shaker/StampCenter" unique_id=1742591845]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_stamp")
+
+[node name="StampLabel" type="Label" parent="Shaker/StampCenter/Stamp" unique_id=1864671162]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.16, 0.16, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 32
+text = "HIRED!"
+horizontal_alignment = 1
