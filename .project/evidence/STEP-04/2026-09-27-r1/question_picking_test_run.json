@@ -1,0 +1,33 @@
+{
+  "tool": "godot-ai test_run (all suites) + test_manage results_get verbose",
+  "date": "2026-09-27",
+  "machine": "Windows PC, Godot 4.7.2-stable (steam)",
+  "step": "STEP-04 task 2 (question picking, warm-up, frozen interview checkpoint)",
+  "stage": "question_picking",
+  "run": "final run of the stage, after the game run and cleanup; baseline before the stage was 62/62 in 7 suites",
+  "edited_scene": "res://features/title/title.tscn",
+  "passed": 73, "failed": 0, "skipped": 0, "total": 73, "suite_count": 8,
+  "suites_run": ["content_lint", "data_files", "flow", "interview", "interview_plan", "odds", "offer", "save"],
+  "new_suite": {
+    "file": "res://tests/test_interview_plan.gd",
+    "suite": "interview_plan",
+    "results": [
+      {"test": "test_dry_pool_falls_back_to_least_recently_seen", "passed": true, "assertion_count": 3},
+      {"test": "test_eligible_filters_by_tier_list", "passed": true, "assertion_count": 5},
+      {"test": "test_no_repeats_across_consecutive_interviews", "passed": true, "assertion_count": 1},
+      {"test": "test_opener_only_never_picked", "passed": true, "assertion_count": 5},
+      {"test": "test_pools_loaded", "passed": true, "assertion_count": 2},
+      {"test": "test_prompt_order_and_tier_filtering", "passed": true, "assertion_count": 1},
+      {"test": "test_same_seed_same_picks", "passed": true, "assertion_count": 21},
+      {"test": "test_tiny_pool_returns_what_it_has", "passed": true, "assertion_count": 6},
+      {"test": "test_warmup_is_an_unpicked_difficulty_1_question", "passed": true, "assertion_count": 1},
+      {"test": "test_warmup_leaves_the_real_picks_unchanged", "passed": true, "assertion_count": 3},
+      {"test": "test_warmup_only_on_first_interview_of_first_run", "passed": true, "assertion_count": 6}
+    ]
+  },
+  "other_suites": {
+    "content_lint": "32/32", "data_files": "4/4", "flow": "8/8", "interview": "4/4",
+    "odds": "8/8", "offer": "3/3", "save": "3/3"
+  },
+  "note": "test_prompt_order_and_tier_filtering, test_no_repeats_across_consecutive_interviews and test_warmup_is_an_unpicked_difficulty_1_question collect every problem over 40 seeds x 3 tiers (the no-repeat test: 4 five-interview runs x 40 seeds) and assert once, so their assertion_count is 1."
+}
