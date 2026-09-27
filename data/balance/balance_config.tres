@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="BalanceConfig" format=3 uid="uid://cv4fy6xrhxjky"]
+
+[ext_resource type="Script" uid="uid://dq0eh4ie3oggi" path="res://data/types/balance_config.gd" id="1_wdgbq"]
+
+[resource]
+script = ExtResource("1_wdgbq")
+band_thresholds = PackedFloat32Array(0.03, 0.07, 0.12, 0.2)
+prompt_pattern = PackedStringArray("choice", "knowledge", "knowledge", "knowledge", "choice")
+question_diff_offsets = PackedInt32Array(-5, 0, 5)

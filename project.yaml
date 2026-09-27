@@ -501,7 +501,7 @@ tasks:
     preconditions: ["The Step 1 portrait commit is pushed", "The MacBook, the iPhone and its USB cable are at hand"]
     acceptance_ids: [AC-S02-8, AC-S02-9, AC-S02-10, AC-S02-11, AC-S02-12, AC-S02-13, AC-S02-14, AC-S02-15, AC-S02-16, AC-S02-17, AC-S02-18, AC-S02-19]
     superseded_acceptance_ids: [AC-S02-1, AC-S02-2, AC-S02-3, AC-S02-4, AC-S02-5, AC-S02-6, AC-S02-7]
-    outputs: [features/dev/device_check.tscn, export_presets.cfg, ui/fonts/monogram.ttf, ui/fonts/PressStart2P-Regular.ttf, ui/fonts/OFL.txt, "docs/ARCHITECTURE.md section 18.1 results (and GDD 2.9 if the insets differ)"]
+    outputs: [features/dev/device_check.tscn, export_presets.cfg, ui/fonts/monogram/ttf/monogram.ttf, ui/fonts/PressStart2P-Regular.ttf, ui/fonts/OFL.txt, "docs/ARCHITECTURE.md section 18.1 results (and GDD 2.9 if the insets differ)"]
     out_of_scope: ["Android export and Google Play (LATER, ARCHITECTURE 13.2)", "The paid Apple Developer Program and TestFlight (Step 13)"]
     note: "Redefined on 2026-09-27 from the Android 'Hello phone' step (P1). AC-S02-1..7 were never evaluated; each links to its replacement."
   - id: STEP-03

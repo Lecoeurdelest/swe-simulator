@@ -1,0 +1,59 @@
+{
+  "date": "2026-09-27",
+  "how": "project_run (main scene), then editor_manage game_eval / game_manage get_ui_elements / input_mouse (window pixels = game px x2, motion before press) / editor_screenshot source=game",
+  "game_log_final_clean_boot": [
+    "[godot_ai game_helper] registered mcp capture (debugger active=true, logger=true)",
+    "Content: 3 backgrounds, 3 tiers, 0/16 JSON files"
+  ],
+  "game_log_errors": 0,
+  "game_log_warnings": 0,
+  "theme": {
+    "project_theme": "res://ui/theme/main_theme.tres",
+    "default_font": "res://ui/fonts/monogram/ttf/monogram.ttf",
+    "default_font_size": 16,
+    "type_variations": {"Button": ["DangerButton", "PrimaryButton"], "PanelContainer": ["PaperPanel"], "Label": ["HeaderLabel"]},
+    "button_min_size_text_Quit_to_title": {"Button": [92, 34], "PrimaryButton": [92, 34], "DangerButton": [92, 34]},
+    "label_40_chars_min_size": [240, 13],
+    "header_label_PAUSED": {"min_size": [48, 8], "font": "res://ui/fonts/PressStart2P-Regular.ttf"},
+    "paper_panel_empty_min_size": [14, 14]
+  },
+  "ducky_note": {
+    "rect": {"pos": [8, 50], "size": [254, 77]},
+    "tip_label_rect": {"pos": [15, 75], "size": [240, 45], "lines": 3},
+    "mouse_filters_all_nodes": [2, 2, 2, 2, 2, 2],
+    "tap_through_to_button_underneath": "behind_pressed logged",
+    "tip_text_set_before_add_child": "Set before add_child.",
+    "tip_text_set_after_ready": "Changed after ready."
+  },
+  "confirm_dialog": {
+    "hidden_after_ready": true,
+    "rects": {"Dimmer": [0, 0, 270, 480], "Column": [8, 4, 254, 472], "Paper": [8, 407, 254, 27], "Message": [15, 414, 240, 13], "ActionBar": [8, 440, 254, 36], "CancelButton": [8, 440, 80, 36], "ConfirmButton": [94, 440, 168, 36]},
+    "mouse_filters": {"Dimmer": 0, "Paper": 0, "Column": 2},
+    "tap_behind_dimmer": "no press reached the button behind",
+    "tap_on_paper": "no answer, still open",
+    "tap_Decline_danger": "confirmed, hidden",
+    "reopen_default_texts": {"confirm": "Sleep", "cancel": "Back", "variation": "PrimaryButton"},
+    "tap_Back": "cancelled, hidden",
+    "handle_back_closed": false,
+    "handle_back_open": "true, cancelled, hidden",
+    "with_fake_insets_0_45_0_26": {"ActionBar": [8, 418, 254, 36]}
+  },
+  "pause_menu": {
+    "process_mode": 3,
+    "hidden_after_ready": true,
+    "open": {"tree_paused": true, "pause_menu_can_process": true, "title_can_process": false},
+    "rects": {"Sheet": [8, 384, 254, 92], "QuitButton": [15, 391, 240, 36], "ResumeButton": [15, 433, 240, 36]},
+    "mouse_filters": {"Dimmer": 0, "Sheet": 0, "SafeArea": 2},
+    "tap_sheet_padding": "still open, still paused, no signal",
+    "tap_Resume": "resumed, hidden, tree unpaused",
+    "tap_outside_on_dimmer": "resumed, hidden, tree unpaused; the button under the dimmer was not pressed",
+    "tap_Quit_to_title": "quit_to_title_pressed emitted, QuitButton disabled, sheet stays open, tree stays paused (SceneRouter unpauses on the scene swap)",
+    "focus_ring_after_mouse_tap": "QuitButton has_focus() = true but no focus border drawn",
+    "handle_back_open": "true, resumed, tree unpaused",
+    "handle_back_closed": false,
+    "reopen_after_quit": "QuitButton enabled again",
+    "signal_log": ["resumed", "resumed", "quit", "resumed", "resumed"],
+    "with_fake_insets_0_45_0_26": {"Sheet": [8, 362, 254, 92]}
+  },
+  "device_check_regression": "Title > Device check opens under the project theme (screenshot), Close returns to the title"
+}

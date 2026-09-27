@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://cv7u0us1tep67"]
+
+[ext_resource type="Script" uid="uid://b1b3xpfjhi3fv" path="res://ui/components/ducky_note.gd" id="1_duck"]
+
+[node name="DuckyNote" type="PanelContainer" unique_id=1259461979]
+custom_minimum_size = Vector2(254, 0)
+mouse_filter = 2
+theme_type_variation = &"PaperPanel"
+script = ExtResource("1_duck")
+
+[node name="Rows" type="VBoxContainer" parent="." unique_id=657859735]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="Header" type="HBoxContainer" parent="Rows" unique_id=1485497452]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Duck" type="ColorRect" parent="Rows/Header" unique_id=1399039311]
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.99607843, 0.68235296, 0.20392157, 1)
+
+[node name="Name" type="Label" parent="Rows/Header" unique_id=163614832]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.14901961, 0.16862746, 0.26666668, 1)
+text = "Ducky"
+vertical_alignment = 1
+
+[node name="Tip" type="Label" parent="Rows" unique_id=1035375469]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.14901961, 0.16862746, 0.26666668, 1)
+autowrap_mode = 3

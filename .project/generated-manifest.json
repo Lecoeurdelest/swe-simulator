@@ -5,20 +5,20 @@
   "inputs": {
     "docs/GDD.md": "3801b98e4daafc4a529a66a0118e019179772012be2d6f90541ba12c35c5046e",
     "docs/CONTENT.md": "f17b8c1129c9ae450b5fb6b9eda17d6fd136d99d248d572f52b88891c85d8482",
-    "docs/ARCHITECTURE.md": "586b72e031c2b1d91117dc06ef76923405f660643ec3dddadce5db84bd651ef1",
+    "docs/ARCHITECTURE.md": "306f3c5e56ec670b2711bf6c0cbd2e4817a80b7134020f51d5bb4068f44b4f9e",
     "docs/ROADMAP.md": "92ec3bbefbb70154408dd6d3d520169eeb28f0799fa845d91ae8acc4e73339d5",
-    "docs/DECISIONS.md": "ee0bf739fe927c3fda8aba2309fbe5d455312a54523307f00ee2ca81e8f0d715",
-    "project.yaml": "3e5bd23a2408ae1a463459a3a6ff31d068db6ff1e0ca33ec2e244b7bd82caeb0",
-    ".project/state.json": "3faea58253ee8e281122d0b4e22efdfe249e39ea73308f27ca4f28279179b800"
+    "docs/DECISIONS.md": "4d5322316bf4cc3b0f4fcffb5e7128f1a9ed04e1d7367f27ab252405fcd40d52",
+    "project.yaml": "7e2b17781a21468dbdc350532ae95d441969507e29d8123584ba04ad89b0f20c",
+    ".project/state.json": "d24b7653c454058042d35f8e03b26b3886c31124a56f4c8ee5dd3da2f993f9c8"
   },
   "outputs": {
     "docs/task/README.md": {
       "owner": "generated",
-      "sha256": "fceb0caeb3d43e9a1a4e62789d6ad92bf5a0bff8c9544ee5d9c2d2ab537dcd23"
+      "sha256": "d1fad30512e35e6e890ffc03306df94dc6096972fb37ce3abb7d3e168e5c1fc0"
     },
     "project.yaml": {
       "owner": "generated-by-agent from docs/*.md; regenerate on doc change",
-      "sha256": "3e5bd23a2408ae1a463459a3a6ff31d068db6ff1e0ca33ec2e244b7bd82caeb0"
+      "sha256": "7e2b17781a21468dbdc350532ae95d441969507e29d8123584ba04ad89b0f20c"
     }
   },
   "hand_owned": [

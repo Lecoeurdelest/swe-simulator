@@ -49,6 +49,11 @@ If two docs disagree: the GDD wins on rules and numbers, ARCHITECTURE wins on en
 - Autoloads added through godot-ai can show editor-side "Identifier not found: GameState/Content/Device" parse errors until the editor restarts. The running game and `test_run` are unaffected.
 - The game embedded in the editor's Game tab ignores `root.size` / `window_set_size` from `game_eval` (ISSUE-02). Check resizes by dragging or undocking the game window.
 - On Windows, open Godot before starting Claude (MSIX AppData virtualization: see ARCHITECTURE 16). On the Mac it's a good habit.
+- **Stale script buffers:** if a script is open in the editor's script editor, a later `scene_save` or a run's autosave can write the OLD buffer back over a file you just wrote with `script_create`. After rewriting an open script, check the file on disk before trusting a run (seen in Step 2).
+- `filesystem_manage op=remove` refuses to delete anything in this repo ("Cannot establish ownership through a linked entry: res://.code/AGENTS.md", caused by the git symlinks). Delete throwaway files with `rm`, then `filesystem_manage op=scan`.
+- `game_manage input_mouse` uses **window** pixels (2x game px in the 540x960 desktop window), and a `motion` event must come before each `button` press. Real drags need `game_eval` (motion events carry no button mask).
+- `theme_manage` can't set `Theme.default_font`, `default_font_size` or a type variation's base type. Use the throwaway `@tool McpTestSuite` trick above.
+- Rarely, a `filesystem_manage op=scan` hangs until the MCP timeout, or the running game's main loop stops advancing (stale screenshots). Stop the game and relaunch; the editor recovers.
 
 ## Switching machines (Windows PC <-> MacBook)
 

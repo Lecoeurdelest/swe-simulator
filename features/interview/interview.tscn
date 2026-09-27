@@ -1,0 +1,158 @@
+[gd_scene format=3 uid="uid://c2r5cdt71ii5y"]
+
+[ext_resource type="Script" uid="uid://b6avxw3bd0aem" path="res://features/interview/interview.gd" id="1_iv"]
+[ext_resource type="Script" uid="uid://b2qm2ai3fh743" path="res://ui/components/safe_area_margin.gd" id="2_safe"]
+[ext_resource type="PackedScene" uid="uid://ce41s06l840t1" path="res://ui/components/pause_menu.tscn" id="3_pause"]
+
+[node name="Interview" type="Control" unique_id=1991833976]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_iv")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1957388694]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.11, 0.12, 0.17, 1)
+
+[node name="SafeArea" type="MarginContainer" parent="." unique_id=1039292720]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_safe")
+
+[node name="Column" type="VBoxContainer" parent="SafeArea" unique_id=375309309]
+custom_minimum_size = Vector2(254, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="TopBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=1233349677]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Header" type="Label" parent="SafeArea/Column/TopBand" unique_id=834470906]
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "INTERVIEW (STUB)"
+
+[node name="Info" type="Label" parent="SafeArea/Column/TopBand" unique_id=1731418387]
+unique_name_in_owner = true
+layout_mode = 2
+text = "co_beigeware (mid)
+job_mid_backend"
+
+[node name="Body" type="VBoxContainer" parent="SafeArea/Column" unique_id=1575713]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="Card" type="PanelContainer" parent="SafeArea/Column/Body" unique_id=918336585]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Text" type="Label" parent="SafeArea/Column/Body/Card" unique_id=1295943764]
+layout_mode = 2
+text = "Stub: Step 4 builds the real interview.
+Win goes to the offer, Lose back to the hunt."
+autowrap_mode = 3
+
+[node name="ThumbBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=2017738011]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="LoseButton" type="Button" parent="SafeArea/Column/ThumbBand" unique_id=1919901397]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+theme_type_variation = &"DangerButton"
+text = "Lose"
+
+[node name="ActionBar" type="HBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=1534842386]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="BackButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionBar" unique_id=94215558]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 36)
+layout_mode = 2
+text = "< Back"
+
+[node name="WinButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionBar" unique_id=1355886860]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(168, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"PrimaryButton"
+text = "WIN"
+
+[node name="ModalLayer" type="CanvasLayer" parent="." unique_id=1942588733]
+layer = 10
+
+[node name="PauseMenu" parent="ModalLayer" unique_id=24210397 instance=ExtResource("3_pause")]
+unique_name_in_owner = true
+
+[node name="ReadyOverlay" type="Control" parent="ModalLayer" unique_id=1181432457]
+unique_name_in_owner = true
+process_mode = 2
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dimmer" type="ColorRect" parent="ModalLayer/ReadyOverlay" unique_id=448574521]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.07, 0.07, 0.1, 0.8)
+
+[node name="SafeArea" type="MarginContainer" parent="ModalLayer/ReadyOverlay" unique_id=631897624]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_safe")
+
+[node name="Column" type="VBoxContainer" parent="ModalLayer/ReadyOverlay/SafeArea" unique_id=640023677]
+custom_minimum_size = Vector2(254, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+alignment = 1
+
+[node name="Card" type="PanelContainer" parent="ModalLayer/ReadyOverlay/SafeArea/Column" unique_id=295273834]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="ReadyLabel" type="Label" parent="ModalLayer/ReadyOverlay/SafeArea/Column/Card" unique_id=346365277]
+layout_mode = 2
+text = "Ready? Tap to continue."
+horizontal_alignment = 1

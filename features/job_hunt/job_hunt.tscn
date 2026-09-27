@@ -1,0 +1,149 @@
+[gd_scene format=3 uid="uid://csiaa8xw6ifje"]
+
+[ext_resource type="Script" uid="uid://c20yvhpytdfvq" path="res://features/job_hunt/job_hunt.gd" id="1_hunt"]
+[ext_resource type="Script" uid="uid://b2qm2ai3fh743" path="res://ui/components/safe_area_margin.gd" id="2_safe"]
+[ext_resource type="PackedScene" uid="uid://ce41s06l840t1" path="res://ui/components/pause_menu.tscn" id="3_pause"]
+
+[node name="JobHunt" type="Control" unique_id=1277977137]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_hunt")
+
+[node name="Background" type="ColorRect" parent="." unique_id=2025668716]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.11, 0.12, 0.17, 1)
+
+[node name="SafeArea" type="MarginContainer" parent="." unique_id=234274301]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_safe")
+
+[node name="Column" type="VBoxContainer" parent="SafeArea" unique_id=986930916]
+custom_minimum_size = Vector2(254, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="TopBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=873892836]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="HudDay" type="HBoxContainer" parent="SafeArea/Column/TopBand" unique_id=340573132]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Day" type="Label" parent="SafeArea/Column/TopBand/HudDay" unique_id=196868125]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Day 1"
+
+[node name="Rent" type="Label" parent="SafeArea/Column/TopBand/HudDay" unique_id=1538222929]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Rent due in 12 days"
+horizontal_alignment = 2
+
+[node name="HudEnergy" type="HBoxContainer" parent="SafeArea/Column/TopBand" unique_id=766303085]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Energy" type="Label" parent="SafeArea/Column/TopBand/HudEnergy" unique_id=751753879]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Energy 8/8"
+
+[node name="Knowledge" type="Label" parent="SafeArea/Column/TopBand/HudEnergy" unique_id=710993794]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Knowledge 20"
+horizontal_alignment = 2
+
+[node name="Header" type="Label" parent="SafeArea/Column/TopBand" unique_id=35299837]
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "DOOMAPPLY (STUB)"
+
+[node name="Body" type="VBoxContainer" parent="SafeArea/Column" unique_id=1135569294]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="Card" type="PanelContainer" parent="SafeArea/Column/Body" unique_id=600567450]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Status" type="Label" parent="SafeArea/Column/Body/Card" unique_id=835213302]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Interviews today: 0/1"
+autowrap_mode = 3
+
+[node name="ThumbBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=2066465745]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="FakeInviteButton" type="Button" parent="SafeArea/Column/ThumbBand" unique_id=282363341]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+text = "Fake invite (Mid)"
+
+[node name="RentOutButton" type="Button" parent="SafeArea/Column/ThumbBand" unique_id=536767454]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+theme_type_variation = &"DangerButton"
+text = "Rent runs out"
+
+[node name="ActionRow" type="HBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=295802157]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="PauseButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionRow" unique_id=1051908499]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(34, 36)
+layout_mode = 2
+text = "="
+
+[node name="StudyButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionRow" unique_id=484434669]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Study"
+
+[node name="SleepButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionRow" unique_id=779273167]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Sleep"
+
+[node name="ModalLayer" type="CanvasLayer" parent="." unique_id=1230898013]
+layer = 10
+
+[node name="PauseMenu" parent="ModalLayer" unique_id=1071086318 instance=ExtResource("3_pause")]
+unique_name_in_owner = true

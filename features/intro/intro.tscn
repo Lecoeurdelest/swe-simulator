@@ -1,0 +1,94 @@
+[gd_scene format=3 uid="uid://b7w3kvlo8vtyd"]
+
+[ext_resource type="Script" uid="uid://coba2cvygw1m2" path="res://features/intro/intro.gd" id="1_intro"]
+[ext_resource type="Script" uid="uid://b2qm2ai3fh743" path="res://ui/components/safe_area_margin.gd" id="2_safe"]
+
+[node name="Intro" type="Control" unique_id=1839547705]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_intro")
+
+[node name="Background" type="ColorRect" parent="." unique_id=579564101]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.11, 0.12, 0.17, 1)
+
+[node name="SafeArea" type="MarginContainer" parent="." unique_id=867308684]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_safe")
+
+[node name="Column" type="VBoxContainer" parent="SafeArea" unique_id=1661770243]
+custom_minimum_size = Vector2(254, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="TopBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=389398651]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Header" type="Label" parent="SafeArea/Column/TopBand" unique_id=1566782574]
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "INTRO"
+
+[node name="Body" type="VBoxContainer" parent="SafeArea/Column" unique_id=107541949]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="Card" type="PanelContainer" parent="SafeArea/Column/Body" unique_id=1865670178]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Text" type="Label" parent="SafeArea/Column/Body/Card" unique_id=1456622391]
+layout_mode = 2
+text = "Stub: the intro cutscene arrives in Step 6.
+Skip, Back or Esc goes to Background select."
+autowrap_mode = 3
+
+[node name="ThumbBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=1080190939]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="ActionBar" type="HBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=187902438]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="BackButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionBar" unique_id=306345202]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 36)
+layout_mode = 2
+text = "< Back"
+
+[node name="SkipButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionBar" unique_id=660858113]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(168, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"PrimaryButton"
+text = "SKIP"
+
+[node name="ModalLayer" type="CanvasLayer" parent="." unique_id=1278093826]
+layer = 10

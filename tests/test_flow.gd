@@ -36,6 +36,9 @@ const ILLEGAL: Array[Array] = [
 	[GameFlow.Phase.GAME_OVER, GameFlow.Phase.JOB_HUNT],
 ]
 
+const ROUTER_PATH := "res://autoload/scene_router.gd"
+const FEATURES_DIR := "res://features/"
+
 
 func suite_name() -> String:
 	return "flow"
@@ -80,3 +83,41 @@ func test_fresh_run_state_is_empty() -> void:  # retry() builds exactly this
 	assert_eq(r.pity_count, 0)
 	assert_true(r.applied.is_empty() and r.applications.is_empty() and r.blacklist.is_empty())
 	assert_true(r.interview.is_empty() and r.offer.is_empty())
+
+
+## SceneRouter.SCENES names one existing screen per phase, and every screen answers Back
+## (ARCHITECTURE 5, 9). The router is read as text: tests never load autoload scripts.
+func test_every_phase_has_a_screen_with_handle_back() -> void:
+	var paths: Array[String] = []
+	var regex := RegEx.create_from_string("\"(res://features/[^\"]+\\.tscn)\"")
+	for m: RegExMatch in regex.search_all(FileAccess.get_file_as_string(ROUTER_PATH)):
+		paths.append(m.get_string(1))
+	assert_eq(paths.size(), GameFlow.Phase.size(), "SceneRouter.SCENES has one scene per phase")
+	for path: String in paths:
+		assert_true(ResourceLoader.exists(path), "%s exists" % path)
+		var script_path := path.get_basename() + ".gd"
+		assert_true(FileAccess.get_file_as_string(script_path).contains("func handle_back() -> bool:"),
+			"%s implements handle_back()" % script_path)
+
+
+## INV-01 / INV-02: screens only call GameState verbs. They never set the phase, call
+## change_phase() or swap scenes; SceneRouter does that.
+func test_screens_never_change_phase_or_scene() -> void:
+	var scripts := _scripts_under(FEATURES_DIR)
+	assert_gt(scripts.size(), GameFlow.Phase.size() - 1, "every screen has a script")
+	var sets_phase := RegEx.create_from_string("\\.phase\\s*=[^=]")
+	for path: String in scripts:
+		var src := FileAccess.get_file_as_string(path)
+		assert_false(src.contains("change_scene"), "%s calls change_scene_*()" % path)
+		assert_false(src.contains("change_phase("), "%s calls change_phase()" % path)
+		assert_true(sets_phase.search(src) == null, "%s assigns a phase" % path)
+
+
+static func _scripts_under(dir: String) -> Array[String]:
+	var out: Array[String] = []
+	for file: String in DirAccess.get_files_at(dir):
+		if file.get_extension() == "gd":
+			out.append(dir.path_join(file))
+	for sub: String in DirAccess.get_directories_at(dir):
+		out.append_array(_scripts_under(dir.path_join(sub)))
+	return out

@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cvloewnxnn62s" path="res://features/title/title.gd" id="1_ry3jv"]
 [ext_resource type="Script" uid="uid://b2qm2ai3fh743" path="res://ui/components/safe_area_margin.gd" id="2_wd8v0"]
-[ext_resource type="FontFile" uid="uid://boogi867qsdgo" path="res://ui/fonts/monogram/ttf/monogram.ttf" id="3_73gs4"]
+[ext_resource type="PackedScene" uid="uid://ba7fpxb5lc526" path="res://ui/components/confirm_dialog.tscn" id="3_conf"]
 
 [node name="Title" type="Control" unique_id=1568291883]
 layout_mode = 3
@@ -13,19 +13,23 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ry3jv")
 
-[node name="Info" type="Label" parent="." unique_id=1453839528]
-unique_name_in_owner = true
-layout_mode = 0
-offset_left = 8.0
-offset_top = 8.0
-offset_right = 9.0
-offset_bottom = 31.0
+[node name="Background" type="ColorRect" parent="." unique_id=1061710522]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.11, 0.12, 0.17, 1)
 
 [node name="SafeArea" type="MarginContainer" parent="." unique_id=599882726]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("2_wd8v0")
 
@@ -35,13 +39,111 @@ layout_mode = 2
 size_flags_horizontal = 4
 mouse_filter = 2
 theme_override_constants/separation = 4
-alignment = 2
 
-[node name="DeviceCheckButton" type="Button" parent="SafeArea/Column" unique_id=213760248]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(96, 36)
+[node name="SkyBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=2057194670]
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
-size_flags_horizontal = 0
-theme_override_fonts/font = ExtResource("3_73gs4")
+mouse_filter = 2
+
+[node name="SizeReadout" type="Label" parent="SafeArea/Column/SkyBand" unique_id=1911014055]
+unique_name_in_owner = true
+layout_mode = 2
+text = "win 540x960 game 270x480 integer"
+clip_text = true
+
+[node name="Sign" type="PanelContainer" parent="SafeArea/Column" unique_id=1501923700]
+custom_minimum_size = Vector2(216, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+
+[node name="Logo" type="VBoxContainer" parent="SafeArea/Column/Sign" unique_id=1217225350]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Software" type="Label" parent="SafeArea/Column/Sign/Logo" unique_id=1912234165]
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+theme_override_font_sizes/font_size = 24
+text = "SOFTWARE"
+horizontal_alignment = 1
+
+[node name="Engineer" type="Label" parent="SafeArea/Column/Sign/Logo" unique_id=1258359673]
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+theme_override_font_sizes/font_size = 24
+text = "ENGINEER"
+horizontal_alignment = 1
+
+[node name="Simulator" type="Label" parent="SafeArea/Column/Sign/Logo" unique_id=297951422]
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
 theme_override_font_sizes/font_size = 16
+text = "SIMULATOR"
+horizontal_alignment = 1
+
+[node name="Body" type="Control" parent="SafeArea/Column" unique_id=2098872612]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="ThumbBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=509784872]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="TapToStart" type="Label" parent="SafeArea/Column/ThumbBand" unique_id=785058828]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+text = "Tap to start"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NewGameButton" type="Button" parent="SafeArea/Column/ThumbBand" unique_id=2067276150]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+text = "New game"
+
+[node name="ContinueButton" type="Button" parent="SafeArea/Column/ThumbBand" unique_id=144269382]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+theme_type_variation = &"PrimaryButton"
+text = "CONTINUE"
+
+[node name="BottomRow" type="HBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=1046506678]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="ReplayIntroButton" type="Button" parent="SafeArea/Column/ThumbBand/BottomRow" unique_id=235605666]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+text = "Replay intro"
+flat = true
+
+[node name="DeviceCheckButton" type="Button" parent="SafeArea/Column/ThumbBand/BottomRow" unique_id=213760248]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
 text = "Device check"
+
+[node name="Version" type="Label" parent="SafeArea/Column/ThumbBand/BottomRow" unique_id=1927397448]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "v0.1.0"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="ModalLayer" type="CanvasLayer" parent="." unique_id=724231685]
+layer = 10
+
+[node name="QuitDialog" parent="ModalLayer" unique_id=1403888802 instance=ExtResource("3_conf")]
+unique_name_in_owner = true
