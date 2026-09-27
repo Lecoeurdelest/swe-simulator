@@ -1,0 +1,30 @@
+STEP-06 intro stage: godot-ai test_run (all suites), Windows PC, Godot 4.7.2-stable (steam)
+Date 2026-09-27, branch step-06-offer-endings. Final run after every edit of this stage
+(features/intro/intro.gd, intro.tscn, cutscene_plan.gd, hold_skip_pill.gd, tests/test_intro.gd).
+
+passed 224, failed 0, skipped 0, total 224, 21 suites, 1110 ms
+(before this stage: 220/220 in 20 suites; tests/test_intro.gd adds the suite "intro", 4 tests)
+
+suites_run: content_lint, data_files, endings, flow, hunt_apply, hunt_board, hunt_defaults,
+hunt_edges, hunt_reveal, hunt_sim, hunt_sleep, hunt_tips, interview, interview_plan, intro,
+lie_probe, odds, offer, probe_trigger, save, ui_text
+
+intro suite (verbose run, all pass):
+  test_cutscene_json_plays_as_the_gdd_says     27 assertions  (cutscene.json: 6 panels, every entry
+                                                 plays, orders 1-6, total 40.0 s <= 40, every panel
+                                                 has seconds > 0, styles only "" or "title", exactly
+                                                 one title card)
+  test_pan_path_follows_the_picture_size        4 assertions  (270x480 still; 480x480 pans -210 px;
+                                                 270x720 tilts -240 px; whole pixels, never backwards)
+  test_panels_follow_order_not_ids              1 assertion   (sorted by "order", ties by id)
+  test_panels_skip_what_is_not_a_panel          4 assertions  ("_" notes, plain strings, no order,
+                                                 no caption text are skipped; fields default to "")
+
+Other suites that read this stage's code, all pass:
+  flow: test_every_phase_has_a_screen_with_handle_back (17), test_screens_never_change_phase_or_scene (73)
+  ui_text: test_screen_text_ids_exist (intro.gd asks for barks ui_skip_hold and ui_tap_to_continue)
+  content_lint: all 32 tests (cutscene captions within the dialogue budget; no content was changed)
+
+Editor log: only the known stale "Compile Error: Identifier not found: Content" line for
+features/intro/intro.gd (autoload identifiers; the game ran the script cleanly in runs 68-71, and
+test_run is clean).

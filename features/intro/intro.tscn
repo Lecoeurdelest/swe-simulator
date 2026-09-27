@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://coba2cvygw1m2" path="res://features/intro/intro.gd" id="1_intro"]
 [ext_resource type="Script" uid="uid://b2qm2ai3fh743" path="res://ui/components/safe_area_margin.gd" id="2_safe"]
+[ext_resource type="Script" uid="uid://ct8n3fqn668no" path="res://features/intro/hold_skip_pill.gd" id="3_pill"]
 
 [node name="Intro" type="Control" unique_id=1839547705]
 layout_mode = 3
@@ -10,7 +11,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 script = ExtResource("1_intro")
 
 [node name="Background" type="ColorRect" parent="." unique_id=579564101]
@@ -21,7 +21,30 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.11, 0.12, 0.17, 1)
+color = Color(0.07, 0.07, 0.1, 1)
+
+[node name="Stage" type="CenterContainer" parent="." unique_id=1402967315]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Frame" type="Control" parent="Stage" unique_id=731845520]
+unique_name_in_owner = true
+clip_contents = true
+custom_minimum_size = Vector2(270, 480)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Picture" type="TextureRect" parent="Stage/Frame" unique_id=1964307781]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 294.0
+offset_bottom = 480.0
+mouse_filter = 2
 
 [node name="SafeArea" type="MarginContainer" parent="." unique_id=867308684]
 layout_mode = 1
@@ -45,52 +68,112 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 4
 
-[node name="Header" type="Label" parent="SafeArea/Column/TopBand" unique_id=1566782574]
+[node name="DebugReadout" type="Label" parent="SafeArea/Column/TopBand" unique_id=1566782574]
 unique_name_in_owner = true
 layout_mode = 2
-theme_type_variation = &"HeaderLabel"
-text = "INTRO"
+text = "intro_p1  caption 1/2"
+clip_text = true
 
 [node name="Body" type="VBoxContainer" parent="SafeArea/Column" unique_id=107541949]
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
+alignment = 1
 
-[node name="Card" type="PanelContainer" parent="SafeArea/Column/Body" unique_id=1865670178]
+[node name="TitleCard" type="PanelContainer" parent="SafeArea/Column/Body" unique_id=1865670178]
+unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
 
-[node name="Text" type="Label" parent="SafeArea/Column/Body/Card" unique_id=1456622391]
+[node name="TitleLabel" type="Label" parent="SafeArea/Column/Body/TitleCard" unique_id=1456622391]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Stub: the intro cutscene arrives in Step 6.
-Skip, Back or Esc goes to Background select."
+theme_type_variation = &"HeaderLabel"
+theme_override_constants/line_spacing = 4
+theme_override_font_sizes/font_size = 24
+text = "SOFTWARE ENGINEER SIMULATOR"
+horizontal_alignment = 1
 autowrap_mode = 3
 
 [node name="ThumbBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=1080190939]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 10
+
+[node name="DialogueBox" type="Control" parent="SafeArea/Column/ThumbBand" unique_id=1117040876]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(254, 72)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Panel" type="Panel" parent="SafeArea/Column/ThumbBand/DialogueBox" unique_id=1740615598]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Content" type="MarginContainer" parent="SafeArea/Column/ThumbBand/DialogueBox" unique_id=259304318]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 7
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 7
+theme_override_constants/margin_bottom = 4
+
+[node name="Lines" type="VBoxContainer" parent="SafeArea/Column/ThumbBand/DialogueBox/Content" unique_id=1284170519]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="NameTab" type="Label" parent="SafeArea/Column/ThumbBand/DialogueBox/Content/Lines" unique_id=903772450]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "REMY"
+
+[node name="Line" type="Label" parent="SafeArea/Column/ThumbBand/DialogueBox/Content/Lines" unique_id=1571198352]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+text = "One room. Bedroom, office, gym. That's called efficiency."
+autowrap_mode = 3
+visible_characters_behavior = 1
 
 [node name="ActionBar" type="HBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=187902438]
-custom_minimum_size = Vector2(0, 36)
+custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 6
+alignment = 2
 
-[node name="BackButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionBar" unique_id=306345202]
+[node name="TapHintPanel" type="PanelContainer" parent="SafeArea/Column/ThumbBand/ActionBar" unique_id=1588201937]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(80, 36)
 layout_mode = 2
-text = "< Back"
+size_flags_horizontal = 2
+mouse_filter = 2
 
-[node name="SkipButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionBar" unique_id=660858113]
+[node name="TapHint" type="Label" parent="SafeArea/Column/ThumbBand/ActionBar/TapHintPanel" unique_id=2094417606]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(168, 36)
 layout_mode = 2
-size_flags_horizontal = 3
-theme_type_variation = &"PrimaryButton"
-text = "SKIP"
+text = "Tap to continue"
+vertical_alignment = 1
+
+[node name="SkipPill" type="Button" parent="SafeArea/Column/ThumbBand/ActionBar" unique_id=660858113]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 34)
+layout_mode = 2
+focus_mode = 0
+text = "Hold to skip"
+alignment = 2
+script = ExtResource("3_pill")
 
 [node name="ModalLayer" type="CanvasLayer" parent="." unique_id=1278093826]
 layer = 10
