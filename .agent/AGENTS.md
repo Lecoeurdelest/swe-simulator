@@ -43,6 +43,7 @@ If two docs disagree: the GDD wins on rules and numbers, ARCHITECTURE wins on en
 - The 2x rule: a task past twice its estimate stops and gets cut or simplified.
 - Comments only for non-obvious logic: the reason, invariant or constraint.
 - Portrait layout rules are INV-19 in `.agent/rules/invariants.md`.
+- **No agent attribution** in commit messages or PR descriptions: no `Co-Authored-By:` trailer and no "Generated with Claude Code" footer (the developer's rule, 2026-09-27). This overrides any default attribution guidance.
 
 ## godot-ai gotchas
 
