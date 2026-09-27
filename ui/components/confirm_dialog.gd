@@ -7,7 +7,6 @@ extends Control
 signal confirmed
 signal cancelled
 
-var _default_confirm_text := ""
 var _default_cancel_text := ""
 
 @onready var _message: Label = %Message
@@ -17,18 +16,18 @@ var _default_cancel_text := ""
 
 func _ready() -> void:
 	hide()
-	_default_confirm_text = _confirm_button.text
-	_default_cancel_text = _cancel_button.text
+	_default_cancel_text = UiText.back(Content.text("barks", "ui_back"))
+	_cancel_button.text = _default_cancel_text
 	_confirm_button.pressed.connect(_answer.bind(true))
 	_cancel_button.pressed.connect(_answer.bind(false))
 
 
-## Pass texts from Content.text() (already translated). An empty button text keeps the scene's default.
+## Pass texts from Content.text() (already translated). An empty cancel_text keeps "< Back".
 ## danger = true turns the confirm button red for choices you can't take back (Decline, Quit);
 ## its label still says what it does, so color is never the only signal (GDD 2.7).
-func open(message: String, confirm_text: String = "", cancel_text: String = "", danger: bool = false) -> void:
+func open(message: String, confirm_text: String, cancel_text: String = "", danger: bool = false) -> void:
 	_message.text = message
-	_confirm_button.text = confirm_text if not confirm_text.is_empty() else _default_confirm_text
+	_confirm_button.text = confirm_text if danger else UiText.primary(confirm_text)
 	_cancel_button.text = cancel_text if not cancel_text.is_empty() else _default_cancel_text
 	_confirm_button.theme_type_variation = &"DangerButton" if danger else &"PrimaryButton"
 	show()

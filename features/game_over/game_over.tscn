@@ -46,9 +46,10 @@ mouse_filter = 2
 theme_override_constants/separation = 4
 
 [node name="Header" type="Label" parent="SafeArea/Column/TopBand" unique_id=612329459]
+unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"HeaderLabel"
-text = "PLAN B (STUB)"
+text = "PLAN B"
 
 [node name="Body" type="VBoxContainer" parent="SafeArea/Column" unique_id=1537179400]
 layout_mode = 2
@@ -65,6 +66,7 @@ mouse_filter = 2
 theme_override_constants/separation = 4
 
 [node name="Text" type="Label" parent="SafeArea/Column/Body/Card/Rows" unique_id=946877063]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Rent's due. You became a ClikClok career coach. Your course 'How I Almost Got Into Tech' has 40,000 students."
 autowrap_mode = 3

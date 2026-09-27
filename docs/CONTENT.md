@@ -121,7 +121,7 @@ google, alphabet, microsoft, macrohard, apple, amazon, amazoom, meta, facebook, 
 - `plan_b_line`: "Your course is called 'Self-Taught, Self-Employed'. It sells."
 - Hoodie color: mustard.
 
-Background select header: "How did you spend those four years?" Button: "CHOOSE".
+Background select header: "How did you spend those four years?" (`ui_background_header`). Button: "CHOOSE" (`ui_choose`). Both live in section 10.1.
 
 ### 3.2 Name dice -> `data/content/names.json`
 Default: **Alex**. Dice pool (20, gender-neutral, none shared with Dana, Remy or Jordan, the teammate in eq_credit_theft):
@@ -764,11 +764,15 @@ On screen, `ducky` lines are prefixed with `ducky_real_answer` ("Real answer:").
 
 | id | Text |
 |---|---|
+| `ui_logo_1` | SOFTWARE |
+| `ui_logo_2` | ENGINEER |
+| `ui_logo_3` | SIMULATOR |
 | `ui_tap_to_start` | Tap to start |
 | `ui_continue` | Continue |
 | `ui_new_game` | New game |
 | `ui_replay_intro` | Replay intro |
 | `ui_skip_hold` | Hold to skip |
+| `ui_background_header` | How did you spend those four years? |
 | `ui_choose` | CHOOSE |
 | `ui_day` | Day {day} |
 | `ui_energy` | Energy |
@@ -806,6 +810,7 @@ On screen, `ducky` lines are prefixed with `ducky_real_answer` ("Real answer:").
 | `ui_decline_confirm` | Decline this offer? Rent keeps ticking. |
 | `ui_ready` | Ready? Tap to continue. |
 | `ui_quit_confirm` | Quit the game? |
+| `ui_quit` | Quit |
 | `ui_pause_resume` | Resume |
 | `ui_pause_title` | Quit to title |
 | `ui_retry` | Retry |
@@ -830,7 +835,9 @@ On screen, `ducky` lines are prefixed with `ducky_real_answer` ("Real answer:").
 | `ui_grace_day` | Your landlord gave you one more day. ONE. |
 | `ui_rent_warning` | Rent is due soon. Ramen budget activated. |
 
-The hub's bottom dock (GDD 4.2 S04) uses `ui_tab_*` plus `ui_sleep`; dock labels are at most 6 characters. `ui_quit_confirm` appears on Android (LATER) and desktop only: iOS apps never quit themselves (GDD 4.4).
+The hub's bottom dock (GDD 4.2 S04) uses `ui_tab_*` plus `ui_sleep`; dock labels are at most 6 characters. `ui_quit_confirm` appears on Android (LATER) and desktop only: iOS apps never quit themselves (GDD 4.4); `ui_quit` is its confirm button (added 2026-09-27 with no source text: developer, please sign off). `ui_logo_1`-`ui_logo_3` are the title logo's three lines (GDD S01).
+
+A primary button shows its label in capitals (`UiText.primary()` upper-cases it, as the GDD 4.2 mockups do: `[ CONTINUE ]`, `[ NEW RUN ]`), and a Back-style button puts "< " in front (`UiText.back()`). Write the text here in its normal case. (Agent default, please review.)
 
 ### 10.2 Ducky coach lines (first run, GDD 4.3)
 
@@ -956,8 +963,12 @@ Please decide before you sleep.
 
 One field per line after a 12-character label column; values wrap at 28 columns, fine print up to 4 lines (GDD 4.2 S10).
 
+The template's first line is `offer_title`; the salary value (without its "Salary:" label) is `offer_salary`, where `{salary}` is the whole-dollar amount with its "$" and thousands commas ("$71,000"). The Hired card reuses `offer_salary`. The other template lines get ids when Step 6 builds the paper.
+
 | id | Text |
 |---|---|
+| `offer_title` | OFFER OF EMPLOYMENT - {company} |
+| `offer_salary` | {salary}/year |
 | `offer_mode_startup` | Fully remote |
 | `offer_mode_mid` | Hybrid: 2 office days a week |
 | `offer_mode_big` | Office: 4 days a week |

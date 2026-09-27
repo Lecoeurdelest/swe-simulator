@@ -46,11 +46,13 @@ mouse_filter = 2
 theme_override_constants/separation = 4
 
 [node name="Header" type="Label" parent="SafeArea/Column/TopBand" unique_id=521998923]
+unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"HeaderLabel"
 text = "BACKGROUND SELECT"
 
 [node name="Prompt" type="Label" parent="SafeArea/Column/TopBand" unique_id=316827698]
+unique_name_in_owner = true
 layout_mode = 2
 text = "How did you spend those four years?"
 autowrap_mode = 3
@@ -65,6 +67,7 @@ layout_mode = 2
 mouse_filter = 2
 
 [node name="Text" type="Label" parent="SafeArea/Column/Body/Card" unique_id=1205577762]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Stub: three plain buttons, name Alex.
 The highlighted one is preselected."
@@ -108,7 +111,7 @@ theme_override_constants/separation = 6
 unique_name_in_owner = true
 custom_minimum_size = Vector2(80, 36)
 layout_mode = 2
-text = "< Back"
+text = "< Title"
 
 [node name="ModalLayer" type="CanvasLayer" parent="." unique_id=1828533686]
 layer = 10

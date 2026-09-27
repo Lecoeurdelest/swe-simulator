@@ -16,6 +16,8 @@ signal quit_to_title_pressed
 
 func _ready() -> void:
 	hide()
+	_quit_button.text = Content.text("barks", "ui_pause_title")
+	_resume_button.text = UiText.primary(Content.text("barks", "ui_pause_resume"))
 	_quit_button.pressed.connect(_on_quit_pressed)
 	_resume_button.pressed.connect(resume)
 	_dimmer.gui_input.connect(_on_dimmer_input)

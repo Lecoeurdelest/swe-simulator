@@ -10,8 +10,10 @@ extends PanelContainer
 		if is_node_ready():
 			_tip.text = value
 
+@onready var _name: Label = %Name
 @onready var _tip: Label = %Tip
 
 
 func _ready() -> void:
+	_name.text = Content.text("naming", "mascot")
 	_tip.text = tip_text

@@ -59,4 +59,4 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 theme_type_variation = &"PrimaryButton"
-text = "Resume"
+text = "RESUME"

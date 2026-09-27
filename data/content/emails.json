@@ -46,6 +46,8 @@
   "notif_typing": "The recruiter is typing...",
   "notif_typing_stop": "The recruiter stopped typing.",
   "mail_rescinded": "Our background check found that 'Very Famous University' has no record of you. Or of itself. The offer is withdrawn.",
+  "offer_title": "OFFER OF EMPLOYMENT - {company}",
+  "offer_salary": "{salary}/year",
   "offer_mode_startup": "Fully remote",
   "offer_mode_mid": "Hybrid: 2 office days a week",
   "offer_mode_big": "Office: 4 days a week",
