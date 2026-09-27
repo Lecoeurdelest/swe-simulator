@@ -84,6 +84,13 @@ static func offer(run: RunState) -> String:
 	return "tip_equity_lottery" if str(run.offer.get("equity_text", "")) != "" else "tip_total_comp"
 
 
+## The Plan B card's one tip (GDD S12, 8.1 rule 4: it matches the cause). No invite all run: nobody
+## replied, and tailoring is what gets replies -> tip_tailor_over_spray. Invites but no job ->
+## tip_rejection_numbers (many rejections are normal; keep going).
+static func plan_b(run: RunState) -> String:
+	return "tip_rejection_numbers" if had_invite(run) else "tip_tailor_over_spray"
+
+
 ## An invite arrived this run: one is waiting, an application got one (invited, taken or expired),
 ## or an interview was taken or is under way (a "saw your profile" invite has no application).
 static func had_invite(run: RunState) -> bool:

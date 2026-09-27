@@ -1,0 +1,32 @@
+STEP-06 endings stage: godot-ai test_run (all suites), Windows PC, Godot 4.7.2-stable (steam)
+Date 2026-09-27, branch step-06-offer-endings. Final run after every edit of this stage
+(including features/job_hunt/job_hunt.gd and barks.json's ui_rent_due_today).
+
+passed 220, failed 0, skipped 0, total 220, 20 suites, 1128 ms
+(before this stage: 214/214 in 19 suites; the interrupted attempt's test_endings.gd added 6 tests)
+
+suites_run: content_lint, data_files, endings, flow, hunt_apply, hunt_board, hunt_defaults,
+hunt_edges, hunt_reveal, hunt_sim, hunt_sleep, hunt_tips, interview, interview_plan, lie_probe,
+odds, offer, probe_trigger, save, ui_text
+
+endings suite (verbose run, all pass):
+  test_breakdown_always_rounds_to_the_score      2 assertions  (19,488 offers: every row within
+                                                  0..its weight, rounded sum of the rows = dream_score)
+  test_breakdown_matches_the_gdd_examples       27 assertions  (GDD 5.9.5 row by row: 18.9/25/15/0/8.7
+                                                  = 68 grade 3; 33.6/5/11.0/0/7.3 = 57 grade 2;
+                                                  19.2/15/5.5/5/4.2 = 49 grade 2)
+  test_ending_texts_exist                       21 assertions
+  test_grade_bands                              17 assertions  (0,39 -> 1; 40,59 -> 2; 60,79 -> 3; 80,100 -> 4)
+  test_hire_records_the_job_and_its_score       18 assertions
+  test_plan_b_tip_matches_the_cause              4 assertions
+
+Other suites touched by this stage's code, all pass:
+  flow: test_every_phase_has_a_screen_with_handle_back (17), test_screens_never_change_phase_or_scene (67),
+        test_a_hired_kill_counts_the_run_once (15), test_save_deleted_on_plan_b_and_after_hired (6)
+  ui_text: test_screen_text_ids_exist (every Content.text id the screens use exists)
+  content_lint: all 32 tests (ui_tap_to_continue, ui_rent_due_today within budgets, ASCII)
+  offer: test_dream_score_examples (Odds.dream_score unchanged), test_accept_after_a_hired_kill_rolls_the_same_dice
+
+Editor log: only the known stale "Compile Error: Identifier not found: GameState" lines for
+game_over.gd, job_hunt.gd and phase2_stub.gd after the filesystem scan (the game runs and test_run
+are clean).

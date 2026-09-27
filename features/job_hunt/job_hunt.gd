@@ -250,6 +250,8 @@ func _mail_report() -> Dictionary:
 
 
 func _rent_text(days: int) -> String:
+	if days <= 0:
+		return Content.text("barks", "ui_rent_due_today")  # the grace day and the Plan B morning
 	if days == 1:
 		return Content.text("barks", "ui_rent_due_one")
 	return Content.text("barks", "ui_rent_due", {"days": days})

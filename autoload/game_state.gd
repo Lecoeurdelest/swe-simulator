@@ -391,12 +391,13 @@ func answer_offer(accept: bool) -> void:
 		run.rescind_offer()
 		change_phase(GameFlow.Phase.JOB_HUNT)
 		return
-	var bg := Content.background(run.background_id)
-	var flags: Array = Content.entries("companies").get(company_id, {}).get("red_flags", [])
-	run.employment = run.offer.duplicate(true)
-	run.dream_score = Odds.dream_score(Content.balance, run.offer["salary"], run.offer["office_days"],
-		run.commute_minutes, flags.size(), run.rent_days_left, bg.runway_days)
+	run.hire(Content.balance, _bg(), Content.entries("companies").get(company_id, {}).get("red_flags", []))
 	change_phase(GameFlow.Phase.PHASE2_STUB)
+
+
+## The Hired card's Dream vs Reality rows (RunState.dream_breakdown). Changes nothing.
+func dream_breakdown() -> Array[float]:
+	return run.dream_breakdown(Content.balance, _bg())
 
 
 ## Morning with rent at 0, no invite, grace day used (or none waiting); or Decline on the grace day.

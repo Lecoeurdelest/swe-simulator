@@ -74,7 +74,7 @@ var dana_last_company: String = ""
 #   commute {id, args}, perks [ids], fine_print, equity_text, negotiated}; texts are emails.json ids, job_title the posting's title
 var offer: Dictionary = {}
 var rescinded: Dictionary = {}        # the offer a background check withdrew: {company_id, template_id, tier, mail_id}; the next Sleep clears it
-var employment: Dictionary = {}       # the accepted offer + tier + red_flags (Phase 2 reads this)
+var employment: Dictionary = {}       # the accepted offer + red_flags (hire(); Phase 2 reads this)
 var dream_score: int = -1
 var total_applications: int = 0
 var total_rejections: int = 0
@@ -436,6 +436,23 @@ static func offer_commute(office_days: int, commute_minutes: int) -> Dictionary:
 	var hours := office_days * 2.0 * commute_minutes / 60.0
 	return {"id": "offer_commute_office",
 		"args": {"office_days": office_days, "commute_min": commute_minutes, "hours": "%.1f" % hours}}
+
+
+## GDD 5.9.4-5.9.5, an Accept that passed the background check: the offer becomes the job, with its
+## company's red flags (GDD 10.4; company_red_flags is that company's companies.json list), and is
+## scored Dream vs Reality with the rent days left today. The offer stays as it was.
+func hire(cfg: BalanceConfig, bg: BackgroundData, company_red_flags: Array) -> void:
+	employment = offer.duplicate(true)
+	employment["red_flags"] = company_red_flags.duplicate()
+	dream_score = Odds.dream_score(cfg, int(employment.get("salary", 0)), int(employment.get("office_days", 0)),
+		commute_minutes, company_red_flags.size(), rent_days_left, bg.runway_days)
+
+
+## The Hired card's five rows (Odds.dream_breakdown) for the job taken, from the numbers hire() scored:
+## their rounded sum is dream_score.
+func dream_breakdown(cfg: BalanceConfig, bg: BackgroundData) -> Array[float]:
+	return Odds.dream_breakdown(cfg, int(employment.get("salary", 0)), int(employment.get("office_days", 0)),
+		commute_minutes, (employment.get("red_flags", []) as Array).size(), rent_days_left, bg.runway_days)
 
 
 ## GDD 5.10: Decline on the grace day (0 rent days: the only way an offer is open with no rent left)
