@@ -16,6 +16,7 @@ const LEGAL: Array[Array] = [
 	[GameFlow.Phase.INTERVIEW, GameFlow.Phase.JOB_HUNT],
 	[GameFlow.Phase.OFFER, GameFlow.Phase.PHASE2_STUB],
 	[GameFlow.Phase.OFFER, GameFlow.Phase.JOB_HUNT],
+	[GameFlow.Phase.OFFER, GameFlow.Phase.GAME_OVER],  # Decline on the grace day (GDD 5.10)
 	[GameFlow.Phase.PHASE2_STUB, GameFlow.Phase.TITLE],
 	[GameFlow.Phase.PHASE2_STUB, GameFlow.Phase.BACKGROUND_SELECT],
 	[GameFlow.Phase.GAME_OVER, GameFlow.Phase.TITLE],
@@ -64,6 +65,7 @@ func test_only_live_run_phases_are_saved() -> void:
 
 func test_save_deleted_on_plan_b_and_after_hired() -> void:
 	assert_true(GameFlow.deletes_save(GameFlow.Phase.JOB_HUNT, GameFlow.Phase.GAME_OVER))
+	assert_true(GameFlow.deletes_save(GameFlow.Phase.OFFER, GameFlow.Phase.GAME_OVER), "declined on the grace day")
 	assert_true(GameFlow.deletes_save(GameFlow.Phase.PHASE2_STUB, GameFlow.Phase.TITLE))
 	assert_true(GameFlow.deletes_save(GameFlow.Phase.PHASE2_STUB, GameFlow.Phase.BACKGROUND_SELECT))
 	assert_false(GameFlow.deletes_save(GameFlow.Phase.OFFER, GameFlow.Phase.PHASE2_STUB), "killed on the Hired card: Continue still works")

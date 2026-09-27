@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://cwcthl1hgv06g" path="res://features/job_hunt/coach_mark.gd" id="1_coach"]
+[ext_resource type="PackedScene" uid="uid://cv7u0us1tep67" path="res://ui/components/ducky_note.tscn" id="2_duck"]
+
+[node name="CoachMark" type="VBoxContainer"]
+visible = false
+custom_minimum_size = Vector2(254, 0)
+mouse_filter = 2
+theme_override_constants/separation = 0
+script = ExtResource("1_coach")
+
+[node name="Note" parent="." instance=ExtResource("2_duck")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Arrows" type="Control" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+mouse_filter = 2

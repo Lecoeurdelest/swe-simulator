@@ -69,6 +69,24 @@ func safe_insets() -> Vector4:
 	return Vector4(maxf(tl.x, 0.0), maxf(tl.y, 0.0), maxf(game.x - br.x, 0.0), maxf(game.y - br.y, 0.0))
 
 
+## The on-screen keyboard's height in GAME pixels; 0 while it is hidden and on desktop (S03 name field).
+## Assumes native pixels and divides by the scale, as safe_insets() does: the unit is unverified until
+## the iPhone test (ARCHITECTURE 18.1 #12).
+func keyboard_height() -> float:
+	if not DisplayServer.has_feature(DisplayServer.FEATURE_VIRTUAL_KEYBOARD):
+		return 0.0  # desktop display servers warn on every call otherwise
+	var native := DisplayServer.virtual_keyboard_get_height()
+	if native <= 0:
+		return 0.0
+	var win := get_tree().root
+	var game := win.get_visible_rect().size
+	var px := Vector2(win.size)
+	var s := minf(px.x / game.x, px.y / game.y)
+	if win.content_scale_stretch == Window.CONTENT_SCALE_STRETCH_INTEGER:
+		s = maxf(floorf(s), 1.0)
+	return native / s
+
+
 # ---------- Back ----------
 
 func _notification(what: int) -> void:

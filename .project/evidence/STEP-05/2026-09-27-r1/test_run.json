@@ -1,0 +1,23 @@
+{
+  "step": "STEP-05",
+  "stage": "verifier",
+  "date": "2026-09-27",
+  "machine": "Windows PC",
+  "engine": "4.7.2-stable (steam)",
+  "branch": "step-05-hunt-greybox",
+  "tool": "godot-ai test_run (all suites, verbose)",
+  "before_fixes": {"passed": 199, "failed": 0, "total": 199, "suites": 19},
+  "after_fixes": {"passed": 200, "failed": 0, "skipped": 0, "total": 200, "suites": 19, "duration_ms": 1107},
+  "suites": {
+    "content_lint": 32, "data_files": 4, "flow": 8, "hunt_apply": 12, "hunt_board": 10,
+    "hunt_defaults": 12, "hunt_edges": 25, "hunt_reveal": 14, "hunt_sim": 2, "hunt_sleep": 10,
+    "hunt_tips": 13, "interview": 4, "interview_plan": 15, "lie_probe": 5, "odds": 8, "offer": 3,
+    "probe_trigger": 11, "save": 3, "ui_text": 9
+  },
+  "added_by_this_stage": ["hunt_tips/test_a_rescinded_offer_takes_the_mail_tip (5 assertions)"],
+  "failures": [],
+  "notes": [
+    "cache_warning (preloaded GDScript dependencies) is the standard godot-ai notice; the new test asserts the new HuntTips behaviour and passes, so the edited class was the one loaded.",
+    "Editor-side errors after the script_create reloads are only the known 'Identifier not found: GameState/Content/SceneRouter/Device' autoload family and the matching 'GDScript reload failed' cascade."
+  ]
+}

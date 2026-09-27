@@ -20,17 +20,34 @@ static func back(text: String) -> String:
 	return BACK_ARROW + text
 
 
+## A button that costs energy shows the pips after its label, as the GDD S04 mockup does:
+## ("APPLY", 1) -> "APPLY  1", ("TAILOR & APPLY", 2) -> "TAILOR & APPLY  2".
+static func cost(text: String, pips: int) -> String:
+	return "%s  %d" % [text, pips]
+
+
+## A text meter, filled from the left: (3, 5) -> "[###--]". The Recruiter Radar and the odds bands.
+static func meter(filled: int, total: int) -> String:
+	var dots := clampi(filled, 0, maxi(total, 0))
+	return "[%s%s]" % ["#".repeat(dots), "-".repeat(maxi(total, 0) - dots)]
+
+
 ## An odds band as dots plus a word (GDD 2.7, 5.6): band 3 of 5, "Possible" -> "[###--] Possible".
 static func band(filled: int, word: String, total: int = 5) -> String:
-	var dots := clampi(filled, 0, total)
-	return "[%s%s] %s" % ["#".repeat(dots), "-".repeat(total - dots), word]
+	return "%s %s" % [meter(filled, total), word]
 
 
-## Whole dollars as the offer letter shows them: 71000 -> "$71,000".
-static func money(amount: int) -> String:
+## A whole number with thousands separators: 1247 -> "1,247" (the card back's applicants).
+static func count(amount: int) -> String:
 	var digits := str(absi(amount))
 	var groups := ""
 	while digits.length() > 3:
 		groups = "," + digits.right(3) + groups
 		digits = digits.left(-3)
-	return ("-" if amount < 0 else "") + "$" + digits + groups
+	return ("-" if amount < 0 else "") + digits + groups
+
+
+## Whole dollars as the offer letter shows them: 71000 -> "$71,000".
+static func money(amount: int) -> String:
+	var grouped := count(absi(amount))
+	return ("-" if amount < 0 else "") + "$" + grouped

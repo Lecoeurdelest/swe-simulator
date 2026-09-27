@@ -1,0 +1,92 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://bi504aitait8j" path="res://features/job_hunt/invite_card.gd" id="1_invite"]
+
+[node name="InviteCard" type="PanelContainer"]
+custom_minimum_size = Vector2(254, 0)
+mouse_filter = 2
+script = ExtResource("1_invite")
+
+[node name="Rows" type="VBoxContainer" parent="."]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Header" type="Button" parent="Rows"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+focus_mode = 0
+mouse_filter = 1
+
+[node name="HeaderRow" type="HBoxContainer" parent="Rows/Header"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_right = -6.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Envelope" type="ColorRect" parent="Rows/Header/HeaderRow"]
+custom_minimum_size = Vector2(16, 12)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+color = Color(0.99607843, 0.90588236, 0.38039216, 1)
+
+[node name="Company" type="Label" parent="Rows/Header/HeaderRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Hierarchai"
+vertical_alignment = 1
+clip_text = true
+
+[node name="Subject" type="Label" parent="Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.99607843, 0.90588236, 0.38039216, 1)
+text = "Saw your profile!"
+autowrap_mode = 3
+
+[node name="Body" type="Label" parent="Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Hi Alex! Hierarchai saw your application. Fast. Suspiciously fast. Interview today or tomorrow?"
+autowrap_mode = 3
+
+[node name="Line" type="Label" parent="Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.99607843, 0.68235296, 0.20392157, 1)
+text = "Interview with Hierarchai: today or tomorrow"
+autowrap_mode = 3
+
+[node name="Buttons" type="HBoxContainer" parent="Rows"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="LaterButton" type="Button" parent="Rows/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 34)
+layout_mode = 2
+focus_mode = 0
+mouse_filter = 1
+text = "Later"
+
+[node name="GoButton" type="Button" parent="Rows/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+mouse_filter = 1
+theme_type_variation = &"PrimaryButton"
+text = "GO NOW  3"

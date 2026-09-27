@@ -1,6 +1,7 @@
 {
   "intern": {
     "title": "THE INTERN",
+    "selector": "INTERN",
     "difficulty": "EASY",
     "one_liner": "Three internships, 214 connections, one mentor who texts.",
     "perk": "WARM INTROS: 2 referrals. A referral gets a human to read your CV and skips knockout filters.",
@@ -13,6 +14,7 @@
   },
   "graduate": {
     "title": "THE GRADUATE",
+    "selector": "GRADUATE",
     "difficulty": "MEDIUM",
     "one_liner": "One diploma, one student loan, zero callbacks.",
     "perk": "DIPLOMA: passes 'degree required' filters. TEXTBOOK ANSWER: wider zone on your first tech question.",
@@ -25,6 +27,7 @@
   },
   "self_taught": {
     "title": "THE SELF-TAUGHT",
+    "selector": "SELF-TAUGHT",
     "difficulty": "HARD",
     "one_liner": "437 hours of tutorials, 6 languages, 2 bus transfers.",
     "perk": "BREADTH: 6 skills on your CV. SCRAPPY BUILDER: startups love shipped projects.",

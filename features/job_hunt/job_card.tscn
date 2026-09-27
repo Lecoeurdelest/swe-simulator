@@ -1,0 +1,224 @@
+[gd_scene format=3 uid="uid://wp1ei375tcln"]
+
+[ext_resource type="Script" uid="uid://dt6ym247flvs2" path="res://features/job_hunt/job_card.gd" id="1_card"]
+
+[node name="JobCard" type="MarginContainer" unique_id=1097869045]
+custom_minimum_size = Vector2(254, 0)
+mouse_filter = 0
+script = ExtResource("1_card")
+
+[node name="Panel" type="PanelContainer" parent="." unique_id=1842735941]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Front" type="VBoxContainer" parent="Panel" unique_id=2135974649]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Strip" type="ColorRect" parent="Panel/Front" unique_id=1066239592]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(238, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+color = Color(0.78039217, 0.6627451, 0.5019608, 1)
+
+[node name="CompanyRow" type="HBoxContainer" parent="Panel/Front" unique_id=98123743]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Logo" type="ColorRect" parent="Panel/Front/CompanyRow" unique_id=1439972224]
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+color = Color(0.54509807, 0.60784316, 0.7058824, 1)
+
+[node name="Company" type="Label" parent="Panel/Front/CompanyRow" unique_id=1645110632]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Beigeware Financial"
+vertical_alignment = 1
+
+[node name="TierTag" type="Label" parent="Panel/Front/CompanyRow" unique_id=359309815]
+unique_name_in_owner = true
+layout_mode = 2
+text = "MID"
+vertical_alignment = 1
+
+[node name="JobTitle" type="Label" parent="Panel/Front" unique_id=648580632]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Backend Developer"
+
+[node name="Tags" type="HBoxContainer" parent="Panel/Front" unique_id=421038940]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Tag1" type="Label" parent="Panel/Front/Tags" unique_id=1398956762]
+unique_name_in_owner = true
+layout_mode = 2
+text = "[v Java]"
+
+[node name="Tag2" type="Label" parent="Panel/Front/Tags" unique_id=1969788227]
+unique_name_in_owner = true
+layout_mode = 2
+text = "[v SQL]"
+
+[node name="Tag3" type="Label" parent="Panel/Front/Tags" unique_id=547102495]
+unique_name_in_owner = true
+layout_mode = 2
+text = "[x APIs]"
+
+[node name="Joke" type="Label" parent="Panel/Front" unique_id=447523677]
+unique_name_in_owner = true
+layout_mode = 2
+text = "\"Read code from someone who left in 2009.\""
+autowrap_mode = 3
+
+[node name="Knockout" type="PanelContainer" parent="Panel/Front" unique_id=802747874]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+mouse_filter = 2
+theme_type_variation = &"Chip"
+
+[node name="KnockoutText" type="Label" parent="Panel/Front/Knockout" unique_id=1961212428]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Knockout: 1+ years experience"
+
+[node name="QuickOdds" type="Label" parent="Panel/Front" unique_id=1344708667]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Quick apply [##---] Unlikely"
+
+[node name="Back" type="VBoxContainer" parent="Panel" unique_id=942344795]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="BackTitle" type="Label" parent="Panel/Back" unique_id=1254435072]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Backend Developer"
+
+[node name="BackCompany" type="Label" parent="Panel/Back" unique_id=2032182277]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Beigeware Financial - Mid-size"
+
+[node name="Applicants" type="Label" parent="Panel/Back" unique_id=2116397622]
+unique_name_in_owner = true
+layout_mode = 2
+text = "1,247 applicants"
+
+[node name="PostedRow" type="HBoxContainer" parent="Panel/Back" unique_id=1036777017]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Posted" type="Label" parent="Panel/Back/PostedRow" unique_id=192299070]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Posted 3 days ago"
+
+[node name="Reposted" type="Label" parent="Panel/Back/PostedRow" unique_id=162881952]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.99607843, 0.68235296, 0.20392157, 1)
+text = "Reposted"
+
+[node name="Salary" type="Label" parent="Panel/Back" unique_id=1945742261]
+unique_name_in_owner = true
+layout_mode = 2
+text = "$78k-$88k"
+
+[node name="BackKnockout" type="PanelContainer" parent="Panel/Back" unique_id=1916687842]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+mouse_filter = 2
+theme_type_variation = &"Chip"
+
+[node name="BackKnockoutText" type="Label" parent="Panel/Back/BackKnockout" unique_id=1048058980]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Knockout: 1+ years experience"
+
+[node name="TailoredOdds" type="Label" parent="Panel/Back" unique_id=196843830]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Tailored [####-] Decent"
+
+[node name="Spacer" type="Control" parent="Panel/Back" unique_id=251280156]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="ReferralButton" type="Button" parent="Panel/Back" unique_id=974455682]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+focus_mode = 0
+mouse_filter = 2
+theme_type_variation = &"SelectorButton"
+toggle_mode = true
+text = "Use referral (2 left)"
+
+[node name="Scan" type="ColorRect" parent="Panel" unique_id=387272272]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.07, 0.07, 0.1, 0.85)
+
+[node name="ScanLine" type="ColorRect" parent="Panel/Scan" unique_id=1388875016]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 238.0
+offset_bottom = 2.0
+mouse_filter = 2
+color = Color(0.99607843, 0.68235296, 0.20392157, 1)
+
+[node name="ScanCenter" type="CenterContainer" parent="Panel/Scan" unique_id=291574568]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ScanText" type="Label" parent="Panel/Scan/ScanCenter" unique_id=593633484]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Parsinator 3000 is reading your CV..."
+horizontal_alignment = 1
+
+[node name="StampCenter" type="CenterContainer" parent="Panel" unique_id=1492450311]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Stamp" type="PanelContainer" parent="Panel/StampCenter" unique_id=114958536]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"Chip"
+
+[node name="StampText" type="Label" parent="Panel/StampCenter/Stamp" unique_id=256151558]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+theme_override_colors/font_color = Color(0.89411765, 0.23137255, 0.26666668, 1)
+theme_override_font_sizes/font_size = 16
+text = "SENT"

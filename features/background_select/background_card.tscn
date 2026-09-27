@@ -1,0 +1,152 @@
+[gd_scene format=3 uid="uid://ndmowagip72x"]
+
+[ext_resource type="Script" uid="uid://b7fsyydw38hjh" path="res://features/background_select/background_card.gd" id="1_card"]
+[ext_resource type="Script" uid="uid://mupxpf77wo4u" path="res://ui/components/pip_bar.gd" id="2_pips"]
+[ext_resource type="PackedScene" uid="uid://cb0wx7kft1lh8" path="res://ui/components/stat_bar.tscn" id="3_stat"]
+
+[node name="BackgroundCard" type="MarginContainer" unique_id=1532753787]
+custom_minimum_size = Vector2(254, 0)
+mouse_filter = 0
+script = ExtResource("1_card")
+
+[node name="Panel" type="PanelContainer" parent="." unique_id=524302081]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Rows" type="VBoxContainer" parent="Panel" unique_id=866868281]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Top" type="HBoxContainer" parent="Panel/Rows" unique_id=34698857]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Bust" type="ColorRect" parent="Panel/Rows/Top" unique_id=1120010799]
+custom_minimum_size = Vector2(60, 72)
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.3529412, 0.4117647, 0.53333336, 1)
+
+[node name="Facts" type="VBoxContainer" parent="Panel/Rows/Top" unique_id=1559804542]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="Title" type="Label" parent="Panel/Rows/Top/Facts" unique_id=1726685803]
+unique_name_in_owner = true
+layout_mode = 2
+text = "THE GRADUATE - MEDIUM"
+
+[node name="EnergyRow" type="HBoxContainer" parent="Panel/Rows/Top/Facts" unique_id=645455253]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="EnergyLabel" type="Label" parent="Panel/Rows/Top/Facts/EnergyRow" unique_id=999436033]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Energy/day"
+
+[node name="Pips" type="Control" parent="Panel/Rows/Top/Facts/EnergyRow" unique_id=1571853849]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+script = ExtResource("2_pips")
+
+[node name="Runway" type="Label" parent="Panel/Rows/Top/Facts" unique_id=288878239]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Rent runway: 12 days"
+
+[node name="OneLiner" type="Label" parent="Panel/Rows" unique_id=2124765903]
+unique_name_in_owner = true
+layout_mode = 2
+text = "\"One diploma, one student loan, zero callbacks.\""
+autowrap_mode = 3
+
+[node name="Stats" type="GridContainer" parent="Panel/Rows" unique_id=260595062]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 0
+columns = 2
+
+[node name="KnowledgeLabel" type="Label" parent="Panel/Rows/Stats" unique_id=726341014]
+unique_name_in_owner = true
+layout_mode = 2
+text = "KNOWLEDGE"
+
+[node name="KnowledgeBar" parent="Panel/Rows/Stats" unique_id=1268006497 instance=ExtResource("3_stat")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ExperienceLabel" type="Label" parent="Panel/Rows/Stats" unique_id=1764343725]
+unique_name_in_owner = true
+layout_mode = 2
+text = "EXPERIENCE"
+
+[node name="ExperienceBar" parent="Panel/Rows/Stats" unique_id=1704718842 instance=ExtResource("3_stat")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="NetworkLabel" type="Label" parent="Panel/Rows/Stats" unique_id=30082994]
+unique_name_in_owner = true
+layout_mode = 2
+text = "NETWORK"
+
+[node name="NetworkBar" parent="Panel/Rows/Stats" unique_id=1328929791 instance=ExtResource("3_stat")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PerkRow" type="HBoxContainer" parent="Panel/Rows" unique_id=1539919691]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="PerkMark" type="Label" parent="Panel/Rows/PerkRow" unique_id=1973757345]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 0
+text = "+"
+
+[node name="Perk" type="Label" parent="Panel/Rows/PerkRow" unique_id=939394741]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "PERK"
+autowrap_mode = 3
+
+[node name="FlawRow" type="HBoxContainer" parent="Panel/Rows" unique_id=312299723]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="FlawMark" type="Label" parent="Panel/Rows/FlawRow" unique_id=791147489]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 0
+text = "-"
+
+[node name="FlawText" type="VBoxContainer" parent="Panel/Rows/FlawRow" unique_id=242640602]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="Flaw" type="Label" parent="Panel/Rows/FlawRow/FlawText" unique_id=1559716933]
+unique_name_in_owner = true
+layout_mode = 2
+text = "FLAW"
+autowrap_mode = 3
+
+[node name="Gaps" type="Label" parent="Panel/Rows/FlawRow/FlawText" unique_id=1732228461]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "Gaps: Algorithms, Security"
+autowrap_mode = 3

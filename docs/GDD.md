@@ -232,7 +232,7 @@ What the reference does, and the rule we take from it:
 Parallax layer defaults (`Parallax2D.scroll_scale.x`): sky 0.1 (clouds `autoscroll` -4 px/s), far 0.3, buildings 0.6, props 0.9, ground 1.0. Set `repeat_size.x` to the texture width and `repeat_times` to 2-3, so 330 px wide screens are covered.
 
 ### 2.7 UI and typography
-- **Body font: monogram (CC0) at size 16** = a 12 px line with a 6 px advance: 45 characters edge to edge and 40 lines in the 270x480 frame (47 lines in an iPhone 15's 568 px safe height). Use it for everything except titles. Confirm the 6 px advance in the week-1 font test; if it is 5 px, every budget gains slack.
+- **Body font: monogram (CC0) at size 16** = a 12 px line with a 6 px advance: 45 characters edge to edge and 40 lines in the 270x480 frame (47 lines in an iPhone 15's 568 px safe height). Use it for everything except titles. The Step 2 font test measured a 6 px advance, as assumed, and a 13 px glyph height; the theme's line spacing of -1 keeps the 12 px line (DECISIONS A3, ARCHITECTURE 1.4). How it reads at 4x still needs the iPhone.
 - **Text column:** a full-width panel or button is 254 px (8 px gutter each side); with a 4 px border and 3 px padding it leaves **240 px = 40 characters**, and every budget below is checked at 40 columns. Narrower slots: action-bar primary 168 px = 25 characters; Back 80 px = 11; half-width button 124 px = 18; dock labels 6.
 - **Display font: Press Start 2P (OFL)** at 8/16/24/32 (30/15/10/7 characters per 240 px line), only for the title logo, the VS screen and big banners (K.O., OFFER!, BUSTED!). Banners wrap by word; a banner that needs more than 3 lines drops one size. Ship its OFL license text in the Credits.
 - **Font import settings** for every `.ttf`: antialiasing = **None**, hinting = None, subpixel_positioning = Disabled, mipmaps off, MSDF off. Use fonts only at their native size or whole multiples.
@@ -378,6 +378,7 @@ flowchart LR
   BC -->|no, or check passed| W[Hired card: Dream vs Reality]
   BC -->|caught| RS[Offer rescinded] --> H
   O -->|Decline + confirm| H
+  O -->|Decline on the grace day| P
   W --> T
   P -->|Retry| B
   P --> T
@@ -719,9 +720,9 @@ Three tiers with deliberately different fantasies (full matrix in section 7):
 
 ### 5.6 Job board and applications
 
-**Board.** Each morning 6 new cards are drawn (2 per tier) from the posting templates in CONTENT.md section 5. A template is tier-bound; unless it pins a company, it is paired with a random company of that tier, giving about 60 combinations. The board holds at most 10 cards; the oldest drop off. A skipped card moves to the back of the deck. A template+company pair you applied to never reappears this run; pairs that dropped off unapplied can come back later labelled "Reposted".
+**Board.** Each morning 6 new cards are drawn (2 per tier) from the posting templates in CONTENT.md section 5. A template is tier-bound; unless it pins a company, it is paired with a random company of that tier. With the 6 MVP companies that gives **38 template+company pairs** (Startup 10, Mid 14, Big 14; the SHOULD Unicorn isn't dealt). Once a tier's MVP pairs run dry, the tier falls back to its non-MVP company, so the board never starves: 58 pairs with all 9 companies (agent default, ARCHITECTURE 7.1). The board holds at most 10 cards; the oldest drop off. A skipped card moves to the back of the deck. A template+company pair you applied to never reappears this run; pairs that dropped off unapplied can come back later labelled "Reposted".
 
-Each generated card rolls: `posted_days_ago` (Big 1-30, Mid 1-14, Startup 0-5; ghost postings 60-500), `applicants` (tier range), and `is_ghost` (tier ghost-job rate, unless the template forces it). Ghost status is hidden until Research.
+Each generated card rolls: `posted_days_ago` (Big 1-30, Mid 1-14, Startup 0-5; ghost postings 60-500), `applicants` (tier range), and `is_ghost` (tier ghost-job rate, unless the template forces it). A card on the board ages 1 day each night (`posted_days_ago` + 1 at every Sleep). Ghost status is hidden until Research.
 
 **Formulas:**
 
@@ -759,8 +760,9 @@ Odds bands on cards (Quick odds on the front, Tailored odds on the back; ghost r
      P = 0.065 x 1.5 x 1.5 x 1.15 x 1.0 = **16.8%** ([####-] Decent). Reply in 2 mornings.
 2. *Self-Taught, Startup "Mobile Dev (Also Barista)" (Mobile, JavaScript, Git).* Honest tags already match 3/3.
    - Quick: 0.10 x 1.5 x 0.6 x 1.05 x 1.3 = **12.3%**. Tailored: 0.10 x 1.5 x 1.5 x 1.05 x 1.3 = **30.7%**. Reply next morning.
-3. *Intern, Big corp "Junior Software Engineer I" (Java, Testing, Agile; degree; 5+ years), using a referral.* M = 2/3.
-   - P = 0.03 x 1.167 x 1.5 x 1.45 x 1.0 x 2.5 = **19.0%**, knockouts skipped ("A human actually read it").
+3. *Intern, Big corp "Junior Software Engineer I" (Java, Testing, Agile; degree; 5+ years), Tailor & Apply using a referral.* M = 2/3.
+   - No knockout applies here: the Intern's honest CV already shows a degree, and its honest Experience line (3 internships) counts as experience. `passes_years` is a yes/no, so a line that counts passes the "5+ years" gate as well as "1+ years".
+   - The referral still multiplies the odds by 2.5: P = 0.03 x 1.167 x 1.5 x 1.45 x 1.0 x 2.5 = **19.0%**. (A referral would also skip a knockout if the CV failed one.)
 
 Reference: tailored, M = 2/3, no referral, starting NETWORK:
 
@@ -786,9 +788,9 @@ Reveal morning = send day + `tier.reply_delay` (Startup 1, Mid 2, Big 3). Silent
 
 **Recruiter Radar (bad-luck protection):** `pity_count` +1 for every relevant application that doesn't produce an invite; reset to 0 on any invite. When it reaches N = **6 / 8 / 10** (Intern / Graduate / Self-Taught), the next relevant application's reveal is a guaranteed invite. The Radar bar in the top bar shows pity_count / N and updates each morning. *Why only relevant applications:* otherwise spamming 1-pip Quick Applies to mismatched jobs would farm guaranteed invites and teach the opposite lesson.
 
-**First-run day-2 guarantee:** on the first run only, if at least 3 applications were sent on day 1 and no invite is revealed on the morning of day 2, the best eligible day-1 application (highest P, not ghost, not knocked out) becomes an invite revealed that morning. If none is eligible, the highest-odds startup on the board sends a "saw your profile!" invite. Resets pity_count.
+**First-run day-2 guarantee:** on the first run only, if at least 3 applications were sent on day 1 and no invite is revealed on the morning of day 2, the best eligible day-1 application (highest P, not ghost, not knocked out, not to a blacklisted company) becomes an invite revealed that morning. If none is eligible, the highest-odds startup on the board (never a ghost job) sends a "saw your profile!" invite. Resets pity_count.
 
-**Invites** are valid on the day they arrive and the next day; at most 1 interview per day. Expired invites become "The role was filled internally. It always was." Declined offers and BUSTED companies are blacklisted for the run (their cards stop appearing).
+**Invites** are valid on the day they arrive and the next day; at most 1 interview per day. Expired invites become "The role was filled internally. It always was." Declined offers, BUSTED companies and rescinded offers (5.9.4) are blacklisted for the run: their cards leave the board at once, and their waiting invites and pending applications quietly go nowhere (agent default, ARCHITECTURE 7.1).
 
 ### 5.8 Interview
 
@@ -851,12 +853,12 @@ Stat vs thumb, in numbers: stats set S (the zone width *and* 75% of Q); the tap 
 
 *Why not quick-tap mashing:* finger fatigue over 9-15 questions a run, touch sampling differs between phones so tap counts aren't comparable, an accessibility barrier, and "mashing is not knowing". It returns LATER as the take-home "CRUNCH!" mini-game, where frantic typing is the joke. *Why not multiple choice:* the player's own CS knowledge would dominate (contradicts the brief), and 4 dense 2-3-line answer cards plus a timer don't fit the 192 px thumb band. It returns LATER as the BigOhNo study quiz.
 
-Implementation notes: the TimingBar Control must call `set_process(false)` in `_ready()` and start `_process` with `if _done: return` (tech-verified bug: otherwise it auto-resolves as a miss after about 6.7 s). Needle speed must be at least 0.6 bar/s and the minimum zone half-width 0.06, so the GOOD window is at least about 160 ms (below that, touch sampling and frame jitter make input noise).
+Implementation notes: the Answer Meter Control (`AnswerMeter`, ARCHITECTURE 17.11; "TimingBar" in earlier drafts) must call `set_process(false)` in `_ready()` and start `_process` with `if _done: return` (tech-verified bug: otherwise it auto-resolves as a miss after about 6.7 s). Needle speed must be at least 0.6 bar/s and the minimum zone half-width 0.06, so the GOOD window is at least about 160 ms (below that, touch sampling and frame jitter make input noise).
 
 The needle will feel samey by interview 4; the tier personalities (fast / steady / pivot) and no-repeat pools are the MVP answer. Variety mini-games come after playtest #1.
 
 #### 5.8.5 Lie probe
-Trigger: for each CV line sent as **Lie** to this company whose tags overlap the posting (an Education degree claim always counts), roll `tier.lie_probe_chance` (Startup 0.30, Mid 0.45, Big 0.60). At most one probe per interview; it replaces knowledge prompt 2. Dana asks the line's probe question (CONTENT.md section 6). Two buttons with visible odds:
+Trigger, rolled once when you take the invite: a CV line sent as **Lie** in the application that invite answers counts if its tags overlap the posting (an Education degree claim always counts). In CV order, each counting line rolls `tier.lie_probe_chance` (Startup 0.30, Mid 0.45, Big 0.60) until one hits. At most one probe per interview; it replaces knowledge prompt 2. A first-run "saw your profile!" invite (5.7) answers no application, so it never probes. Dana asks the line's probe question (CONTENT.md section 6). Two buttons with visible odds:
 
 ```
 Come clean: Composure -10, Doubt -5 ("Thank you for being honest. Genuinely rare."),
@@ -947,8 +949,8 @@ Nobody realistically reaches 100. The card says so: "The video scored 100. The v
 
 ### 5.11 Save and resume
 - One slot, JSON at `user://save_v1.json`, written to a temp file then renamed. 64-bit RNG seed/state are stored as strings. Never load `.tres`/`.res` from `user://`.
-- **Save after every committed action** (apply, research, study, CV change on leaving the CV screen, sleep, each interview prompt, offer decision) and on `APPLICATION_PAUSED` / `FOCUS_OUT`.
-- An interrupted interview resumes **at its start with the same seed and the same questions**, so quitting can't re-roll it.
+- **Save after every committed action** (apply, skip, research, study, CV change on leaving the CV screen, sleep, start day, starting an interview, the interview result, offer decision) and on `APPLICATION_PAUSED` / `FOCUS_OUT`.
+- An interrupted interview resumes **at its start with the same seed and the same questions**, so quitting can't re-roll it. That is why nothing is saved per prompt: Doubt and Composure live only in the interview scene (ARCHITECTURE 8).
 - Flow rules (tech-verified fixes): don't save when entering TITLE, BACKGROUND_SELECT or GAME_OVER; delete the save on entering GAME_OVER and on leaving PHASE2_STUB; Retry creates a fresh RunState; Continue falls back to a new game if the saved phase can't legally follow TITLE.
 - Settings (volumes, haptics, Relaxed Timing, text speed, `intro_seen`, `run_count`) live in `user://settings.cfg` (ConfigFile), separate from the run.
 
@@ -1152,7 +1154,7 @@ Relaxed Timing (Answer Meter input fixed at 0.9), Reduced Motion (also stops car
 ### 10.1 MUST (the MVP)
 1. **Foundation:** section 2.3 settings; Device guard and safe area (section 2.2, 2.9); git (already installed; repo `swe-simulator`) plus `.gitignore` and `.gitattributes` **before the first commit**.
 2. **Debug build on your own iPhone in week 1 (from the MacBook)** (portrait lock, fonts, safe area, thumb reach, ScrollContainer release test, haptics).
-3. Autoloads `GameState`, `Content`, `SceneRouter`, `Device`; pure classes `GameFlow`, `RunState`, `SaveIO`, `Odds`; godot-ai tests for every formula.
+3. Autoloads `GameState`, `Content`, `SceneRouter`, `Device`; pure classes `GameFlow`, `RunState`, `SaveIO`, `Odds` (Steps 4-5 added `InterviewPlan` and `HuntTips`: ARCHITECTURE 3); godot-ai tests for every formula.
 4. Title: static art, Tap to start, Continue.
 5. Background select = customization: one background card (3 stat bars, pips, runway, perk, flaw) + a 3-button selector + name dice.
 6. Phone-app job hunt (DoomApply + bottom dock): swipe deck (6/day, max 10), card front (logo, title, 3 match tags, joke, odds band), Quick Apply (1), card flip -> Tailor & Apply (2), Study (2), the Intern's 2 referrals, Sleep, energy and rent always visible, Recruiter Radar.
@@ -1214,6 +1216,7 @@ Code hooks: a generic Day Cycle where HUNT is one mode; `GameFlow.Phase` leaves 
 8. SHOULD items, then art (hero art first, intro last).
 
 ### 10.6 Tests (godot-ai `test_run`, files in `res://tests/`, `@tool`, extend `McpTestSuite`)
+The minimum set is below; ARCHITECTURE 12.2 lists every suite as built (19 at the end of Step 5).
 - `test_odds.gd`: P_invite worked examples (16.8%, 12.3%, 30.7%, 19.0%), band thresholds, knockout logic.
 - `test_interview.gd`: S/h/Q/damage for the 5.8.7 example with a fixed luck value; wheel formula; bluff formula; Tired.
 - `test_offer.gd`: salary, negotiation cap, Dream score examples (68, 57, 49).
@@ -1250,7 +1253,7 @@ Owner: **B** = `BalanceConfig` (one file); **BG** = `BackgroundData` (value per 
 | `invite_valid_days` | 2 | B |
 | `board_new_per_day` | 6 (2 per tier) | B |
 | `board_max` | 10 | B |
-| `posted_days_range` | 0-5 / 1-14 / 1-30 | T |
+| `posted_days_range` (rolled when a card is dealt; a card on the board then ages 1 day each night) | 0-5 / 1-14 / 1-30 | T |
 | `ghost_posted_days_range` | 60-500 | B |
 | `applicants_range` | 20-120 / 150-500 / 1500-3000 | T |
 | `full_scan_animations` | 3 | B |

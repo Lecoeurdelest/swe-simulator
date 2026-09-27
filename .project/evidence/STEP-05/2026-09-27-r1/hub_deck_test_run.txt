@@ -1,0 +1,32 @@
+STEP-05 hub deck stage (DoomApply part 1): test_run, all suites
+Date 2026-09-27, Windows PC, Godot 4.7.2-stable (steam), editor scene res://features/job_hunt/job_hunt.tscn
+Final run after the last code change (job_card.gd without the stamp tilt), no filter.
+
+Result: 187 passed / 0 failed / 0 skipped, 18 suites, 1061 ms
+Baseline before this stage: 184 / 184 (the background select stage). +3 in ui_text.
+
+Suite            Tests  Result
+content_lint        32  pass   (includes the 4 new barks ids: ascii, budgets, placeholders)
+data_files           4  pass
+flow                 8  pass   (test_screens_never_change_phase_or_scene: 49 assertions incl. the new hub scripts)
+hunt_apply          12  pass
+hunt_board          10  pass
+hunt_defaults       12  pass
+hunt_edges          25  pass
+hunt_reveal         14  pass
+hunt_sim             2  pass
+hunt_sleep          10  pass
+interview            4  pass
+interview_plan      15  pass
+lie_probe            5  pass
+odds                 8  pass
+offer                3  pass
+probe_trigger       11  pass
+save                 3  pass
+ui_text              9  pass   (new: test_cost_follows_the_label, test_meter_fills_from_the_left,
+                                test_count_groups_thousands; test_screen_text_ids_exist now also covers
+                                every literal Content id in job_hunt.gd and job_card.gd)
+
+cache_warning (standard godot-ai notice): preloaded GDScript dependencies may be stale after edits.
+The edited UiText was confirmed loaded: the 3 new ui_text tests call UiText.cost/meter/count, which did
+not exist before this stage, and pass.
