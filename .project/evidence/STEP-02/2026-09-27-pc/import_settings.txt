@@ -1,0 +1,45 @@
+# Font import params after reimport (2026-09-27, Windows PC, Godot 4.7.2-stable steam)
+
+== ui/fonts/PressStart2P-Regular.ttf.import
+importer="font_data_dynamic"
+uid="uid://lssgf0t3kv1v"
+antialiasing=0
+generate_mipmaps=false
+multichannel_signed_distance_field=false
+hinting=0
+subpixel_positioning=0
+
+== ui/fonts/monogram/ttf/monogram.ttf.import
+importer="font_data_dynamic"
+uid="uid://boogi867qsdgo"
+antialiasing=0
+generate_mipmaps=false
+multichannel_signed_distance_field=false
+hinting=0
+subpixel_positioning=0
+
+== ui/fonts/monogram/ttf/monogram-extended.ttf.import
+importer="font_data_dynamic"
+uid="uid://c0qd4wi36pokr"
+antialiasing=0
+generate_mipmaps=false
+multichannel_signed_distance_field=false
+hinting=0
+subpixel_positioning=0
+
+== ui/fonts/monogram/ttf/monogram-extended-italic.ttf.import
+importer="font_data_dynamic"
+uid="uid://cqu5xbr8aqtm1"
+antialiasing=0
+generate_mipmaps=false
+multichannel_signed_distance_field=false
+hinting=0
+subpixel_positioning=0
+
+== ui/fonts/monogram/pico-8/
+.
+..
+.gdignore
+monogram.p8
+monogram.p8.png
+(.gdignore added; the generated monogram.p8.png.import sidecar was removed, so Godot no longer imports or exports the PICO-8 PNG)

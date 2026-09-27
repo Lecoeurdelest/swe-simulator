@@ -1,0 +1,154 @@
+[gd_scene format=3 uid="uid://edtipccl455u"]
+
+[ext_resource type="Script" uid="uid://cf4abfqij1gfi" path="res://features/dev/device_check.gd" id="1_dcgd"]
+[ext_resource type="FontFile" uid="uid://boogi867qsdgo" path="res://ui/fonts/monogram/ttf/monogram.ttf" id="2_mono"]
+[ext_resource type="FontFile" uid="uid://lssgf0t3kv1v" path="res://ui/fonts/PressStart2P-Regular.ttf" id="3_ps2p"]
+[ext_resource type="Script" uid="uid://b2qm2ai3fh743" path="res://ui/components/safe_area_margin.gd" id="4_safe"]
+
+[sub_resource type="Theme" id="Theme_dc"]
+default_font = ExtResource("2_mono")
+default_font_size = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_07ort"]
+draw_center = false
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0, 0.3019608, 1)
+expand_margin_left = 1.0
+expand_margin_top = 1.0
+expand_margin_right = 1.0
+expand_margin_bottom = 1.0
+anti_aliasing = false
+
+[node name="DeviceCheck" type="Control" unique_id=1904133058]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_dc")
+script = ExtResource("1_dcgd")
+
+[node name="Backdrop" type="ColorRect" parent="." unique_id=1464074691]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.11, 0.12, 0.17, 1)
+
+[node name="SafeArea" type="MarginContainer" parent="." unique_id=1135604219]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("4_safe")
+
+[node name="Column" type="VBoxContainer" parent="SafeArea" unique_id=127333925]
+custom_minimum_size = Vector2(254, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Ps2p8" type="Label" parent="SafeArea/Column" unique_id=4640514]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_ps2p")
+theme_override_font_sizes/font_size = 8
+text = "DEVICE CHECK (PRESS START 2P 8)"
+clip_text = true
+
+[node name="Readout" type="Label" parent="SafeArea/Column" unique_id=853418844]
+unique_name_in_owner = true
+layout_mode = 2
+text = "readout"
+clip_text = true
+
+[node name="Mono16" type="Label" parent="SafeArea/Column" unique_id=612352937]
+layout_mode = 2
+text = "monogram 16: forty columns = 240 px wide"
+clip_text = true
+
+[node name="Ps2p16" type="Label" parent="SafeArea/Column" unique_id=720979012]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_ps2p")
+theme_override_font_sizes/font_size = 16
+text = "PS2P 16 OK!"
+clip_text = true
+
+[node name="Counters" type="Label" parent="SafeArea/Column" unique_id=576180745]
+unique_name_in_owner = true
+layout_mode = 2
+text = "counters"
+clip_text = true
+
+[node name="List" type="ScrollContainer" parent="SafeArea/Column" unique_id=930399568]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+scroll_deadzone = 6
+
+[node name="Rows" type="VBoxContainer" parent="SafeArea/Column/List" unique_id=183200232]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="HapticRow" type="HBoxContainer" parent="SafeArea/Column" unique_id=2009969052]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Haptic10" type="Button" parent="SafeArea/Column/HapticRow" unique_id=1456359097]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Haptic 10 ms"
+
+[node name="Haptic40" type="Button" parent="SafeArea/Column/HapticRow" unique_id=582065336]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Haptic 40 ms"
+
+[node name="RowMode" type="Button" parent="SafeArea/Column/HapticRow" unique_id=292776465]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Rows STOP"
+
+[node name="ActionBar" type="HBoxContainer" parent="SafeArea/Column" unique_id=172311095]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Back" type="Button" parent="SafeArea/Column/ActionBar" unique_id=1727413574]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 36)
+layout_mode = 2
+text = "< Back"
+
+[node name="Close" type="Button" parent="SafeArea/Column/ActionBar" unique_id=996996282]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(168, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Close"
+
+[node name="SafeOutline" type="Panel" parent="SafeArea" unique_id=1029257442]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_07ort")

@@ -1,0 +1,42 @@
+{
+  "_what": "game_manage get_ui_elements in the running game, 540x960 window = 270x480 game (integer x2). Global rects in game px [x, y, w, h].",
+  "title": {
+    "Info": [8, 8, 190, 101],
+    "SafeArea (SafeAreaMargin)": [0, 0, 270, 480],
+    "Column": [8, 4, 254, 472],
+    "DeviceCheckButton (debug builds only)": [8, 440, 96, 36]
+  },
+  "device_check": {
+    "DeviceCheck (root, full rect, mouse_filter STOP)": [0, 0, 270, 480],
+    "Backdrop (ColorRect, IGNORE)": [0, 0, 270, 480],
+    "SafeArea (SafeAreaMargin, IGNORE)": [0, 0, 270, 480],
+    "SafeOutline (Panel, IGNORE; StyleBoxFlat 1 px border, expand_margin 1)": [4, 4, 262, 472],
+    "Column (254 wide, SHRINK_CENTER)": [8, 4, 254, 472],
+    "Ps2p8 header": [8, 4, 254, 8],
+    "Readout (7 lines)": [8, 16, 254, 109],
+    "Mono16": [8, 129, 254, 13],
+    "Ps2p16": [8, 146, 254, 16],
+    "Counters (3 lines)": [8, 166, 254, 45],
+    "List (ScrollContainer, EXPAND_FILL)": [8, 215, 254, 181],
+    "Rows (VBox, separation 4)": [8, 215, 246, 796],
+    "Row 01..20 (Button, 36 tall, 4 px gaps)": [8, "215 + 40 * i", 246, 36],
+    "HapticRow (separation 6)": [8, 400, 254, 36],
+    "Haptic10": [8, 400, 80, 36],
+    "Haptic40": [94, 400, 81, 36],
+    "RowMode (Rows STOP/PASS)": [181, 400, 81, 36],
+    "ActionBar (separation 6)": [8, 440, 254, 36],
+    "Back": [8, 440, 80, 36],
+    "Close": [94, 440, 168, 36]
+  },
+  "with_debug_fake_insets_0_45_0_26 (runtime only, not saved)": {
+    "SafeOutline": [4, 45, 262, 409],
+    "Column": [8, 45, 254, 409],
+    "List height": 118
+  },
+  "checks": [
+    "Every tappable control is inside a SafeAreaMargin (INV-14).",
+    "Every hit area is at least 34x34: the smallest are 80x36 (Back, Haptic10) and 246x36 (rows); gaps are 4 px (rows) and 6 px (bars).",
+    "ActionBar = Back 80 + 6 + Close 168 = 254 (ARCHITECTURE 10.1); the thumb band (game y >= 288) holds Haptic, Rows, Back and Close.",
+    "The top band (y 0-72) holds only labels (header and readout)."
+  ]
+}

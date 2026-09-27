@@ -24,10 +24,10 @@ If two docs disagree: the GDD wins on rules and numbers, ARCHITECTURE wins on en
 
 1. Godot is open on this project before the session starts. Run `editor_state`: ready and not playing.
 2. Kickoff: restate the step's goal and its Done-when from `docs/ROADMAP.md`.
-3. Design huddle: bring 2-3 options per open question, each with a recommended default. The developer decides; add one line to `docs/DECISIONS.md`. Never change a design decision silently.
+3. Design huddle: bring 2-3 options per open question, each with a recommended default. The developer decides; add one line to `docs/DECISIONS.md`. Never change a design decision silently. While the developer is away (DECISIONS W4), take the recommended default, log it as "agent default, please review", and list it in the step summary; scope, tone and tip accuracy wait for the developer.
 4. Build in small increments. After each one: run the game, take a `editor_screenshot source="game"`, read `logs_read`, run `test_run`.
-5. Leave the step's "You do" task to the developer.
-6. Verify, then suggest a commit message (for example `feat(interview): add doubt/composure bars`). The developer commits.
+5. Leave the step's "You do" task to the developer. If the game needs its output to run, build a plain placeholder and keep the task queued (W3). Never quiz the developer on explanations (W6).
+6. Verify, then commit on the step's branch (`step-NN-<slug>`, branched from the previous step's branch) and push without asking (W1), e.g. `feat(interview): add doubt/composure bars`. The developer merges on GitHub in step order.
 7. Wrap up: list the next tasks and any new cut-list items.
 
 ## Hard rules
@@ -62,7 +62,7 @@ If two docs disagree: the GDD wins on rules and numbers, ARCHITECTURE wins on en
 - Task ids are ROADMAP steps: `STEP-00` .. `STEP-13`. Never renumber.
 - Execution state lives in `.project/state.json`; `docs/task/README.md` is rendered from it with `[]`, `[!]`, `[x]`.
 - A step becomes `done` only when every Done-when criterion passes: automated ones with a current `test_run` artifact in `.project/evidence/STEP-NN/<run>/`, manual and device ones with the developer's recorded confirmation. The ROADMAP checkboxes are the developer's to tick.
-- Before starting a step, check its `depends_on` in `project.yaml` are done, then read its bundle.
+- Before starting a step, check its `depends_on` in `project.yaml` are done, or have only developer-owned criteria left (device, You-do, manual review: DECISIONS W2), then read its bundle.
 - When a doc changes, mark affected criteria stale (`needs_revalidation`) rather than keeping old evidence.
 - Validate after editing the model or the index:
 

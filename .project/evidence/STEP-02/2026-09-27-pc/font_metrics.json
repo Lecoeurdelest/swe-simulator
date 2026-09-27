@@ -1,0 +1,30 @@
+{
+  "_what": "game_eval in the running game (desktop, Godot 4.7.2-stable steam, 2026-09-27): load() each FontFile, read its import-derived properties and metrics. w40 = width of a 40-character string.",
+  "_enums": "antialiasing 0 = None; hinting 0 = None; subpixel_positioning 0 = Disabled",
+  "PressStart2P-Regular.ttf": {"antialiasing": 0, "class": "FontFile", "font_name": "Press Start 2P", "generate_mipmaps": false, "hinting": 0, "msdf": false, "subpixel_positioning": 0,
+    "s8": {"adv_M": 8, "ascent": 8, "descent": 0, "height": 8, "w40": 320},
+    "s16": {"adv_M": 16, "ascent": 16, "descent": 0, "height": 16, "w40": 640},
+    "s24": {"adv_M": 24, "ascent": 24, "descent": 0, "height": 24, "w40": 960},
+    "s32": {"adv_M": 32, "ascent": 32, "descent": 0, "height": 32, "w40": 1280}},
+  "monogram.ttf": {"antialiasing": 0, "class": "FontFile", "font_name": "monogram", "generate_mipmaps": false, "hinting": 0, "msdf": false, "subpixel_positioning": 0,
+    "s8": {"adv_M": 3, "ascent": 6, "descent": 1, "height": 7, "w40": 120},
+    "s16": {"adv_M": 6, "ascent": 11, "descent": 2, "height": 13, "w40": 240},
+    "s24": {"adv_M": 9, "ascent": 16, "descent": 3, "height": 19, "w40": 360},
+    "s32": {"adv_M": 12, "ascent": 22, "descent": 4, "height": 26, "w40": 480}},
+  "monogram-extended.ttf": {"antialiasing": 0, "class": "FontFile", "font_name": "monogram", "generate_mipmaps": false, "hinting": 0, "msdf": false, "subpixel_positioning": 0,
+    "s8": {"adv_M": 3, "ascent": 6, "descent": 1, "height": 7, "w40": 120},
+    "s16": {"adv_M": 6, "ascent": 11, "descent": 2, "height": 13, "w40": 240},
+    "s24": {"adv_M": 9, "ascent": 16, "descent": 3, "height": 19, "w40": 360},
+    "s32": {"adv_M": 12, "ascent": 22, "descent": 4, "height": 26, "w40": 480}},
+  "monogram-extended-italic.ttf": {"antialiasing": 0, "class": "FontFile", "font_name": "monogram", "generate_mipmaps": false, "hinting": 0, "msdf": false, "subpixel_positioning": 0,
+    "s8": {"adv_M": 3, "ascent": 6, "descent": 1, "height": 7, "w40": 120},
+    "s16": {"adv_M": 6, "ascent": 11, "descent": 2, "height": 13, "w40": 240},
+    "s24": {"adv_M": 9, "ascent": 17, "descent": 3, "height": 20, "w40": 360},
+    "s32": {"adv_M": 12, "ascent": 22, "descent": 4, "height": 26, "w40": 480}},
+  "_findings": [
+    "monogram 16: advance 6 px, so 40 characters = 240 px exactly (GDD 2.7 / ARCHITECTURE 1.4 assumption confirmed).",
+    "monogram 16: font height 13 px (ascent 11 + descent 2), not the 12 px line GDD 2.7 assumes. A Label adds the theme's line_spacing on top (default theme: 3), so multi-line labels in the device check step 16 px per line.",
+    "Press Start 2P: exact 8 px grid (8x8 at size 8, 16x16 at 16).",
+    "These are font-file metrics, so they hold on every platform; crispness at 4x still needs the iPhone (AC-S02-11)."
+  ]
+}
