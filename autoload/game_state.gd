@@ -66,8 +66,9 @@ func change_phase(to: GameFlow.Phase) -> void:
 		push_error("Illegal phase change %s -> %s" % [GameFlow.Phase.find_key(from), GameFlow.Phase.find_key(to)])
 		return
 	run.phase = to
-	if GameFlow.deletes_save(from, to):
+	if GameFlow.deletes_save(from, to):  # the run is over: its save goes, and it counts once
 		SaveIO.delete()
+		_count_finished_run()
 	save()
 	phase_changed.emit(from, to)
 
@@ -349,6 +350,7 @@ func can_take_interview(invite: Dictionary) -> bool:
 
 ## won = K.O. or committee win. busted = the lie probe ended in BUSTED (company blacklisted).
 ## came_clean = you came clean on the probe (Step 4: that line counts as confessed for this company).
+## A win builds the whole offer from the checkpoint (RunState.make_offer) before it is cleared.
 func finish_interview(won: bool, composure_left: float, busted: bool = false, came_clean: bool = false) -> void:
 	var iv := run.interview
 	var company_id: String = iv.get("company_id", "")
@@ -359,14 +361,7 @@ func finish_interview(won: bool, composure_left: float, busted: bool = false, ca
 		run.blacklist_company(company_id)
 	run.settle_probe(company_id, str(iv.get("probe_line", "")), came_clean, busted)
 	if won:
-		var tier_data := Content.tier(iv["tier"])
-		var bg := Content.background(run.background_id)
-		run.offer = {
-			"company_id": company_id, "template_id": iv["template_id"], "tier": iv["tier"],
-			"salary": Odds.offer_salary(Content.balance, tier_data, bg, composure_left, bg.composure_max),
-			"office_days": tier_data.office_days, "negotiated": false,
-			# Step 6: job_title, perks, fine_print, equity_text (picked with the interview's RNG)
-		}
+		run.make_offer(Content.balance, Content.tier(str(iv["tier"])), _bg(), _hunt_content(), composure_left)
 	run.interview = {}
 	change_phase(GameFlow.Phase.OFFER if won else GameFlow.Phase.JOB_HUNT)
 
@@ -374,16 +369,19 @@ func finish_interview(won: bool, composure_left: float, busted: bool = false, ca
 # ---------- offer and endings ----------
 
 ## Decline (after the confirm dialog): the company is blacklisted and the hunt goes on the same day,
-## except on the grace day (rent at 0), when declining is Plan B (GDD 5.10).
+## except on the grace day (rent at 0), when declining is Plan B (GDD 5.10, RunState.decline_ends_run).
 ## Accept: an unconfessed degree-claim Lie sent to this company rolls tier.background_check on the
 ## run RNG (GDD 5.9.4). Caught: the offer is rescinded (run.rescinded holds mail_rescinded), the
 ## company blacklisted, back to the hunt the same day. Otherwise the Hired card.
+## Accept writes no save: PHASE2_STUB is never saved, so a kill on the Hired card resumes at the
+## offer with the RNG state from before the check (GDD 5.11), and accepting again rolls the same dice.
 func answer_offer(accept: bool) -> void:
 	var company_id: String = run.offer.get("company_id", "")
 	if not accept:
+		var ends_run := run.decline_ends_run()
 		run.blacklist_company(company_id)
 		run.offer = {}
-		if run.rent_days_left == 0:
+		if ends_run:
 			end_run_plan_b()
 		else:
 			change_phase(GameFlow.Phase.JOB_HUNT)
@@ -398,15 +396,16 @@ func answer_offer(accept: bool) -> void:
 	run.employment = run.offer.duplicate(true)
 	run.dream_score = Odds.dream_score(Content.balance, run.offer["salary"], run.offer["office_days"],
 		run.commute_minutes, flags.size(), run.rent_days_left, bg.runway_days)
-	_count_finished_run()
 	change_phase(GameFlow.Phase.PHASE2_STUB)
 
 
 ## Morning with rent at 0, no invite, grace day used (or none waiting); or Decline on the grace day.
 func end_run_plan_b() -> void:
-	_count_finished_run()
 	change_phase(GameFlow.Phase.GAME_OVER)
 
 
+## settings meta run_count (first_run reads it): a run counts once, when it is over for good, which is
+## when change_phase() deletes its save (Plan B, or leaving the Hired card). Not on Accept: a kill on
+## the Hired card resumes at the offer, and accepting again must not count the run twice.
 func _count_finished_run() -> void:
 	set_setting("meta", "run_count", int(setting("meta", "run_count", 0)) + 1)

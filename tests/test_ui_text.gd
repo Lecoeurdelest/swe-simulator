@@ -63,6 +63,36 @@ func test_count_groups_thousands() -> void:
 	assert_eq(UiText.count(1500000), "1,500,000")
 	assert_eq(UiText.count(-4500), "-4,500")
 
+
+## Wraps exactly where the content lint counts lines (GDD 2.7), so a checked budget is what shows.
+func test_wrap_matches_the_lint() -> void:
+	assert_eq(UiText.word_wrap("a".repeat(40), 40), PackedStringArray(["a".repeat(40)]), "exactly 40 columns fit")
+	assert_eq(UiText.word_wrap("a".repeat(20) + " " + "b".repeat(20), 40),
+		PackedStringArray(["a".repeat(20), "b".repeat(20)]), "41 columns wrap at the space")
+	assert_eq(UiText.word_wrap("a".repeat(85), 40).size(), 3, "an over-long word breaks mid-word")
+	assert_eq(UiText.word_wrap("one\ntwo", 40), PackedStringArray(["one", "two"]), "a newline starts a line")
+	assert_eq(UiText.word_wrap("", 40), PackedStringArray([""]), "empty is one empty line")
+	var text := "Non-compete: for 24 months you won't work in, near, or think about software."
+	assert_eq(UiText.word_wrap(text, 28), PackedStringArray(["Non-compete: for 24 months", "you won't work in, near, or",
+		"think about software."]), "fine print at 28 columns (GDD S10)")
+	var lint := load("res://tests/test_content_lint.gd") as GDScript
+	for columns: int in [10, 28, 40]:
+		assert_eq(UiText.word_wrap(text, columns).size(), int(lint.call("wrap_lines", text, columns)),
+			"same line count as the lint at %d columns" % columns)
+
+
+## GDD S10: one field per line after a 12-character label column, values wrapping at 28 columns.
+func test_contract_field_lines() -> void:
+	assert_eq(UiText.field("Salary:", "$71,000/year", 12, 40), PackedStringArray(["Salary:     $71,000/year"]))
+	assert_eq(UiText.field("Commute:", "0 minutes. The influencer was right about one thing.", 12, 40),
+		PackedStringArray(["Commute:    0 minutes. The influencer", "            was right about one thing."]),
+		"the S10 mockup's 2 commute lines")
+	assert_eq(UiText.field("", "Kombucha on tap", 12, 40), PackedStringArray(["            Kombucha on tap"]),
+		"an empty label continues the field above")
+	for line: String in UiText.field("Fine print:", "Equity: 0.0001%, 4-year vest, 1-year cliff. Worth one sandwich at target valuation.", 12, 40):
+		assert_true(line.length() <= 40, "'%s' fits 40 columns" % line)
+
+
 func test_call_pattern_reads_only_whole_literals() -> void:
 	var calls := RegEx.create_from_string(CALL_PATTERN)
 	assert_true(calls.is_valid(), "CALL_PATTERN does not compile")

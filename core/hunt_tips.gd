@@ -2,7 +2,8 @@
 class_name HuntTips
 extends RefCounted
 ## Which Ducky tip the job hunt shows, and when (GDD 8.3). A tip waits for a natural pause (8.1 rule 3):
-## the night summary, the morning inbox, the CV screen, Study. Pure: it only reads the run.
+## the night summary, the morning inbox, the CV screen, Study, and the offer that ends the hunt.
+## Pure: it only reads the run.
 ## GameState.mark_tip_shown() records a once-per-run tip in run.tips_shown.
 
 const SPRAY_QUICK_APPLIES := 8   # GDD 8.3: "8 Quick Applies without an invite"
@@ -74,6 +75,13 @@ static func cv_level_chosen(run: RunState, cv_lines: Dictionary, line: String, l
 ## After a Study action: the first one this run -> tip_fundamentals (GDD 8.3).
 static func studied(run: RunState) -> String:
 	return "" if run.tips_shown.has("tip_fundamentals") else "tip_fundamentals"
+
+
+## The offer's one tip (GDD S10, 8.1 rule 2, 8.3): a startup offer, which carries the joke equity ->
+## tip_equity_lottery; any other -> tip_total_comp (its trigger: an offer with a commute). Negotiate
+## is SHOULD, so tip_negotiate never shows yet.
+static func offer(run: RunState) -> String:
+	return "tip_equity_lottery" if str(run.offer.get("equity_text", "")) != "" else "tip_total_comp"
 
 
 ## An invite arrived this run: one is waiting, an application got one (invited, taken or expired),

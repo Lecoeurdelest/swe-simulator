@@ -1,0 +1,37 @@
+STEP-06 offer stage (ROADMAP Step 6 tasks 1-2 and the Hired-card resume rule): test_run, all suites
+Date 2026-09-27, Windows PC, Godot 4.7.2-stable (steam), editor open on res://features/job_hunt/job_hunt.tscn
+
+Baseline before this stage: 200 passed / 0 failed / 19 suites.
+
+Final run (after the last change):
+  passed 214, failed 0, skipped 0, total 214, suites 19
+  suites: content_lint, data_files, flow, hunt_apply, hunt_board, hunt_defaults, hunt_edges, hunt_reveal,
+          hunt_sim, hunt_sleep, hunt_tips, interview, interview_plan, lie_probe, odds, offer,
+          probe_trigger, save, ui_text
+
+Suite offer (tests/test_offer.gd): 13 tests, all passed (3 kept, 10 new):
+  test_accept_after_a_hired_kill_rolls_the_same_dice   161 assertions  (new)
+  test_commute_hours                                      4            (new)
+  test_contract_fits_the_paper                           24            (new)
+  test_decline_ends_the_run_only_at_zero_rent             2            (new)
+  test_dream_score_examples                               3
+  test_make_offer_builds_the_whole_contract              47            (new)
+  test_negotiation_odds                                   3
+  test_offer_survives_the_save                            3            (new)
+  test_offer_tip                                          3            (new)
+  test_perks_and_fine_print_match_the_tier              375            (new)
+  test_salary_example                                     1
+  test_same_checkpoint_same_contract                      6            (new)
+  test_startup_offer_is_remote_with_equity                8            (new)
+
+Suite flow (tests/test_flow.gd), 2 new tests, passed:
+  test_a_hired_kill_counts_the_run_once
+  test_run_count_moves_only_with_the_save_deletion
+
+Suite ui_text (tests/test_ui_text.gd), 2 new tests, passed:
+  test_wrap_matches_the_lint
+  test_contract_field_lines
+
+Editor-side log during the runs: only the known stale "Compile Error: Identifier not found:
+GameState/Content" lines (autoload scripts compiled in the editor), now also for features/offer/offer.gd.
+The running game and test_run are clean.

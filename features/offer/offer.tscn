@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://b2qm2ai3fh743" path="res://ui/components/safe_area_margin.gd" id="2_safe"]
 [ext_resource type="PackedScene" uid="uid://ce41s06l840t1" path="res://ui/components/pause_menu.tscn" id="3_pause"]
 [ext_resource type="PackedScene" uid="uid://ba7fpxb5lc526" path="res://ui/components/confirm_dialog.tscn" id="4_conf"]
+[ext_resource type="PackedScene" uid="uid://cv7u0us1tep67" path="res://ui/components/ducky_note.tscn" id="5_duck"]
 
 [node name="Offer" type="Control" unique_id=894328749]
 layout_mode = 3
@@ -25,6 +26,86 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.11, 0.12, 0.17, 1)
 
+[node name="Stage" type="Control" parent="." unique_id=1587300421]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 188.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="TierBackground" type="ColorRect" parent="Stage" unique_id=1360938519]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -165.0
+offset_top = -400.0
+offset_right = 165.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+color = Color(0.37254903, 0.34117648, 0.30980393, 1)
+
+[node name="PlayerBust" type="ColorRect" parent="Stage" unique_id=1774402966]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -104.0
+offset_top = -104.0
+offset_right = -40.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+color = Color(1, 0, 1, 1)
+
+[node name="Desk" type="ColorRect" parent="Stage" unique_id=619274155]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -14.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+color = Color(0.67058825, 0.32156864, 0.21176471, 1)
+
+[node name="Dimmer" type="ColorRect" parent="Stage" unique_id=1203885517]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.07, 0.07, 0.1, 0.6)
+
+[node name="DanaBust" type="ColorRect" parent="Stage" unique_id=1946061327]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = 40.0
+offset_top = -104.0
+offset_right = 104.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+color = Color(1, 0, 1, 1)
+
 [node name="SafeArea" type="MarginContainer" parent="." unique_id=2072531982]
 layout_mode = 1
 anchors_preset = 15
@@ -36,42 +117,64 @@ mouse_filter = 2
 script = ExtResource("2_safe")
 
 [node name="Column" type="VBoxContainer" parent="SafeArea" unique_id=2089350047]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(254, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 mouse_filter = 2
 theme_override_constants/separation = 4
 
-[node name="TopBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=146014533]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 4
-
-[node name="Header" type="Label" parent="SafeArea/Column/TopBand" unique_id=1470123672]
-unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"HeaderLabel"
-text = "OFFER!"
-
-[node name="Body" type="VBoxContainer" parent="SafeArea/Column" unique_id=201474733]
+[node name="StageSpacer" type="Control" parent="SafeArea/Column" unique_id=201474733]
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
-alignment = 2
 
-[node name="Paper" type="PanelContainer" parent="SafeArea/Column/Body" unique_id=1126648755]
+[node name="Paper" type="PanelContainer" parent="SafeArea/Column" unique_id=1126648755]
+unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
 theme_type_variation = &"PaperPanel"
 
-[node name="Contract" type="Label" parent="SafeArea/Column/Body/Paper" unique_id=585043811]
+[node name="Contract" type="RichTextLabel" parent="SafeArea/Column/Paper" unique_id=585043811]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/default_color = Color(0.14901961, 0.16862746, 0.26666668, 1)
+theme_override_constants/line_separation = -1
+text = "OFFER OF EMPLOYMENT - Beigeware Financial
+Dear Alex,
+
+Salary:     $81,000/year"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+
+[node name="TipNote" parent="SafeArea/Column" unique_id=1459013382 instance=ExtResource("5_duck")]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.14901961, 0.16862746, 0.26666668, 1)
-text = "OFFER OF EMPLOYMENT - Beigeware Financial
-Backend Developer
-$77,000/year
-Hybrid: 2 office days a week"
+
+[node name="DanaLine" type="PanelContainer" parent="SafeArea/Column" unique_id=1739505228]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Lines" type="VBoxContainer" parent="SafeArea/Column/DanaLine" unique_id=990337614]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="DanaName" type="Label" parent="SafeArea/Column/DanaLine/Lines" unique_id=1302751979]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "DANA"
+
+[node name="DanaText" type="Label" parent="SafeArea/Column/DanaLine/Lines" unique_id=1627014352]
+unique_name_in_owner = true
+layout_mode = 2
+text = "No worries! (Our ATS will remember this.)"
 autowrap_mode = 3
 
 [node name="ThumbBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=18465724]

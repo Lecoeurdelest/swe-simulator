@@ -51,3 +51,36 @@ static func count(amount: int) -> String:
 static func money(amount: int) -> String:
 	var grouped := count(absi(amount))
 	return ("-" if amount < 0 else "") + "$" + grouped
+
+
+## Word wrap as an autowrapped Label does it, and as test_content_lint counts lines: a word moves to
+## the next line when it would pass `columns`, a word longer than a whole line is cut, "\n" starts a
+## line. monogram is monospaced, so columns are exact.
+static func word_wrap(text: String, columns: int) -> PackedStringArray:
+	var out := PackedStringArray()
+	for paragraph: String in text.split("\n"):
+		var line := ""
+		for word: String in paragraph.split(" ", false):
+			if line.is_empty():
+				line = word
+			elif line.length() + 1 + word.length() <= columns:
+				line += " " + word
+			else:
+				out.append(line)
+				line = word
+			while line.length() > columns:
+				out.append(line.left(columns))
+				line = line.substr(columns)
+		out.append(line)
+	return out
+
+
+## One field of the offer contract (GDD S10): the label in a column label_columns wide, the value
+## wrapped in the columns left of the line, its wrapped lines indented under the first. An empty label
+## continues the field above. ("Perks:", "Kombucha on tap", 12, 40) -> ["Perks:      Kombucha on tap"].
+static func field(label: String, value: String, label_columns: int, columns: int) -> PackedStringArray:
+	var out := PackedStringArray()
+	var lines := word_wrap(value, columns - label_columns)
+	for i: int in lines.size():
+		out.append((label.rpad(label_columns) if i == 0 else " ".repeat(label_columns)) + lines[i])
+	return out

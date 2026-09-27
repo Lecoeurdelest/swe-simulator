@@ -103,6 +103,7 @@
   "ui_decline": "Decline",
   "ui_negotiate": "Negotiate",
   "ui_decline_confirm": "Decline this offer? Rent keeps ticking.",
+  "ui_decline_confirm_grace": "Decline this offer? Rent is due today, so this ends the run.",
   "ui_ready": "Ready? Tap to continue.",
   "ui_quit_confirm": "Quit the game?",
   "ui_quit": "Quit",
