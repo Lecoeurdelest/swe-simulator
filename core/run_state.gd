@@ -9,6 +9,10 @@ extends RefCounted
 ## can run them inside the editor.
 
 const VERSION := 1
+## Job hunt ids (GDD 5.0). The board deals round-robin in TIER_IDS order.
+const TIER_IDS: PackedStringArray = ["startup", "mid", "big"]
+const CV_LINES: PackedStringArray = ["edu", "exp", "proj"]
+const GUARANTEE_DAY := 2              # the first-run guarantee: day-1 applications, the morning of day 2
 
 # --- flow and RNG ---
 var phase: GameFlow.Phase = GameFlow.Phase.TITLE
@@ -37,10 +41,16 @@ var referral_tokens: int = 0
 var pity_count: int = 0               # Recruiter Radar
 var interviews_today: int = 0
 var next_uid: int = 1
-var board: Array[Dictionary] = []         # {uid, template_id, company_id, tier, posted_days_ago, applicants, is_ghost, reposted}
-var applications: Array[Dictionary] = []  # {uid, template_id, company_id, tier, day_sent, reveal_day, p, hits, knockout, is_ghost, referral, tailored, lies, status}
+var board: Array[Dictionary] = []         # the deck, top card first: {uid, template_id, company_id, tier, posted_days_ago, applicants, is_ghost, reposted}
+# applications, in send order: {uid (= the card's), template_id, company_id, tier, day_sent, reveal_day, p, hits,
+#   relevant, knockout, knockout_reason {id, args}, is_ghost, referral, tailored, lies, status}
+#   status: pending -> invited | rejected | silent (-> ghosted); invited -> interview | expired
+var applications: Array[Dictionary] = []
 var applied: Array[String] = []           # "template_id|company_id": never dealt again this run
-var invites: Array[Dictionary] = []       # {app_uid, company_id, template_id, tier, day_received, kind}
+var dropped: Array[String] = []           # "template_id|company_id" pairs that fell off the board unapplied: they return "reposted"
+# invites waiting in Mail: {uid, app_uid, company_id, template_id, tier, day_received, kind, mail_id}
+#   kind: rolled | radar | guarantee | profile (the guarantee's "saw your profile!" from a board card)
+var invites: Array[Dictionary] = []
 var morning_report: Dictionary = {}       # built by Sleep; the hunt scene shows it, "Start day" clears it
 var blacklist: Array[String] = []         # company ids: declined, BUSTED or rescinded
 var researched: Array[String] = []        # company ids (SHOULD)
@@ -91,12 +101,518 @@ func settle_probe(company_id: String, cv_line_id: String, came_clean: bool, bust
 		lies_carried.erase(cv_line_id)
 
 
-## Night: one Sleep. The morning reveal runs when the next day starts.
-func sleep(cfg: BalanceConfig) -> void:
+## A new run's starting numbers from its background (GDD 5.2). GameState adds the name, the seed,
+## the gap topics and first_run, then deals the day-1 board.
+func set_background(cfg: BalanceConfig, bg: BackgroundData) -> void:
+	background_id = String(bg.id)
+	stats.assign({"knw": bg.start_knw, "exp": bg.start_exp, "net": bg.start_net})
+	commute_pips = bg.commute_pips
+	commute_minutes = bg.commute_minutes
+	energy = cfg.energy_max - bg.commute_pips
+	rent_days_left = bg.runway_days
+	referral_tokens = bg.referral_tokens
+	lone_wolf = bg.teamwork_mult < bg.teamwork_mult_after_network
+
+
+# ---------- job hunt (GDD 5.6-5.10). Every rule takes its data as arguments: ----------
+# cfg: BalanceConfig; tiers: {"startup": TierData, "mid": ..., "big": ...};
+# bg: this run's BackgroundData; rng: the run RNG;
+# content: {"postings": ..., "companies": ..., "cv_lines": ...}, the parsed JSON files keyed by file name.
+
+## "template_id|company_id": one card identity, as stored in applied and dropped.
+static func pair_key(template_id: String, company_id: String) -> String:
+	return template_id + "|" + company_id
+
+
+## The morning deal (GDD 5.6): cfg.board_new_per_day cards, round-robin over the tiers (6 = 2 per
+## tier), put on top of the deck. Blacklisted companies leave the board first; then the oldest cards
+## drop off down to cfg.board_max. Returns how many cards were dealt.
+func deal_board(cfg: BalanceConfig, tiers: Dictionary, content: Dictionary, rng: RandomNumberGenerator) -> int:
+	var postings := _file(content, "postings")
+	var companies := _file(content, "companies")
+	for i: int in range(board.size() - 1, -1, -1):
+		if blacklist.has(str(board[i]["company_id"])):
+			board.remove_at(i)
+	var tier_ids: Array[String] = []
+	for id: String in TIER_IDS:
+		if _tier(tiers, id) != null:
+			tier_ids.append(id)
+	if tier_ids.is_empty():
+		return 0
+	var dealt: Array[Dictionary] = []
+	for i: int in cfg.board_new_per_day:
+		var card := _deal_card(cfg, _tier(tiers, tier_ids[i % tier_ids.size()]), postings, companies, dealt, rng)
+		if not card.is_empty():
+			dealt.append(card)
+	var dealt_count := dealt.size()
+	dealt.append_array(board)
+	board = dealt
+	while board.size() > cfg.board_max:
+		_drop_oldest()
+	return dealt_count
+
+
+## Swipe left: the card goes to the back of the deck.
+func skip_card(card_uid: int) -> bool:
+	var i := _card_index(card_uid)
+	if i < 0:
+		return false
+	board.append(board.pop_at(i))
+	return true
+
+
+## The CV lines actually sent (GDD 5.4): as set on the CV screen, or, when tailored, every Honest
+## line goes out Polished (a Lie stays a Lie). Returns {line_ids, tags (the union), degree,
+## passes_years, lies (the Lie line ids)}.
+func cv_sent(cv_lines: Dictionary, tailored: bool) -> Dictionary:
+	var line_ids: Array[String] = []
+	var tags: Array[String] = []
+	var lies: Array[String] = []
+	var degree := false
+	var passes_years := false
+	for line: String in CV_LINES:
+		var level: String = cv_levels.get(line, "honest")
+		if tailored and level == "honest":
+			level = "polished"
+		var id := _cv_line_id(cv_lines, line, level)
+		if id.is_empty():
+			continue
+		var entry: Dictionary = cv_lines[id]
+		line_ids.append(id)
+		for tag: Variant in entry.get("tags", []):
+			if not tags.has(str(tag)):
+				tags.append(str(tag))
+		degree = degree or bool(entry.get("degree", false))
+		passes_years = passes_years or bool(entry.get("passes_years", false))
+		if level == "lie":
+			lies.append(id)
+	return {"line_ids": line_ids, "tags": tags, "degree": degree, "passes_years": passes_years, "lies": lies}
+
+
+## What a card shows (GDD S04): its 3 tags checked against the CV as set ({tag, hit}), and for each
+## way to apply ("quick", "tailored", "referral" = tailored + a token) {p, band, hits, relevant,
+## knockout, lies}. knockout is the red chip: {id, args} into postings.json ("card_knockout" wraps
+## it), or {} for none. Ghost risk is never included. {} if the card's data is missing.
+func card_odds(cfg: BalanceConfig, tiers: Dictionary, bg: BackgroundData, content: Dictionary, card: Dictionary) -> Dictionary:
+	var tier := _tier(tiers, str(card.get("tier", "")))
+	var posting := _posting(content, str(card.get("template_id", "")))
+	if tier == null or posting.is_empty():
+		return {}
+	var cv := _file(content, "cv_lines")
+	var as_set: Array = cv_sent(cv, false)["tags"]
+	var tag_rows: Array[Dictionary] = []
+	for tag: Variant in posting.get("tags", []):
+		tag_rows.append({"tag": str(tag), "hit": as_set.has(str(tag))})
+	return {
+		"tags": tag_rows,
+		"quick": _quote(cfg, tier, bg, posting, cv, false, false),
+		"tailored": _quote(cfg, tier, bg, posting, cv, true, false),
+		"referral": _quote(cfg, tier, bg, posting, cv, true, true),
+	}
+
+
+## Quick Apply (tailored = false) or Tailor & Apply (tailored = true), optionally with a referral
+## token (GDD 5.3, 5.6). Pays the energy, freezes P_invite with today's stats and schedules the
+## reply. The outcome is NOT rolled now: the reveal morning rolls it (GDD 5.7).
+## Returns the new application, or {} when the card is gone or it can't be paid for.
+func apply_card(cfg: BalanceConfig, tiers: Dictionary, bg: BackgroundData, content: Dictionary, card_uid: int, tailored: bool, referral: bool) -> Dictionary:
+	var i := _card_index(card_uid)
+	if i < 0:
+		return {}
+	var card: Dictionary = board[i]
+	var tier := _tier(tiers, str(card["tier"]))
+	var posting := _posting(content, str(card["template_id"]))
+	if tier == null or posting.is_empty() or (referral and referral_tokens <= 0):
+		return {}
+	if not spend_energy(cfg.cost_tailor_apply if tailored else cfg.cost_quick_apply):
+		return {}
+	if referral:
+		referral_tokens -= 1
+	var quote := _quote(cfg, tier, bg, posting, _file(content, "cv_lines"), tailored, referral)
+	var knockout: Dictionary = quote["knockout"]
+	var app := {
+		"uid": card["uid"], "template_id": card["template_id"], "company_id": card["company_id"],
+		"tier": card["tier"], "day_sent": day,
+		"reveal_day": Odds.reply_day(cfg, tier, day, not knockout.is_empty()),
+		"p": quote["p"], "hits": quote["hits"], "relevant": quote["relevant"],
+		"knockout": not knockout.is_empty(), "knockout_reason": knockout,
+		"is_ghost": card["is_ghost"], "referral": referral, "tailored": tailored,
+		"lies": quote["lies"], "status": "pending",
+	}
+	applications.append(app)
+	applied.append(pair_key(str(card["template_id"]), str(card["company_id"])))
+	board.remove_at(i)
+	total_applications += 1
+	for lie: String in quote["lies"]:
+		if not lies_carried.has(lie):
+			lies_carried.append(lie)
+	return app
+
+
+## Sleep: ONE committed action (ARCHITECTURE 7.1). The night tick, then the whole morning: expired
+## invites, the reveal in send order, ghosting, the board refill, the day-2 guarantee and the rent
+## check (GDD 5.3, 5.6, 5.7, 5.10). The result is written to morning_report and returned:
+##   day, night {applied, rejected, ghosted, rent_days_left} (the lock-screen summary),
+##   invites [invite] (inbox first), rejections [{app_uid, company_id, template_id, tier, knockout, mail_id}]
+##   in send order (knockout {id, args} names it; mail_id "mail_knockout", or "" for a plain rejection),
+##   no_reply (silent and ghost-job reveals), ghosted [{app_uid, company_id, template_id, tier, days}],
+##   expired [{invite_uid, app_uid, company_id, template_id, tier, mail_id}] ("filled internally"),
+##   radar {before, after, max}, guarantee ("", "guarantee" or "profile"), board_new,
+##   grace_day, plan_b (GameState ends the run after the inbox), rent_days_left.
+## Called with cfg alone (the Step 1 form) it only runs the night tick and returns {}.
+func sleep(cfg: BalanceConfig, tiers: Dictionary = {}, bg: BackgroundData = null, content: Dictionary = {}, rng: RandomNumberGenerator = null) -> Dictionary:
+	var applied_today := 0
+	for app: Dictionary in applications:
+		if int(app["day_sent"]) == day:
+			applied_today += 1
 	day += 1
 	rent_days_left = maxi(rent_days_left - 1, 0)
 	energy = cfg.energy_max - commute_pips
 	interviews_today = 0
+	for card: Dictionary in board:
+		card["posted_days_ago"] = int(card["posted_days_ago"]) + 1
+	if tiers.is_empty() or bg == null or rng == null:
+		return {}
+	morning_report = _morning(cfg, tiers, bg, content, rng, applied_today)
+	return morning_report
+
+
+## Mail "Start day": the morning has been seen and the report is cleared.
+## Returns true when this morning ended the run (GameState then calls end_run_plan_b()).
+func start_day() -> bool:
+	var plan_b := bool(morning_report.get("plan_b", false))
+	morning_report = {}
+	return plan_b
+
+
+## Mail "GO NOW": the invite leaves the inbox and its application is marked "interview".
+## Returns the invite, or {} if it isn't waiting (GameState pays and checks the day's limit first).
+func take_invite(invite_uid: int) -> Dictionary:
+	for i: int in invites.size():
+		if int(invites[i]["uid"]) == invite_uid:
+			var invite: Dictionary = invites.pop_at(i)
+			var app := _application(int(invite["app_uid"]))
+			if not app.is_empty():
+				app["status"] = "interview"
+			return invite
+	return {}
+
+
+# ---------- job hunt internals ----------
+
+func _morning(cfg: BalanceConfig, tiers: Dictionary, bg: BackgroundData, content: Dictionary, rng: RandomNumberGenerator, applied_today: int) -> Dictionary:
+	var report := {
+		"day": day, "night": {}, "invites": [], "rejections": [], "no_reply": 0, "ghosted": [],
+		"expired": [], "radar": {"before": pity_count, "after": pity_count, "max": bg.pity_n},
+		"guarantee": "", "board_new": 0, "grace_day": false, "plan_b": false, "rent_days_left": rent_days_left,
+	}
+	_expire_invites(cfg, report)
+	var outcomes := _reveal_outcomes(tiers, bg, rng)
+	var guarantee_due := _guarantee_due(cfg, outcomes)
+	if guarantee_due:
+		pity_count = 0
+		var best := _best_day1_application()
+		if not best.is_empty():
+			_set_outcome(outcomes, best, "guarantee")
+			report["guarantee"] = "guarantee"
+	_apply_outcomes(outcomes, report)
+	_ghost_silent(cfg, report)
+	report["board_new"] = deal_board(cfg, tiers, content, rng)
+	if guarantee_due and report["guarantee"] == "":
+		var invite := _profile_invite(cfg, tiers, bg, content)
+		if not invite.is_empty():
+			(report["invites"] as Array).append(invite)
+			report["guarantee"] = "profile"
+	(report["radar"] as Dictionary)["after"] = pity_count
+	var rent := Odds.rent_check(cfg, rent_days_left, grace_used, not invites.is_empty())
+	if rent == "grace":
+		grace_used = true
+	report["grace_day"] = rent == "grace"
+	report["plan_b"] = rent == "plan_b"
+	report["night"] = {
+		"applied": applied_today, "rejected": (report["rejections"] as Array).size(),
+		"ghosted": (report["ghosted"] as Array).size(), "rent_days_left": rent_days_left,
+	}
+	return report
+
+
+func _expire_invites(cfg: BalanceConfig, report: Dictionary) -> void:
+	var expired: Array = report["expired"]
+	for i: int in range(invites.size() - 1, -1, -1):
+		var invite: Dictionary = invites[i]
+		if not Odds.invite_expired(cfg, int(invite["day_received"]), day):
+			continue
+		invites.remove_at(i)
+		var app := _application(int(invite["app_uid"]))
+		if not app.is_empty():
+			app["status"] = "expired"
+		expired.push_front({
+			"invite_uid": invite["uid"], "app_uid": invite["app_uid"], "company_id": invite["company_id"],
+			"template_id": invite["template_id"], "tier": invite["tier"], "mail_id": "mail_invite_expired",
+		})
+
+
+## GDD 5.7 steps 1-4 for each application due this morning, in send order (applications are appended
+## as they are sent). The Radar moves as each one resolves. Statuses change later, in _apply_outcomes.
+func _reveal_outcomes(tiers: Dictionary, bg: BackgroundData, rng: RandomNumberGenerator) -> Array[Dictionary]:
+	var outcomes: Array[Dictionary] = []
+	for app: Dictionary in applications:
+		if app["status"] != "pending" or int(app["reveal_day"]) > day:
+			continue
+		var tier := _tier(tiers, str(app["tier"]))
+		if tier == null:
+			continue
+		var outcome := Odds.reveal_outcome(tier, bg, app, pity_count, rng)
+		pity_count = Odds.pity_after(bg, pity_count, outcome, bool(app["relevant"]))
+		outcomes.append({"app": app, "outcome": outcome})
+	return outcomes
+
+
+## First run, the morning of day 2, at least day2_guarantee_min_apps sent on day 1, no invite yet.
+func _guarantee_due(cfg: BalanceConfig, outcomes: Array[Dictionary]) -> bool:
+	if not first_run or day != GUARANTEE_DAY:
+		return false
+	for o: Dictionary in outcomes:
+		if o["outcome"] in ["invite", "radar"]:
+			return false
+	var sent_day1 := 0
+	for app: Dictionary in applications:
+		if int(app["day_sent"]) == GUARANTEE_DAY - 1:
+			sent_day1 += 1
+	return sent_day1 >= cfg.day2_guarantee_min_apps
+
+
+## The best eligible day-1 application: highest P, not a ghost job, not knocked out, not resolved
+## before this morning (this morning's reveals are still "pending" here). Ties go to the first sent.
+func _best_day1_application() -> Dictionary:
+	var best: Dictionary = {}
+	for app: Dictionary in applications:
+		if int(app["day_sent"]) != GUARANTEE_DAY - 1 or app["status"] != "pending":
+			continue
+		if bool(app["knockout"]) or bool(app["is_ghost"]):
+			continue
+		if best.is_empty() or float(app["p"]) > float(best["p"]):
+			best = app
+	return best
+
+
+func _set_outcome(outcomes: Array[Dictionary], app: Dictionary, outcome: String) -> void:
+	for o: Dictionary in outcomes:
+		if int((o["app"] as Dictionary)["uid"]) == int(app["uid"]):
+			o["outcome"] = outcome
+			return
+	outcomes.append({"app": app, "outcome": outcome})
+
+
+func _apply_outcomes(outcomes: Array[Dictionary], report: Dictionary) -> void:
+	var new_invites: Array = report["invites"]
+	var rejections: Array = report["rejections"]
+	for o: Dictionary in outcomes:
+		var app: Dictionary = o["app"]
+		var outcome: String = o["outcome"]
+		match outcome:
+			"invite":
+				app["status"] = "invited"
+				new_invites.append(_add_invite(app, "rolled", "mail_invite_" + str(app["tier"])))
+			"radar", "guarantee":
+				app["status"] = "invited"
+				new_invites.append(_add_invite(app, outcome, "mail_invite_" + outcome))
+			"knockout", "rejected":
+				app["status"] = "rejected"
+				total_rejections += 1
+				var knockout: Dictionary = {}
+				if outcome == "knockout":
+					knockout = (app["knockout_reason"] as Dictionary).duplicate(true)
+				rejections.append({
+					"app_uid": app["uid"], "company_id": app["company_id"], "template_id": app["template_id"],
+					"tier": app["tier"], "knockout": knockout,
+					"mail_id": "mail_knockout" if outcome == "knockout" else "",
+				})
+			_:  # "ghost" and "silent": nothing arrives
+				app["status"] = "silent"
+				report["no_reply"] = int(report["no_reply"]) + 1
+
+
+func _ghost_silent(cfg: BalanceConfig, report: Dictionary) -> void:
+	var ghosted: Array = report["ghosted"]
+	for app: Dictionary in applications:
+		if app["status"] == "silent" and Odds.is_ghosted(cfg, int(app["day_sent"]), day):
+			app["status"] = "ghosted"
+			ghosted.append({
+				"app_uid": app["uid"], "company_id": app["company_id"], "template_id": app["template_id"],
+				"tier": app["tier"], "days": day - int(app["day_sent"]),
+			})
+
+
+## The guarantee's fallback (GDD 5.7): the highest-odds startup card on the board "saw your profile".
+## A real posting beats a ghost job; the card leaves the board and its pair counts as applied.
+func _profile_invite(cfg: BalanceConfig, tiers: Dictionary, bg: BackgroundData, content: Dictionary) -> Dictionary:
+	var best: Dictionary = {}
+	var best_score := -1.0
+	for card: Dictionary in board:
+		if card["tier"] != "startup":
+			continue
+		var odds := card_odds(cfg, tiers, bg, content, card)
+		if odds.is_empty():
+			continue
+		# P is at most 0.60, so the +1 puts every real posting above every ghost job.
+		var score := float((odds["tailored"] as Dictionary)["p"]) + (0.0 if bool(card["is_ghost"]) else 1.0)
+		if score > best_score:
+			best = card
+			best_score = score
+	if best.is_empty():
+		return {}
+	board.remove_at(_card_index(int(best["uid"])))
+	applied.append(pair_key(str(best["template_id"]), str(best["company_id"])))
+	return _add_invite({"uid": best["uid"], "company_id": best["company_id"], "template_id": best["template_id"],
+		"tier": best["tier"]}, "profile", "mail_invite_guarantee")
+
+
+func _add_invite(source: Dictionary, kind: String, mail_id: String) -> Dictionary:
+	var invite := {
+		"uid": new_uid(), "app_uid": source["uid"], "company_id": source["company_id"],
+		"template_id": source["template_id"], "tier": source["tier"], "day_received": day,
+		"kind": kind, "mail_id": mail_id,
+	}
+	invites.append(invite)
+	return invite.duplicate(true)
+
+
+## One card for tier: a template of that tier (not a SHOULD one such as the Unicorn), paired with a
+## company of the tier (a pinned template only with its own company). Never a pair that was applied
+## to or is already on the board; templates not on the board yet go first.
+func _deal_card(cfg: BalanceConfig, tier: TierData, postings: Dictionary, companies: Dictionary, dealt: Array[Dictionary], rng: RandomNumberGenerator) -> Dictionary:
+	var tier_id := String(tier.id)
+	var on_board: Array[String] = []
+	var templates_seen: Array[String] = []
+	for card: Dictionary in board + dealt:
+		on_board.append(pair_key(str(card["template_id"]), str(card["company_id"])))
+		templates_seen.append(str(card["template_id"]))
+	var enabled := _companies_of(companies, tier_id)
+	var free: Dictionary = {}       # template_id -> company ids still free
+	var fresh: Array[String] = []   # templates not on the board or dealt this morning
+	var usable: Array[String] = []
+	for tid: String in _ids(postings):
+		var entry: Dictionary = postings[tid]
+		if str(entry.get("tier", "")) != tier_id or bool(entry.get("should", false)):
+			continue
+		var pinned := str(entry.get("company", "any"))
+		var company_ids: Array[String] = []
+		for cid: String in enabled:
+			var pair := pair_key(tid, cid)
+			if (pinned == "any" or pinned == cid) and not applied.has(pair) and not on_board.has(pair):
+				company_ids.append(cid)
+		if company_ids.is_empty():
+			continue
+		free[tid] = company_ids
+		usable.append(tid)
+		if not templates_seen.has(tid):
+			fresh.append(tid)
+	if usable.is_empty():
+		return {}
+	var template_id: String = Odds.pick(rng, fresh if not fresh.is_empty() else usable, 1)[0]
+	var company_id: String = Odds.pick(rng, free[template_id], 1)[0]
+	var posting: Dictionary = postings[template_id]
+	var rolled := Odds.roll_card(cfg, tier, str(posting.get("ghost", "roll")) == "always", rng)
+	return {
+		"uid": new_uid(), "template_id": template_id, "company_id": company_id, "tier": tier_id,
+		"posted_days_ago": rolled["posted_days_ago"], "applicants": rolled["applicants"],
+		"is_ghost": rolled["is_ghost"], "reposted": dropped.has(pair_key(template_id, company_id)),
+	}
+
+
+## The companies a tier deals from (GDD 5.5): the MVP ones ("mvp": true) that aren't blacklisted;
+## if none is left, every non-blacklisted company of the tier, so a tier never runs dry.
+func _companies_of(companies: Dictionary, tier_id: String) -> Array[String]:
+	var mvp: Array[String] = []
+	var rest: Array[String] = []
+	for id: String in _ids(companies):
+		var company: Dictionary = companies[id]
+		if str(company.get("tier", "")) != tier_id or blacklist.has(id):
+			continue
+		if bool(company.get("mvp", false)):
+			mvp.append(id)
+		else:
+			rest.append(id)
+	return mvp if not mvp.is_empty() else rest
+
+
+func _drop_oldest() -> void:
+	var oldest := 0
+	for i: int in board.size():
+		if int(board[i]["uid"]) < int(board[oldest]["uid"]):
+			oldest = i
+	var pair := pair_key(str(board[oldest]["template_id"]), str(board[oldest]["company_id"]))
+	if not dropped.has(pair):
+		dropped.append(pair)
+	board.remove_at(oldest)
+
+
+func _quote(cfg: BalanceConfig, tier: TierData, bg: BackgroundData, posting: Dictionary, cv_lines: Dictionary, tailored: bool, referral: bool) -> Dictionary:
+	var sent := cv_sent(cv_lines, tailored)
+	var posting_tags: Array = posting.get("tags", [])
+	var sent_tags: Array = sent["tags"]
+	var hits := Odds.tag_hits(PackedStringArray(posting_tags), PackedStringArray(sent_tags))
+	var p := Odds.p_invite(cfg, tier, bg, hits, tailored, stat("net"), referral)
+	return {
+		"p": p, "band": Odds.odds_band(cfg, p), "hits": hits, "relevant": Odds.is_relevant(cfg, hits),
+		"knockout": Odds.knockout_reason(bool(posting.get("degree", false)), int(posting.get("min_years", 0)),
+			bool(sent["degree"]), bool(sent["passes_years"]), referral),
+		"lies": sent["lies"],
+	}
+
+
+## The cv_lines.json id for this background's line at a level (the fields decide, not the id's spelling).
+func _cv_line_id(cv_lines: Dictionary, line: String, level: String) -> String:
+	for key: Variant in cv_lines:
+		var entry: Variant = cv_lines[key]
+		if entry is Dictionary and entry.get("background") == background_id \
+				and entry.get("line") == line and entry.get("variant") == level:
+			return str(key)
+	return ""
+
+
+func _card_index(card_uid: int) -> int:
+	for i: int in board.size():
+		if int(board[i]["uid"]) == card_uid:
+			return i
+	return -1
+
+
+func _application(app_uid: int) -> Dictionary:
+	for app: Dictionary in applications:
+		if int(app["uid"]) == app_uid:
+			return app
+	return {}
+
+
+static func _posting(content: Dictionary, template_id: String) -> Dictionary:
+	var entry: Variant = _file(content, "postings").get(template_id)
+	if entry is Dictionary:
+		return entry
+	return {}
+
+
+static func _tier(tiers: Dictionary, id: String) -> TierData:
+	return tiers.get(id) as TierData
+
+
+static func _file(content: Dictionary, file: String) -> Dictionary:
+	var d: Variant = content.get(file)
+	if d is Dictionary:
+		return d
+	return {}
+
+
+## A content file's entry ids, sorted, so dealing never depends on dictionary order. Plain-string UI
+## ids (e.g. "card_posted") and "_" metadata keys are skipped.
+static func _ids(entries: Dictionary) -> Array[String]:
+	var ids: Array[String] = []
+	for key: Variant in entries:
+		if entries[key] is Dictionary and not str(key).begins_with("_"):
+			ids.append(str(key))
+	ids.sort()
+	return ids
 
 
 # ---------- save format ----------

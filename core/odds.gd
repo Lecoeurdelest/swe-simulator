@@ -208,3 +208,78 @@ static func dream_score(cfg: BalanceConfig, salary: int, office_days: int, commu
 	pts += maxf(0.0, cfg.dream_w_flags - cfg.dream_flag_penalty * red_flags)
 	pts += cfg.dream_w_runway * rent_days_left / float(runway_days)
 	return roundi(pts)
+
+
+# ---------- job hunt: board, apply, reveal (GDD 5.6-5.10, Step 5) ----------
+
+## A new card's hidden rolls, always in this order: ghost flag, posted days ago, applicants.
+## always_ghost = the template says "ghost": "always" (no roll).
+static func roll_card(cfg: BalanceConfig, tier: TierData, always_ghost: bool, rng: RandomNumberGenerator) -> Dictionary:
+	var ghost := always_ghost or roll(rng, tier.ghost_job_rate)
+	var posted: int
+	if ghost:
+		posted = rng.randi_range(cfg.ghost_posted_days_min, cfg.ghost_posted_days_max)
+	else:
+		posted = rng.randi_range(tier.posted_days_min, tier.posted_days_max)
+	return {"is_ghost": ghost, "posted_days_ago": posted, "applicants": rng.randi_range(tier.applicants_min, tier.applicants_max)}
+
+
+## The knockout a CV fails, as a postings.json text id plus its args ({} = none). A referral skips
+## knockouts. When both fail, the degree is named (the card shows one chip).
+static func knockout_reason(degree_required: bool, min_years: int, cv_has_degree: bool, cv_passes_years: bool, referral: bool) -> Dictionary:
+	if not is_knockout(degree_required, min_years, cv_has_degree, cv_passes_years, referral):
+		return {}
+	if degree_required and not cv_has_degree:
+		return {"id": "knock_degree", "args": {}}
+	return {"id": "knock_years", "args": {"n": min_years}}
+
+
+## The morning an application's reply arrives: a knockout at 3:07 AM the next morning whatever the
+## tier, anything else after the tier's reply delay.
+static func reply_day(cfg: BalanceConfig, tier: TierData, day_sent: int, knockout: bool) -> int:
+	return day_sent + (cfg.knockout_reply_delay_days if knockout else tier.reply_delay_days)
+
+
+## One application's reveal (GDD 5.7), rolled on its reveal morning with the run RNG:
+## "knockout", "ghost", "radar" (the Recruiter Radar was full), "invite", "silent" or "rejected".
+## app needs knockout, is_ghost, relevant and p (frozen when it was sent).
+static func reveal_outcome(tier: TierData, bg: BackgroundData, app: Dictionary, pity_count: int, rng: RandomNumberGenerator) -> String:
+	if bool(app.get("knockout", false)):
+		return "knockout"
+	if bool(app.get("is_ghost", false)):
+		return "ghost"
+	if bool(app.get("relevant", false)) and pity_count >= bg.pity_n:
+		return "radar"
+	if roll(rng, float(app.get("p", 0.0))):
+		return "invite"
+	return "silent" if roll(rng, tier.silent_share) else "rejected"
+
+
+## The Recruiter Radar after one outcome: any invite empties it; a relevant application without an
+## invite adds 1 (it stops at pity_n); knockouts and irrelevant applications never count.
+static func pity_after(bg: BackgroundData, pity_count: int, outcome: String, relevant: bool) -> int:
+	if outcome in ["invite", "radar", "guarantee"]:
+		return 0
+	if outcome == "knockout" or not relevant:
+		return pity_count
+	return mini(pity_count + 1, bg.pity_n)
+
+
+## Invites are valid on the day they arrive and the next (invite_valid_days = 2).
+static func invite_expired(cfg: BalanceConfig, day_received: int, today: int) -> bool:
+	return today - day_received >= cfg.invite_valid_days
+
+
+## A silent application turns "ghosted" this many days after it was sent.
+static func is_ghosted(cfg: BalanceConfig, day_sent: int, today: int) -> bool:
+	return today - day_sent >= cfg.ghosted_after_days
+
+
+## GDD 5.10, checked every morning after the reveal: "" while rent lasts; at 0 rent days a waiting
+## invite buys one "grace" day (once per run); otherwise "plan_b".
+static func rent_check(cfg: BalanceConfig, rent_days_left: int, grace_used: bool, invite_waiting: bool) -> String:
+	if rent_days_left > 0:
+		return ""
+	if cfg.grace_day and invite_waiting and not grace_used:
+		return "grace"
+	return "plan_b"
