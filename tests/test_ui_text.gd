@@ -35,6 +35,14 @@ func test_money_groups_thousands() -> void:
 	assert_eq(UiText.money(-4500), "-$4,500")
 
 
+func test_band_is_dots_plus_a_word() -> void:
+	assert_eq(UiText.band(3, "Possible"), "[###--] Possible", "the GDD 5.6 card band look")
+	assert_eq(UiText.band(1, "Long shot"), "[#----] Long shot")
+	assert_eq(UiText.band(5, "Good"), "[#####] Good")
+	assert_eq(UiText.band(9, "Good"), "[#####] Good", "clamped")
+	assert_true(UiText.band(1, "Long shot").length() <= 18, "fits a 124 px half-width button (GDD 2.7)")
+
+
 func test_call_pattern_reads_only_whole_literals() -> void:
 	var calls := RegEx.create_from_string(CALL_PATTERN)
 	assert_true(calls.is_valid(), "CALL_PATTERN does not compile")

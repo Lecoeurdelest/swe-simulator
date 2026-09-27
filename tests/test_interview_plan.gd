@@ -227,3 +227,89 @@ func test_tiny_pool_returns_what_it_has() -> void:
 		if not (bigger["question_ids"] as Array).has(id):
 			remaining_difficulties.append(int(knowledge_pool[id]["difficulty"]))
 	assert_eq(int(knowledge_pool[w]["difficulty"]), remaining_difficulties.min(), "the warm-up is the easiest left")
+
+
+# ---------- the prompts and dice a checkpoint replays (GDD 5.11) ----------
+
+func _checkpoint(seed_text: String, probe_line: String) -> Dictionary:
+	var plan := _pick("mid", [] as Array[String], _rng(77), true)
+	return {
+		"invite_uid": 3, "company_id": "co_beigeware", "template_id": "", "tier": "mid",
+		"seed": seed_text, "tired": false, "question_ids": plan["question_ids"],
+		"warmup_id": plan["warmup_id"], "probe_line": probe_line,
+	}
+
+
+## The dice the interview scene rolls, in its order, whatever you tap: a choice prompt shuffles its
+## 3 answers; a knowledge prompt rolls luck, then seeds its meter's own RNG (which may or may not
+## roll a pivot); a probe rolls the bluff before you choose. `pivots` = extra meter rolls per prompt.
+func _replay_dice(iv: Dictionary, pivots: int) -> Array:
+	var rng := InterviewPlan.interview_rng(str(iv["seed"]))
+	var out: Array = []
+	for prompt: Dictionary in InterviewPlan.prompts(iv["question_ids"], choice, str(iv["probe_line"])):
+		match str(prompt["kind"]):
+			"choice":
+				var order: Array = []
+				for answer: Dictionary in Odds.shuffled(rng, choice[prompt["id"]]["answers"]):
+					order.append(answer["kind"])
+				out.append(order)
+			"knowledge":
+				out.append(Odds.roll_luck(cfg, rng))
+				var meter := InterviewPlan.meter_rng(rng)
+				out.append(meter.randf_range(0.1, 0.9))  # the zone centre
+				for _i: int in pivots:
+					meter.randf()
+			"probe":
+				out.append(Odds.roll(rng, 0.45))
+	out.append(rng.randf())  # the committee wheel's roll
+	return out
+
+
+func test_prompts_follow_the_checkpoint() -> void:
+	var ids: Array = ["eq_friday_deploy", "kq_hash_map", "kq_left_join", "kq_deadlock", "eq_any_questions"]
+	var plain := InterviewPlan.prompts(ids, choice, "")
+	var kinds: Array = []
+	for prompt: Dictionary in plain:
+		kinds.append(prompt["kind"])
+	assert_eq(kinds, ["choice", "knowledge", "knowledge", "knowledge", "choice"], "cfg.prompt_pattern order")
+	assert_eq(plain[2], {"kind": "knowledge", "id": "kq_left_join"})
+	var probed := InterviewPlan.prompts(ids, choice, "cv_intern_exp_lie")
+	assert_eq(probed.size(), 5, "the probe replaces a prompt, it doesn't add one")
+	assert_eq(probed[2], {"kind": "probe", "id": "cv_intern_exp_lie"}, "GDD 5.8.2: the probe replaces knowledge prompt 2")
+	assert_eq(probed[1], plain[1], "knowledge prompt 1 stays")
+	assert_eq(probed[3], plain[3], "knowledge prompt 3 stays")
+
+
+func test_resume_replays_the_saved_interview() -> void:
+	var run := RunState.new()
+	run.phase = GameFlow.Phase.INTERVIEW
+	run.interview = _checkpoint(str(4294967295), "cv_intern_exp_lie")
+	var saved := RunState.from_dict(JSON.parse_string(JSON.stringify(run.to_dict())))
+	var before: Dictionary = run.interview
+	var after: Dictionary = saved.interview
+	assert_eq(after["seed"], before["seed"], "the seed travels as a String")
+	assert_eq(InterviewPlan.prompts(after["question_ids"], choice, after["probe_line"]),
+		InterviewPlan.prompts(before["question_ids"], choice, before["probe_line"]), "same prompts, same order")
+	assert_eq(after["warmup_id"], before["warmup_id"], "same warm-up")
+	assert_eq(_replay_dice(after, 0), _replay_dice(before, 0), "same shuffles, luck, zones, bluff and wheel")
+
+
+func test_early_or_late_tap_replays_the_same_luck() -> void:
+	var iv := _checkpoint("20260927", "")
+	var tapped_before_pivot := _replay_dice(iv, 0)
+	var tapped_after_pivot := _replay_dice(iv, 1)
+	assert_eq(tapped_after_pivot, tapped_before_pivot, "a pivot rolls on the meter's own RNG, never the interview's")
+	assert_ne(_replay_dice(_checkpoint("20260928", ""), 0), tapped_before_pivot, "another seed, other dice")
+
+
+func test_probe_question_prefers_the_company_line() -> void:
+	var cv_lines := _load("res://data/content/cv_lines.json")
+	var stealth: Dictionary = cv_lines["cv_self_taught_exp_lie"]
+	assert_eq(InterviewPlan.probe_question(stealth, "co_stealth"), stealth["probe_at"]["co_stealth"], "probe_at wins at its company")
+	assert_eq(InterviewPlan.probe_question(stealth, "co_beigeware"), stealth["probe"], "the usual probe elsewhere")
+	assert_eq(InterviewPlan.probe_question(cv_lines["cv_intern_edu_lie"], "co_stealth"), cv_lines["cv_intern_edu_lie"]["probe"])
+	assert_eq(InterviewPlan.lie_lines(cv_lines, "intern"),
+		["cv_intern_edu_lie", "cv_intern_exp_lie", "cv_intern_proj_lie"] as Array[String], "edu, exp, proj")
+	for bg: String in ["intern", "graduate", "self_taught"]:
+		for id: String in InterviewPlan.lie_lines(cv_lines, bg):
+			assert_ne(str(cv_lines[id].get("probe", "")), "", "%s has a probe question" % id)

@@ -78,6 +78,19 @@ func new_uid() -> int:
 	return next_uid - 1
 
 
+## The lie probe's lasting effects (GDD 5.8.5), applied with the interview result so nothing is saved
+## mid-interview: Come clean marks the line confessed for this company (no background check there,
+## 5.9.4), and a confessed or BUSTED line is no longer a lie you carry (Phase 2 hook).
+func settle_probe(company_id: String, cv_line_id: String, came_clean: bool, busted: bool) -> void:
+	if cv_line_id == "":
+		return
+	var pair := company_id + "|" + cv_line_id
+	if came_clean and not confessed.has(pair):
+		confessed.append(pair)
+	if came_clean or busted:
+		lies_carried.erase(cv_line_id)
+
+
 ## Night: one Sleep. The morning reveal runs when the next day starts.
 func sleep(cfg: BalanceConfig) -> void:
 	day += 1

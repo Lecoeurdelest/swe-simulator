@@ -1,0 +1,66 @@
+# STEP-04 stage "lie_probe_pause_debug": raw debug trace lines, copied verbatim from logs_read source="game".
+# Line formats (features/interview/interview.gd, debug builds only; this stage changed IVTRACE to key=value fields):
+#   IVSTART|tier|bg|company|seed|doubt|comp|tired|warmup|probe|ids|taken   (ids = the prompts in order; a probe shows its cv_lines id)
+#   IVTRACE|prompt=<n>|id|kind=choice|order=<the 3 shuffled answer kinds>|answer=<kind>|doubt|comp
+#   IVTRACE|prompt=<n>|id|kind=<knowledge|warmup>|S|h|c=<zone centre before any pivot>|I|Q|answer=<grade>|doubt|comp   (prompt=0 = warm-up)
+#   IVTRACE|prompt=<n>|id=<cv line>|kind=probe|degree_claim|p=<bluff_p>|band=<1-5>|holds=<pre-rolled bluff result>|answer=<come_clean|bluff_win|busted>|doubt|comp
+#   IVWHEEL|p=<committee_win_p>|won=<bool>|forced=<bool>
+#   IVFORCE|outcome|prompt|doubt|comp   (DBG panel: the outcome forced and where)
+#   IVDEBUG|probe=<cv line id>   (DBG panel: the probe toggle wrote this into the checkpoint and saved it)
+#   IVRESULT|outcome|doubt|comp|busted|came_clean|tier|bg   (just before GameState.finish_interview)
+
+## run r60742953-24: project_run mode="custom" interview.tscn (debug quick start, Graduate, Mid). Probe forced via DBG to cv_graduate_exp_lie; Come clean.
+IVSTART|tier=mid|bg=graduate|company=co_beigeware|seed=2109228122|doubt=128.00|comp=100.00|tired=false|warmup=kq_hash_map|probe=|ids=eq_weakness,kq_index_tradeoff,kq_star_conflict,kq_learn_fast,eq_leaked_password|taken=0
+IVDEBUG|probe=cv_graduate_edu_lie
+IVDEBUG|probe=cv_graduate_exp_lie
+IVTRACE|prompt=1|id=eq_weakness|kind=choice|order=bad,neutral,good|answer=good|doubt=118.00|comp=100.00
+IVTRACE|prompt=0|id=kq_hash_map|kind=warmup|S=58.72|h=0.1305|c=0.1554|I=0.80|Q=64.04|answer=green|doubt=118.00|comp=100.00
+IVTRACE|prompt=2|id=kq_index_tradeoff|kind=knowledge|S=50.08|h=0.1601|c=0.2855|I=0.20|Q=42.56|answer=red|doubt=106.69|comp=92.56
+IVTRACE|prompt=3|id=cv_graduate_exp_lie|kind=probe|degree_claim=false|p=0.3500|band=2|holds=true|answer=come_clean|doubt=101.69|comp=82.56
+IVTRACE|prompt=4|id=kq_learn_fast|kind=knowledge|S=51.57|h=0.1219|c=0.1558|I=0.20|Q=43.68|answer=red|doubt=89.38|comp=76.24
+IVTRACE|prompt=5|id=eq_leaked_password|kind=choice|order=neutral,good,bad|answer=good|doubt=79.38|comp=76.24
+IVRESULT|outcome=rejected|doubt=79.38|comp=76.24|busted=false|came_clean=true|tier=mid|bg=graduate
+
+## run r61099377-25: project_run mode="main". New game > Intro SKIP > THE INTERN > Fake invite (Mid). Probe forced via DBG to cv_intern_edu_lie, prompt 1 answered, then KILLED (project_manage stop).
+## (IVSTART prints before the DBG toggle, so it shows probe= empty; the toggle then wrote and saved the probe into the checkpoint.)
+IVSTART|tier=mid|bg=intern|company=co_beigeware|seed=1661572132|doubt=128.00|comp=100.00|tired=false|warmup=kq_binary_search|probe=|ids=eq_meeting_overload,kq_learn_fast,kq_load_balancer,kq_estimate,eq_celebrity_orders|taken=0
+IVDEBUG|probe=cv_intern_edu_lie
+IVTRACE|prompt=1|id=eq_meeting_overload|kind=choice|order=neutral,good,bad|answer=good|doubt=118.00|comp=100.00
+
+## save_v1.json after the kill (phase 4 = INTERVIEW, interviews_taken 0), interview checkpoint only:
+## {"company_id": "co_beigeware", "invite_uid": 0, "probe_line": "cv_intern_edu_lie", "question_ids": ["eq_meeting_overload", "kq_learn_fast", "kq_load_balancer", "kq_estimate", "eq_celebrity_orders"], "seed": "1661572132", "template_id": "job_mid_backend", "tier": "mid", "tired": false, "warmup_id": "kq_binary_search"}
+
+## run r61174674-26: project_run mode="main" > CONTINUE (the resume), then five DBG-forced outcomes in the same run.
+## 1. The resumed interview: same seed, same question ids (the saved probe in knowledge prompt 2's slot), prompt 1 same answer order. Real Bluff -> natural BUSTED.
+IVSTART|tier=mid|bg=intern|company=co_beigeware|seed=1661572132|doubt=128.00|comp=100.00|tired=false|warmup=kq_binary_search|probe=cv_intern_edu_lie|ids=eq_meeting_overload,kq_learn_fast,cv_intern_edu_lie,kq_estimate,eq_celebrity_orders|taken=0
+IVTRACE|prompt=1|id=eq_meeting_overload|kind=choice|order=neutral,good,bad|answer=good|doubt=118.00|comp=100.00
+IVTRACE|prompt=0|id=kq_binary_search|kind=warmup|S=38.99|h=0.1068|c=0.2389|I=0.20|Q=34.24|answer=red|doubt=118.00|comp=100.00
+IVTRACE|prompt=2|id=kq_learn_fast|kind=knowledge|S=53.47|h=0.1242|c=0.7668|I=1.00|Q=65.10|answer=green|doubt=86.41|comp=100.00
+IVTRACE|prompt=3|id=cv_intern_edu_lie|kind=probe|degree_claim=true|p=0.3500|band=2|holds=false|answer=busted|doubt=106.41|comp=70.00
+IVTRACE|prompt=4|id=kq_estimate|kind=knowledge|S=45.33|h=0.1144|c=0.2362|I=0.20|Q=39.00|answer=red|doubt=98.31|comp=59.00
+IVTRACE|prompt=5|id=eq_celebrity_orders|kind=choice|order=bad,neutral,good|answer=good|doubt=88.31|comp=59.00
+IVRESULT|outcome=rejected|doubt=88.31|comp=59.00|busted=true|came_clean=false|tier=mid|bg=intern
+## 2. Sleep, Fake invite, prompt 1 answered, DBG BUSTED.
+IVSTART|tier=mid|bg=intern|company=co_beigeware|seed=2424736009|doubt=128.00|comp=100.00|tired=false|warmup=|probe=|ids=eq_leaked_password,kq_sql_injection,kq_deadlock,kq_two_sum,eq_ai_takehome|taken=1
+IVTRACE|prompt=1|id=eq_leaked_password|kind=choice|order=neutral,good,bad|answer=good|doubt=118.00|comp=100.00
+IVFORCE|outcome=busted|prompt=1|doubt=118.00|comp=100.00
+IVTRACE|prompt=1|id=|kind=probe|answer=busted|forced=true|doubt=138.00|comp=70.00
+IVRESULT|outcome=rejected|doubt=138.00|comp=70.00|busted=true|came_clean=false|tier=mid|bg=intern
+## 3. Sleep, Fake invite, DBG K.O. during the greeting.
+IVSTART|tier=mid|bg=intern|company=co_beigeware|seed=2354027979|doubt=128.00|comp=100.00|tired=false|warmup=|probe=|ids=eq_friday_deploy,kq_star_conflict,kq_password_storage,kq_race_condition,eq_credit_theft|taken=2
+IVFORCE|outcome=ko|prompt=0|doubt=128.00|comp=100.00
+IVRESULT|outcome=ko|doubt=0.00|comp=100.00|busted=false|came_clean=false|tier=mid|bg=intern
+## 4. Decline + confirm, Sleep, Fake invite, DBG Wheel win.
+IVSTART|tier=mid|bg=intern|company=co_beigeware|seed=2381507491|doubt=128.00|comp=100.00|tired=false|warmup=|probe=|ids=eq_weakness,kq_idempotent,kq_nested_loops,kq_rebase_merge,eq_impossible_deadline|taken=3
+IVFORCE|outcome=wheel_win|prompt=0|doubt=128.00|comp=100.00
+IVWHEEL|p=0.6250|won=true|forced=true
+IVRESULT|outcome=wheel_win|doubt=19.20|comp=100.00|busted=false|came_clean=false|tier=mid|bg=intern
+## 5. Decline + confirm, Sleep, Fake invite, DBG Wheel loss.
+IVSTART|tier=mid|bg=intern|company=co_beigeware|seed=2395961788|doubt=128.00|comp=100.00|tired=false|warmup=|probe=|ids=eq_outage_blame,kq_cache_first_fix,kq_failure_story,kq_left_join,eq_any_questions|taken=4
+IVFORCE|outcome=wheel_loss|prompt=0|doubt=128.00|comp=100.00
+IVWHEEL|p=0.6250|won=false|forced=true
+IVRESULT|outcome=wheel_loss|doubt=19.20|comp=100.00|busted=false|came_clean=false|tier=mid|bg=intern
+## 6. Sleep, Fake invite, DBG Composure 0.
+IVSTART|tier=mid|bg=intern|company=co_beigeware|seed=448286292|doubt=128.00|comp=100.00|tired=false|warmup=|probe=|ids=eq_harsh_review,kq_index_tradeoff,kq_recursion_base,kq_testing_pyramid,eq_meeting_overload|taken=5
+IVFORCE|outcome=composure_zero|prompt=0|doubt=128.00|comp=100.00
+IVRESULT|outcome=composure_zero|doubt=128.00|comp=0.00|busted=false|came_clean=false|tier=mid|bg=intern

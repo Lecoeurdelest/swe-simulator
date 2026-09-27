@@ -4,7 +4,7 @@ extends RefCounted
 ## Which questions one interview asks (GDD 5.8.2). GameState.start_interview picks them once and
 ## freezes them in the checkpoint, so a resume replays the same interview. Pure: the pools are
 ## parsed JSON (id -> entry), from Content.entries() in the game and from FileAccess in the tests.
-## Tested by test_interview_plan.
+## Tested by test_interview_plan (picking, the prompts and the dice a checkpoint replays).
 
 
 ## GDD 5.8.2: the warm-up belongs to the first interview of the first run only.
@@ -49,6 +49,60 @@ static func eligible(pool: Dictionary, tier_id: String) -> Array[String]:
 		var entry: Dictionary = pool[id]
 		var tiers: Array = entry.get("tiers", [])
 		if tiers.has(tier_id) and not bool(entry.get("opener_only", false)):
+			ids.append(id)
+	ids.sort()
+	return ids
+
+
+## The prompts a checkpoint plays, in order: one {kind, id} per question id, kind "choice" or
+## "knowledge". GDD 5.8.2: a lie probe (probe_line, a cv_lines id) replaces knowledge prompt 2.
+static func prompts(question_ids: Array, choice_pool: Dictionary, probe_line: String) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var knowledge_count := 0
+	for id: Variant in question_ids:
+		var kind := "choice" if choice_pool.has(str(id)) else "knowledge"
+		if kind == "knowledge":
+			knowledge_count += 1
+			if knowledge_count == 2 and probe_line != "":
+				out.append({"kind": "probe", "id": probe_line})
+				continue
+		out.append({"kind": kind, "id": str(id)})
+	return out
+
+
+## The interview RNG (ARCHITECTURE 7.2): a fresh generator seeded from the checkpoint's seed, a
+## String because 64-bit values don't survive JSON as numbers. The same seed replays the same dice.
+static func interview_rng(seed_text: String) -> RandomNumberGenerator:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_text.to_int()
+	return rng
+
+
+## A generator of its own for one Answer Meter (zone centre, pivot time, the pivot's new centre),
+## seeded from exactly one roll of the interview RNG. The pivot rolls only if you tap after it, so
+## on the interview RNG itself it would shift every later roll; this way a resume replays the later
+## prompts' luck however early you tap (GDD 5.11).
+static func meter_rng(interview: RandomNumberGenerator) -> RandomNumberGenerator:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = interview.randi()
+	return rng
+
+
+## The question Dana asks about a Lie CV line (CONTENT.md section 6): its company-specific
+## "probe_at" line if it has one for this company, else its "probe". Raw text: the scene tr()s it.
+static func probe_question(cv_line: Dictionary, company_id: String) -> String:
+	var at: Dictionary = cv_line.get("probe_at", {})
+	return str(at.get(company_id, cv_line.get("probe", "")))
+
+
+## A background's Lie CV lines, sorted (edu, exp, proj). The debug probe toggle cycles through them
+## until Step 5 rolls the real probe.
+static func lie_lines(cv_pool: Dictionary, background_id: String) -> Array[String]:
+	var ids: Array[String] = []
+	for id: String in cv_pool:
+		var entry: Variant = cv_pool[id]
+		if entry is Dictionary and str((entry as Dictionary).get("background", "")) == background_id \
+				and str((entry as Dictionary).get("variant", "")) == "lie":
 			ids.append(id)
 	ids.sort()
 	return ids

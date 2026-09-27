@@ -190,7 +190,8 @@ func start_interview(invite: Dictionary) -> void:
 
 
 ## won = K.O. or committee win. busted = the lie probe ended in BUSTED (company blacklisted).
-func finish_interview(won: bool, composure_left: float, busted: bool = false) -> void:
+## came_clean = you came clean on the probe (Step 4: that line counts as confessed for this company).
+func finish_interview(won: bool, composure_left: float, busted: bool = false, came_clean: bool = false) -> void:
 	var iv := run.interview
 	var company_id: String = iv.get("company_id", "")
 	run.interviews_taken += 1
@@ -198,6 +199,7 @@ func finish_interview(won: bool, composure_left: float, busted: bool = false) ->
 	run.dana_last_company = company_id
 	if busted:
 		run.blacklist.append(company_id)
+	run.settle_probe(company_id, str(iv.get("probe_line", "")), came_clean, busted)
 	if won:
 		var tier_data := Content.tier(iv["tier"])
 		var bg := Content.background(run.background_id)

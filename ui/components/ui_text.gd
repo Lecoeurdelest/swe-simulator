@@ -20,6 +20,12 @@ static func back(text: String) -> String:
 	return BACK_ARROW + text
 
 
+## An odds band as dots plus a word (GDD 2.7, 5.6): band 3 of 5, "Possible" -> "[###--] Possible".
+static func band(filled: int, word: String, total: int = 5) -> String:
+	var dots := clampi(filled, 0, total)
+	return "[%s%s] %s" % ["#".repeat(dots), "-".repeat(total - dots), word]
+
+
 ## Whole dollars as the offer letter shows them: 71000 -> "$71,000".
 static func money(amount: int) -> String:
 	var digits := str(absi(amount))

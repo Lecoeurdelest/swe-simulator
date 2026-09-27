@@ -391,6 +391,99 @@ size_flags_horizontal = 4
 mouse_filter = 2
 script = ExtResource("8_k6rxa")
 
+[node name="DebugLayer" type="Control" parent="." unique_id=2045851715]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="SafeArea" type="MarginContainer" parent="DebugLayer" unique_id=613015116]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_safe")
+
+[node name="Column" type="VBoxContainer" parent="DebugLayer/SafeArea" unique_id=1144777459]
+custom_minimum_size = Vector2(254, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="BarsGap" type="Control" parent="DebugLayer/SafeArea/Column" unique_id=772557972]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="DebugToggle" type="Button" parent="DebugLayer/SafeArea/Column" unique_id=358688018]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 2
+size_flags_horizontal = 0
+focus_mode = 0
+text = "DBG"
+
+[node name="DebugGrid" type="GridContainer" parent="DebugLayer/SafeArea/Column" unique_id=253108602]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 0
+mouse_filter = 2
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
+columns = 2
+
+[node name="ForceKO" type="Button" parent="DebugLayer/SafeArea/Column/DebugGrid" unique_id=266466498]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(84, 34)
+layout_mode = 2
+focus_mode = 0
+text = "K.O."
+
+[node name="ForceWheelWin" type="Button" parent="DebugLayer/SafeArea/Column/DebugGrid" unique_id=1163248886]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(84, 34)
+layout_mode = 2
+focus_mode = 0
+text = "Wheel win"
+
+[node name="ForceWheelLoss" type="Button" parent="DebugLayer/SafeArea/Column/DebugGrid" unique_id=968607347]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(84, 34)
+layout_mode = 2
+focus_mode = 0
+text = "Wheel loss"
+
+[node name="ForceComposureZero" type="Button" parent="DebugLayer/SafeArea/Column/DebugGrid" unique_id=875995849]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(84, 34)
+layout_mode = 2
+focus_mode = 0
+text = "Composure 0"
+
+[node name="ForceBusted" type="Button" parent="DebugLayer/SafeArea/Column/DebugGrid" unique_id=1563757144]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(84, 34)
+layout_mode = 2
+focus_mode = 0
+text = "BUSTED"
+
+[node name="ProbeToggle" type="Button" parent="DebugLayer/SafeArea/Column/DebugGrid" unique_id=329405081]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(84, 34)
+layout_mode = 2
+focus_mode = 0
+text = "Probe: off"
+
 [node name="ReadyOverlay" type="Control" parent="." unique_id=521351083]
 unique_name_in_owner = true
 process_mode = 2

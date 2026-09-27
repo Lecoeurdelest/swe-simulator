@@ -169,6 +169,16 @@ static func bluff_p(cfg: BalanceConfig, tier: TierData, knw: int, experience: in
 	return clampf(p, cfg.bluff_min, cfg.bluff_max)
 
 
+## The Bluff button's odds band, 1-5 (the card words: Long shot ... Good). Step 4 addition, agent
+## default: five equal steps across the bluff's own range (bluff_min-bluff_max), because the card
+## thresholds (3-20%) would call every bluff "Good" or "Decent". Mid, normal lie: Intern 45% Possible.
+static func bluff_band(cfg: BalanceConfig, p: float) -> int:
+	var span := cfg.bluff_max - cfg.bluff_min
+	if span <= 0.0:
+		return 3
+	return clampi(1 + floori((p - cfg.bluff_min) / span * 5.0), 1, 5)
+
+
 # ---------- offer and endings (GDD 5.9) ----------
 
 static func round_to(value: float, step: int) -> int:
