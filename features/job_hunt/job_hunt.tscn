@@ -79,9 +79,10 @@ text = "Knowledge 20"
 horizontal_alignment = 2
 
 [node name="Header" type="Label" parent="SafeArea/Column/TopBand" unique_id=35299837]
+unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"HeaderLabel"
-text = "DOOMAPPLY (STUB)"
+text = "DoomApply"
 
 [node name="Body" type="VBoxContainer" parent="SafeArea/Column" unique_id=1135569294]
 layout_mode = 2

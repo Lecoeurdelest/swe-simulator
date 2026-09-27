@@ -1,0 +1,63 @@
+# STEP-04 stage "interview_greybox": raw debug trace lines, copied verbatim from logs_read source="game".
+# Line formats (features/interview/interview.gd, debug builds only):
+#   IVSTART|tier|bg|company|seed|doubt|comp|tired|warmup|ids|taken   (one per interview scene load)
+#   IVTRACE|prompt=<n>|id|kind=<choice|knowledge|warmup>|S|h|I|Q|answer=<kind or grade>|doubt|comp   (prompt=0 = warm-up; S/h/I/Q are "-" on choice prompts)
+#   IVWHEEL|p=<committee_win_p>|won=<bool>   (only when the committee wheel spins)
+#   IVRESULT|outcome=<ko|wheel_win|wheel_loss|composure_zero|rejected>|doubt|comp|tier|bg
+# Setup notes per interview are in interview_greybox_log.md. Two values were nudged with game_eval (marked FORCED below).
+
+## run r58124678-21: project_run mode="custom" scene=interview.tscn (debug quick start, graduate at mid)
+IVSTART|tier=mid|bg=graduate|company=co_beigeware|seed=2109228122|doubt=128.00|comp=100.00|tired=false|warmup=kq_hash_map|ids=eq_weakness,kq_index_tradeoff,kq_star_conflict,kq_learn_fast,eq_leaked_password|taken=0
+IVTRACE|prompt=1|id=eq_weakness|kind=choice|S=-|h=-|I=-|Q=-|answer=good|doubt=118.00|comp=100.00
+IVTRACE|prompt=0|id=kq_hash_map|kind=warmup|S=58.72|h=0.1305|I=0.20|Q=49.04|answer=yellow|doubt=118.00|comp=100.00
+IVTRACE|prompt=2|id=kq_index_tradeoff|kind=knowledge|S=52.07|h=0.1625|I=0.20|Q=44.05|answer=red|doubt=105.36|comp=94.05
+IVTRACE|prompt=3|id=kq_star_conflict|kind=knowledge|S=51.57|h=0.1219|I=0.20|Q=43.68|answer=red|doubt=93.04|comp=87.73
+IVTRACE|prompt=4|id=kq_learn_fast|kind=knowledge|S=37.27|h=0.1047|I=0.50|Q=40.45|answer=red|doubt=83.64|comp=78.18
+IVTRACE|prompt=5|id=eq_leaked_password|kind=choice|S=-|h=-|I=-|Q=-|answer=bad|doubt=91.64|comp=63.18
+IVRESULT|outcome=rejected|doubt=91.64|comp=63.18|tier=mid|bg=graduate
+
+## run r58490804-22: project_run mode="main" (Title > New game > Intro SKIP > THE INTERN > hunt)
+# interview 1: startup (invite started with game_eval GameState.start_interview), first interview of the first run
+IVSTART|tier=startup|bg=intern|company=co_quantumleaf|seed=2225847342|doubt=118.00|comp=100.00|tired=false|warmup=kq_testing_pyramid|ids=eq_any_questions,kq_binary_search,kq_rebase_merge,kq_failure_story,eq_celebrity_orders|taken=0
+IVTRACE|prompt=1|id=eq_any_questions|kind=choice|S=-|h=-|I=-|Q=-|answer=good|doubt=108.00|comp=100.00
+IVTRACE|prompt=0|id=kq_testing_pyramid|kind=warmup|S=49.03|h=0.1188|I=0.20|Q=41.77|answer=red|doubt=108.00|comp=100.00
+IVTRACE|prompt=2|id=kq_binary_search|kind=knowledge|S=56.03|h=0.1272|I=0.20|Q=47.02|answer=yellow|doubt=92.68|comp=97.02
+IVTRACE|prompt=3|id=kq_rebase_merge|kind=knowledge|S=53.32|h=0.1240|I=0.50|Q=52.49|answer=yellow|doubt=72.44|comp=97.02
+IVTRACE|prompt=4|id=kq_failure_story|kind=knowledge|S=51.20|h=0.1214|I=0.20|Q=43.40|answer=red|doubt=60.38|comp=90.43
+IVTRACE|prompt=5|id=eq_celebrity_orders|kind=choice|S=-|h=-|I=-|Q=-|answer=neutral|doubt=56.38|comp=90.43
+IVRESULT|outcome=rejected|doubt=56.38|comp=90.43|tier=startup|bg=intern
+# interview 2: big (after a real Sleep tap; invite started with game_eval), second interview of the run
+IVSTART|tier=big|bg=intern|company=co_nimbus|seed=2106805479|doubt=132.00|comp=100.00|tired=false|warmup=|ids=eq_ai_takehome,kq_sql_injection,kq_index_tradeoff,kq_password_storage,eq_impossible_deadline|taken=1
+IVTRACE|prompt=1|id=eq_ai_takehome|kind=choice|S=-|h=-|I=-|Q=-|answer=good|doubt=122.00|comp=100.00
+IVTRACE|prompt=2|id=kq_sql_injection|kind=knowledge|S=47.36|h=0.1168|I=0.80|Q=55.52|answer=yellow|doubt=99.04|comp=100.00
+IVTRACE|prompt=3|id=kq_index_tradeoff|kind=knowledge|S=58.45|h=0.1301|I=0.20|Q=48.83|answer=yellow|doubt=82.08|comp=98.83
+IVTRACE|prompt=4|id=kq_password_storage|kind=knowledge|S=47.10|h=0.1165|I=0.20|Q=40.33|answer=red|doubt=72.79|comp=89.16
+IVTRACE|prompt=5|id=eq_impossible_deadline|kind=choice|S=-|h=-|I=-|Q=-|answer=good|doubt=60.29|comp=89.16
+IVRESULT|outcome=rejected|doubt=60.29|comp=89.16|tier=big|bg=intern
+# interview 3: startup with the Relaxed Timing option on (set with game_eval GameState.set_setting; I = 0.9 per GDD 5.8.4)
+IVSTART|tier=startup|bg=intern|company=co_synergai|seed=3852333878|doubt=118.00|comp=100.00|tired=false|warmup=|ids=eq_outage_blame,kq_left_join,kq_cache_first_fix,kq_star_conflict,eq_leaked_password|taken=2
+IVTRACE|prompt=1|id=eq_outage_blame|kind=choice|S=-|h=-|I=-|Q=-|answer=good|doubt=105.50|comp=100.00
+IVTRACE|prompt=2|id=kq_left_join|kind=knowledge|S=47.51|h=0.1170|I=0.90|Q=58.14|answer=yellow|doubt=80.18|comp=100.00
+IVTRACE|prompt=3|id=kq_cache_first_fix|kind=knowledge|S=48.82|h=0.1186|I=0.90|Q=59.11|answer=yellow|doubt=53.98|comp=100.00
+IVTRACE|prompt=4|id=kq_star_conflict|kind=knowledge|S=56.73|h=0.1281|I=0.90|Q=65.05|answer=green|doubt=22.43|comp=100.00
+IVTRACE|prompt=5|id=eq_leaked_password|kind=choice|S=-|h=-|I=-|Q=-|answer=good|doubt=12.43|comp=100.00
+IVWHEEL|p=0.6845|won=true
+IVRESULT|outcome=wheel_win|doubt=12.43|comp=100.00|tier=startup|bg=intern
+# interview 4: mid via the real "Fake invite (Mid)" tap; [II] > Quit to title > CONTINUE reloaded it (two identical IVSTART lines)
+IVSTART|tier=mid|bg=intern|company=co_beigeware|seed=2406863568|doubt=128.00|comp=100.00|tired=false|warmup=|ids=eq_weakness,kq_estimate,kq_url_shortener,kq_idempotent,eq_harsh_review|taken=3
+IVSTART|tier=mid|bg=intern|company=co_beigeware|seed=2406863568|doubt=128.00|comp=100.00|tired=false|warmup=|ids=eq_weakness,kq_estimate,kq_url_shortener,kq_idempotent,eq_harsh_review|taken=3
+IVTRACE|prompt=1|id=eq_weakness|kind=choice|S=-|h=-|I=-|Q=-|answer=good|doubt=118.00|comp=100.00
+IVTRACE|prompt=2|id=kq_estimate|kind=knowledge|S=52.69|h=0.1232|I=0.90|Q=62.02|answer=green|doubt=89.19|comp=100.00
+IVTRACE|prompt=3|id=kq_url_shortener|kind=knowledge|S=40.89|h=0.1091|I=0.90|Q=53.17|answer=yellow|doubt=68.34|comp=100.00
+IVTRACE|prompt=4|id=kq_idempotent|kind=knowledge|S=58.82|h=0.1306|I=0.90|Q=66.62|answer=green|doubt=35.38|comp=100.00
+# FORCED: game_eval set the scene's _doubt from 35.38 to 5.0 before prompt 5, to exercise the K.O. branch with a real answer tap
+IVTRACE|prompt=5|id=eq_harsh_review|kind=choice|S=-|h=-|I=-|Q=-|answer=good|doubt=-7.50|comp=100.00
+IVRESULT|outcome=ko|doubt=0.00|comp=100.00|tier=mid|bg=intern
+# interview 5: mid via the real "Fake invite (Mid)" tap
+# FORCED: game_eval set the scene's _composure from 100 to 10.0 at prompt 1, to exercise the Composure-0 branch with a real bad-answer tap
+IVSTART|tier=mid|bg=intern|company=co_beigeware|seed=2458887712|doubt=128.00|comp=100.00|tired=false|warmup=|ids=eq_credit_theft,kq_load_balancer,kq_nested_loops,kq_hash_map,eq_friday_deploy|taken=4
+IVTRACE|prompt=1|id=eq_credit_theft|kind=choice|S=-|h=-|I=-|Q=-|answer=bad|doubt=136.00|comp=-5.00
+IVRESULT|outcome=composure_zero|doubt=136.00|comp=-5.00|tier=mid|bg=intern
+
+## run r59402189-23: project_run mode="custom" smoke run after the final edits (same fixed debug seed as run r58124678-21)
+IVSTART|tier=mid|bg=graduate|company=co_beigeware|seed=2109228122|doubt=128.00|comp=100.00|tired=false|warmup=kq_hash_map|ids=eq_weakness,kq_index_tradeoff,kq_star_conflict,kq_learn_fast,eq_leaked_password|taken=0

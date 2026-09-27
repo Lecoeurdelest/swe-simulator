@@ -1,0 +1,26 @@
+{
+  "stage": "ui text (INV-15 cleanup of the Step 3 stubs, finding F5)",
+  "date": "2026-09-27",
+  "tool": "godot-ai test_run (all suites, verbose)",
+  "edited_scene": "res://features/title/title.tscn",
+  "total": 78,
+  "passed": 78,
+  "failed": 0,
+  "skipped": 0,
+  "suites_run": ["content_lint", "data_files", "flow", "interview", "interview_plan", "odds", "offer", "save", "ui_text"],
+  "baseline_before_this_stage": {"total": 73, "passed": 73, "suites": 8},
+  "content_lint": {"total": 32, "passed": 32, "note": "green with the 7 new ids (5 in barks.json, 2 in emails.json)"},
+  "ui_text": {
+    "test_primary_is_capitals": "pass (3 assertions)",
+    "test_back_adds_the_arrow": "pass (2 assertions)",
+    "test_money_groups_thousands": "pass (7 assertions)",
+    "test_call_pattern_reads_only_whole_literals": "pass (6 assertions)",
+    "test_screen_text_ids_exist": "pass (44 literal Content.text/field calls, 38 distinct ids, under res://features/ and res://ui/)"
+  },
+  "red_first": [
+    "test_screen_text_ids_exist failed before the screens used Content ('no Content.text()/field() calls with literal ids')",
+    "then failed on 'res://features/offer/offer.gd: emails/offer_mode_ does not exist' (a runtime-built id read as a literal); CALL_PATTERN now requires each quoted literal to be the whole argument, covered by test_call_pattern_reads_only_whole_literals"
+  ],
+  "game_log": "0 errors, 0 warnings over the full click-through (run r56217170-20)",
+  "editor_log": "no new entries after cursor 55; script_create diagnostics showed only the known 'Identifier not found: Content/GameState' autoload gotcha"
+}

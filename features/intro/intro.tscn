@@ -46,6 +46,7 @@ mouse_filter = 2
 theme_override_constants/separation = 4
 
 [node name="Header" type="Label" parent="SafeArea/Column/TopBand" unique_id=1566782574]
+unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"HeaderLabel"
 text = "INTRO"
@@ -60,6 +61,7 @@ layout_mode = 2
 mouse_filter = 2
 
 [node name="Text" type="Label" parent="SafeArea/Column/Body/Card" unique_id=1456622391]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Stub: the intro cutscene arrives in Step 6.
 Skip, Back or Esc goes to Background select."

@@ -1,0 +1,14 @@
+{
+  "startup": {
+    "name": "Startup",
+    "tag": "START"
+  },
+  "mid": {
+    "name": "Mid-size",
+    "tag": "MID"
+  },
+  "big": {
+    "name": "Big corp",
+    "tag": "BIG"
+  }
+}

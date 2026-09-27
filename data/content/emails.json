@@ -1,0 +1,190 @@
+{
+  "mail_invite_startup": {
+    "subject": "yo",
+    "body": "yo {player_name} loved ur profile. can u do a video call today or tmrw?? - {company} (founder is busy, this is Dana)"
+  },
+  "mail_invite_mid": {
+    "subject": "Interview: {job_title}",
+    "body": "Hi {player_name}! We'd love to chat. One conversation with Dana from People, today or tomorrow. A real human. We know. Rare."
+  },
+  "mail_invite_big": {
+    "subject": "Next steps: Stage 1 of 7",
+    "body": "Congratulations! You've reached Stage 1 of 7 for {job_title}. Please attend an in-person interview today or tomorrow. Parking is not validated."
+  },
+  "mail_invite_radar": {
+    "subject": "A human actually read it!",
+    "body": "Hi {player_name}, a recruiter at {company} read your CV. On purpose. Interview today or tomorrow?"
+  },
+  "mail_invite_guarantee": {
+    "subject": "Saw your profile!",
+    "body": "Hi {player_name}! {company} saw your application. Fast. Suspiciously fast. Interview today or tomorrow?"
+  },
+  "mail_invite_grace": {
+    "subject": "Landlord",
+    "body": "Your landlord gave you one more day. ONE. Make this interview count."
+  },
+  "mail_invite_expired": {
+    "subject": "Update",
+    "body": "The role was filled internally. It always was."
+  },
+  "mail_knockout": {
+    "subject": "Update on your application",
+    "body": "Hi {player_name}, after careful consideration (0.4 seconds, at 3:07 AM), we won't be moving forward. Knockout: {knockout}. - Parsinator 3000"
+  },
+  "mail_reject_01": "After careful consideration, we've decided to move forward with other candidates.",
+  "mail_reject_02": "Dear [FIRST_NAME], we regret to inform you about [JOB_TITLE]. Warmly, [RECRUITER].",
+  "mail_reject_03": "You're overqualified for this entry-level role and underqualified for its salary.",
+  "mail_reject_04": "The role went to an internal candidate. It always was. We had to post it anyway.",
+  "mail_reject_05": "We loved you! We chose someone equally lovable with 7 more years of experience.",
+  "mail_reject_06": "Our AI screener made a decision. It declined to explain. It declined us too.",
+  "mail_reject_07": "Due to shifting priorities, this role no longer exists. Neither does the team.",
+  "mail_reject_08": "We'll keep your CV on file. The file is very large. It is also a shredder.",
+  "mail_reject_09": "Thanks for applying! This is an automated message. So was the decision.",
+  "mail_reject_10": "Great news: you made the top 3,000! Bad news: we're hiring one.",
+  "notif_ghosted": "Ghosted: {company} - {job_title} ({days} days, no reply)",
+  "notif_profile_view": "HumbleBrag: a recruiter viewed your profile! See who with Premium Gold+. (It was a bot.)",
+  "notif_typing": "The recruiter is typing...",
+  "notif_typing_stop": "The recruiter stopped typing.",
+  "mail_rescinded": "Our background check found that 'Very Famous University' has no record of you. Or of itself. The offer is withdrawn.",
+  "offer_title": "OFFER OF EMPLOYMENT - {company}",
+  "offer_salary": "{salary}/year",
+  "offer_mode_startup": "Fully remote",
+  "offer_mode_mid": "Hybrid: 2 office days a week",
+  "offer_mode_big": "Office: 4 days a week",
+  "offer_commute_remote": "0 minutes. The influencer was right about one thing.",
+  "offer_commute_office": "{office_days} days x {commute_min} min each way = {hours} h a week",
+  "offer_equity_doubled": "Equity doubled! 0.0001% -> 0.0002%.",
+  "offer_signon": "Paid as a sign-on bonus. (Big corps love a one-time thing.)",
+  "perk_pingpong": {
+    "tiers": [
+      "startup"
+    ],
+    "text": "Ping-pong table"
+  },
+  "perk_kombucha": {
+    "tiers": [
+      "startup"
+    ],
+    "text": "Kombucha on tap"
+  },
+  "perk_unlimited_pto": {
+    "tiers": [
+      "startup"
+    ],
+    "text": "Unlimited PTO* (*average taken: 4 days)"
+  },
+  "perk_pizza": {
+    "tiers": [
+      "mid"
+    ],
+    "text": "Pizza Friday (Fridays subject to change)"
+  },
+  "perk_banana": {
+    "tiers": [
+      "mid"
+    ],
+    "text": "Free snacks (1 banana a week)"
+  },
+  "perk_pto20": {
+    "tiers": [
+      "mid"
+    ],
+    "text": "20 days PTO"
+  },
+  "perk_insurance": {
+    "tiers": [
+      "big"
+    ],
+    "text": "Great insurance"
+  },
+  "perk_rsu": {
+    "tiers": [
+      "big"
+    ],
+    "text": "Stock units (1-year cliff)"
+  },
+  "perk_pto15": {
+    "tiers": [
+      "big"
+    ],
+    "text": "15 days PTO"
+  },
+  "fp_probation": {
+    "tiers": [
+      "mid",
+      "big"
+    ],
+    "text": "Probation: you may be let go for any reason, including 'Q3'."
+  },
+  "fp_rto": {
+    "tiers": [
+      "big"
+    ],
+    "text": "Hybrid policy: work from home on any day that is not a weekday."
+  },
+  "fp_unlimited_pto": {
+    "tiers": [
+      "startup"
+    ],
+    "text": "Unlimited PTO*. *Subject to approval, deadlines, and vibes."
+  },
+  "fp_non_compete": {
+    "tiers": [
+      "big"
+    ],
+    "text": "Non-compete: for 24 months you won't work in, near, or think about software."
+  },
+  "fp_equity": {
+    "tiers": [
+      "startup"
+    ],
+    "text": "Equity: 0.0001%, 4-year vest, 1-year cliff. Worth one sandwich at target valuation."
+  },
+  "fp_ip_clause": {
+    "tiers": [
+      "big",
+      "startup"
+    ],
+    "text": "All ideas you have during employment, including dreams, belong to the Company."
+  },
+  "fp_on_call": {
+    "tiers": [
+      "mid",
+      "startup"
+    ],
+    "text": "You will join the on-call rotation. The rotation is you."
+  },
+  "fp_perks": {
+    "tiers": [
+      "mid"
+    ],
+    "text": "Pizza parties are provided in lieu of raises."
+  },
+  "fp_laptop": {
+    "tiers": [
+      "big"
+    ],
+    "text": "Your laptop ships in 6-8 weeks. Please be productive meanwhile."
+  },
+  "fp_salary_review": {
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "text": "Salary is reviewed annually. Reviewing is not increasing."
+  },
+  "fp_runway": {
+    "tiers": [
+      "startup"
+    ],
+    "text": "Your role is secure for the full runway (7 months, give or take a Tuesday)."
+  },
+  "fp_family": {
+    "tiers": [
+      "startup",
+      "big"
+    ],
+    "text": "The Company reserves the right to call itself 'a family'."
+  }
+}

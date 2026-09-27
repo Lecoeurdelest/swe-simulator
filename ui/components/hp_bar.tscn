@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://ch34r8c5205ru"]
+
+[ext_resource type="Script" uid="uid://dt7jdnsdmiwob" path="res://ui/components/hp_bar.gd" id="1_ope4o"]
+
+[node name="HpBar" type="Control" unique_id=6295754]
+custom_minimum_size = Vector2(122, 8)
+layout_mode = 3
+anchors_preset = 0
+mouse_filter = 2
+script = ExtResource("1_ope4o")
+
+[node name="Bar" type="ProgressBar" parent="." unique_id=762377249]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+show_percentage = false

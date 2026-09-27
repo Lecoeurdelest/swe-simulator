@@ -46,9 +46,10 @@ mouse_filter = 2
 theme_override_constants/separation = 4
 
 [node name="Header" type="Label" parent="SafeArea/Column/TopBand" unique_id=1083853766]
+unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"HeaderLabel"
-text = "HIRED! (STUB)"
+text = "HIRED!"
 
 [node name="Body" type="VBoxContainer" parent="SafeArea/Column" unique_id=449668242]
 layout_mode = 2
@@ -67,13 +68,14 @@ theme_override_constants/separation = 4
 [node name="Summary" type="Label" parent="SafeArea/Column/Body/Card/Rows" unique_id=585707176]
 unique_name_in_owner = true
 layout_mode = 2
-text = "co_beigeware
-job_mid_backend
-$77000/year
-Dream vs Reality: 60"
+text = "Beigeware Financial
+Backend Developer
+$77,000/year
+DREAM vs REALITY: 60"
 autowrap_mode = 3
 
 [node name="ToBeContinued" type="Label" parent="SafeArea/Column/Body/Card/Rows" unique_id=1425757881]
+unique_name_in_owner = true
 layout_mode = 2
 text = "TO BE CONTINUED - Phase 2: The Working Life"
 autowrap_mode = 3

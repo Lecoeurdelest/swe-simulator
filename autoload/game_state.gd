@@ -173,18 +173,25 @@ func start_interview(invite: Dictionary) -> void:
 	if run.interviews_today >= cfg.max_interviews_per_day or not run.spend_energy(cost):
 		return
 	run.interviews_today += 1
+	var interview_seed := str(rng.randi())
+	# The questions come from the run RNG (GDD 5.13) before the freeze; a resume reads them back.
+	var plan := InterviewPlan.pick(cfg, invite["tier"], Content.entries("questions_choice"),
+		Content.entries("questions_knowledge"), run.seen_question_ids, rng, InterviewPlan.warmup_due(run))
 	run.interview = {
 		"invite_uid": invite["app_uid"], "company_id": invite["company_id"],
 		"template_id": invite["template_id"], "tier": invite["tier"],
-		"seed": str(rng.randi()), "tired": Odds.is_tired(cfg, run.energy),
-		"question_ids": [],  # Step 4: pick from the tier's pools minus run.seen_question_ids
-		"probe_line": "",    # Step 4: lie-probe roll (GDD 5.8.5)
+		"seed": interview_seed, "tired": Odds.is_tired(cfg, run.energy),
+		"question_ids": plan["question_ids"],  # prompt order (cfg.prompt_pattern)
+		"warmup_id": plan["warmup_id"],        # "" unless the first interview of the first run
+		"probe_line": "",    # Step 5: lie-probe roll (GDD 5.8.5)
 	}
+	InterviewPlan.mark_seen(run.seen_question_ids, plan["question_ids"] + [plan["warmup_id"]])
 	change_phase(GameFlow.Phase.INTERVIEW)  # saves the checkpoint
 
 
 ## won = K.O. or committee win. busted = the lie probe ended in BUSTED (company blacklisted).
-func finish_interview(won: bool, composure_left: float, busted: bool = false) -> void:
+## came_clean = you came clean on the probe (Step 4: that line counts as confessed for this company).
+func finish_interview(won: bool, composure_left: float, busted: bool = false, came_clean: bool = false) -> void:
 	var iv := run.interview
 	var company_id: String = iv.get("company_id", "")
 	run.interviews_taken += 1
@@ -192,6 +199,7 @@ func finish_interview(won: bool, composure_left: float, busted: bool = false) ->
 	run.dana_last_company = company_id
 	if busted:
 		run.blacklist.append(company_id)
+	run.settle_probe(company_id, str(iv.get("probe_line", "")), came_clean, busted)
 	if won:
 		var tier_data := Content.tier(iv["tier"])
 		var bg := Content.background(run.background_id)

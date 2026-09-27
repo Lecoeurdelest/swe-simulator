@@ -1,0 +1,407 @@
+{
+  "eq_why_us": {
+    "prompt": "So. Why do you want to work here?",
+    "teamwork": false,
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_research_company",
+    "opener_only": true,
+    "answers": [
+      {
+        "kind": "insider",
+        "text": "{insider}",
+        "reaction": "...You actually read about us. That's rarer than you'd think."
+      },
+      {
+        "kind": "neutral",
+        "text": "Honestly? Rent.",
+        "reaction": "Fair. Relatable. Not an answer, but fair."
+      },
+      {
+        "kind": "bad",
+        "text": "What do you do again?",
+        "reaction": "We have a website. It has an About page. It's right there."
+      }
+    ]
+  },
+  "eq_friday_deploy": {
+    "prompt": "Friday, 4:55 PM. Your change is untested. What do you do?",
+    "teamwork": false,
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_small_changes",
+    "opener_only": false,
+    "answers": [
+      {
+        "kind": "good",
+        "text": "Test it, get a review, ship Monday.",
+        "reaction": "Correct. Weekends are for sleeping, not rollbacks."
+      },
+      {
+        "kind": "neutral",
+        "text": "Ask the team channel what to do.",
+        "reaction": "Safe. The channel replies 'LGTM' (looks good to me) to everything."
+      },
+      {
+        "kind": "bad",
+        "text": "Deploy and turn off my phone.",
+        "reaction": "Bold. You just described our last three incidents."
+      }
+    ]
+  },
+  "eq_credit_theft": {
+    "prompt": "Your teammate fixed the bug. In the meeting, your manager thanks YOU.",
+    "teamwork": true,
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_give_credit",
+    "opener_only": false,
+    "answers": [
+      {
+        "kind": "good",
+        "text": "Say it was Jordan's fix, not mine.",
+        "reaction": "Correct. Steal credit once and nobody reviews your code again."
+      },
+      {
+        "kind": "neutral",
+        "text": "Say nothing, thank Jordan later.",
+        "reaction": "Half credit. Jordan noticed. Jordan remembers."
+      },
+      {
+        "kind": "bad",
+        "text": "'Thanks, it was really hard.'",
+        "reaction": "Jordan is in this meeting. Jordan is looking at you."
+      }
+    ],
+    "exclusive": {
+      "background": "intern",
+      "kind": "good",
+      "text": "At my internship we shared credit.",
+      "reaction": "You mention the internship a lot. Correct answer, though."
+    }
+  },
+  "eq_outage_blame": {
+    "prompt": "Your change took checkout down for 10 minutes. The postmortem is tomorrow.",
+    "teamwork": true,
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_blameless",
+    "opener_only": false,
+    "answers": [
+      {
+        "kind": "good",
+        "text": "Own it: cause, fix, and prevention.",
+        "reaction": "Perfect. Postmortems fix systems, not people."
+      },
+      {
+        "kind": "neutral",
+        "text": "Say it was 'a config issue'.",
+        "reaction": "True. And who changed the config? (You. It was you.)"
+      },
+      {
+        "kind": "bad",
+        "text": "Blame the intern.",
+        "reaction": "We don't have an intern. We have you."
+      }
+    ]
+  },
+  "eq_ai_takehome": {
+    "prompt": "Did you use an AI assistant on your take-home?",
+    "teamwork": false,
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_ai_tools",
+    "opener_only": false,
+    "answers": [
+      {
+        "kind": "good",
+        "text": "Yes. I reviewed and tested every line.",
+        "reaction": "Great. We allow tools. We don't allow mysteries."
+      },
+      {
+        "kind": "neutral",
+        "text": "A little. Mostly for vibes.",
+        "reaction": "Vibes don't pass code review. Close, though."
+      },
+      {
+        "kind": "bad",
+        "text": "Never. What's an AI?",
+        "reaction": "Your screen share shows Guessomatic. Open. Right now."
+      }
+    ]
+  },
+  "eq_leaked_password": {
+    "prompt": "The production database password is posted in a public team channel.",
+    "teamwork": false,
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_secrets",
+    "opener_only": false,
+    "answers": [
+      {
+        "kind": "good",
+        "text": "Tell security so it gets rotated.",
+        "reaction": "Exactly. A leaked secret is a burned secret."
+      },
+      {
+        "kind": "neutral",
+        "text": "Delete the message and move on.",
+        "reaction": "Deleted is not rotated. The bots already saw it."
+      },
+      {
+        "kind": "bad",
+        "text": "Screenshot it. Might be handy.",
+        "reaction": "Please stay seated. Legal is walking over."
+      }
+    ]
+  },
+  "eq_celebrity_orders": {
+    "prompt": "A coworker dares you to look up a celebrity customer's order history.",
+    "teamwork": false,
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_privacy",
+    "opener_only": false,
+    "answers": [
+      {
+        "kind": "good",
+        "text": "No. No business reason, no access.",
+        "reaction": "Correct. Also: every query is logged."
+      },
+      {
+        "kind": "neutral",
+        "text": "Only if we anonymize it first.",
+        "reaction": "Nice try. It's still a person's data."
+      },
+      {
+        "kind": "bad",
+        "text": "Sure, in incognito mode.",
+        "reaction": "Incognito hides it from your browser. Not from our audit logs."
+      }
+    ]
+  },
+  "eq_meeting_overload": {
+    "prompt": "Six hours of meetings today. Your deadline is tomorrow.",
+    "teamwork": false,
+    "tiers": [
+      "big",
+      "mid"
+    ],
+    "tip": "tip_focus_time",
+    "opener_only": false,
+    "answers": [
+      {
+        "kind": "good",
+        "text": "Skip the optional ones, ask for notes.",
+        "reaction": "Healthy boundaries! Rare here, but healthy."
+      },
+      {
+        "kind": "neutral",
+        "text": "Attend all, camera off, code quietly.",
+        "reaction": "Relatable. Our nod-detection AI flagged you anyway."
+      },
+      {
+        "kind": "bad",
+        "text": "Book a meeting about fewer meetings.",
+        "reaction": "Accepted. It's recurring now. Weekly."
+      }
+    ]
+  },
+  "eq_impossible_deadline": {
+    "prompt": "Your product manager wants a 3-month feature by Friday.",
+    "teamwork": true,
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_scope",
+    "opener_only": false,
+    "answers": [
+      {
+        "kind": "good",
+        "text": "Offer a smaller v1 and flag the risks.",
+        "reaction": "Scope, risks, in writing. Someone's been burned before."
+      },
+      {
+        "kind": "neutral",
+        "text": "Say yes and hope.",
+        "reaction": "Hope is not a sprint plan."
+      },
+      {
+        "kind": "bad",
+        "text": "Ship a 'Coming Soon' button.",
+        "reaction": "...That is literally our roadmap."
+      }
+    ],
+    "exclusive": {
+      "background": "graduate",
+      "kind": "good",
+      "text": "Per my PM course: cut scope, flag risk.",
+      "reaction": "Textbook. Literally. But right."
+    }
+  },
+  "eq_harsh_review": {
+    "prompt": "A senior dev comments 'this is garbage' on your pull request.",
+    "teamwork": true,
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_teamwork_without_job",
+    "opener_only": false,
+    "answers": [
+      {
+        "kind": "good",
+        "text": "Ask what to fix; raise tone privately.",
+        "reaction": "Mature. And yes, raise it. 'Garbage' isn't feedback."
+      },
+      {
+        "kind": "neutral",
+        "text": "Fix it silently and seethe.",
+        "reaction": "Fixed code, unfixed feelings. Half marks."
+      },
+      {
+        "kind": "bad",
+        "text": "Reply 'no u'.",
+        "reaction": "A classic. Not a career move."
+      }
+    ],
+    "exclusive": {
+      "background": "self_taught",
+      "kind": "neutral",
+      "text": "My only reviewer so far is Guessomatic.",
+      "reaction": "Honest. Open-source code reviews would change that. Try it."
+    }
+  },
+  "eq_weakness": {
+    "prompt": "What's your greatest weakness?",
+    "teamwork": false,
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_star_stories",
+    "opener_only": false,
+    "answers": [
+      {
+        "kind": "good",
+        "text": "I over-polish, so now I timebox.",
+        "reaction": "A real answer! I'm writing that down in pen."
+      },
+      {
+        "kind": "neutral",
+        "text": "I'm a perfectionist who works too hard.",
+        "reaction": "That's the 3,000th time I've heard that. Second today."
+      },
+      {
+        "kind": "bad",
+        "text": "Garlic. And sunlight.",
+        "reaction": "...Okay. We do have a night shift."
+      }
+    ]
+  },
+  "eq_grind_culture": {
+    "prompt": "We work 80-hour weeks here. Grind culture. You in?",
+    "teamwork": false,
+    "tiers": [
+      "startup"
+    ],
+    "tip": "tip_rest",
+    "opener_only": false,
+    "answers": [
+      {
+        "kind": "good",
+        "text": "Committed, but at a sustainable pace.",
+        "reaction": "Most people just say yes. You didn't. That's... reassuring, actually."
+      },
+      {
+        "kind": "neutral",
+        "text": "Is the pay 80 hours' worth too?",
+        "reaction": "Great question. Next question."
+      },
+      {
+        "kind": "bad",
+        "text": "I'll sleep under my desk.",
+        "reaction": "Love the energy. Our insurance does not."
+      }
+    ]
+  },
+  "eq_rto": {
+    "prompt": "Five days in the office, starting Monday. Thoughts?",
+    "teamwork": false,
+    "tiers": [
+      "big"
+    ],
+    "tip": "tip_total_comp",
+    "opener_only": false,
+    "answers": [
+      {
+        "kind": "good",
+        "text": "I'd ask why, then plan around it.",
+        "reaction": "A mature answer. I'm almost suspicious."
+      },
+      {
+        "kind": "neutral",
+        "text": "Is it negotiable?",
+        "reaction": "Everything is negotiable. Except this."
+      },
+      {
+        "kind": "bad",
+        "text": "Badge in, grab coffee, leave.",
+        "reaction": "'Coffee badging.' The badge readers have feelings now."
+      }
+    ]
+  },
+  "eq_any_questions": {
+    "prompt": "Do you have any questions for us?",
+    "teamwork": false,
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_ask_questions",
+    "opener_only": false,
+    "answers": [
+      {
+        "kind": "good",
+        "text": "What does success look like in 90 days?",
+        "reaction": "Oh, a good question. Let me actually think."
+      },
+      {
+        "kind": "neutral",
+        "text": "How soon can I take vacation?",
+        "reaction": "Day 91. After probation. Noted."
+      },
+      {
+        "kind": "bad",
+        "text": "No, I'm good.",
+        "reaction": "Not having questions is also an answer."
+      }
+    ]
+  }
+}

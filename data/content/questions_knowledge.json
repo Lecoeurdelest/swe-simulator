@@ -1,0 +1,372 @@
+{
+  "kq_binary_search": {
+    "prompt": "Binary search on a sorted array of n items. What's the time complexity?",
+    "topic": "algorithms",
+    "kind": "tech",
+    "difficulty": 1,
+    "weak_for": "intern",
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_think_aloud",
+    "green": "O(log n). Each step halves the range.",
+    "yellow": "Log-something? It halves stuff... O(log n), I think.",
+    "red": "O(n). It checks every item, just faster.",
+    "ducky": "O(log n). Each comparison halves what's left to search."
+  },
+  "kq_nested_loops": {
+    "prompt": "A loop over n items inside another loop over n items. Complexity?",
+    "topic": "algorithms",
+    "kind": "tech",
+    "difficulty": 1,
+    "weak_for": "self_taught",
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_think_aloud",
+    "green": "O(n squared): n times n steps.",
+    "yellow": "Quadratic-ish? n times n... O(n^2)?",
+    "red": "O(2n). Two loops, so two n.",
+    "ducky": "O(n^2). Nested loops multiply; loops one after another add."
+  },
+  "kq_hash_map": {
+    "prompt": "What's the average time to look up a key in a hash map?",
+    "topic": "data_structures",
+    "kind": "tech",
+    "difficulty": 1,
+    "weak_for": "self_taught",
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_fundamentals",
+    "green": "O(1) on average; O(n) worst case with lots of collisions.",
+    "yellow": "Fast? Constant... unless collisions. Probably O(1).",
+    "red": "O(log n), because hash maps keep their keys sorted.",
+    "ducky": "O(1) on average. Hash maps aren't sorted; heavy collisions can make it O(n)."
+  },
+  "kq_two_sum": {
+    "prompt": "Does any pair in an array add up to a target? What's the fast approach?",
+    "topic": "algorithms",
+    "kind": "tech",
+    "difficulty": 3,
+    "weak_for": "intern",
+    "tiers": [
+      "big",
+      "mid"
+    ],
+    "tip": "tip_think_aloud",
+    "green": "One pass with a hash set: check if target minus x was seen.",
+    "yellow": "Maybe a set? Store what I've seen, then... check it?",
+    "red": "Two nested loops. Brute force is honest work.",
+    "ducky": "One pass plus a hash set is O(n). Nested loops work too, but they're O(n^2)."
+  },
+  "kq_recursion_base": {
+    "prompt": "A recursive function has no base case. What happens?",
+    "topic": "algorithms",
+    "kind": "tech",
+    "difficulty": 1,
+    "weak_for": "intern",
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_think_aloud",
+    "green": "It never stops calling itself: stack overflow.",
+    "yellow": "It loops forever? Something overflows. The stack?",
+    "red": "It returns zero. The compiler adds a base case.",
+    "ducky": "It recurses until the call stack overflows. Write the base case first."
+  },
+  "kq_left_join": {
+    "prompt": "Users LEFT JOIN Orders. What do you get back?",
+    "topic": "databases",
+    "kind": "tech",
+    "difficulty": 2,
+    "weak_for": "self_taught",
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_fundamentals",
+    "green": "Every user, plus their orders; no orders means NULLs.",
+    "yellow": "All the users? And some orders? With blanks, maybe.",
+    "red": "Only the users who have orders.",
+    "ducky": "All left rows are kept; missing right-side values are NULL. INNER JOIN drops them."
+  },
+  "kq_index_tradeoff": {
+    "prompt": "What's the main trade-off of adding a database index?",
+    "topic": "databases",
+    "kind": "tech",
+    "difficulty": 2,
+    "weak_for": "graduate",
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_fundamentals",
+    "green": "Faster reads, but more storage and slower writes.",
+    "yellow": "Faster queries... and it costs something. Space?",
+    "red": "No trade-off. Index every column.",
+    "ducky": "Indexes speed up lookups but use storage and slow down inserts and updates."
+  },
+  "kq_http_403": {
+    "prompt": "You're logged in, but the admin page refuses you. Best HTTP status code?",
+    "topic": "web",
+    "kind": "tech",
+    "difficulty": 2,
+    "weak_for": "graduate",
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_think_aloud",
+    "green": "403 Forbidden: we know who you are; you're not allowed.",
+    "yellow": "Four-oh-something. 403? Or 401. Probably 403.",
+    "red": "500. The server is clearly upset with me.",
+    "ducky": "403: logged in, not allowed. 401: not logged in. Some sites send 404 to hide that a page exists."
+  },
+  "kq_idempotent": {
+    "prompt": "Name an idempotent HTTP method: sending it 5 times has the same effect as once.",
+    "topic": "web",
+    "kind": "tech",
+    "difficulty": 2,
+    "weak_for": "self_taught",
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_fundamentals",
+    "green": "PUT. Same request, same final state.",
+    "yellow": "Not POST... GET-ish? PUT, I think.",
+    "red": "POST. It posts the same thing every time.",
+    "ducky": "PUT (also GET and DELETE). POST usually creates something new on each call."
+  },
+  "kq_rebase_merge": {
+    "prompt": "Git: what's the difference between merge and rebase?",
+    "topic": "tools",
+    "kind": "tech",
+    "difficulty": 2,
+    "weak_for": "graduate",
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_think_aloud",
+    "green": "Merge adds a merge commit; rebase replays my commits on top.",
+    "yellow": "Rebase is... cleaner? It moves the commits somewhere.",
+    "red": "Rebase deletes the other branch. Merge is the free version.",
+    "ducky": "Rebase rewrites your commits onto a new base. Never rebase commits others already pulled."
+  },
+  "kq_testing_pyramid": {
+    "prompt": "In the testing pyramid, which tests should you have the most of?",
+    "topic": "tools",
+    "kind": "tech",
+    "difficulty": 1,
+    "weak_for": "graduate",
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_fundamentals",
+    "green": "Unit tests: fast and cheap. Fewest end-to-end tests.",
+    "yellow": "The small ones? Unit tests. Mostly.",
+    "red": "End-to-end UI tests. Click everything, every time.",
+    "ducky": "Many unit tests, fewer integration tests, fewest slow end-to-end tests."
+  },
+  "kq_race_condition": {
+    "prompt": "Two threads each add 1 to a counter 1,000 times. The result is 1,734. Why?",
+    "topic": "concurrency",
+    "kind": "tech",
+    "difficulty": 2,
+    "weak_for": "self_taught",
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_think_aloud",
+    "green": "A race: read-modify-write isn't atomic. Use a lock.",
+    "yellow": "The threads fight? Something about locks, maybe.",
+    "red": "Integer overflow. The CPU got tired.",
+    "ducky": "Unsynchronized updates overwrite each other. Use a lock or an atomic counter."
+  },
+  "kq_deadlock": {
+    "prompt": "Thread A holds lock 1 and wants lock 2. Thread B holds 2 and wants 1. What is this?",
+    "topic": "concurrency",
+    "kind": "tech",
+    "difficulty": 3,
+    "weak_for": "intern",
+    "tiers": [
+      "big",
+      "mid"
+    ],
+    "tip": "tip_think_aloud",
+    "green": "A deadlock. Fix it by always taking locks in the same order.",
+    "yellow": "They're stuck? A... deadlock. Yes. Deadlock.",
+    "red": "A memory leak. Restart and pray.",
+    "ducky": "A deadlock. A consistent lock order, or timeouts, prevents it."
+  },
+  "kq_cache_first_fix": {
+    "prompt": "The same rarely-changing data is read 10,000 times a second. The DB is struggling. First fix?",
+    "topic": "system_design",
+    "kind": "tech",
+    "difficulty": 3,
+    "weak_for": "graduate",
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_think_aloud",
+    "green": "Put a cache with an expiry time in front of the database.",
+    "yellow": "Cache it? In memory, somewhere? Yes. Cache.",
+    "red": "Rewrite the app in a trendier language.",
+    "ducky": "Cache hot, rarely-changing reads with a time-to-live. Measure first, then optimize."
+  },
+  "kq_load_balancer": {
+    "prompt": "What does a load balancer do?",
+    "topic": "system_design",
+    "kind": "tech",
+    "difficulty": 1,
+    "weak_for": "none",
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_fundamentals",
+    "green": "Spreads requests across servers and skips unhealthy ones.",
+    "yellow": "Balances... load. Across the servers. Evenly?",
+    "red": "Decides who gets laid off.",
+    "ducky": "It distributes traffic across servers and routes around the unhealthy ones."
+  },
+  "kq_url_shortener": {
+    "prompt": "Design a URL shortener. What happens when someone opens a short link?",
+    "topic": "system_design",
+    "kind": "tech",
+    "difficulty": 3,
+    "weak_for": "self_taught",
+    "tiers": [
+      "big",
+      "mid"
+    ],
+    "tip": "tip_clarify_first",
+    "green": "Look up the code in a fast key-value store, then redirect.",
+    "yellow": "Find the long URL... and send them there? A redirect?",
+    "red": "Generate a brand-new short link every time.",
+    "ducky": "A cached key-value lookup, then an HTTP 301 or 302 redirect. Ask about scale first!"
+  },
+  "kq_sql_injection": {
+    "prompt": "What's the best defense against SQL injection?",
+    "topic": "security",
+    "kind": "tech",
+    "difficulty": 2,
+    "weak_for": "none",
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_fundamentals",
+    "green": "Parameterized queries. Never glue user input into SQL.",
+    "yellow": "Sanitize... stuff? Escape the quotes, I guess.",
+    "red": "Check the input in the browser. Done.",
+    "ducky": "Parameterized queries (prepared statements). Browser-side checks are easy to bypass."
+  },
+  "kq_password_storage": {
+    "prompt": "How should an app store user passwords?",
+    "topic": "security",
+    "kind": "tech",
+    "difficulty": 2,
+    "weak_for": "intern",
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_fundamentals",
+    "green": "A salted hash with a slow algorithm made for passwords.",
+    "yellow": "Encrypted? Hashed? Hashed. With salt, I think.",
+    "red": "Base64. It looks secure.",
+    "ducky": "Slow, salted password hashing. If a site can email you your password, it's stored wrong."
+  },
+  "kq_star_conflict": {
+    "prompt": "Tell me about a time you disagreed with a teammate.",
+    "topic": "behavioral",
+    "kind": "behavioral",
+    "difficulty": 1,
+    "weak_for": "self_taught",
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_star_stories",
+    "green": "We tested both ideas, the data picked one, and I learned why.",
+    "yellow": "Um, once? We disagreed. Then we... agreed?",
+    "red": "I don't disagree. I'm always right.",
+    "ducky": "Use STAR: Situation, Task, Action, Result. No team yet? Use open source or clients."
+  },
+  "kq_failure_story": {
+    "prompt": "Tell me about a project that failed.",
+    "topic": "behavioral",
+    "kind": "behavioral",
+    "difficulty": 2,
+    "weak_for": "graduate",
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_star_stories",
+    "green": "It shipped late. I learned to cut scope early. Here's how.",
+    "yellow": "Everything worked out in the end, honestly. Mostly.",
+    "red": "Nothing I build fails. Some of it just never runs.",
+    "ducky": "Pick a real failure, own your part, and show what you changed afterwards."
+  },
+  "kq_learn_fast": {
+    "prompt": "How do you learn a new technology quickly?",
+    "topic": "behavioral",
+    "kind": "behavioral",
+    "difficulty": 1,
+    "weak_for": "none",
+    "tiers": [
+      "startup",
+      "mid"
+    ],
+    "tip": "tip_fundamentals",
+    "green": "Build a tiny project, read the docs, ask for a review.",
+    "yellow": "Videos? Lots of videos. At 2x speed.",
+    "red": "I ask Guessomatic and paste whatever it says.",
+    "ducky": "A small project, the official docs, and feedback. Explain it back to check you get it."
+  },
+  "kq_estimate": {
+    "prompt": "Your task will take twice as long as planned. What do you do?",
+    "topic": "behavioral",
+    "kind": "behavioral",
+    "difficulty": 2,
+    "weak_for": "none",
+    "tiers": [
+      "startup",
+      "mid",
+      "big"
+    ],
+    "tip": "tip_scope",
+    "green": "Tell my lead early, with options to cut scope or move dates.",
+    "yellow": "Tell my lead? Soon-ish? Maybe cut... something?",
+    "red": "Say it's 90% done. For three weeks.",
+    "ducky": "Flag slips early and bring options. Surprises are worse than bad news."
+  }
+}

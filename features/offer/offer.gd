@@ -1,6 +1,7 @@
 extends Control
 ## Step 3 stub of the offer (GDD S10): Accept, and Decline after a confirm. Step 6 builds the contract.
 
+@onready var _header: Label = %Header
 @onready var _contract: Label = %Contract
 @onready var _back_button: Button = %BackButton
 @onready var _decline_button: Button = %DeclineButton
@@ -11,9 +12,17 @@ extends Control
 
 func _ready() -> void:
 	var offer: Dictionary = GameState.run.offer
-	_contract.text = "%s\n%s\n$%d/year, %d office days a week" % [
-		offer.get("company_id", "?"), offer.get("template_id", "?"),
-		int(offer.get("salary", 0)), int(offer.get("office_days", 0))]
+	var company: String = Content.field("companies", str(offer.get("company_id", "")), "name")
+	_header.text = Content.text("barks", "vs_offer")
+	_contract.text = "\n".join(PackedStringArray([
+		Content.text("emails", "offer_title", {"company": company}),
+		Content.field("postings", str(offer.get("template_id", "")), "title"),
+		Content.text("emails", "offer_salary", {"salary": UiText.money(int(offer.get("salary", 0)))}),
+		Content.text("emails", "offer_mode_" + str(offer.get("tier", ""))),
+	]))
+	_back_button.text = UiText.back(Content.text("barks", "ui_back"))
+	_decline_button.text = Content.text("barks", "ui_decline")
+	_accept_button.text = UiText.primary(Content.text("barks", "ui_accept"))
 	_back_button.pressed.connect(Device.handle_back)
 	_decline_button.pressed.connect(_on_decline)
 	_accept_button.pressed.connect(GameState.answer_offer.bind(true))
@@ -32,4 +41,4 @@ func handle_back() -> bool:
 
 
 func _on_decline() -> void:
-	_decline_dialog.open(tr("Decline this offer? Rent keeps ticking."), tr("Decline"), "", true)
+	_decline_dialog.open(Content.text("barks", "ui_decline_confirm"), Content.text("barks", "ui_decline"), "", true)

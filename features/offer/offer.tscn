@@ -48,9 +48,10 @@ mouse_filter = 2
 theme_override_constants/separation = 4
 
 [node name="Header" type="Label" parent="SafeArea/Column/TopBand" unique_id=1470123672]
+unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"HeaderLabel"
-text = "OFFER (STUB)"
+text = "OFFER!"
 
 [node name="Body" type="VBoxContainer" parent="SafeArea/Column" unique_id=201474733]
 layout_mode = 2
@@ -67,9 +68,10 @@ theme_type_variation = &"PaperPanel"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.14901961, 0.16862746, 0.26666668, 1)
-text = "co_beigeware
-job_mid_backend
-$77000/year, 2 office days a week"
+text = "OFFER OF EMPLOYMENT - Beigeware Financial
+Backend Developer
+$77,000/year
+Hybrid: 2 office days a week"
 autowrap_mode = 3
 
 [node name="ThumbBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=18465724]

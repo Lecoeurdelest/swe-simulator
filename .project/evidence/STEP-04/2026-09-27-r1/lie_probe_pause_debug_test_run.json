@@ -1,0 +1,35 @@
+{
+  "tool": "godot-ai test_run (all suites, verbose)",
+  "date": "2026-09-27",
+  "machine": "Windows PC, Godot 4.7.2-stable (steam)",
+  "step": "STEP-04 tasks 4 (ready overlay, pause), 5 (lie probe UI) and 6 (debug outcome panel), plus the resume replay",
+  "stage": "lie_probe_pause_debug",
+  "run": "final run of the stage, after the last game run and the user:// cleanup; baseline at the start of the stage was 78/78 in 9 suites",
+  "edited_scene": "res://features/interview/interview.tscn",
+  "passed": 88, "failed": 0, "skipped": 0, "total": 88, "suite_count": 10,
+  "suites_run": ["content_lint", "data_files", "flow", "interview", "interview_plan", "lie_probe", "odds", "offer", "save", "ui_text"],
+  "tests_added_by_this_stage": {
+    "interview_plan": [
+      "test_prompts_follow_the_checkpoint (6 assertions): InterviewPlan.prompts keeps cfg.prompt_pattern order; a probe_line replaces knowledge prompt 2 only",
+      "test_resume_replays_the_saved_interview (4): a checkpoint round-tripped through RunState.to_dict -> JSON -> from_dict gives the same seed String, the same prompts, the same warm-up and the same dice (answer shuffles, luck, zone centres, pre-rolled bluff, wheel roll)",
+      "test_early_or_late_tap_replays_the_same_luck (2): an extra pivot roll on InterviewPlan.meter_rng leaves every later interview roll unchanged; another seed gives other dice",
+      "test_probe_question_prefers_the_company_line (13): probe_at wins at its company (cv_self_taught_exp_lie at co_stealth), probe elsewhere; lie_lines is edu, exp, proj; every Lie line has a probe"
+    ],
+    "lie_probe (new file tests/test_lie_probe.gd)": [
+      "test_degree_claim_weighs_more (3): Intern at Mid 0.45 normal lie -> 0.35 degree claim; clamps at bluff_min / bluff_max",
+      "test_bluff_band_words (77): 10% Long shot, 32.5% and 35% Unlikely, 45% Possible, 60% Decent, 80% Good; never falls as the odds rise",
+      "test_coming_clean_beats_bluffing_on_average (2): GDD 5.8.5 expected Doubt of a bluff +4.25 (about +4.3) vs Come clean -5",
+      "test_come_clean_marks_the_line_confessed_for_that_company (3): RunState.settle_probe records company|line once and drops it from lies_carried",
+      "test_busted_and_bluff_win_leave_no_confession (5): a held bluff keeps the carried lie; BUSTED drops it without a confession; no probe line settles nothing"
+    ],
+    "ui_text": [
+      "test_band_is_dots_plus_a_word (5): UiText.band(3, \"Possible\") = \"[###--] Possible\"; clamped; fits 18 columns (a 124 px half-width button)"
+    ]
+  },
+  "suites_unchanged": ["content_lint", "data_files", "flow", "interview", "odds", "offer", "save"],
+  "notes": [
+    "flow/test_screens_never_change_phase_or_scene still passes on the rewritten interview.gd (no change_phase( or phase assignment in feature scripts)",
+    "ui_text/test_screen_text_ids_exist finds every literal Content id in interview.gd; the built ids ui_odds_<band> and bark_dana_<kind>_<n> exist in barks.json (ui_odds_1..5 checked by hand)",
+    "editor log cursor 71 before and after the stage's game runs: no new editor errors (the two stale 'Identifier not found: GameState/Content' compile lines at cursor 69-71 are the known autoload gotcha, raised by scan/script_create re-parses)"
+  ]
+}

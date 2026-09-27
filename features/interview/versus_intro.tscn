@@ -1,0 +1,304 @@
+[gd_scene format=3 uid="uid://d0fo8dq7t2tsi"]
+
+[ext_resource type="Script" uid="uid://b53l7jidmh5ed" path="res://features/interview/versus_intro.gd" id="1_g8uwf"]
+[ext_resource type="Script" uid="uid://b2qm2ai3fh743" path="res://ui/components/safe_area_margin.gd" id="2_cytl1"]
+[ext_resource type="FontFile" uid="uid://lssgf0t3kv1v" path="res://ui/fonts/PressStart2P-Regular.ttf" id="3_3j7ub"]
+
+[sub_resource type="Animation" id="Animation_jt2am"]
+length = 2.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Flash:visible")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.017),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Shaker/SafeArea/Column/DanaRow/DanaSlot/DanaBust:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.28, 0.35),
+"transitions": PackedFloat32Array(1, 0.4, 1, 1),
+"update": 0,
+"values": [Vector2(140, -160), Vector2(140, -160), Vector2(-3, 3), Vector2(0, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Shaker/SafeArea/Column/PlayerRow/PlayerSlot/PlayerBust:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.28, 0.35),
+"transitions": PackedFloat32Array(1, 0.4, 1, 1),
+"update": 0,
+"values": [Vector2(-140, 160), Vector2(-140, 160), Vector2(3, -3), Vector2(0, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Shaker/SafeArea/Column/Middle/VSLabel:visible")
+tracks/3/interp = 0
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.35),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [false, true]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Shaker/SafeArea/Column/DanaRow/DanaPlate:modulate:a")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.4, 0.6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 0.0, 1.0]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Shaker/SafeArea/Column/DanaMovesPanel:modulate:a")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.45, 0.65),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 0.0, 1.0]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Shaker/SafeArea/Column/PlayerRow/PlayerPlate:modulate:a")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.5, 0.7),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 0.0, 1.0]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("Shaker/SafeArea/Column/BannerPanel:modulate:a")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0, 0.6, 0.9),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 0.0, 1.0]
+}
+tracks/8/type = "method"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath(".")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0.35),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"slam"
+}]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_pns2w"]
+_data = {
+&"intro": SubResource("Animation_jt2am")
+}
+
+[node name="VersusIntro" type="Control" unique_id=286054925]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_g8uwf")
+
+[node name="Shaker" type="Control" parent="." unique_id=1525403311]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Split" type="Control" parent="Shaker" unique_id=996747369]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="SafeArea" type="MarginContainer" parent="Shaker" unique_id=982805055]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("2_cytl1")
+
+[node name="Column" type="VBoxContainer" parent="Shaker/SafeArea" unique_id=2093919855]
+custom_minimum_size = Vector2(254, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="DanaRow" type="HBoxContainer" parent="Shaker/SafeArea/Column" unique_id=356034939]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="DanaPlate" type="PanelContainer" parent="Shaker/SafeArea/Column/DanaRow" unique_id=1602236089]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Rows" type="VBoxContainer" parent="Shaker/SafeArea/Column/DanaRow/DanaPlate" unique_id=1595011295]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="DanaName" type="Label" parent="Shaker/SafeArea/Column/DanaRow/DanaPlate/Rows" unique_id=1254152186]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+theme_override_font_sizes/font_size = 16
+text = "DANA"
+
+[node name="DanaTitle" type="Label" parent="Shaker/SafeArea/Column/DanaRow/DanaPlate/Rows" unique_id=283843028]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Recruiter (also Office Manager)"
+autowrap_mode = 3
+
+[node name="DanaStats" type="Label" parent="Shaker/SafeArea/Column/DanaRow/DanaPlate/Rows" unique_id=593768256]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Candidates today: 11
+Coffee: 4th cup
+Patience: [###--]"
+
+[node name="DanaSlot" type="Control" parent="Shaker/SafeArea/Column/DanaRow" unique_id=1044482654]
+custom_minimum_size = Vector2(64, 96)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="DanaBust" type="ColorRect" parent="Shaker/SafeArea/Column/DanaRow/DanaSlot" unique_id=1828806056]
+layout_mode = 0
+offset_right = 64.0
+offset_bottom = 96.0
+mouse_filter = 2
+color = Color(1, 0, 1, 1)
+
+[node name="DanaMovesPanel" type="PanelContainer" parent="Shaker/SafeArea/Column" unique_id=1871598875]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="DanaMoves" type="Label" parent="Shaker/SafeArea/Column/DanaMovesPanel" unique_id=1726125264]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Special moves: The Five-Year Plan, The Salary Expectation Trap, The Awkward Silence"
+autowrap_mode = 3
+
+[node name="Middle" type="CenterContainer" parent="Shaker/SafeArea/Column" unique_id=1101914372]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="VSLabel" type="Label" parent="Shaker/SafeArea/Column/Middle" unique_id=240290341]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_3j7ub")
+theme_override_font_sizes/font_size = 32
+text = "VS"
+
+[node name="PlayerRow" type="HBoxContainer" parent="Shaker/SafeArea/Column" unique_id=686842686]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="PlayerSlot" type="Control" parent="Shaker/SafeArea/Column/PlayerRow" unique_id=849943080]
+custom_minimum_size = Vector2(64, 96)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="PlayerBust" type="ColorRect" parent="Shaker/SafeArea/Column/PlayerRow/PlayerSlot" unique_id=1154221423]
+layout_mode = 0
+offset_right = 64.0
+offset_bottom = 96.0
+mouse_filter = 2
+color = Color(1, 0, 1, 1)
+
+[node name="PlayerPlate" type="PanelContainer" parent="Shaker/SafeArea/Column/PlayerRow" unique_id=379892494]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Rows" type="VBoxContainer" parent="Shaker/SafeArea/Column/PlayerRow/PlayerPlate" unique_id=231597793]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="PlayerName" type="Label" parent="Shaker/SafeArea/Column/PlayerRow/PlayerPlate/Rows" unique_id=1237767821]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+theme_override_font_sizes/font_size = 16
+text = "ALEX"
+
+[node name="PlayerNickname" type="Label" parent="Shaker/SafeArea/Column/PlayerRow/PlayerPlate/Rows" unique_id=1356468572]
+unique_name_in_owner = true
+layout_mode = 2
+text = "THE THEORIST"
+
+[node name="PlayerStats" type="Label" parent="Shaker/SafeArea/Column/PlayerRow/PlayerPlate/Rows" unique_id=775474200]
+unique_name_in_owner = true
+layout_mode = 2
+text = "KNOWLEDGE  [###--]
+EXPERIENCE [#----]
+NETWORK    [#----]"
+
+[node name="BannerPanel" type="PanelContainer" parent="Shaker/SafeArea/Column" unique_id=163344774]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Banner" type="Label" parent="Shaker/SafeArea/Column/BannerPanel" unique_id=1452538100]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/line_spacing = 4
+theme_override_fonts/font = ExtResource("3_3j7ub")
+theme_override_font_sizes/font_size = 16
+text = "ROUND 1: CULTURE FIT"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Flash" type="ColorRect" parent="." unique_id=2081490275]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=681919473]
+unique_name_in_owner = true
+libraries/ = SubResource("AnimationLibrary_pns2w")

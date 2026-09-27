@@ -6,10 +6,15 @@ extends Control
 ## Loaded by path when pressed, never preloaded: features/dev/ is excluded from release exports.
 const DEVICE_CHECK_PATH := "res://features/dev/device_check.tscn"
 const BLINK_SEC := 0.5
+## Debug-only label, English on purpose (not player text, so not in CONTENT.md).
+const DEBUG_DEVICE_CHECK := "Device check"
 
 var _has_save: bool = false
 var _device_check: Control = null
 
+@onready var _software: Label = %Software
+@onready var _engineer: Label = %Engineer
+@onready var _simulator: Label = %Simulator
 @onready var _size_readout: Label = %SizeReadout
 @onready var _tap_to_start: Label = %TapToStart
 @onready var _new_game_button: Button = %NewGameButton
@@ -21,6 +26,14 @@ var _device_check: Control = null
 
 
 func _ready() -> void:
+	_software.text = Content.text("barks", "ui_logo_1")
+	_engineer.text = Content.text("barks", "ui_logo_2")
+	_simulator.text = Content.text("barks", "ui_logo_3")
+	_tap_to_start.text = Content.text("barks", "ui_tap_to_start")
+	_new_game_button.text = Content.text("barks", "ui_new_game")
+	_continue_button.text = UiText.primary(Content.text("barks", "ui_continue"))
+	_replay_intro_button.text = Content.text("barks", "ui_replay_intro")
+	_device_check_button.text = DEBUG_DEVICE_CHECK
 	_has_save = SaveIO.exists()
 	_tap_to_start.visible = not _has_save
 	_new_game_button.visible = _has_save
@@ -67,7 +80,7 @@ func handle_back() -> bool:
 		return _quit_dialog.handle_back()
 	if OS.get_name() == "iOS":
 		return false
-	_quit_dialog.open(tr("Quit the game?"), tr("Quit"), "", true)
+	_quit_dialog.open(Content.text("barks", "ui_quit_confirm"), Content.text("barks", "ui_quit"), "", true)
 	return true
 
 

@@ -1,0 +1,31 @@
+{
+  "evt_layoff_news": {
+    "text": "Layoffs: Round 14. Everyone you know is applying today.",
+    "effect": "invite odds x0.8 today"
+  },
+  "evt_hiring_spree": {
+    "text": "Hierarchai raised $40M to pivot. Startups are hiring!",
+    "effect": "startup invite odds x1.3 today"
+  },
+  "evt_recruiter_spam": {
+    "text": "Recruiter: 'Senior Principal COBOL Architect. 3-month contract. Relocate to the Moon.'",
+    "effect": "none"
+  },
+  "evt_remy_course": {
+    "text": "@RemoteRemy: 'Hired in 30 days or your money back!*' (*money back not available)",
+    "effect": "none",
+    "ducky": "Reality: fundamentals, projects and consistency. No 30-day shortcut."
+  },
+  "evt_mom_call": {
+    "text": "Mom asks if you've tried 'just applying online'. Emotional support: +1 energy.",
+    "effect": "+1 pip today"
+  },
+  "evt_streak_lost": {
+    "text": "BigOhNo: you lost your 400-day streak. Pity discount: Study costs 1 today.",
+    "effect": "Study costs 1 today"
+  },
+  "evt_unicorn": {
+    "text": "A posting appears: Junior, fully remote, $180k. 9,000 applicants in an hour.",
+    "effect": "adds job_unicorn_remote (once per run)"
+  }
+}
