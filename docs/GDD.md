@@ -196,7 +196,7 @@ What the reference does, and the rule we take from it:
 | Spectators readable by one dominant outfit color (white tee, mustard sweater, brown jacket, black, navy suit) | Every character has one dominant outfit color. The player's hoodie color is fixed per background (Intern teal, Graduate maroon, Self-Taught mustard). |
 | Clear layering: sky, clouds, trees, building, fence, track | The same layers, stacked top to bottom in a tall frame (template below), built as 4-5 `Parallax2D` layers that still scroll **horizontally** (2.6). |
 
-**Portrait composition.** Full-screen scenes (Title, room hub, intro panels) share one vertical template, anchored to the screen bottom, so taller phones show more sky, never more floor:
+**Portrait composition.** Full-screen scenes (Title, room hub) share one vertical template, anchored to the screen bottom, so taller phones show more sky, never more floor. Intro panels use the same vertical composition inside their own 270x480 frame, which sits centred on the near-black on taller phones (2.6, ARCHITECTURE 11.2):
 
 | Band | y in the 480 frame | Holds |
 |---|---|---|

@@ -1047,7 +1047,7 @@ The template's first line is `offer_title`; the salary value (without its "Salar
 | `fp_on_call` | mid, startup | You will join the on-call rotation. The rotation is you. |
 | `fp_perks` | mid | Pizza parties are provided in lieu of raises. |
 | `fp_laptop` | big | Your laptop ships in 6-8 weeks. Please be productive meanwhile. |
-| `fp_salary_review` | all | Salary is reviewed annually. Reviewing is not increasing. |
+| `fp_salary_review` | startup, mid, big | Salary is reviewed annually. Reviewing is not increasing. |
 | `fp_runway` | startup | Your role is secure for the full runway (7 months, give or take a Tuesday). |
 | `fp_family` | startup, big | The Company reserves the right to call itself 'a family'. |
 

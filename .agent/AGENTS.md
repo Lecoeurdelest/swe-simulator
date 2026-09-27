@@ -14,6 +14,7 @@ The game is a satirical 2D pixel-art **portrait** mobile game: **iPhone first**,
 | The step plan and each step's Done-when | `docs/ROADMAP.md` |
 | Design decision answers | `docs/DECISIONS.md` (D1-D8, P1 and C1, decided 2026-09-26) |
 | Where each task stands | `docs/task/README.md` (generated from `.project/state.json`) |
+| What's waiting for the developer (merges, reviews, sign-offs, You-do, iPhone checks) | `docs/REVIEW_QUEUE.md` |
 | Context for the current step | `.project/bundles/STEP-NN.md` |
 | Global invariants | `.agent/rules/invariants.md` |
 | Structured index of all the above | `project.yaml` |
