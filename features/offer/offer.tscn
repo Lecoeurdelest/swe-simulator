@@ -1,0 +1,118 @@
+[gd_scene format=3 uid="uid://sffc8adgct5x"]
+
+[ext_resource type="Script" uid="uid://b5bie8lpwyep3" path="res://features/offer/offer.gd" id="1_offer"]
+[ext_resource type="Script" uid="uid://b2qm2ai3fh743" path="res://ui/components/safe_area_margin.gd" id="2_safe"]
+[ext_resource type="PackedScene" uid="uid://ce41s06l840t1" path="res://ui/components/pause_menu.tscn" id="3_pause"]
+[ext_resource type="PackedScene" uid="uid://ba7fpxb5lc526" path="res://ui/components/confirm_dialog.tscn" id="4_conf"]
+
+[node name="Offer" type="Control" unique_id=894328749]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_offer")
+
+[node name="Background" type="ColorRect" parent="." unique_id=407704960]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.11, 0.12, 0.17, 1)
+
+[node name="SafeArea" type="MarginContainer" parent="." unique_id=2072531982]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_safe")
+
+[node name="Column" type="VBoxContainer" parent="SafeArea" unique_id=2089350047]
+custom_minimum_size = Vector2(254, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="TopBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=146014533]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Header" type="Label" parent="SafeArea/Column/TopBand" unique_id=1470123672]
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "OFFER (STUB)"
+
+[node name="Body" type="VBoxContainer" parent="SafeArea/Column" unique_id=201474733]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+alignment = 2
+
+[node name="Paper" type="PanelContainer" parent="SafeArea/Column/Body" unique_id=1126648755]
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"PaperPanel"
+
+[node name="Contract" type="Label" parent="SafeArea/Column/Body/Paper" unique_id=585043811]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.14901961, 0.16862746, 0.26666668, 1)
+text = "co_beigeware
+job_mid_backend
+$77000/year, 2 office days a week"
+autowrap_mode = 3
+
+[node name="ThumbBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=18465724]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="BackRow" type="HBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=1083928674]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="BackButton" type="Button" parent="SafeArea/Column/ThumbBand/BackRow" unique_id=2118441463]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 36)
+layout_mode = 2
+text = "< Back"
+
+[node name="ActionBar" type="HBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=1409917847]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="DeclineButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionBar" unique_id=413134199]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 36)
+layout_mode = 2
+text = "Decline"
+
+[node name="AcceptButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionBar" unique_id=1423753907]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(168, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"PrimaryButton"
+text = "ACCEPT"
+
+[node name="ModalLayer" type="CanvasLayer" parent="." unique_id=412430585]
+layer = 10
+
+[node name="PauseMenu" parent="ModalLayer" unique_id=2077042236 instance=ExtResource("3_pause")]
+unique_name_in_owner = true
+
+[node name="DeclineDialog" parent="ModalLayer" unique_id=1619682519 instance=ExtResource("4_conf")]
+unique_name_in_owner = true

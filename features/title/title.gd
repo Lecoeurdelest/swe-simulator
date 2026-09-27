@@ -1,34 +1,78 @@
 extends Control
-## Step 1 stub of the Title screen (GDD S01): proves settings, autoloads and the scale guard.
-## Resize the desktop window and watch "game" change. Replaced by the real Title in Step 3.
-## Step 2: a debug-only "Device check" button opens features/dev/device_check.tscn as an overlay.
+## Title screen (GDD S01, ARCHITECTURE 11.1), before the art pass.
+## No save: tap anywhere = New game. With a save: [ New game ] above a full-width CONTINUE.
+## Debug builds also show the Step 1 size readout and the Step 2 "Device check" button.
 
 ## Loaded by path when pressed, never preloaded: features/dev/ is excluded from release exports.
 const DEVICE_CHECK_PATH := "res://features/dev/device_check.tscn"
+const BLINK_SEC := 0.5
 
+var _has_save: bool = false
 var _device_check: Control = null
 
-@onready var _info: Label = %Info
+@onready var _size_readout: Label = %SizeReadout
+@onready var _tap_to_start: Label = %TapToStart
+@onready var _new_game_button: Button = %NewGameButton
+@onready var _continue_button: Button = %ContinueButton
+@onready var _replay_intro_button: Button = %ReplayIntroButton
 @onready var _device_check_button: Button = %DeviceCheckButton
+@onready var _version: Label = %Version
+@onready var _quit_dialog: ConfirmDialog = %QuitDialog
 
 
 func _ready() -> void:
+	_has_save = SaveIO.exists()
+	_tap_to_start.visible = not _has_save
+	_new_game_button.visible = _has_save
+	_continue_button.visible = _has_save
+	_version.text = "v%s" % ProjectSettings.get_setting("application/config/version")
+	_size_readout.visible = OS.is_debug_build()
+	set_process(OS.is_debug_build())
 	_device_check_button.visible = OS.is_debug_build() and ResourceLoader.exists(DEVICE_CHECK_PATH)
+	_new_game_button.pressed.connect(GameState.start_new_game)
+	_continue_button.pressed.connect(GameState.continue_game)
+	_replay_intro_button.pressed.connect(GameState.replay_intro)
 	_device_check_button.pressed.connect(_open_device_check)
+	_quit_dialog.confirmed.connect(get_tree().quit)
+	if not _has_save:
+		var blink := create_tween().set_loops()
+		blink.tween_interval(BLINK_SEC)
+		blink.tween_callback(_toggle_tap_to_start)
 
 
+## Step 1's scale-guard readout, kept as a debug overlay (ARCHITECTURE 11.1): resize the window
+## and "game" changes while the pixels stay square.
 func _process(_delta: float) -> void:
 	var win := get_tree().root
+	var game := Vector2i(win.get_visible_rect().size)
 	var mode := "integer" if win.content_scale_stretch == Window.CONTENT_SCALE_STRETCH_INTEGER else "fractional"
-	_info.text = "SWE Simulator %s\nwindow %s\ngame %s (%s)\nsave file: %s" % [
-		ProjectSettings.get_setting("application/config/version"), win.size,
-		Vector2i(win.get_visible_rect().size), mode, SaveIO.exists()]
+	_size_readout.text = "win %dx%d game %dx%d %s" % [win.size.x, win.size.y, game.x, game.y, mode]
 
 
+## No save: a tap anywhere outside the buttons starts a new game. Every container here is IGNORE,
+## so the tap falls through to this root. It acts on release, like a Button.
+func _gui_input(event: InputEvent) -> void:
+	var mb := event as InputEventMouseButton  # touches arrive as emulated mouse events
+	if _has_save or mb == null or mb.button_index != MOUSE_BUTTON_LEFT or mb.pressed:
+		return
+	accept_event()
+	GameState.start_new_game()
+
+
+## Close the open overlay first; else "Quit?" on Android and desktop. iOS apps never quit themselves.
 func handle_back() -> bool:
 	if _device_check != null:
 		return bool(_device_check.call(&"handle_back"))  # the device check counts Back presses
-	return false  # nothing to close here: Device emits back_unhandled (the "Quit?" dialog arrives in Step 3)
+	if _quit_dialog.is_open():
+		return _quit_dialog.handle_back()
+	if OS.get_name() == "iOS":
+		return false
+	_quit_dialog.open(tr("Quit the game?"), tr("Quit"), "", true)
+	return true
+
+
+func _toggle_tap_to_start() -> void:
+	_tap_to_start.modulate.a = 1.0 - _tap_to_start.modulate.a
 
 
 func _open_device_check() -> void:

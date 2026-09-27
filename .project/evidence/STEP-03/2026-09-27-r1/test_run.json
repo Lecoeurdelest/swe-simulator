@@ -1,22 +1,29 @@
 {
-  "tool": "godot-ai test_run (all suites, verbose), re-read with test_manage results_get",
+  "tool": "godot-ai test_run (all suites, verbose)",
   "date": "2026-09-27",
   "machine": "Windows PC, Godot 4.7.2-stable (steam)",
+  "step": "STEP-03 part B (real Title + stub scenes); supersedes the part A run in this folder (28/28), which is a subset of this one",
   "edited_scene": "res://features/title/title.tscn",
-  "passed": 28, "failed": 0, "skipped": 0, "total": 28, "suite_count": 6,
+  "passed": 30, "failed": 0, "skipped": 0, "total": 30, "suite_count": 6,
   "suites_run": ["data_files", "flow", "interview", "odds", "offer", "save"],
-  "baseline_before_this_run": {"passed": 24, "failed": 0, "suites": ["flow", "interview", "odds", "offer", "save"]},
+  "baseline_before_part_b": {"passed": 28, "failed": 0},
+  "new_in_part_b": [
+    "flow/test_every_phase_has_a_screen_with_handle_back: SceneRouter.SCENES (read as text) lists 8 res://features/*.tscn paths = GameFlow.Phase.size(); each exists; each <name>.gd defines 'func handle_back() -> bool:' (17 assertions)",
+    "flow/test_screens_never_change_phase_or_scene: every .gd under res://features/ (9 files incl. dev/device_check.gd) has no 'change_scene', no 'change_phase(' and no '.phase =' assignment (INV-01/02; 28 assertions)"
+  ],
   "results": [
     {"suite": "data_files", "test": "test_backgrounds_match_gdd", "passed": true, "assertion_count": 196},
     {"suite": "data_files", "test": "test_balance_config_matches_gdd", "passed": true, "assertion_count": 334},
     {"suite": "data_files", "test": "test_derived_values", "passed": true, "assertion_count": 2},
     {"suite": "data_files", "test": "test_tiers_match_gdd", "passed": true, "assertion_count": 205},
     {"suite": "flow", "test": "test_continue_only_resumes_live_runs", "passed": true, "assertion_count": 8},
+    {"suite": "flow", "test": "test_every_phase_has_a_screen_with_handle_back", "passed": true, "assertion_count": 17},
     {"suite": "flow", "test": "test_fresh_run_state_is_empty", "passed": true, "assertion_count": 5},
     {"suite": "flow", "test": "test_illegal_jumps_are_blocked", "passed": true, "assertion_count": 6},
     {"suite": "flow", "test": "test_only_live_run_phases_are_saved", "passed": true, "assertion_count": 8},
     {"suite": "flow", "test": "test_required_transitions_are_legal", "passed": true, "assertion_count": 21},
     {"suite": "flow", "test": "test_save_deleted_on_plan_b_and_after_hired", "passed": true, "assertion_count": 5},
+    {"suite": "flow", "test": "test_screens_never_change_phase_or_scene", "passed": true, "assertion_count": 28},
     {"suite": "interview", "test": "test_bluff_odds_by_background_at_mid", "passed": true, "assertion_count": 3},
     {"suite": "interview", "test": "test_input_quality_bands", "passed": true, "assertion_count": 4},
     {"suite": "interview", "test": "test_tired_rule", "passed": true, "assertion_count": 3},
@@ -35,6 +42,5 @@
     {"suite": "save", "test": "test_64bit_rng_state_survives_json", "passed": true, "assertion_count": 2},
     {"suite": "save", "test": "test_round_trip_keeps_every_kind_of_field", "passed": true, "assertion_count": 8},
     {"suite": "save", "test": "test_seed_then_state_replays_the_same_dice", "passed": true, "assertion_count": 1}
-  ],
-  "coverage_note": "data_files: BalanceConfig 111 fields x (listed + type + value) + 1 load check = 334; tiers 3 x (22 x 3 + load + id) + folder listing = 205; backgrounds 3 x (21 x 3 + load + id) + folder listing = 196. Every exported field of the 3 Resource classes is listed (cross-checked with a script: 0 missing, 0 extra)."
+  ]
 }

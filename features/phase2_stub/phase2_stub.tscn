@@ -1,0 +1,107 @@
+[gd_scene format=3 uid="uid://bplew1evbstnx"]
+
+[ext_resource type="Script" uid="uid://cu2gura5yeqvf" path="res://features/phase2_stub/phase2_stub.gd" id="1_hired"]
+[ext_resource type="Script" uid="uid://b2qm2ai3fh743" path="res://ui/components/safe_area_margin.gd" id="2_safe"]
+
+[node name="Phase2Stub" type="Control" unique_id=2026628698]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_hired")
+
+[node name="Background" type="ColorRect" parent="." unique_id=511351829]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.11, 0.12, 0.17, 1)
+
+[node name="SafeArea" type="MarginContainer" parent="." unique_id=1329292264]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_safe")
+
+[node name="Column" type="VBoxContainer" parent="SafeArea" unique_id=1600482511]
+custom_minimum_size = Vector2(254, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="TopBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=1915499837]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Header" type="Label" parent="SafeArea/Column/TopBand" unique_id=1083853766]
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "HIRED! (STUB)"
+
+[node name="Body" type="VBoxContainer" parent="SafeArea/Column" unique_id=449668242]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="Card" type="PanelContainer" parent="SafeArea/Column/Body" unique_id=109430092]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Rows" type="VBoxContainer" parent="SafeArea/Column/Body/Card" unique_id=1734004332]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Summary" type="Label" parent="SafeArea/Column/Body/Card/Rows" unique_id=585707176]
+unique_name_in_owner = true
+layout_mode = 2
+text = "co_beigeware
+job_mid_backend
+$77000/year
+Dream vs Reality: 60"
+autowrap_mode = 3
+
+[node name="ToBeContinued" type="Label" parent="SafeArea/Column/Body/Card/Rows" unique_id=1425757881]
+layout_mode = 2
+text = "TO BE CONTINUED - Phase 2: The Working Life"
+autowrap_mode = 3
+
+[node name="ThumbBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=1519491269]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="ActionBar" type="HBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=99232408]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="TitleButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionBar" unique_id=617311320]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 36)
+layout_mode = 2
+text = "< Title"
+
+[node name="NewRunButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionBar" unique_id=968830663]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(168, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"PrimaryButton"
+text = "NEW RUN"
+
+[node name="ModalLayer" type="CanvasLayer" parent="." unique_id=975677395]
+layer = 10

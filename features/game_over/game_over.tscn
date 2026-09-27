@@ -1,0 +1,104 @@
+[gd_scene format=3 uid="uid://hh4iosucfh0t"]
+
+[ext_resource type="Script" uid="uid://bahfgo0rb6hpt" path="res://features/game_over/game_over.gd" id="1_planb"]
+[ext_resource type="Script" uid="uid://b2qm2ai3fh743" path="res://ui/components/safe_area_margin.gd" id="2_safe"]
+
+[node name="GameOver" type="Control" unique_id=470269401]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_planb")
+
+[node name="Background" type="ColorRect" parent="." unique_id=396196481]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.11, 0.12, 0.17, 1)
+
+[node name="SafeArea" type="MarginContainer" parent="." unique_id=1097316653]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_safe")
+
+[node name="Column" type="VBoxContainer" parent="SafeArea" unique_id=570019793]
+custom_minimum_size = Vector2(254, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="TopBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=916564964]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Header" type="Label" parent="SafeArea/Column/TopBand" unique_id=612329459]
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "PLAN B (STUB)"
+
+[node name="Body" type="VBoxContainer" parent="SafeArea/Column" unique_id=1537179400]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="Card" type="PanelContainer" parent="SafeArea/Column/Body" unique_id=1190226474]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Rows" type="VBoxContainer" parent="SafeArea/Column/Body/Card" unique_id=1445573377]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Text" type="Label" parent="SafeArea/Column/Body/Card/Rows" unique_id=946877063]
+layout_mode = 2
+text = "Rent's due. You became a ClikClok career coach. Your course 'How I Almost Got Into Tech' has 40,000 students."
+autowrap_mode = 3
+
+[node name="Stats" type="Label" parent="SafeArea/Column/Body/Card/Rows" unique_id=1250754540]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Days: 1 - Applications: 0 - Interviews: 0 - Rejections: 0"
+autowrap_mode = 3
+
+[node name="ThumbBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=252634284]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="ActionBar" type="HBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=212259798]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="TitleButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionBar" unique_id=429117834]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 36)
+layout_mode = 2
+text = "< Title"
+
+[node name="RetryButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionBar" unique_id=628702829]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(168, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"PrimaryButton"
+text = "RETRY"
+
+[node name="ModalLayer" type="CanvasLayer" parent="." unique_id=565944254]
+layer = 10
