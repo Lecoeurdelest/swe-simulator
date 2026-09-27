@@ -35,7 +35,7 @@ const BUDGETS: Dictionary = {
 const PLACEHOLDERS: PackedStringArray = [
 	"player_name", "company", "job_title", "salary", "work_mode", "commute_min", "office_days", "hours",
 	"last_company", "knockout", "insider", "days", "n", "day", "topic_1", "topic_2",
-	"r", "g", "i", "yes_no",
+	"r", "g", "i", "yes_no", "total",
 ]
 
 ## CONTENT.md 1.3, matched case-insensitively as whole words. It lives here, not in the game data,
