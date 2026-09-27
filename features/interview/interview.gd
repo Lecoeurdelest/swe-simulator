@@ -389,8 +389,8 @@ func _ask_probe(n: int, cv_line_id: String) -> void:
 		_update_bars()
 		fields["answer"] = "come_clean"
 		_trace(n, cv_line_id, "probe", fields)
-		_show_note(Content.field("tips", "tip_say_i_dont_know", "short"))  # GDD 8.3: Come clean
-		await _say_dana(Content.text("barks", "bark_dana_come_clean"))
+		await _say_dana_then_note(Content.text("barks", "bark_dana_come_clean"),
+			Content.field("tips", "tip_say_i_dont_know", "short"))  # GDD 8.3: Come clean
 		_ducky_card.hide()
 	elif holds:
 		_doubt += _cfg.bluff_win_doubt
@@ -413,8 +413,7 @@ func _bust(n: int, cv_line_id: String, fields: Dictionary) -> void:
 	_trace(n, cv_line_id, "probe", fields)
 	_busted_haptic()
 	_show_banner(Content.text("barks", "vs_busted"), BANNER_BIG)
-	_show_note(Content.field("tips", "tip_honesty_checks", "short"))
-	await _say_dana(Content.text("barks", "bark_dana_busted"))
+	await _say_dana_then_note(Content.text("barks", "bark_dana_busted"), Content.field("tips", "tip_honesty_checks", "short"))
 	_ko_banner.hide()
 	_ducky_card.hide()
 
@@ -529,6 +528,16 @@ func _player_speaks() -> void:
 func _say_dana(text: String) -> void:
 	_dana_speaks()
 	await _say(text)
+
+
+## Dana's line (the consequence), then Ducky's tip once the line is out, then the tap that advances:
+## the tip always comes last (GDD 8.1 rule 1, INV-18).
+func _say_dana_then_note(text: String, note: String) -> void:
+	_dana_speaks()
+	await _type(text)
+	_show_note(note)
+	_waiting_advance = true
+	await _wait(_advanced)
 
 
 ## Types the line out, then waits for the tap that advances.

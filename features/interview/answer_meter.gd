@@ -97,7 +97,9 @@ func _draw() -> void:
 		return
 	var w := float(_cfg.answer_meter_width_px)
 	var origin := Vector2(floorf((size.x - w) * 0.5), floorf(_bar_y if _bar_y >= 0.0 else size.y - 40.0))
+	var vague_from := maxf(_c - 2.0 * _h, 0.0)  # Step 4 fix: Vague is clipped to the bar (c - 2h can be < 0, c + 2h > 1)
+	var vague_to := minf(_c + 2.0 * _h, 1.0)
 	draw_rect(Rect2(origin, Vector2(w, BAR_HEIGHT)), Color("#1d2b53"))                                        # Rambling / Overthinking
-	draw_rect(Rect2(origin + Vector2(floorf((_c - 2.0 * _h) * w), 0), Vector2(floorf(4.0 * _h * w), BAR_HEIGHT)), Color("#ffa300"))  # Vague
+	draw_rect(Rect2(origin + Vector2(floorf(vague_from * w), 0), Vector2(floorf((vague_to - vague_from) * w), BAR_HEIGHT)), Color("#ffa300"))  # Vague
 	draw_rect(Rect2(origin + Vector2(floorf((_c - _h) * w), 0), Vector2(floorf(2.0 * _h * w), BAR_HEIGHT)), Color("#00e436"))        # NAILED IT
 	draw_rect(Rect2(origin + Vector2(floorf(needle() * w) - 1.0, -3.0), Vector2(2.0, BAR_HEIGHT + 6.0)), Color.WHITE)
