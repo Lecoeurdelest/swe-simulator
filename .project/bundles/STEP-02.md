@@ -81,7 +81,7 @@ Every install, the Apple ID signing, the preset, the phone setup and pressing Ru
 
 - `features/dev/device_check.tscn` (and its script), the "Device check" button on `features/title/`.
 - `export_presets.cfg` with the iOS preset (committed; credentials stay in `.godot/`).
-- `ui/fonts/monogram.ttf`, `ui/fonts/PressStart2P-Regular.ttf`, `ui/fonts/OFL.txt` and their `.import` files.
+- `ui/fonts/monogram/ttf/monogram.ttf` (the developer's layout), `ui/fonts/PressStart2P-Regular.ttf`, `ui/fonts/OFL.txt` and their `.import` files.
 - ARCHITECTURE 18.1 results (#1 drag release, #2 deadzone unit, #3 window override on iOS, #5 safe area, #6 fonts, #7 haptics, #10 one-click deploy), GDD 2.9 if the insets differ.
 - `builds/ios/` is git-ignored: never commit it.
 

@@ -46,7 +46,7 @@
     "STEP-02": {
       "execution": "in_progress",
       "relevance": "current",
-      "detail": "PC part in progress on branch step-02-device-check: fonts are present (developer, commits 82e3add/bc11016); Claude builds the device-check screen (task 8). All 12 criteria are device/developer-owned and wait for the Mac and iPhone (DECISIONS P2, W2).",
+      "detail": "PC part done (branch step-02-device-check, 15d567d): pixel-font import settings and the debug-only device-check screen (Title > Device check), verified on desktop (evidence STEP-02/2026-09-27-pc). All 12 criteria are device/developer-owned and wait for the Mac and iPhone (P2, W2); the queued tasks are in the evidence log.",
       "criteria": {
         "AC-S02-8": {"status": "pending", "by": "developer"},
         "AC-S02-9": {"status": "pending", "by": "developer"},
@@ -70,10 +70,25 @@
       },
       "history": [
         {"date": "2026-09-27", "to": "todo", "reason": "Redefined as Hello iPhone (ROADMAP 1.1 Step 2; P1). The Android criteria AC-S02-1..7 were never evaluated and are superseded by AC-S02-8..19."},
-        {"date": "2026-09-27", "to": "in_progress", "reason": "Started the PC-only part (DECISIONS P2, W2, W5, 2026-09-27). The device criteria stay pending until the developer sets up the Mac and iPhone."}
+        {"date": "2026-09-27", "to": "in_progress", "reason": "Started the PC-only part (DECISIONS P2, W2, W5, 2026-09-27). The device criteria stay pending until the developer sets up the Mac and iPhone."},
+        {"date": "2026-09-27", "to": "in_progress", "reason": "Agent part of task 8 (device check) and the font imports finished and verified on the PC; device criteria still pending (developer)."}
       ]
     },
-    "STEP-03": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-02; the fonts arrive in Step 2 (task 5).", "criteria": {}, "history": []},
+    "STEP-03": {
+      "execution": "verifying",
+      "relevance": "current",
+      "detail": "Agent work done on branch step-03-stub-flow (4820871, 0da5d1a, 1f50cf5): theme, 7 .tres, components, real Title, stub scenes wired to GameState verbs; 30/30 tests. AC-S03-5 passes; AC-S03-1..4 wait for the developer (iPhone and manual review). Queued You-do: the Background Select layout with Containers (W3).",
+      "criteria": {
+        "AC-S03-5": {"status": "pass", "by": "agent", "evidence": ".project/evidence/STEP-03/2026-09-27-r1/test_run.json", "note": "30/30 after the stub flow and the verifier's fix (flow 8 incl. 2 new static checks, data_files 4, interview 4, odds 8, offer 3, save 3)."},
+        "AC-S03-2": {"status": "pending", "by": "developer", "evidence": ".project/evidence/STEP-03/2026-09-27-r1/flow_log.md", "note": "Automated part passed on the PC (flow_log.md, verification.md): Quit to title mid-hunt shows CONTINUE and Continue resumes the same day/energy/stats and RNG state (also mid-interview and on the offer); CONTINUE is gone after Plan B and after leaving the Hired card. Waits for the developer's manual review."},
+        "AC-S03-3": {"status": "pending", "by": "developer", "evidence": ".project/evidence/STEP-03/2026-09-27-r1/verification.md", "note": "Checked by the agent with real Esc/mouse input on every screen (verification.md). Waits for the developer's manual review."},
+        "AC-S03-1": {"status": "pending", "by": "developer", "note": "Both paths pass on desktop with real input (flow_log.md). The on-iPhone one-thumb check waits for the Mac and iPhone (P2)."},
+        "AC-S03-4": {"status": "pending", "by": "developer", "note": "Body text is monogram 16 at a 12 px line pitch (A3) and the smallest hit area is 34x36 (verification.md). Readability at arm's length is an iPhone check (P2)."}
+      },
+      "history": [
+        {"date": "2026-09-27", "to": "verifying", "reason": "Built and adversarially verified on the PC (evidence STEP-03/2026-09-27-r1). Only developer-owned criteria remain, so STEP-04 may start (W2)."}
+      ]
+    },
     "STEP-04": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-03.", "criteria": {}, "history": []},
     "STEP-05": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-04.", "criteria": {}, "history": []},
     "STEP-06": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-05.", "criteria": {}, "history": []},
