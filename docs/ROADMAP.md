@@ -533,19 +533,19 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 2. **The full offer and `offer.tscn`** (Claude).
    - `finish_interview` builds the whole offer:
      - the job title from the posting;
-     - 2 perks and 1 fine-print joke for the tier, picked with the interview RNG;
+     - 2 perks and 1 fine-print joke for the tier, picked on the offer's own RNG, seeded from the interview checkpoint (ARCHITECTURE 7.2), so a resumed interview builds the same contract;
      - the equity text at startups.
    - `offer.tscn` is a paper contract with **Decline + confirm**, and **ACCEPT**.
 3. **`phase2_stub.tscn`** (Claude): HIRED, the Dream vs Reality rows, `tip_written_offer`, and TO BE CONTINUED.
 4. **`game_over.tscn`** (Claude): the Plan B text, the background line, the run stats and **Retry**.
 5. **The intro as text slides** (Claude), driven by `cutscene.json`: typed captions, tap to advance, hold 0.5 s to skip, desktop Esc skips, and `intro_seen` is set.
-6. **Pause sheet** on the hunt, interview and offer, and the on-screen Back and Back chain on every screen (ARCHITECTURE 9). Claude writes a kill-test checklist.
+6. **Pause sheet** on the hunt, interview and offer, and the on-screen Back and Back chain on every screen (ARCHITECTURE 9). Claude writes a kill-test checklist: [`docs/KILL_TESTS.md`](KILL_TESTS.md).
 
 **Claude and godot-ai do:** all of the above, keeping the round-trip tests green.
 
 **You do (to learn)**
 - Choose the fine-print jokes you like best.
-- **Kill the app on your iPhone at 5 moments** (swipe it away in the app switcher: mid-hunt, right after Sleep, mid-interview, on the offer, on the Hired card) and check Continue each time.
+- **Kill the app on your iPhone at 5 moments** (swipe it away in the app switcher: mid-hunt, right after Sleep, mid-interview, on the offer, on the Hired card) and check Continue each time. [`docs/KILL_TESTS.md`](KILL_TESTS.md) has the steps, what each Continue should show, and a row for your results.
 
 **Design huddle**
 - **D7:** should Negotiate be the second SHOULD?

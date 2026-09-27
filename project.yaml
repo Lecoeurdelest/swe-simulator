@@ -119,7 +119,7 @@ components:
   - {id: CMP-CONTENT, title: "JSON content (16 files keyed by id)", paths: ["data/content/"], source: "ARCHITECTURE 6.3-6.4; CONTENT"}
   - {id: CMP-UI, title: "Theme, fonts, shared components", paths: ["ui/"], source: "ARCHITECTURE 1.4, 1.5, 10, 17.10, 17.15"}
   - {id: CMP-TITLE, title: "Title (S01)", paths: ["features/title/"], source: "ARCHITECTURE 11.1; GDD 4.2"}
-  - {id: CMP-INTRO, title: "Intro cutscene (S02)", paths: ["features/intro/"], source: "ARCHITECTURE 11.2; CONTENT 2"}
+  - {id: CMP-INTRO, title: "Intro cutscene (S02)", paths: ["features/intro/"], source: "ARCHITECTURE 11.2, 17.17; CONTENT 2"}
   - {id: CMP-BGSELECT, title: "Background select (S03)", paths: ["features/background_select/"], source: "ARCHITECTURE 11.3; GDD 5.2"}
   - {id: CMP-HUNT, title: "Job hunt (S04-S06)", paths: ["features/job_hunt/"], source: "ARCHITECTURE 11.4; GDD 5.3-5.7"}
   - {id: CMP-INTERVIEW, title: "VS intro and interview (S07-S09)", paths: ["features/interview/"], source: "ARCHITECTURE 11.5-11.6, 17.11, 17.14; GDD 5.8"}
@@ -129,7 +129,8 @@ components:
   - {id: CMP-EXPORT, title: "iOS export from the MacBook and the TestFlight release (Android LATER)", paths: [export_presets.cfg], source: "ARCHITECTURE 13.1, 13.2"}
   - {id: CMP-ART, title: "Art assets and style guide", paths: ["art/", "art_src/", "features/*/art/"], source: "ROADMAP 5; GDD 2.5-2.6"}
   - {id: CMP-AUDIO, title: "Audio", paths: ["audio/"], source: "ROADMAP 6; GDD 9.2"}
-  - {id: CMP-DOCS, title: "Decision log, credits, devlog", paths: [docs/DECISIONS.md, CREDITS.md, docs/devlog.md], source: "ROADMAP 1, 5, 9"}
+  # 2026-09-27 (Step 6 doc sync): docs/KILL_TESTS.md, the Step 6 kill-test checklist (ROADMAP Step 6 task 6), added.
+  - {id: CMP-DOCS, title: "Decision log, kill-test checklist, credits, devlog", paths: [docs/DECISIONS.md, docs/KILL_TESTS.md, CREDITS.md, docs/devlog.md], source: "ROADMAP 1, 5, 9, Step 6; ARCHITECTURE 9"}
 
 decisions:
   # ARCHITECTURE section 0: accepted engineering decisions.
@@ -536,10 +537,13 @@ tasks:
     source: {file: docs/ROADMAP.md, section: "Step 6"}
     hours: 10
     requirement_ids: [REQ-FLOW, MUST-12, MUST-13, MUST-15, MUST-16, MUST-17, REQ-REL]
-    component_ids: [CMP-ENDINGS, CMP-INTRO, CMP-CONTENT, CMP-AUTOLOAD]
+    # 2026-09-27 (Step 6 doc sync): CMP-CORE, CMP-UI, CMP-TESTS and CMP-DOCS added, because Step 6 as built changed
+    # core/ (offer, hire, Dream rows, tips), ui/ (EndingArt, UiText, ProbeButton), tests/ and wrote docs/KILL_TESTS.md.
+    component_ids: [CMP-ENDINGS, CMP-INTRO, CMP-CONTENT, CMP-AUTOLOAD, CMP-CORE, CMP-UI, CMP-TESTS, CMP-DOCS]
     decision_ids: [D7]
     depends_on: [STEP-05]
     acceptance_ids: [AC-S06-1, AC-S06-2, AC-S06-3, AC-S06-4]
+    outputs: [docs/KILL_TESTS.md]
     milestone: v0.1-greybox
   - id: STEP-07
     title: "Playtest #1, tuning and the balance sim"

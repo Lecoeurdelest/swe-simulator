@@ -399,9 +399,9 @@ Transitions are a 0.2 s fade (SceneRouter) unless noted. Every screen has an on-
 **S02 Intro cutscene** (MUST) - side-view panels
 - Contents: 6 still panels (270x480), 40 s or less, 2022 (age 17) to 2026, typewriter captions, background-neutral (it plays before the pick). Script: CONTENT.md section 2. Build it as text-only slides first; final art goes in last.
 - Layout: captions on a solid band at y 360-432 (up to 4 lines). **Skip** is a "Hold to skip" pill bottom-right (96x34, y 442-476): hold 0.5 s while a ring fills. Panel 2's ClikClok video fills nearly the whole screen: the screen becomes the kid's phone.
-- Touch: tap = finish the current caption, tap again = next caption (never skips the whole thing). Android Back (LATER) and desktop Esc also skip.
+- Touch: tap = finish the current caption, tap again = next caption (never skips the whole thing). Android Back (LATER) and desktop Esc also skip. Captions never advance by themselves (Step 6 agent default): the 40 s is the panels' pan time, and the player sets the reading pace.
 - Auto-plays on the first run only (`intro_seen` in settings). Pauses when the app loses focus.
-- Out: title slam, then Background select.
+- Out: the title slams in on panel 6 (its third caption), the last caption follows, then Background select.
 
 **S03 Background select = customization** (MUST) - flat UI with portraits
 
@@ -577,19 +577,19 @@ The screen is your phone and DoomApply is the job app: the influencer hooked you
 +-------------------------------------------+
 ```
 
-- Contents: the paper (254 wide, about 250 tall) slides up from the bottom over the dimmed stage; Dana stays visible above it. One field per line after a 12-character label column (values wrap at 28 columns): role and company, **yearly salary**, work mode, commute preview (e.g. "4 days x 95 min each way = 12.7 h a week", 2 lines), 2 perks, 1 fine-print joke (up to 4 lines; `[?]` shows all 3, SHOULD), "Please decide before you sleep."
-- Buttons: [**Negotiate**, full width above the action bar, once, SHOULD], then `[ Decline ][ ACCEPT ]` (80 + 168). Decline opens a confirm dialog. SHOULD: ACCEPT becomes drag-to-sign along the 200 px line, left to right.
-- Out: Accept -> [background check, SHOULD with lying] -> Hired card. Decline -> DoomApply (same day).
+- Contents: the paper (254 wide, about 250 tall) slides up from the bottom over the dimmed stage; Dana stays visible above it. One field per line after a 12-character label column (values wrap at 28 columns): role and company, **yearly salary**, at startups an "Equity: 0.0001%" line under it (section 7's joke equity; built in Step 6 as an agent default), work mode, commute preview (e.g. "4 days x 95 min each way = 12.7 h a week", 2 lines), 2 perks, 1 fine-print joke (up to 4 lines; `[?]` shows all 3, SHOULD), "Please decide before you sleep." One Ducky tip sits under the paper (8.3).
+- Buttons: [**Negotiate**, full width above the action bar, once, SHOULD], then `[ Decline ][ ACCEPT ]` (80 + 168). Decline holds the action bar's bottom-left, so the on-screen Back (4.4), `[ < Back ]` (it opens Pause; Back never declines), has its own row above the action bar, where Negotiate would go. Decline opens a confirm dialog; on the grace day it says the run ends. SHOULD: ACCEPT becomes drag-to-sign along the 200 px line, left to right.
+- Out: Accept -> background check (degree lies, 5.9.4) -> Hired card. Decline -> Dana's line -> DoomApply (same day), or Plan B on the grace day (5.10).
 
 **S11 Hired card** (MUST) - side-view illustration card, in two beats
 - Beat 1: the "HIRED!" stamp (Press Start 2P 32) slams onto a 254x140 illustration; below it company, role and salary (3 lines) and the Hired line for that tier (up to 3 lines). Tap anywhere to continue.
-- Beat 2: the **Dream vs Reality** panel slides up over the illustration: its 5 rows (section 5.9.5; label left, points right, one line each, tallying one by one), the score and grade, "The video scored 100. The video was sponsored.", `tip_written_offer`, "To be continued: Phase 2 - The Working Life".
-- Buttons: `[ Title ][ NEW RUN ]`. Leaving it deletes the run save.
+- Beat 2: the **Dream vs Reality** panel slides up over the illustration: its 5 rows (section 5.9.5; label left, points right with one decimal, one line each, tallying one by one), the score and grade, "The video scored 100. The video was sponsored.", `tip_written_offer`, "TO BE CONTINUED - Phase 2: The Working Life" (`end_tbc`).
+- Buttons: `[ < Title ][ NEW RUN ]`, in beat 2. Leaving it deletes the run save.
 - *Why two beats:* everything at once needs about 500 px, more than the 480 frame, and the pause lets the joke land before the score.
 
 **S12 Plan B ending** (MUST) - side-view illustration card, one beat (about 400 px)
-- The "PLAN B" stamp over a 254x140 illustration (you, a ring light, ClikClok); "Rent's due. You became a ClikClok career coach..." (3 lines); the background-specific line; one tip; run stats (days, applications, interviews, rejections; 2 lines).
-- Buttons: `[ Title ][ RETRY ]` (one tap -> Background select with the same background preselected, fresh run).
+- The "PLAN B" stamp over a 254x140 illustration (you, a ring light, ClikClok); "Rent's due. You became a ClikClok career coach..." (3 lines); the background-specific line; the closing line (a 17-year-old watching your video, 5.10; `end_plan_b_final`); one tip; run stats (days, applications, interviews, rejections; 2 lines).
+- Buttons: `[ < Title ][ RETRY ]` (one tap -> Background select with the same background preselected, fresh run).
 
 **S13 Pause** (MUST: Resume, Quit to Title) / **Settings** (SHOULD: music, SFX, haptics, reduced motion, Relaxed Timing, text speed, replay intro) / **Career Notebook** (SHOULD)
 - Pause is a bottom sheet, buttons stacked full width with the most used lowest: Quit to title (top), [Notebook], [Settings], RESUME (bottom, primary). Tapping outside the sheet = Resume.

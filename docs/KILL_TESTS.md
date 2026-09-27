@@ -9,7 +9,7 @@ A phone kills background apps without warning, so the game saves after every com
 | iPhone | Swipe up from the bottom edge and hold to open the app switcher, then swipe the game's card up and away. | Open the game again and tap CONTINUE on the title. |
 | Desktop (the editor) | Stop the running game (the editor's Stop button, F8, or godot-ai `project_manage op=stop`). This is harsher than the iPhone: the game gets no "paused" notification, so it can't save on the way out. | Run the project again and tap CONTINUE. |
 
-Start a fresh run (New game on the title) and play it through the 5 moments in order: one run covers all of them. For the interview you need an invite: on your first run, apply to 3 or more cards on day 1 and the day-2 morning brings one (GDD 5.7); debug builds also have the hub's DEBUG row (fake invite).
+Start a fresh run (New game on the title) and play it through the 5 moments in order: one run covers all of them. For the interview you need an invite: on your first run, apply to 3 or more cards on day 1 and the day-2 morning brings one (GDD 5.7); debug builds also have the hub's DEBUG row (fake invite). Moment 4 needs a won interview, and a harder run may reach Plan B before it wins one: in debug builds the interview's DBG panel has K.O., which goes straight to the offer.
 
 ## The 5 moments
 
