@@ -108,6 +108,17 @@ func _process(_delta: float) -> void:
 	_lift_name_row(Device.keyboard_height())
 
 
+## While typing, the keyboard hides the action bar and its [ < Title ] (iOS has no Back button), so
+## a tap anywhere outside the field also ends the typing, as on any phone, besides the keyboard's
+## Return. The tap still reaches what it landed on.
+func _input(event: InputEvent) -> void:
+	var mb := event as InputEventMouseButton  # touches arrive as emulated mouse events
+	if mb != null and mb.pressed and _name_field.is_editing() \
+			and not _name_field.get_global_rect().has_point(mb.position):
+		_name_field.unedit()
+		_on_name_editing(false)  # unedit() doesn't emit editing_toggled (checked in 4.7.2)
+
+
 ## The iOS keyboard covers about the bottom 40%, the selector and the action bar with it. While it
 ## is up they give way to a spacer as tall as the keyboard, so the name row sits just above it.
 ## On a short screen the card steps aside too, rather than pushing the column off the top.

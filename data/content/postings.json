@@ -335,6 +335,8 @@
   },
   "card_applicants": "{n} applicants",
   "card_posted": "Posted {days} days ago",
+  "card_posted_one": "Posted 1 day ago",
+  "card_posted_today": "Posted today",
   "card_reposted": "Reposted",
   "card_knockout": "Knockout: {knockout}",
   "knock_degree": "Degree required",

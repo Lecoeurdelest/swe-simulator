@@ -98,6 +98,7 @@
   "ui_flip_all": "Flip all",
   "ui_rejections": "{n} rejections",
   "ui_ghost_footer": "{n} applications: no reply. Probably ever.",
+  "ui_ghost_footer_one": "1 application: no reply. Probably ever.",
   "ui_start_day": "Start day",
   "ui_come_clean": "Come clean",
   "ui_bluff": "Bluff",

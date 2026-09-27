@@ -93,6 +93,18 @@ func test_contract_field_lines() -> void:
 		assert_true(line.length() <= 40, "'%s' fits 40 columns" % line)
 
 
+## GDD S08: the probe buttons are 124x44, and Bluff carries its odds band on a second line. The
+## ProbeButton variation's padding and 12 px line pitch (DECISIONS A3) keep two lines inside 44.
+func test_probe_button_fits_two_lines_in_44() -> void:
+	var theme := load("res://ui/theme/main_theme.tres") as Theme
+	assert_eq(theme.get_type_variation_base(&"ProbeButton"), &"Button")
+	var font_height := theme.default_font.get_height(theme.default_font_size)
+	var two_lines := 2 * font_height + theme.get_constant(&"line_spacing", &"ProbeButton")
+	for style: String in ["normal", "pressed", "hover", "hover_pressed", "disabled"]:
+		var padding := theme.get_stylebox(style, &"ProbeButton").get_minimum_size().y
+		assert_eq(padding + two_lines, 44.0, "%s: two lines fill the 44 px button exactly" % style)
+
+
 func test_call_pattern_reads_only_whole_literals() -> void:
 	var calls := RegEx.create_from_string(CALL_PATTERN)
 	assert_true(calls.is_valid(), "CALL_PATTERN does not compile")

@@ -667,7 +667,7 @@ func _add_invite(source: Dictionary, kind: String, mail_id: String) -> Dictionar
 ## company of the tier (a pinned template only with its own company). Never a pair that was applied
 ## to or is already on the board; templates not on the board yet go first. The MVP companies deal
 ## first; once none of their pairs is free, the tier's other companies step in, so the board never
-## starves (GDD 5.6's "about 60 combinations" counts all 9 companies).
+## starves (GDD 5.6: 38 pairs with the 6 MVP companies, 58 with all 9).
 func _deal_card(cfg: BalanceConfig, tier: TierData, postings: Dictionary, companies: Dictionary, dealt: Array[Dictionary], rng: RandomNumberGenerator) -> Dictionary:
 	var tier_id := String(tier.id)
 	var on_board: Array[String] = []

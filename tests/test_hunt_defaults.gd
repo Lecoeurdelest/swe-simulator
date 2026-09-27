@@ -147,11 +147,14 @@ func test_mvp_companies_deal_first_while_they_have_a_free_pair() -> void:
 			assert_true(pair == left or pair.ends_with("|co_stealth"), "seed %d: %s" % [seed_value, pair])
 
 
-func test_the_deck_holds_about_60_pairs_across_all_9_companies() -> void:
+func test_the_deck_holds_58_pairs_across_all_9_companies() -> void:
 	var expected: Array[String] = []
+	var mvp_pairs := 0
 	for tier_id: String in TIER_IDS:
 		expected.append_array(_tier_pairs(tier_id))
-	assert_true(expected.size() >= 50 and expected.size() <= 70, "GDD 5.6: about 60 combinations (%d)" % expected.size())
+		mvp_pairs += _tier_pairs(tier_id, true).size()
+	assert_eq(mvp_pairs, 38, "GDD 5.6: 38 pairs with the 6 MVP companies")
+	assert_eq(expected.size(), 58, "GDD 5.6: 58 pairs with all 9 companies")
 	var run := _run("intern")
 	var rng := _rng(2)
 	var dry_mornings := 0

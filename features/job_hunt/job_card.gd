@@ -107,7 +107,7 @@ func show_card(card: Dictionary, odds: Dictionary, referral_tokens: int) -> void
 	_back_title.text = title
 	_back_company.text = "%s - %s" % [company, Content.field("tiers", tier_id, "name")]
 	_applicants.text = Content.text("postings", "card_applicants", {"n": UiText.count(int(card.get("applicants", 0)))})
-	_posted.text = Content.text("postings", "card_posted", {"days": int(card.get("posted_days_ago", 0))})
+	_posted.text = _posted_text(int(card.get("posted_days_ago", 0)))
 	_reposted.visible = bool(card.get("reposted", false))
 	_salary.text = Content.field("postings", template_id, "salary_text")
 	_referral = false
@@ -281,6 +281,15 @@ func _show_quote(quote: Dictionary, label_id: String, chip: PanelContainer, chip
 		chip_text.text = Content.text("postings", "card_knockout", {"knockout": reason})
 	var band := int(quote.get("band", 1))
 	odds_label.text = "%s %s" % [Content.text("barks", label_id), UiText.band(band, Content.text("barks", "ui_odds_%d" % band))]
+
+
+## "Posted today" / "Posted 1 day ago" / "Posted 9 days ago": startups can post 0 days ago.
+func _posted_text(days: int) -> String:
+	if days <= 0:
+		return Content.text("postings", "card_posted_today")
+	if days == 1:
+		return Content.text("postings", "card_posted_one")
+	return Content.text("postings", "card_posted", {"days": days})
 
 
 func _show_back_quote() -> void:
