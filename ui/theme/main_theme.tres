@@ -276,6 +276,7 @@ HeaderLabel/colors/font_color = Color(0.99607843, 0.68235296, 0.20392157, 1)
 HeaderLabel/font_sizes/font_size = 8
 HeaderLabel/fonts/font = ExtResource("1_640h2")
 Label/colors/font_color = Color(1, 1, 1, 1)
+Label/constants/line_spacing = -1
 Panel/styles/panel = SubResource("StyleBoxFlat_b40ic")
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_jnhce")
 PaperPanel/base_type = &"PanelContainer"

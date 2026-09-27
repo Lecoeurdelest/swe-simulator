@@ -2,15 +2,11 @@
   "tool": "godot-ai test_run (all suites, verbose)",
   "date": "2026-09-27",
   "machine": "Windows PC, Godot 4.7.2-stable (steam)",
-  "step": "STEP-03 part B (real Title + stub scenes); supersedes the part A run in this folder (28/28), which is a subset of this one",
+  "step": "STEP-02 (PC part) + STEP-03 adversarial verification; supersedes the builders' runs in this folder (same 30 tests)",
+  "run": "second run of the verification session, after the verifier's theme fix (Label line_spacing -1); the first run, before any change, was also 30/30",
   "edited_scene": "res://features/title/title.tscn",
   "passed": 30, "failed": 0, "skipped": 0, "total": 30, "suite_count": 6,
   "suites_run": ["data_files", "flow", "interview", "odds", "offer", "save"],
-  "baseline_before_part_b": {"passed": 28, "failed": 0},
-  "new_in_part_b": [
-    "flow/test_every_phase_has_a_screen_with_handle_back: SceneRouter.SCENES (read as text) lists 8 res://features/*.tscn paths = GameFlow.Phase.size(); each exists; each <name>.gd defines 'func handle_back() -> bool:' (17 assertions)",
-    "flow/test_screens_never_change_phase_or_scene: every .gd under res://features/ (9 files incl. dev/device_check.gd) has no 'change_scene', no 'change_phase(' and no '.phase =' assignment (INV-01/02; 28 assertions)"
-  ],
   "results": [
     {"suite": "data_files", "test": "test_backgrounds_match_gdd", "passed": true, "assertion_count": 196},
     {"suite": "data_files", "test": "test_balance_config_matches_gdd", "passed": true, "assertion_count": 334},
@@ -42,5 +38,6 @@
     {"suite": "save", "test": "test_64bit_rng_state_survives_json", "passed": true, "assertion_count": 2},
     {"suite": "save", "test": "test_round_trip_keeps_every_kind_of_field", "passed": true, "assertion_count": 8},
     {"suite": "save", "test": "test_seed_then_state_replays_the_same_dice", "passed": true, "assertion_count": 1}
-  ]
+  ],
+  "cache_warning": "godot-ai reports that preloaded GDScript dependencies may be stale after source edits; no .gd file changed in this session, so it does not apply."
 }

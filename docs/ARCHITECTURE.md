@@ -192,7 +192,7 @@ environment/defaults/default_clear_color=Color(0.07, 0.07, 0.1, 1)
 | All body text, UI, dialogue, CV | **monogram** (datagoblin, itch.io) | CC0 | **16**, or 32 for a rare big number |
 | Title logo, VS screen, K.O. / OFFER! / BUSTED! banners | **Press Start 2P** | OFL 1.1 | 8 / 16 / 24 / 32 |
 
-- Put the files in `res://ui/fonts/`: `monogram.ttf`, `PressStart2P-Regular.ttf`, and the Press Start 2P license as `OFL.txt`.
+- Put the files in `res://ui/fonts/`: `PressStart2P-Regular.ttf`, the Press Start 2P license as `OFL.txt`, and monogram's `monogram/` folder as its download unpacks it. The body font is `res://ui/fonts/monogram/ttf/monogram.ttf`; `monogram-extended*.ttf` are unused, and `monogram/pico-8/` has a `.gdignore`.
   - `.txt` is not a resource type (verified: scratch run), so the export preset needs the non-resource include filter `ui/fonts/*.txt`.
   - The Credits screen shows `OFL.txt`. CC0 fonts need nothing.
 - **Import settings for every `.ttf`** (Import dock, then Reimport):
@@ -255,7 +255,7 @@ res://
 │  └─ dev/                         device_check.tscn (debug only; excluded from release exports)
 ├─ ui/
 │  ├─ theme/                       main_theme.tres + 9-slice PNGs
-│  ├─ fonts/                       monogram.ttf, PressStart2P-Regular.ttf, OFL.txt
+│  ├─ fonts/                       monogram/ttf/monogram.ttf, PressStart2P-Regular.ttf, OFL.txt
 │  └─ components/                  safe_area_margin.gd, dialogue_box, confirm_dialog, ducky_note, stat_bar, pip_bar, odds_band
 ├─ art/shared/                     palette.png, icons, logos
 ├─ audio/sfx/   audio/music/
