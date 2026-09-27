@@ -345,6 +345,7 @@ enum Phase { TITLE, INTRO, BACKGROUND_SELECT, JOB_HUNT, INTERVIEW, OFFER, PHASE2
 | INTERVIEW | OFFER / JOB_HUNT | `finish_interview(won, ...)` |
 | OFFER | PHASE2_STUB | `answer_offer(true)`, when the background check passes |
 | OFFER | JOB_HUNT | `answer_offer(false)` (Decline), or the offer is rescinded by the background check |
+| OFFER | GAME_OVER | `answer_offer(false)` on the grace day (rent at 0): Decline -> Plan B (GDD 5.10) |
 | PHASE2_STUB | TITLE / BACKGROUND_SELECT | `quit_to_title()` / `retry()` ("New run") |
 | GAME_OVER | TITLE / BACKGROUND_SELECT | `quit_to_title()` / `retry()` |
 | BACKGROUND_SELECT, JOB_HUNT, INTERVIEW, OFFER | TITLE | `quit_to_title()`: Back or Pause, then "Quit to title" |
@@ -1212,7 +1213,7 @@ const TRANSITIONS: Dictionary = {
 	Phase.BACKGROUND_SELECT: [Phase.JOB_HUNT, Phase.TITLE],
 	Phase.JOB_HUNT: [Phase.INTERVIEW, Phase.GAME_OVER, Phase.TITLE],
 	Phase.INTERVIEW: [Phase.OFFER, Phase.JOB_HUNT, Phase.TITLE],
-	Phase.OFFER: [Phase.PHASE2_STUB, Phase.JOB_HUNT, Phase.TITLE],
+	Phase.OFFER: [Phase.PHASE2_STUB, Phase.JOB_HUNT, Phase.GAME_OVER, Phase.TITLE],
 	Phase.PHASE2_STUB: [Phase.TITLE, Phase.BACKGROUND_SELECT],
 	Phase.GAME_OVER: [Phase.TITLE, Phase.BACKGROUND_SELECT],
 }

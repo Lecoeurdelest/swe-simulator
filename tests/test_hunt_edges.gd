@@ -528,9 +528,12 @@ func test_the_profile_fallback_does_not_depend_on_deck_order() -> void:
 	for skip_first: bool in [false, true]:
 		var run := _run("graduate")
 		run.first_run = true
-		for template_id: String in ["job_st_founding", "job_st_fullstack_ninja", "job_st_ai_generalist", "job_st_growth"]:
-			for company_id: String in ["co_synergai", "co_quantumleaf"]:
-				run.applied.append(RunState.pair_key(template_id, company_id))
+		# Every other startup pair is used up (co_stealth's too, or the dry-deck fallback deals it).
+		for template_id: String in ["job_st_founding", "job_st_fullstack_ninja", "job_st_ai_generalist", "job_st_growth",
+				"job_st_mobile_barista", "job_st_stealth_swe"]:
+			for company_id: String in ["co_synergai", "co_quantumleaf", "co_stealth"]:
+				if template_id != "job_st_mobile_barista" or company_id == "co_stealth":
+					run.applied.append(RunState.pair_key(template_id, company_id))
 		var older := _card(run, "job_st_mobile_barista", "co_synergai")
 		var newer := _card(run, "job_st_mobile_barista", "co_quantumleaf")  # same P: a tie
 		if skip_first:

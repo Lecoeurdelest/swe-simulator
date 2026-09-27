@@ -335,6 +335,9 @@ func test_the_content_ids_the_rules_emit_exist() -> void:
 			if id == "mail_invite_":  # the prefix: + a tier id (rolled) or + "radar" / "guarantee"
 				for suffix: String in ["startup", "mid", "big", "radar", "guarantee"]:
 					assert_has_key(emails, id + suffix)
+			elif id == "mail_reject_":  # the prefix of the plain rejection lines (RunState.reject_mail_id)
+				assert_gt(emails.keys().filter(func(k: Variant) -> bool: return str(k).begins_with(id)).size(), 1,
+					"more than one plain rejection line")
 			elif id.begins_with("mail_"):
 				assert_has_key(emails, id)
 			else:

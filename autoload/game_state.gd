@@ -12,11 +12,14 @@ const SETTINGS_PATH := "user://settings.cfg"
 var run: RunState = RunState.new()
 var rng := RandomNumberGenerator.new()
 var settings := ConfigFile.new()
-var preselect_background: String = ""   # set by retry(): Background select focuses this card
+## Background select focuses this card: the last background played (settings meta "last_background",
+## GDD S03), "" before the first run (The Graduate then).
+var preselect_background: String = ""
 
 
 func _ready() -> void:
 	settings.load(SETTINGS_PATH)  # a missing file just means defaults
+	preselect_background = str(setting("meta", "last_background", ""))
 
 
 func _notification(what: int) -> void:
@@ -114,6 +117,8 @@ func quit_to_title() -> void:
 
 func choose_background(bg_id: String, player_name: String, run_seed: int = 0) -> void:
 	_init_run(bg_id, player_name, run_seed if run_seed != 0 else randi())  # the global RNG only picks the seed
+	preselect_background = bg_id
+	set_setting("meta", "last_background", bg_id)
 	change_phase(GameFlow.Phase.JOB_HUNT)
 
 
@@ -125,26 +130,61 @@ func debug_quick_start(bg_id: String, phase: GameFlow.Phase, run_seed: int = 202
 	run.phase = phase
 
 
+## The background's starting numbers, the name, the seed, the gap topics, first_run, then the
+## day-1 board, all on the run RNG in this order.
 func _init_run(bg_id: String, player_name: String, run_seed: int) -> void:
 	var bg := Content.background(bg_id)
 	var cfg := Content.balance
 	rng.seed = run_seed
 	run.rng_seed = str(run_seed)
-	run.background_id = bg_id
+	run.set_background(cfg, bg)
 	run.player_name = player_name
-	run.stats.assign({"knw": bg.start_knw, "exp": bg.start_exp, "net": bg.start_net})
-	run.commute_pips = bg.commute_pips
-	run.commute_minutes = bg.commute_minutes
-	run.energy = cfg.energy_max - bg.commute_pips
-	run.rent_days_left = bg.runway_days
-	run.referral_tokens = bg.referral_tokens
-	run.lone_wolf = bg.teamwork_mult < bg.teamwork_mult_after_network
 	var gap_pool: Array = Content.entries("naming").get("_gap_topic_pool", [])
 	run.gap_topics.assign(Odds.pick(rng, gap_pool, bg.gap_topics_count))
 	run.first_run = int(setting("meta", "run_count", 0)) == 0
+	run.deal_board(cfg, _tiers(), _hunt_content(), rng)
 
 
-# ---------- job hunt verbs (Step 5 fills these in; each ends with _commit()) ----------
+# ---------- job hunt verbs (each committed action ends with _commit()) ----------
+
+## Swipe right or APPLY: Quick Apply with the CV as set (1 pip). False when refused: the card is
+## gone, its company is blacklisted, or there isn't enough energy.
+func quick_apply(card_uid: int) -> bool:
+	return _apply(card_uid, false, false)
+
+
+## Card back TAILOR & APPLY (2 pips), optionally spending a referral token.
+func tailor_apply(card_uid: int, use_referral: bool) -> bool:
+	return _apply(card_uid, true, use_referral)
+
+
+func _apply(card_uid: int, tailored: bool, referral: bool) -> bool:
+	if run.apply_card(Content.balance, _tiers(), _bg(), _hunt_content(), card_uid, tailored, referral).is_empty():
+		return false
+	_commit()
+	return true
+
+
+## Swipe left or SKIP: the card goes to the back of the deck.
+func skip_card(card_uid: int) -> bool:
+	if not run.skip_card(card_uid):
+		return false
+	_commit()
+	return true
+
+
+## A CV screen segment tap (GDD S05): free and instant. It is saved when the screen closes (commit_cv).
+func set_cv_level(line: String, level: String) -> bool:
+	if not run.set_cv_level(line, level):
+		return false
+	run_changed.emit()
+	return true
+
+
+## Leaving the CV screen (DONE or Back): the CV change is one committed action (ARCHITECTURE 8).
+func commit_cv() -> void:
+	_commit()
+
 
 func study() -> bool:
 	var cfg := Content.balance
@@ -155,35 +195,70 @@ func study() -> bool:
 	return true
 
 
-## Night tick + (Step 5) morning reveal and board refill into run.morning_report: ONE commit,
-## so a kill between "night" and "morning" can't lose or repeat the reveal.
+## Sleep: the night tick, the morning reveal, the board refill, the day-2 guarantee and the rent
+## check all land in run.morning_report with exactly ONE save, so a kill right after Sleep resumes on
+## the same morning and a kill before it replays the same dice (ARCHITECTURE 7.1).
 func sleep() -> void:
-	run.sleep(Content.balance)
+	run.sleep(Content.balance, _tiers(), _bg(), _hunt_content(), rng)
 	_commit()
+
+
+## Mail "Start day": the morning has been seen. Rent at 0 with no grace day ends the run (GDD 5.10).
+func start_day() -> void:
+	if run.start_day():
+		end_run_plan_b()
+	else:
+		_commit()
+
+
+## The hunt rules' data arguments (RunState, "job hunt" section).
+func _tiers() -> Dictionary:
+	var out: Dictionary = {}
+	for id: String in RunState.TIER_IDS:
+		out[id] = Content.tier(id)
+	return out
+
+
+func _hunt_content() -> Dictionary:
+	var out: Dictionary = {}
+	for file: String in ["postings", "companies", "cv_lines", "emails"]:
+		out[file] = Content.entries(file)
+	return out
+
+
+func _bg() -> BackgroundData:
+	return Content.background(run.background_id)
 
 
 # ---------- interview ----------
 
-## Inbox "GO NOW": pay energy, freeze the interview (seed + questions), go.
+## Mail "GO NOW": today's slot and the energy are checked, the invite leaves Mail, the energy is paid,
+## then the interview is frozen: its seed, its questions (GDD 5.13) and the lie-probe roll (GDD 5.8.5),
+## all on the run RNG in that order, so a resume replays it exactly. Nothing changes when refused.
 func start_interview(invite: Dictionary) -> void:
 	var cfg := Content.balance
-	var tier_data := Content.tier(invite["tier"])
-	var bg := Content.background(run.background_id)
-	var cost := cfg.cost_interview + (bg.interview_travel_pips if tier_data.in_person else 0)
-	if run.interviews_today >= cfg.max_interviews_per_day or not run.spend_energy(cost):
+	var tier_data := Content.tier(str(invite.get("tier", "")))
+	if tier_data == null:
 		return
+	var cost := cfg.cost_interview + (_bg().interview_travel_pips if tier_data.in_person else 0)
+	if run.interviews_today >= cfg.max_interviews_per_day or run.energy < cost:
+		return
+	var taken := run.take_invite(int(invite.get("uid", -1)))
+	if taken.is_empty():
+		return  # expired, withdrawn or already taken
+	run.spend_energy(cost)
 	run.interviews_today += 1
+	var tier_id := str(taken["tier"])
 	var interview_seed := str(rng.randi())
-	# The questions come from the run RNG (GDD 5.13) before the freeze; a resume reads them back.
-	var plan := InterviewPlan.pick(cfg, invite["tier"], Content.entries("questions_choice"),
+	var plan := InterviewPlan.pick(cfg, tier_id, Content.entries("questions_choice"),
 		Content.entries("questions_knowledge"), run.seen_question_ids, rng, InterviewPlan.warmup_due(run))
 	run.interview = {
-		"invite_uid": invite["app_uid"], "company_id": invite["company_id"],
-		"template_id": invite["template_id"], "tier": invite["tier"],
+		"invite_uid": taken["uid"], "company_id": taken["company_id"],
+		"template_id": taken["template_id"], "tier": tier_id,
 		"seed": interview_seed, "tired": Odds.is_tired(cfg, run.energy),
 		"question_ids": plan["question_ids"],  # prompt order (cfg.prompt_pattern)
 		"warmup_id": plan["warmup_id"],        # "" unless the first interview of the first run
-		"probe_line": "",    # Step 5: lie-probe roll (GDD 5.8.5)
+		"probe_line": run.roll_probe(cfg, tier_data, _hunt_content(), int(taken["app_uid"]), rng),
 	}
 	InterviewPlan.mark_seen(run.seen_question_ids, plan["question_ids"] + [plan["warmup_id"]])
 	change_phase(GameFlow.Phase.INTERVIEW)  # saves the checkpoint
@@ -198,7 +273,7 @@ func finish_interview(won: bool, composure_left: float, busted: bool = false, ca
 	run.times_met_dana += 1
 	run.dana_last_company = company_id
 	if busted:
-		run.blacklist.append(company_id)
+		run.blacklist_company(company_id)
 	run.settle_probe(company_id, str(iv.get("probe_line", "")), came_clean, busted)
 	if won:
 		var tier_data := Content.tier(iv["tier"])
@@ -215,14 +290,26 @@ func finish_interview(won: bool, composure_left: float, busted: bool = false, ca
 
 # ---------- offer and endings ----------
 
+## Decline (after the confirm dialog): the company is blacklisted and the hunt goes on the same day,
+## except on the grace day (rent at 0), when declining is Plan B (GDD 5.10).
+## Accept: an unconfessed degree-claim Lie sent to this company rolls tier.background_check on the
+## run RNG (GDD 5.9.4). Caught: the offer is rescinded (run.rescinded holds mail_rescinded), the
+## company blacklisted, back to the hunt the same day. Otherwise the Hired card.
 func answer_offer(accept: bool) -> void:
 	var company_id: String = run.offer.get("company_id", "")
-	if not accept:  # Decline (after the confirm dialog): blacklisted, back to the same day
-		run.blacklist.append(company_id)
+	if not accept:
+		run.blacklist_company(company_id)
 		run.offer = {}
+		if run.rent_days_left == 0:
+			end_run_plan_b()
+		else:
+			change_phase(GameFlow.Phase.JOB_HUNT)
+		return
+	var tier_data := Content.tier(str(run.offer.get("tier", "")))
+	if tier_data != null and run.background_check_caught(tier_data, _hunt_content(), company_id, rng):
+		run.rescind_offer()
 		change_phase(GameFlow.Phase.JOB_HUNT)
 		return
-	# Step 6/8: an unconfessed degree-claim Lie rolls tier.background_check here -> rescinded -> JOB_HUNT.
 	var bg := Content.background(run.background_id)
 	var flags: Array = Content.entries("companies").get(company_id, {}).get("red_flags", [])
 	run.employment = run.offer.duplicate(true)
@@ -232,7 +319,7 @@ func answer_offer(accept: bool) -> void:
 	change_phase(GameFlow.Phase.PHASE2_STUB)
 
 
-## Morning with rent at 0, no invite, grace day used (or none waiting).
+## Morning with rent at 0, no invite, grace day used (or none waiting); or Decline on the grace day.
 func end_run_plan_b() -> void:
 	_count_finished_run()
 	change_phase(GameFlow.Phase.GAME_OVER)

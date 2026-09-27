@@ -1,0 +1,49 @@
+STEP-05 wiring stage - test_run (all suites), 2026-09-27, Windows PC, Godot 4.7.2-stable (steam)
+
+Baseline before this stage: 161 passed / 0 failed / 16 suites.
+Final run after this stage:  184 passed / 0 failed / 0 skipped / 18 suites, 1057 ms.
+
+Suites: content_lint, data_files, flow, hunt_apply, hunt_board, hunt_defaults (new), hunt_edges,
+hunt_reveal, hunt_sim, hunt_sleep, interview, interview_plan, lie_probe, odds, offer,
+probe_trigger (new), save, ui_text.
+
+New suite hunt_defaults (12 tests, tests/test_hunt_defaults.gd):
+  test_a_dry_mvp_deck_deals_the_tiers_other_company                         pass (6 assertions)
+  test_mvp_companies_deal_first_while_they_have_a_free_pair                 pass (40)
+  test_the_deck_holds_about_60_pairs_across_all_9_companies                 pass (62: 58 pairs, 9 companies)
+  test_blacklisting_withdraws_that_companys_waiting_invites_silently        pass (7)
+  test_pending_applications_to_a_blacklisted_company_reveal_silent_without_dice  pass (145)
+  test_a_full_radar_waits_for_the_next_relevant_application_to_a_live_company    pass (3)
+  test_the_day2_guarantee_never_picks_a_blacklisted_company                 pass (3)
+  test_a_plain_rejection_mail_is_picked_by_the_application_uid              pass (17)
+  test_the_rejection_mail_uses_no_dice_and_survives_a_kill                  pass (3)
+  test_the_profile_fallback_never_uses_a_ghost_job                          pass (5)
+  test_passes_years_stays_a_boolean                                         pass (12)
+  test_set_cv_level_takes_only_known_lines_and_levels                       pass (7)
+
+New suite probe_trigger (11 tests, tests/test_probe_trigger.gd):
+  test_no_lie_sent_means_no_probe_and_no_dice                               pass (4)
+  test_a_lie_counts_only_when_it_shares_a_tag_with_the_posting              pass (3)
+  test_a_degree_claim_always_counts                                         pass (1)
+  test_one_probe_at_most_the_first_counting_line_in_cv_order                pass (202)
+  test_zero_chance_or_zero_max_probes_never_probes                          pass (51)
+  test_the_probe_rate_follows_the_tier_chance_and_replays                   pass (4; 4000 seeds per tier, within 0.03)
+  test_the_lies_recorded_by_apply_card_are_the_ones_probed                  pass (2)
+  test_no_degree_claim_means_no_check_and_no_dice                           pass (2)
+  test_an_unconfessed_degree_claim_rolls_the_tier_chance_once               pass (4; 4000 seeds per tier, within 0.03)
+  test_a_confessed_degree_claim_or_another_companys_lie_is_never_checked    pass (4)
+  test_a_rescinded_offer_blacklists_and_keeps_its_mail_until_sleep          pass (8)
+
+Existing tests changed (fixtures or coverage only, same intent):
+  flow: LEGAL gains OFFER -> GAME_OVER; deletes_save(OFFER, GAME_OVER) asserted.
+  hunt_board: test_applied_pairs_are_never_dealt_again and
+    test_pairs_that_dropped_off_unapplied_come_back_reposted also use up co_stealth's pairs
+    (otherwise the new dry-deck fallback deals them); new helper _tier_pairs().
+  hunt_edges: test_the_profile_fallback_does_not_depend_on_deck_order uses up co_stealth's
+    pairs for the same reason.
+  hunt_reveal: test_the_content_ids_the_rules_emit_exist accepts the "mail_reject_" prefix
+    (RunState.REJECT_MAIL_PREFIX) and checks more than one mail_reject_* line exists.
+
+Editor-side errors during the stage: only the known "Identifier not found / not declared:
+Content, GameState, Device, SceneRouter" autoload family and its cascading "Cannot infer the
+type" lines (CLAUDE.md godot-ai gotchas). None from core/, tests/ or the rules.

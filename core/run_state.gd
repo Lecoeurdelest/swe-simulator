@@ -12,7 +12,9 @@ const VERSION := 1
 ## Job hunt ids (GDD 5.0). The board deals round-robin in TIER_IDS order.
 const TIER_IDS: PackedStringArray = ["startup", "mid", "big"]
 const CV_LINES: PackedStringArray = ["edu", "exp", "proj"]
+const CV_LEVELS: PackedStringArray = ["honest", "polished", "lie"]
 const GUARANTEE_DAY := 2              # the first-run guarantee: day-1 applications, the morning of day 2
+const REJECT_MAIL_PREFIX := "mail_reject_"   # emails.json: the plain rejection lines
 
 # --- flow and RNG ---
 var phase: GameFlow.Phase = GameFlow.Phase.TITLE
@@ -64,6 +66,7 @@ var dana_last_company: String = ""
 
 # --- offer, job, result ---
 var offer: Dictionary = {}            # {company_id, template_id, job_title, salary, work_mode, office_days, perks, fine_print, equity_text, negotiated}
+var rescinded: Dictionary = {}        # the offer a background check withdrew: {company_id, template_id, tier, mail_id}; the next Sleep clears it
 var employment: Dictionary = {}       # the accepted offer + tier + red_flags (Phase 2 reads this)
 var dream_score: int = -1
 var total_applications: int = 0
@@ -114,6 +117,15 @@ func set_background(cfg: BalanceConfig, bg: BackgroundData) -> void:
 	lone_wolf = bg.teamwork_mult < bg.teamwork_mult_after_network
 
 
+## The CV screen (GDD 5.4): one line set to Honest, Polished or Lie. Free; it only changes the
+## applications sent after it. False (and no change) for an unknown line or level.
+func set_cv_level(line: String, level: String) -> bool:
+	if not CV_LINES.has(line) or not CV_LEVELS.has(level):
+		return false
+	cv_levels[line] = level
+	return true
+
+
 # ---------- job hunt (GDD 5.6-5.10). Every rule takes its data as arguments: ----------
 # cfg: BalanceConfig; tiers: {"startup": TierData, "mid": ..., "big": ...};
 # bg: this run's BackgroundData; rng: the run RNG;
@@ -152,14 +164,23 @@ func deal_board(cfg: BalanceConfig, tiers: Dictionary, content: Dictionary, rng:
 	return dealt_count
 
 
-## Declined offer, BUSTED or rescinded (GDD 5.7): the company is blacklisted for the run and its
-## cards leave the board at once, not only at the next morning's deal.
+## Declined offer, BUSTED or rescinded (GDD 5.7): the company is blacklisted for the run. Its cards
+## leave the board at once (not only at the next morning's deal), its waiting invites are withdrawn
+## without a mail (their applications end "expired"), and its pending applications reveal as
+## silent (_reveal_outcomes).
 func blacklist_company(company_id: String) -> void:
 	if not blacklist.has(company_id):
 		blacklist.append(company_id)
 	for i: int in range(board.size() - 1, -1, -1):
 		if str(board[i]["company_id"]) == company_id:
 			board.remove_at(i)
+	for i: int in range(invites.size() - 1, -1, -1):
+		if str(invites[i]["company_id"]) != company_id:
+			continue
+		var app := _application(int(invites[i]["app_uid"]))
+		if not app.is_empty():
+			app["status"] = "expired"
+		invites.remove_at(i)
 
 
 ## Swipe left: the card goes to the back of the deck.
@@ -265,7 +286,8 @@ func apply_card(cfg: BalanceConfig, tiers: Dictionary, bg: BackgroundData, conte
 ## check (GDD 5.3, 5.6, 5.7, 5.10). The result is written to morning_report and returned:
 ##   day, night {applied, rejected, ghosted, rent_days_left} (the lock-screen summary),
 ##   invites [invite] (inbox first), rejections [{app_uid, company_id, template_id, tier, knockout, mail_id}]
-##   in send order (knockout {id, args} names it; mail_id "mail_knockout", or "" for a plain rejection),
+##   in send order (knockout {id, args} names it; mail_id "mail_knockout", or for a plain rejection the
+##   mail_reject_* line reject_mail_id() picks, "" without emails.json),
 ##   no_reply (silent and ghost-job reveals), ghosted [{app_uid, company_id, template_id, tier, days}],
 ##   expired [{invite_uid, app_uid, company_id, template_id, tier, mail_id}] ("filled internally"),
 ##   radar {before, after, max}, guarantee ("", "guarantee" or "profile"), board_new,
@@ -280,6 +302,7 @@ func sleep(cfg: BalanceConfig, tiers: Dictionary = {}, bg: BackgroundData = null
 	rent_days_left = maxi(rent_days_left - 1, 0)
 	energy = cfg.energy_max - commute_pips
 	interviews_today = 0
+	rescinded = {}
 	for card: Dictionary in board:
 		card["posted_days_ago"] = int(card["posted_days_ago"]) + 1
 	if tiers.is_empty() or bg == null or rng == null:
@@ -309,6 +332,72 @@ func take_invite(invite_uid: int) -> Dictionary:
 	return {}
 
 
+## GDD 5.8.5, rolled by GameState.start_interview on the run RNG before the checkpoint is frozen:
+## the Lie CV line Dana probes in this interview, or "". The Lie lines sent in that application
+## count, in CV order, when one shares a tag with the posting or is a degree claim; each counting
+## line rolls tier.lie_probe_chance until one hits. One probe at most: the checkpoint holds a single
+## probe_line (cfg.max_probes_per_interview = 0 turns probes off). No application (a "saw your
+## profile" invite) means no lies sent, so no probe.
+func roll_probe(cfg: BalanceConfig, tier: TierData, content: Dictionary, app_uid: int, rng: RandomNumberGenerator) -> String:
+	var app := _application(app_uid)
+	if app.is_empty() or cfg.max_probes_per_interview <= 0:
+		return ""
+	var cv := _file(content, "cv_lines")
+	var posting_tags: Array = _posting(content, str(app["template_id"])).get("tags", [])
+	for id: Variant in app.get("lies", []):
+		var line: Variant = cv.get(str(id))
+		if not (line is Dictionary):
+			continue
+		var counts := bool((line as Dictionary).get("degree_claim", false))
+		for tag: Variant in (line as Dictionary).get("tags", []):
+			counts = counts or posting_tags.has(tag)
+		if counts and Odds.roll(rng, tier.lie_probe_chance):
+			return str(id)
+	return ""
+
+
+## GDD 5.9.4, on Accept: true when the background check catches you. Only a degree-claim Lie sent
+## to this company (in any application) and never confessed there rolls tier.background_check, once,
+## on the run RNG; otherwise no dice and false.
+func background_check_caught(tier: TierData, content: Dictionary, company_id: String, rng: RandomNumberGenerator) -> bool:
+	var cv := _file(content, "cv_lines")
+	for app: Dictionary in applications:
+		if str(app["company_id"]) != company_id:
+			continue
+		for id: Variant in app.get("lies", []):
+			var line: Variant = cv.get(str(id))
+			if line is Dictionary and bool((line as Dictionary).get("degree_claim", false)) \
+					and not confessed.has(company_id + "|" + str(id)):
+				return Odds.roll(rng, tier.background_check)
+	return false
+
+
+## Caught by the background check (GDD 5.9.4): the offer is withdrawn and its company blacklisted.
+## `rescinded` keeps the "OFFER RESCINDED" mail for the hunt scene until the next Sleep.
+func rescind_offer() -> void:
+	var company_id := str(offer.get("company_id", ""))
+	rescinded = {
+		"company_id": company_id, "template_id": offer.get("template_id", ""), "tier": offer.get("tier", ""),
+		"mail_id": "mail_rescinded",
+	}
+	offer = {}
+	blacklist_company(company_id)
+
+
+## A plain rejection's email (GDD S06), picked without dice: the application uid chooses one of the
+## mail_reject_* lines (sorted ids), so a resume or a replayed Sleep shows the same line.
+## "" when the content has no emails.
+static func reject_mail_id(content: Dictionary, app_uid: int) -> String:
+	var ids: Array[String] = []
+	for key: Variant in _file(content, "emails"):
+		if str(key).begins_with(REJECT_MAIL_PREFIX):
+			ids.append(str(key))
+	if ids.is_empty():
+		return ""
+	ids.sort()
+	return ids[posmod(app_uid, ids.size())]
+
+
 # ---------- job hunt internals ----------
 
 func _morning(cfg: BalanceConfig, tiers: Dictionary, bg: BackgroundData, content: Dictionary, rng: RandomNumberGenerator, applied_today: int) -> Dictionary:
@@ -326,7 +415,7 @@ func _morning(cfg: BalanceConfig, tiers: Dictionary, bg: BackgroundData, content
 			_set_outcome(outcomes, best, "guarantee")
 			report["guarantee"] = "guarantee"
 			pity_count = 0
-	_apply_outcomes(outcomes, report)
+	_apply_outcomes(outcomes, report, content)
 	_ghost_silent(cfg, report)
 	report["board_new"] = deal_board(cfg, tiers, content, rng)
 	if guarantee_due and report["guarantee"] == "":
@@ -366,6 +455,7 @@ func _expire_invites(cfg: BalanceConfig, report: Dictionary) -> void:
 
 ## GDD 5.7 steps 1-4 for each application due this morning, in send order (applications are appended
 ## as they are sent). The Radar moves as each one resolves. Statuses change later, in _apply_outcomes.
+## A blacklisted company never answers: its applications reveal as silent, without dice.
 func _reveal_outcomes(tiers: Dictionary, bg: BackgroundData, rng: RandomNumberGenerator) -> Array[Dictionary]:
 	var outcomes: Array[Dictionary] = []
 	for app: Dictionary in applications:
@@ -374,8 +464,12 @@ func _reveal_outcomes(tiers: Dictionary, bg: BackgroundData, rng: RandomNumberGe
 		var tier := _tier(tiers, str(app["tier"]))
 		if tier == null:
 			continue
-		var outcome := Odds.reveal_outcome(tier, bg, app, pity_count, rng)
-		pity_count = Odds.pity_after(bg, pity_count, outcome, bool(app["relevant"]))
+		var outcome := "silent"
+		if not blacklist.has(str(app["company_id"])):
+			outcome = Odds.reveal_outcome(tier, bg, app, pity_count, rng)
+		# A knockout failure never fills the Radar, even when a blacklist turned it silent.
+		var counts := bool(app["relevant"]) and not bool(app["knockout"])
+		pity_count = Odds.pity_after(bg, pity_count, outcome, counts)
 		outcomes.append({"app": app, "outcome": outcome})
 	return outcomes
 
@@ -394,14 +488,15 @@ func _guarantee_due(cfg: BalanceConfig, outcomes: Array[Dictionary]) -> bool:
 	return sent_day1 >= cfg.day2_guarantee_min_apps
 
 
-## The best eligible day-1 application: highest P, not a ghost job, not knocked out, not resolved
-## before this morning (this morning's reveals are still "pending" here). Ties go to the first sent.
+## The best eligible day-1 application: highest P, not a ghost job, not knocked out, not to a
+## blacklisted company, not resolved before this morning (this morning's reveals are still "pending"
+## here). Ties go to the first sent.
 func _best_day1_application() -> Dictionary:
 	var best: Dictionary = {}
 	for app: Dictionary in applications:
 		if int(app["day_sent"]) != GUARANTEE_DAY - 1 or app["status"] != "pending":
 			continue
-		if bool(app["knockout"]) or bool(app["is_ghost"]):
+		if bool(app["knockout"]) or bool(app["is_ghost"]) or blacklist.has(str(app["company_id"])):
 			continue
 		if best.is_empty() or float(app["p"]) > float(best["p"]):
 			best = app
@@ -416,7 +511,7 @@ func _set_outcome(outcomes: Array[Dictionary], app: Dictionary, outcome: String)
 	outcomes.append({"app": app, "outcome": outcome})
 
 
-func _apply_outcomes(outcomes: Array[Dictionary], report: Dictionary) -> void:
+func _apply_outcomes(outcomes: Array[Dictionary], report: Dictionary, content: Dictionary) -> void:
 	var new_invites: Array = report["invites"]
 	var rejections: Array = report["rejections"]
 	for o: Dictionary in outcomes:
@@ -438,7 +533,7 @@ func _apply_outcomes(outcomes: Array[Dictionary], report: Dictionary) -> void:
 				rejections.append({
 					"app_uid": app["uid"], "company_id": app["company_id"], "template_id": app["template_id"],
 					"tier": app["tier"], "knockout": knockout,
-					"mail_id": "mail_knockout" if outcome == "knockout" else "",
+					"mail_id": "mail_knockout" if outcome == "knockout" else reject_mail_id(content, int(app["uid"])),
 				})
 			_:  # "ghost" and "silent": nothing arrives
 				app["status"] = "silent"
@@ -457,23 +552,22 @@ func _ghost_silent(cfg: BalanceConfig, report: Dictionary) -> void:
 
 
 ## The guarantee's fallback (GDD 5.7): the highest-odds startup card on the board "saw your profile".
-## A real posting beats a ghost job; the card leaves the board and its pair counts as applied.
-## Ties go to the oldest card (lowest uid), never to deck order: skips aren't saved, so a replayed
-## Sleep after a kill must not depend on them.
+## Never a ghost job: with only ghost startup cards left there is no fallback invite (rare). The card
+## leaves the board and its pair counts as applied. Ties go to the oldest card (lowest uid), never to
+## deck order, so how the deck was swiped can't change the morning.
 func _profile_invite(cfg: BalanceConfig, tiers: Dictionary, bg: BackgroundData, content: Dictionary) -> Dictionary:
 	var best: Dictionary = {}
-	var best_score := -1.0
+	var best_p := -1.0
 	for card: Dictionary in board:
-		if card["tier"] != "startup":
+		if card["tier"] != "startup" or bool(card["is_ghost"]):
 			continue
 		var odds := card_odds(cfg, tiers, bg, content, card)
 		if odds.is_empty():
 			continue
-		# P is at most 1, so the +2 puts every real posting above every ghost job.
-		var score := float((odds["tailored"] as Dictionary)["p"]) + (0.0 if bool(card["is_ghost"]) else 2.0)
-		if score > best_score or (score == best_score and int(card["uid"]) < int(best["uid"])):
+		var p := float((odds["tailored"] as Dictionary)["p"])
+		if p > best_p or (p == best_p and int(card["uid"]) < int(best["uid"])):
 			best = card
-			best_score = score
+			best_p = p
 	if best.is_empty():
 		return {}
 	board.remove_at(_card_index(int(best["uid"])))
@@ -494,7 +588,9 @@ func _add_invite(source: Dictionary, kind: String, mail_id: String) -> Dictionar
 
 ## One card for tier: a template of that tier (not a SHOULD one such as the Unicorn), paired with a
 ## company of the tier (a pinned template only with its own company). Never a pair that was applied
-## to or is already on the board; templates not on the board yet go first.
+## to or is already on the board; templates not on the board yet go first. The MVP companies deal
+## first; once none of their pairs is free, the tier's other companies step in, so the board never
+## starves (GDD 5.6's "about 60 combinations" counts all 9 companies).
 func _deal_card(cfg: BalanceConfig, tier: TierData, postings: Dictionary, companies: Dictionary, dealt: Array[Dictionary], rng: RandomNumberGenerator) -> Dictionary:
 	var tier_id := String(tier.id)
 	var on_board: Array[String] = []
@@ -502,28 +598,19 @@ func _deal_card(cfg: BalanceConfig, tier: TierData, postings: Dictionary, compan
 	for card: Dictionary in board + dealt:
 		on_board.append(pair_key(str(card["template_id"]), str(card["company_id"])))
 		templates_seen.append(str(card["template_id"]))
-	var enabled := _companies_of(companies, tier_id)
 	var free: Dictionary = {}       # template_id -> company ids still free
-	var fresh: Array[String] = []   # templates not on the board or dealt this morning
+	for mvp: bool in [true, false]:
+		free = _free_pairs(postings, tier_id, _companies_of(companies, tier_id, mvp), on_board)
+		if not free.is_empty():
+			break
+	if free.is_empty():
+		return {}
 	var usable: Array[String] = []
-	for tid: String in _ids(postings):
-		var entry: Dictionary = postings[tid]
-		if str(entry.get("tier", "")) != tier_id or bool(entry.get("should", false)):
-			continue
-		var pinned := str(entry.get("company", "any"))
-		var company_ids: Array[String] = []
-		for cid: String in enabled:
-			var pair := pair_key(tid, cid)
-			if (pinned == "any" or pinned == cid) and not applied.has(pair) and not on_board.has(pair):
-				company_ids.append(cid)
-		if company_ids.is_empty():
-			continue
-		free[tid] = company_ids
+	var fresh: Array[String] = []   # templates not on the board or dealt this morning
+	for tid: String in free:
 		usable.append(tid)
 		if not templates_seen.has(tid):
 			fresh.append(tid)
-	if usable.is_empty():
-		return {}
 	var template_id: String = Odds.pick(rng, fresh if not fresh.is_empty() else usable, 1)[0]
 	var company_id: String = Odds.pick(rng, free[template_id], 1)[0]
 	var posting: Dictionary = postings[template_id]
@@ -535,20 +622,33 @@ func _deal_card(cfg: BalanceConfig, tier: TierData, postings: Dictionary, compan
 	}
 
 
-## The companies a tier deals from (GDD 5.5): the MVP ones ("mvp": true) that aren't blacklisted;
-## if none is left, every non-blacklisted company of the tier, so a tier never runs dry.
-func _companies_of(companies: Dictionary, tier_id: String) -> Array[String]:
-	var mvp: Array[String] = []
-	var rest: Array[String] = []
+## template_id -> the company ids of `enabled` still free for it (in sorted template order), for a
+## tier's templates that aren't SHOULD; a pinned template only with its own company.
+func _free_pairs(postings: Dictionary, tier_id: String, enabled: Array[String], on_board: Array[String]) -> Dictionary:
+	var free: Dictionary = {}
+	for tid: String in _ids(postings):
+		var entry: Dictionary = postings[tid]
+		if str(entry.get("tier", "")) != tier_id or bool(entry.get("should", false)):
+			continue
+		var pinned := str(entry.get("company", "any"))
+		var company_ids: Array[String] = []
+		for cid: String in enabled:
+			var pair := pair_key(tid, cid)
+			if (pinned == "any" or pinned == cid) and not applied.has(pair) and not on_board.has(pair):
+				company_ids.append(cid)
+		if not company_ids.is_empty():
+			free[tid] = company_ids
+	return free
+
+
+## A tier's companies that aren't blacklisted (GDD 5.5): the MVP ones ("mvp": true), or the others.
+func _companies_of(companies: Dictionary, tier_id: String, mvp: bool) -> Array[String]:
+	var out: Array[String] = []
 	for id: String in _ids(companies):
 		var company: Dictionary = companies[id]
-		if str(company.get("tier", "")) != tier_id or blacklist.has(id):
-			continue
-		if bool(company.get("mvp", false)):
-			mvp.append(id)
-		else:
-			rest.append(id)
-	return mvp if not mvp.is_empty() else rest
+		if str(company.get("tier", "")) == tier_id and not blacklist.has(id) and bool(company.get("mvp", false)) == mvp:
+			out.append(id)
+	return out
 
 
 func _drop_oldest() -> void:

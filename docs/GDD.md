@@ -378,6 +378,7 @@ flowchart LR
   BC -->|no, or check passed| W[Hired card: Dream vs Reality]
   BC -->|caught| RS[Offer rescinded] --> H
   O -->|Decline + confirm| H
+  O -->|Decline on the grace day| P
   W --> T
   P -->|Retry| B
   P --> T

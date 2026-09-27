@@ -44,6 +44,12 @@ func _rng(seed_value: int) -> RandomNumberGenerator:
 
 ## Every template+company pair the MVP board can deal for a tier.
 func _mvp_pairs(tier_id: String) -> Array[String]:
+	return _tier_pairs(tier_id, true)
+
+
+## Every pair a tier can deal: its MVP companies' (mvp_only), or all of its companies' (once the MVP
+## pairs run dry, the deck falls back to the tier's other companies).
+func _tier_pairs(tier_id: String, mvp_only: bool = false) -> Array[String]:
 	var pairs: Array[String] = []
 	var postings: Dictionary = content["postings"]
 	var companies: Dictionary = content["companies"]
@@ -53,7 +59,7 @@ func _mvp_pairs(tier_id: String) -> Array[String]:
 			continue
 		for company_id: Variant in companies:
 			var company: Dictionary = companies[company_id]
-			if company["tier"] == tier_id and company["mvp"] and posting["company"] in ["any", company_id]:
+			if company["tier"] == tier_id and (company["mvp"] or not mvp_only) and posting["company"] in ["any", company_id]:
 				pairs.append(RunState.pair_key(str(template_id), str(company_id)))
 	return pairs
 
@@ -142,9 +148,8 @@ func test_board_keeps_ten_cards_new_ones_on_top_and_the_oldest_drop_off() -> voi
 func test_applied_pairs_are_never_dealt_again() -> void:
 	var run := _run("graduate")
 	var rng := _rng(5)
-	var startup_pairs := _mvp_pairs("startup")
-	var left := startup_pairs[4]
-	for pair: String in startup_pairs:
+	var left := _mvp_pairs("startup")[4]
+	for pair: String in _tier_pairs("startup"):  # the non-MVP company's too, or the dry-deck fallback deals them
 		if pair != left:
 			run.applied.append(pair)
 	for _morning: int in 20:
@@ -170,9 +175,8 @@ func test_applied_pairs_are_never_dealt_again() -> void:
 func test_pairs_that_dropped_off_unapplied_come_back_reposted() -> void:
 	var run := _run("graduate")
 	var rng := _rng(9)
-	var startup_pairs := _mvp_pairs("startup")
-	var left := startup_pairs[0]
-	for pair: String in startup_pairs:
+	var left := _mvp_pairs("startup")[0]
+	for pair: String in _tier_pairs("startup"):  # the non-MVP company's too, or the dry-deck fallback deals them
 		if pair != left:
 			run.applied.append(pair)
 	run.deal_board(cfg, tiers, content, rng)

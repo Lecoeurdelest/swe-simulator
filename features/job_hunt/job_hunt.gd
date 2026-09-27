@@ -2,16 +2,13 @@ extends Control
 ## Step 3 stub of the job hunt (GDD S04): the HUD basics plus buttons that call the real verbs.
 ## Step 5 replaces it with DoomApply (the deck, CV, Mail, Study and the dock).
 
-## Debug stand-in for a morning invite; Step 5 builds real ones in run.invites.
-const FAKE_INVITE: Dictionary = {
-	"app_uid": 0, "company_id": "co_beigeware", "template_id": "job_mid_backend", "tier": "mid",
-}
 ## Debug-only stub text and buttons, English on purpose (not player text): Step 5 replaces them.
-const DEBUG_FAKE_INVITE := "Fake invite (Mid)"
+const DEBUG_FIRST_INVITE := "Take first invite"
 const DEBUG_RENT_OUT := "Rent runs out"
 const DEBUG_KNOWLEDGE := "Knowledge %d"
-const DEBUG_INTERVIEWS_TODAY := "Interviews today: %d/%d"
+const DEBUG_STATUS := "Interviews today: %d/%d  Cards: %d  Invites: %d"
 const DEBUG_TOO_TIRED := "Too tired to study (costs %d energy)."
+const DEBUG_NO_INVITE := "No invite waiting."
 const DEBUG_NO_INTERVIEW := "No interview: it needs %d energy and today's slot."
 
 @onready var _day: Label = %Day
@@ -32,13 +29,13 @@ func _ready() -> void:
 	_header.text = Content.text("naming", "app_jobs")
 	_study_button.text = Content.text("barks", "ui_tab_study")
 	_sleep_button.text = Content.text("barks", "ui_sleep")
-	_fake_invite_button.text = DEBUG_FAKE_INVITE
+	_fake_invite_button.text = DEBUG_FIRST_INVITE
 	_rent_out_button.text = DEBUG_RENT_OUT
 	_pause_button.pressed.connect(Device.handle_back)
-	_fake_invite_button.pressed.connect(_on_fake_invite)
+	_fake_invite_button.pressed.connect(_on_first_invite)
 	_rent_out_button.pressed.connect(GameState.end_run_plan_b)
 	_study_button.pressed.connect(_on_study)
-	_sleep_button.pressed.connect(GameState.sleep)
+	_sleep_button.pressed.connect(_on_sleep)
 	_pause.quit_to_title_pressed.connect(GameState.quit_to_title)
 	GameState.run_changed.connect(_refresh)
 	_refresh()
@@ -62,7 +59,7 @@ func _refresh() -> void:
 		_rent.text = Content.text("barks", "ui_rent_due", {"days": run.rent_days_left})
 	_energy.text = "%s %d/%d" % [Content.text("barks", "ui_energy"), run.energy, cfg.energy_max - run.commute_pips]
 	_knowledge.text = DEBUG_KNOWLEDGE % run.stat("knw")
-	_status.text = DEBUG_INTERVIEWS_TODAY % [run.interviews_today, cfg.max_interviews_per_day]
+	_status.text = DEBUG_STATUS % [run.interviews_today, cfg.max_interviews_per_day, run.board.size(), run.invites.size()]
 
 
 func _on_study() -> void:
@@ -70,7 +67,16 @@ func _on_study() -> void:
 		_status.text = DEBUG_TOO_TIRED % Content.balance.cost_study
 
 
-func _on_fake_invite() -> void:
-	GameState.start_interview(FAKE_INVITE)
+## The stub has no inbox yet: Sleep, then Start day at once (Plan B and the grace day still apply).
+func _on_sleep() -> void:
+	GameState.sleep()
+	GameState.start_day()
+
+
+func _on_first_invite() -> void:
+	if GameState.run.invites.is_empty():
+		_status.text = DEBUG_NO_INVITE
+		return
+	GameState.start_interview(GameState.run.invites[0])
 	if GameState.run.phase == GameFlow.Phase.JOB_HUNT:  # refused: too tired, or today's interview is used
 		_status.text = DEBUG_NO_INTERVIEW % Content.balance.cost_interview
