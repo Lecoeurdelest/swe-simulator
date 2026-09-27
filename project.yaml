@@ -66,7 +66,7 @@ preservation:
       disposition: preserve
     - id: ART-CORE
       path: core/*.gd
-      role: pure rule classes GameFlow, RunState, SaveIO, Odds
+      role: pure rule classes GameFlow, RunState, SaveIO, Odds, InterviewPlan, HuntTips
       disposition: preserve
     - id: ART-AUTOLOAD
       path: autoload/*.gd
@@ -113,16 +113,16 @@ preservation:
 
 components:
   - {id: CMP-REPO, title: "Project settings, git files, folders", paths: [project.godot, .gitignore, .gitattributes], source: "ARCHITECTURE 1.2, 2, 14"}
-  - {id: CMP-CORE, title: "Pure rule classes (GameFlow, RunState, SaveIO, Odds)", paths: ["core/"], source: "ARCHITECTURE 3, 4, 7, 8, 17.1-17.4"}
+  - {id: CMP-CORE, title: "Pure rule classes (GameFlow, RunState, SaveIO, Odds, InterviewPlan, HuntTips)", paths: ["core/"], source: "ARCHITECTURE 3, 4, 7, 8, 17.1-17.4, 17.14, 17.16"}
   - {id: CMP-AUTOLOAD, title: "Autoloads (Content, GameState, Device, SceneRouter)", paths: ["autoload/"], source: "ARCHITECTURE 3, 5, 9, 17.6-17.9"}
   - {id: CMP-DATA, title: "Tuning resources (.tres) and their classes", paths: ["data/types/", "data/balance/", "data/backgrounds/", "data/tiers/"], source: "ARCHITECTURE 6.2, 17.5; GDD 11"}
   - {id: CMP-CONTENT, title: "JSON content (16 files keyed by id)", paths: ["data/content/"], source: "ARCHITECTURE 6.3-6.4; CONTENT"}
-  - {id: CMP-UI, title: "Theme, fonts, shared components", paths: ["ui/"], source: "ARCHITECTURE 1.4, 1.5, 10, 17.10"}
+  - {id: CMP-UI, title: "Theme, fonts, shared components", paths: ["ui/"], source: "ARCHITECTURE 1.4, 1.5, 10, 17.10, 17.15"}
   - {id: CMP-TITLE, title: "Title (S01)", paths: ["features/title/"], source: "ARCHITECTURE 11.1; GDD 4.2"}
   - {id: CMP-INTRO, title: "Intro cutscene (S02)", paths: ["features/intro/"], source: "ARCHITECTURE 11.2; CONTENT 2"}
   - {id: CMP-BGSELECT, title: "Background select (S03)", paths: ["features/background_select/"], source: "ARCHITECTURE 11.3; GDD 5.2"}
   - {id: CMP-HUNT, title: "Job hunt (S04-S06)", paths: ["features/job_hunt/"], source: "ARCHITECTURE 11.4; GDD 5.3-5.7"}
-  - {id: CMP-INTERVIEW, title: "VS intro and interview (S07-S09)", paths: ["features/interview/"], source: "ARCHITECTURE 11.5-11.6, 17.11; GDD 5.8"}
+  - {id: CMP-INTERVIEW, title: "VS intro and interview (S07-S09)", paths: ["features/interview/"], source: "ARCHITECTURE 11.5-11.6, 17.11, 17.14; GDD 5.8"}
   - {id: CMP-ENDINGS, title: "Offer, Hired card, Plan B (S10-S12)", paths: ["features/offer/", "features/phase2_stub/", "features/game_over/"], source: "ARCHITECTURE 11.7; GDD 5.9-5.10"}
   - {id: CMP-DEV, title: "Debug-only tools (device check, run report)", paths: ["features/dev/"], source: "ROADMAP Step 2, Step 7"}
   - {id: CMP-TESTS, title: "godot-ai test suites", paths: ["tests/"], source: "ARCHITECTURE 12; GDD 10.6"}
@@ -140,7 +140,7 @@ decisions:
   - {id: AD-02, title: "Landscape only, either way up; only the job-card swipe reads raw touch", status: superseded, superseded_by: [AD-12], approval: "D1 in docs/DECISIONS.md (developer, 2026-09-26)", source: "ARCHITECTURE 0.2 (v1.0)"}
   - {id: AD-03, title: "monogram 16 for body text; Press Start 2P only for logo, VS screen, banners", status: accepted, source: "ARCHITECTURE 0.3"}
   - {id: AD-04, title: "Folders by feature, plus core/, data/, ui/", status: accepted, source: "ARCHITECTURE 0.4"}
-  - {id: AD-05, title: "Four autoloads, no event bus, four pure @tool classes", status: accepted, source: "ARCHITECTURE 0.5"}
+  - {id: AD-05, title: "Four autoloads, no event bus, rules in pure @tool classes", status: accepted, source: "ARCHITECTURE 0.5"}
   - {id: AD-06, title: "Numbers in 7 .tres files, text in 16 JSON files; companies are JSON only", status: accepted, source: "ARCHITECTURE 0.6"}
   - {id: AD-07, title: "One seeded RNG per run, one per interview from a checkpoint; 64-bit values saved as strings", status: accepted, source: "ARCHITECTURE 0.7"}
   - {id: AD-08, title: "One JSON save in user://, written only while a run is live, after every commit and on focus loss", status: accepted, source: "ARCHITECTURE 0.8"}

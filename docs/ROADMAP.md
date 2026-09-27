@@ -176,7 +176,7 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 - The editor is not playing.
 - Step 0's Git is installed. If it isn't, do everything below except the commit.
 
-**Tasks.** Claude runs these in this order. All code is in ARCHITECTURE section 17; copy it verbatim.
+**Tasks.** Claude runs these in this order. All code is in ARCHITECTURE section 17; copy it verbatim. (Section 17 now shows these files as they are at the end of Step 5; the Step 1 versions are in the `init` commit, 64ed38f.)
 
 1. **Preflight.**
    - Run `editor_state`.
