@@ -43,6 +43,26 @@ func test_band_is_dots_plus_a_word() -> void:
 	assert_true(UiText.band(1, "Long shot").length() <= 18, "fits a 124 px half-width button (GDD 2.7)")
 
 
+func test_cost_follows_the_label() -> void:
+	assert_eq(UiText.cost("APPLY", 1), "APPLY  1", "the GDD S04 mockup")
+	assert_eq(UiText.cost("TAILOR & APPLY", 2), "TAILOR & APPLY  2")
+	assert_true(UiText.cost("TAILOR & APPLY", 2).length() <= 25, "fits the 168 px primary (GDD 2.7)")
+
+
+func test_meter_fills_from_the_left() -> void:
+	assert_eq(UiText.meter(3, 6), "[###---]", "the GDD S04 Radar")
+	assert_eq(UiText.meter(0, 8), "[--------]")
+	assert_eq(UiText.meter(12, 10), "[##########]", "clamped")
+	assert_eq(UiText.meter(-1, 3), "[---]", "clamped")
+
+
+func test_count_groups_thousands() -> void:
+	assert_eq(UiText.count(0), "0")
+	assert_eq(UiText.count(999), "999")
+	assert_eq(UiText.count(1247), "1,247", "the GDD S04 card back")
+	assert_eq(UiText.count(1500000), "1,500,000")
+	assert_eq(UiText.count(-4500), "-4,500")
+
 func test_call_pattern_reads_only_whole_literals() -> void:
 	var calls := RegEx.create_from_string(CALL_PATTERN)
 	assert_true(calls.is_valid(), "CALL_PATTERN does not compile")

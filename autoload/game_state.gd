@@ -150,6 +150,38 @@ func debug_quick_start(bg_id: String, phase: GameFlow.Phase, run_seed: int = 202
 	run.phase = phase
 
 
+## Debug only (the hub's DEBUG row keeps an interview one tap away): a waiting invite from the tier's
+## first MVP company that isn't blacklisted, for the tier's first open posting, as if it arrived this
+## morning. No application backs it, so it never probes. No dice. {} when the tier has no company left.
+func debug_fake_invite(tier_id: String) -> Dictionary:
+	var company_id := _first_entry_id("companies", func(id: String, e: Dictionary) -> bool:
+		return str(e.get("tier", "")) == tier_id and bool(e.get("mvp", false)) and not run.blacklist.has(id))
+	var template_id := _first_entry_id("postings", func(_id: String, e: Dictionary) -> bool:
+		return str(e.get("tier", "")) == tier_id and str(e.get("company", "any")) == "any" \
+			and not bool(e.get("should", false)))
+	if company_id.is_empty() or template_id.is_empty():
+		return {}
+	var invite := {
+		"uid": run.new_uid(), "app_uid": -1, "company_id": company_id, "template_id": template_id,
+		"tier": tier_id, "day_received": run.day, "kind": "rolled", "mail_id": "mail_invite_" + tier_id,
+	}
+	run.invites.append(invite)
+	_commit()
+	return invite.duplicate()
+
+
+## The first id, in sorted order, of a content file's entries that passes test(id, entry).
+func _first_entry_id(file: String, test: Callable) -> String:
+	var entries := Content.entries(file)
+	var ids: Array = entries.keys()
+	ids.sort()
+	for id: Variant in ids:
+		var entry: Variant = entries[id]
+		if entry is Dictionary and bool(test.call(str(id), entry)):
+			return str(id)
+	return ""
+
+
 ## The background's starting numbers, the name, the seed, the gap topics, first_run, then the
 ## day-1 board, all on the run RNG in this order. Keep the gap roll the first draw after seeding:
 ## preview_gap_topics() shows it on the Background select card.
@@ -233,6 +265,12 @@ func start_day() -> void:
 		end_run_plan_b()
 	else:
 		_commit()
+
+
+## What a board card shows (GDD S04): its 3 tags checked against the CV as set, and the odds of each
+## way to apply (RunState.card_odds). {} if the card's data is missing. Changes nothing.
+func card_odds(card: Dictionary) -> Dictionary:
+	return run.card_odds(Content.balance, _tiers(), _bg(), _hunt_content(), card)
 
 
 ## The hunt rules' data arguments (RunState, "job hunt" section).

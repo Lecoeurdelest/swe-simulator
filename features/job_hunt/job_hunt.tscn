@@ -3,8 +3,12 @@
 [ext_resource type="Script" uid="uid://c20yvhpytdfvq" path="res://features/job_hunt/job_hunt.gd" id="1_hunt"]
 [ext_resource type="Script" uid="uid://b2qm2ai3fh743" path="res://ui/components/safe_area_margin.gd" id="2_safe"]
 [ext_resource type="PackedScene" uid="uid://ce41s06l840t1" path="res://ui/components/pause_menu.tscn" id="3_pause"]
+[ext_resource type="PackedScene" uid="uid://ba7fpxb5lc526" path="res://ui/components/confirm_dialog.tscn" id="4_confirm"]
+[ext_resource type="Script" uid="uid://mupxpf77wo4u" path="res://ui/components/pip_bar.gd" id="5_pips"]
+[ext_resource type="PackedScene" uid="uid://wp1ei375tcln" path="res://features/job_hunt/job_card.tscn" id="6_card"]
+[ext_resource type="Script" uid="uid://by4a0w26f4x1h" path="res://features/job_hunt/dock_button.gd" id="7_dock"]
 
-[node name="JobHunt" type="Control" unique_id=1277977137]
+[node name="JobHunt" type="Control" unique_id=1100188568]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -14,7 +18,7 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_hunt")
 
-[node name="Background" type="ColorRect" parent="." unique_id=2025668716]
+[node name="Background" type="ColorRect" parent="." unique_id=392037926]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -24,7 +28,8 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.11, 0.12, 0.17, 1)
 
-[node name="SafeArea" type="MarginContainer" parent="." unique_id=234274301]
+[node name="SafeArea" type="MarginContainer" parent="." unique_id=826187990]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -34,117 +39,395 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("2_safe")
 
-[node name="Column" type="VBoxContainer" parent="SafeArea" unique_id=986930916]
+[node name="Column" type="VBoxContainer" parent="SafeArea" unique_id=2145123140]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(254, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 mouse_filter = 2
 theme_override_constants/separation = 4
 
-[node name="TopBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=873892836]
+[node name="Hud" type="VBoxContainer" parent="SafeArea/Column" unique_id=504189215]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 2
 
-[node name="HudDay" type="HBoxContainer" parent="SafeArea/Column/TopBand" unique_id=340573132]
+[node name="HudTop" type="HBoxContainer" parent="SafeArea/Column/Hud" unique_id=1314513009]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="Day" type="Label" parent="SafeArea/Column/TopBand/HudDay" unique_id=196868125]
+[node name="Day" type="Label" parent="SafeArea/Column/Hud/HudTop" unique_id=1427208241]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Day 1"
 
-[node name="Rent" type="Label" parent="SafeArea/Column/TopBand/HudDay" unique_id=1538222929]
+[node name="Rent" type="Label" parent="SafeArea/Column/Hud/HudTop" unique_id=1119323369]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Rent due in 12 days"
 horizontal_alignment = 2
 
-[node name="HudEnergy" type="HBoxContainer" parent="SafeArea/Column/TopBand" unique_id=766303085]
+[node name="HudBottom" type="HBoxContainer" parent="SafeArea/Column/Hud" unique_id=2028966729]
 layout_mode = 2
 mouse_filter = 2
+theme_override_constants/separation = 4
 
-[node name="Energy" type="Label" parent="SafeArea/Column/TopBand/HudEnergy" unique_id=751753879]
+[node name="EnergyLabel" type="Label" parent="SafeArea/Column/Hud/HudBottom" unique_id=1708475382]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Energy"
+
+[node name="Pips" type="Control" parent="SafeArea/Column/Hud/HudBottom" unique_id=1118259271]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+script = ExtResource("5_pips")
+
+[node name="EnergyCount" type="Label" parent="SafeArea/Column/Hud/HudBottom" unique_id=384936604]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Energy 8/8"
+text = "8/8"
 
-[node name="Knowledge" type="Label" parent="SafeArea/Column/TopBand/HudEnergy" unique_id=710993794]
+[node name="RadarLabel" type="Label" parent="SafeArea/Column/Hud/HudBottom" unique_id=48247218]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Knowledge 20"
-horizontal_alignment = 2
+text = "Radar"
 
-[node name="Header" type="Label" parent="SafeArea/Column/TopBand" unique_id=35299837]
+[node name="Radar" type="Label" parent="SafeArea/Column/Hud/HudBottom" unique_id=1779049816]
 unique_name_in_owner = true
 layout_mode = 2
+text = "[--------]"
+
+[node name="AppHeader" type="HBoxContainer" parent="SafeArea/Column" unique_id=514114699]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="AppName" type="Label" parent="SafeArea/Column/AppHeader" unique_id=1803636346]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
 theme_type_variation = &"HeaderLabel"
 text = "DoomApply"
+vertical_alignment = 1
 
-[node name="Body" type="VBoxContainer" parent="SafeArea/Column" unique_id=1135569294]
+[node name="InvitePill" type="PanelContainer" parent="SafeArea/Column/AppHeader" unique_id=2087801552]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_type_variation = &"GoldPill"
+
+[node name="PillText" type="Label" parent="SafeArea/Column/AppHeader/InvitePill" unique_id=587385136]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.09411765, 0.078431375, 0.14509805, 1)
+text = "Invite waiting"
+
+[node name="Body" type="MarginContainer" parent="SafeArea/Column" unique_id=1671050532]
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 4
 
-[node name="Card" type="PanelContainer" parent="SafeArea/Column/Body" unique_id=600567450]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="Status" type="Label" parent="SafeArea/Column/Body/Card" unique_id=835213302]
+[node name="JobsPanel" type="VBoxContainer" parent="SafeArea/Column/Body" unique_id=464440488]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Interviews today: 0/1"
-autowrap_mode = 3
+mouse_filter = 2
+theme_override_constants/separation = 4
+alignment = 2
 
-[node name="ThumbBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=2066465745]
+[node name="DebugRow" type="VBoxContainer" parent="SafeArea/Column/Body/JobsPanel" unique_id=945377774]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="DebugBar" type="HBoxContainer" parent="SafeArea/Column/Body/JobsPanel/DebugRow" unique_id=417724747]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 6
 
-[node name="FakeInviteButton" type="Button" parent="SafeArea/Column/ThumbBand" unique_id=282363341]
+[node name="DebugToggle" type="Button" parent="SafeArea/Column/Body/JobsPanel/DebugRow/DebugBar" unique_id=1894427840]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 36)
+custom_minimum_size = Vector2(80, 34)
 layout_mode = 2
-text = "Fake invite (Mid)"
+focus_mode = 0
+theme_type_variation = &"SelectorButton"
+toggle_mode = true
+text = "DEBUG"
 
-[node name="RentOutButton" type="Button" parent="SafeArea/Column/ThumbBand" unique_id=536767454]
+[node name="DebugStatus" type="Label" parent="SafeArea/Column/Body/JobsPanel/DebugRow/DebugBar" unique_id=815615255]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
+
+[node name="DebugPanel" type="VBoxContainer" parent="SafeArea/Column/Body/JobsPanel/DebugRow" unique_id=248001936]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="FakeRow" type="HBoxContainer" parent="SafeArea/Column/Body/JobsPanel/DebugRow/DebugPanel" unique_id=554033791]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="FakeLabel" type="Label" parent="SafeArea/Column/Body/JobsPanel/DebugRow/DebugPanel/FakeRow" unique_id=1217230980]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Fake invite"
+vertical_alignment = 1
+
+[node name="FakeMidButton" type="Button" parent="SafeArea/Column/Body/JobsPanel/DebugRow/DebugPanel/FakeRow" unique_id=1327116544]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(44, 34)
+layout_mode = 2
+focus_mode = 0
+text = "MID"
+
+[node name="FakeStartupButton" type="Button" parent="SafeArea/Column/Body/JobsPanel/DebugRow/DebugPanel/FakeRow" unique_id=2084019319]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(44, 34)
+layout_mode = 2
+focus_mode = 0
+text = "START"
+
+[node name="FakeBigButton" type="Button" parent="SafeArea/Column/Body/JobsPanel/DebugRow/DebugPanel/FakeRow" unique_id=1037054644]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(44, 34)
+layout_mode = 2
+focus_mode = 0
+text = "BIG"
+
+[node name="RentOutButton" type="Button" parent="SafeArea/Column/Body/JobsPanel/DebugRow/DebugPanel" unique_id=202465800]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+focus_mode = 0
 theme_type_variation = &"DangerButton"
 text = "Rent runs out"
 
-[node name="ActionRow" type="HBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=295802157]
+[node name="EmptyDeck" type="PanelContainer" parent="SafeArea/Column/Body/JobsPanel" unique_id=271513784]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+
+[node name="EmptyText" type="Label" parent="SafeArea/Column/Body/JobsPanel/EmptyDeck" unique_id=1665506445]
+unique_name_in_owner = true
+layout_mode = 2
+text = "6 new cards per morning."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Card" parent="SafeArea/Column/Body/JobsPanel" unique_id=976228714 instance=ExtResource("6_card")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="CvPanel" type="VBoxContainer" parent="SafeArea/Column/Body" unique_id=195502986]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+alignment = 2
+
+[node name="MailPanel" type="VBoxContainer" parent="SafeArea/Column/Body" unique_id=534837471]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+alignment = 2
+
+[node name="StudyPanel" type="VBoxContainer" parent="SafeArea/Column/Body" unique_id=580073546]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+alignment = 2
+
+[node name="StudyNote" type="PanelContainer" parent="SafeArea/Column/Body/StudyPanel" unique_id=1139953773]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="StudyText" type="Label" parent="SafeArea/Column/Body/StudyPanel/StudyNote" unique_id=186427242]
+unique_name_in_owner = true
+layout_mode = 2
+text = "BigOhNo: Knowledge +5 (2 energy)"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="ThumbBand" type="VBoxContainer" parent="SafeArea/Column" unique_id=1440290505]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="FrontActions" type="HBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=2116587604]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 6
 
-[node name="PauseButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionRow" unique_id=1051908499]
+[node name="MenuButton" type="Button" parent="SafeArea/Column/ThumbBand/FrontActions" unique_id=1537914951]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(34, 36)
 layout_mode = 2
+focus_mode = 0
 text = "="
 
-[node name="StudyButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionRow" unique_id=484434669]
+[node name="SkipButton" type="Button" parent="SafeArea/Column/ThumbBand/FrontActions" unique_id=868486091]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 36)
+custom_minimum_size = Vector2(80, 36)
+layout_mode = 2
+focus_mode = 0
+text = "SKIP"
+
+[node name="ApplyButton" type="Button" parent="SafeArea/Column/ThumbBand/FrontActions" unique_id=21409649]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(128, 36)
 layout_mode = 2
 size_flags_horizontal = 3
+focus_mode = 0
+theme_type_variation = &"PrimaryButton"
+text = "APPLY  1"
+
+[node name="BackActions" type="HBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=2065290657]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="FlipBackButton" type="Button" parent="SafeArea/Column/ThumbBand/BackActions" unique_id=345932883]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 36)
+layout_mode = 2
+focus_mode = 0
+text = "< Back"
+
+[node name="TailorButton" type="Button" parent="SafeArea/Column/ThumbBand/BackActions" unique_id=1215815933]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(168, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_type_variation = &"PrimaryButton"
+text = "TAILOR & APPLY  2"
+
+[node name="AppActions" type="HBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=1427421397]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="AppBackButton" type="Button" parent="SafeArea/Column/ThumbBand/AppActions" unique_id=642774856]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 36)
+layout_mode = 2
+focus_mode = 0
+text = "< Back"
+
+[node name="StudyButton" type="Button" parent="SafeArea/Column/ThumbBand/AppActions" unique_id=1094574281]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(168, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_type_variation = &"PrimaryButton"
+text = "STUDY  2"
+
+[node name="MorningActions" type="HBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=883843016]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="StartDayButton" type="Button" parent="SafeArea/Column/ThumbBand/MorningActions" unique_id=1348552841]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(254, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_type_variation = &"PrimaryButton"
+text = "START DAY"
+
+[node name="Dock" type="HBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=388654463]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="JobsDock" type="Button" parent="SafeArea/Column/ThumbBand/Dock" unique_id=260678966]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(47, 40)
+layout_mode = 2
+focus_mode = 0
+theme_type_variation = &"DockButton"
+toggle_mode = true
+text = "Jobs"
+script = ExtResource("7_dock")
+
+[node name="CvDock" type="Button" parent="SafeArea/Column/ThumbBand/Dock" unique_id=1622875319]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(47, 40)
+layout_mode = 2
+focus_mode = 0
+theme_type_variation = &"DockButton"
+toggle_mode = true
+text = "CV"
+script = ExtResource("7_dock")
+
+[node name="MailDock" type="Button" parent="SafeArea/Column/ThumbBand/Dock" unique_id=395254279]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(47, 40)
+layout_mode = 2
+focus_mode = 0
+theme_type_variation = &"DockButton"
+toggle_mode = true
+text = "Mail"
+script = ExtResource("7_dock")
+
+[node name="StudyDock" type="Button" parent="SafeArea/Column/ThumbBand/Dock" unique_id=1516902301]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(47, 40)
+layout_mode = 2
+focus_mode = 0
+theme_type_variation = &"DockButton"
+toggle_mode = true
 text = "Study"
+script = ExtResource("7_dock")
 
-[node name="SleepButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionRow" unique_id=779273167]
+[node name="SleepDock" type="Button" parent="SafeArea/Column/ThumbBand/Dock" unique_id=920141217]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 36)
+custom_minimum_size = Vector2(47, 40)
 layout_mode = 2
-size_flags_horizontal = 3
+focus_mode = 0
+theme_type_variation = &"DockButton"
 text = "Sleep"
+script = ExtResource("7_dock")
+glyph = 1
 
-[node name="ModalLayer" type="CanvasLayer" parent="." unique_id=1230898013]
+[node name="ModalLayer" type="CanvasLayer" parent="." unique_id=515489010]
 layer = 10
 
-[node name="PauseMenu" parent="ModalLayer" unique_id=1071086318 instance=ExtResource("3_pause")]
+[node name="SleepConfirm" parent="ModalLayer" unique_id=1777297292 instance=ExtResource("4_confirm")]
+unique_name_in_owner = true
+
+[node name="PauseMenu" parent="ModalLayer" unique_id=1528691679 instance=ExtResource("3_pause")]
 unique_name_in_owner = true
