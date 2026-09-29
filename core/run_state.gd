@@ -341,12 +341,12 @@ static func offer_rng(interview_seed: String) -> RandomNumberGenerator:
 
 ## The contract's commute line (GDD S10) as {id, args} into emails.json: no office days is the remote
 ## line; otherwise days x minutes each way and the weekly hours (GDD 5.9.5), one decimal: "12.7".
-static func offer_commute(office_days: int, commute_minutes: int) -> Dictionary:
+static func offer_commute(office_days: int, minutes_each_way: int) -> Dictionary:
 	if office_days <= 0:
 		return {"id": "offer_commute_remote", "args": {}}
-	var hours := office_days * 2.0 * commute_minutes / 60.0
+	var hours := office_days * 2.0 * minutes_each_way / 60.0
 	return {"id": "offer_commute_office",
-		"args": {"office_days": office_days, "commute_min": commute_minutes, "hours": "%.1f" % hours}}
+		"args": {"office_days": office_days, "commute_min": minutes_each_way, "hours": "%.1f" % hours}}
 
 
 ## GDD 5.9.4-5.9.5, Accept: the offer becomes the job, with its

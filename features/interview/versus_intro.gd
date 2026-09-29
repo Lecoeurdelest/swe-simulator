@@ -77,7 +77,6 @@ static func hoodie_color(hoodie: String) -> Color:
 	return HOODIE_COLORS.get(hoodie, FALLBACK_COLOR)
 
 
-
 func play(company_id: String, tier: String) -> void:
 	var run: RunState = GameState.run
 	var cfg: BalanceConfig = Content.balance

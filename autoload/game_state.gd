@@ -304,8 +304,7 @@ func _bg() -> BackgroundData:
 ## order, so a resume replays it exactly. Nothing changes when refused.
 func start_interview(invite: Dictionary) -> void:
 	var cfg := Content.balance
-	var tier_data := Content.tier(str(invite.get("tier", "")))
-	if tier_data == null or not can_take_interview(invite):
+	if not can_take_interview(invite):
 		return
 	var cost := interview_cost(invite)
 	var taken := run.take_invite(int(invite.get("uid", -1)))

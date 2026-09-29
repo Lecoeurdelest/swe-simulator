@@ -255,18 +255,13 @@ func test_decline_ends_the_run_only_at_zero_rent() -> void:
 
 ## GDD 5.11: a kill on the Hired card resumes at the offer (its save was written on entering OFFER,
 ## PHASE2_STUB is never saved). Accepting again hires with the same contract and the same Dream
-## score, and Accept rolls no dice (D9: no background check), so the run RNG never moves.
+## score (D9: no background check; hire() takes no RNG, so Accept cannot roll dice).
 func test_accept_after_a_hired_kill_hires_the_same_job() -> void:
 	for seed_value: int in range(1, 41):
 		var run := _won("intern", "big", str(seed_value * 31))
 		run.make_offer(cfg, tiers["big"], bgs["intern"], content, 70.0)
 		run.interview = {}
 		run.phase = GameFlow.Phase.OFFER
-		var rng := RandomNumberGenerator.new()
-		rng.seed = seed_value
-		rng.randi()
-		run.rng_seed = str(seed_value)
-		run.rng_state = str(rng.state)  # what GameState.save() writes on entering OFFER
 		var saved := JSON.stringify(run.to_dict())
 		var flags: Array = content["companies"][COMPANY["big"]]["red_flags"]
 		run.hire(cfg, bgs["intern"], flags)
@@ -276,4 +271,3 @@ func test_accept_after_a_hired_kill_hires_the_same_job() -> void:
 		back.hire(cfg, bgs["intern"], flags)
 		assert_eq(back.employment, run.employment, "seed %d: the same job" % seed_value)
 		assert_eq(back.dream_score, run.dream_score, "seed %d: the same Dream score" % seed_value)
-		assert_eq(back.rng_state, str(rng.state), "seed %d: Accept rolls no dice" % seed_value)

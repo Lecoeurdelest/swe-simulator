@@ -58,7 +58,7 @@ func show_mail(report: Dictionary, morning: bool, coach: bool) -> void:
 		_coach.visible = not _invite_cards[0].is_folded()  # it points at GO NOW: gone while Later folds it
 	for notice: Variant in report.get("expired", []):
 		var mail_id := str((notice as Dictionary).get("mail_id", "mail_invite_expired"))
-		_add(_mail_card(Content.field("emails", mail_id, "subject"), _from(notice, true),
+		_add(_mail_card(Content.field("emails", mail_id, "subject"), _from(notice),
 			Content.field("emails", mail_id, "body")))
 	_add_rejections(report)
 	_add_tip(HuntTips.inbox(run, report))
@@ -179,7 +179,7 @@ func _add_rejections(report: Dictionary) -> void:
 func _rejection_entry(rejection: Variant) -> Control:
 	var r: Dictionary = rejection if rejection is Dictionary else {}
 	var entry := _vbox(0)
-	entry.add_child(_label(_from(r, true), DIM_COLOR))
+	entry.add_child(_label(_from(r), DIM_COLOR))
 	var knockout: Dictionary = r.get("knockout", {})
 	var text := ""
 	if not knockout.is_empty():
@@ -192,13 +192,12 @@ func _rejection_entry(rejection: Variant) -> Control:
 	return entry
 
 
-## An email card without buttons: subject (optional), who it's from, the body.
+## An email card without buttons: subject, who it's from, the body.
 func _mail_card(subject: String, from: String, body: String) -> Control:
 	var panel := _panel()
 	var rows := _vbox(2)
 	panel.add_child(rows)
-	if not subject.is_empty():
-		rows.add_child(_label(subject, Color.WHITE))
+	rows.add_child(_label(subject, Color.WHITE))
 	rows.add_child(_label(from, DIM_COLOR))
 	rows.add_child(_label(body, Color.WHITE))
 	return panel
@@ -210,11 +209,9 @@ func _line_panel(text: String, color: Color) -> Control:
 	return panel
 
 
-## "Company - Job title" for a mail entry (with_title), or the company alone.
-func _from(entry: Dictionary, with_title: bool) -> String:
+## "Company - Job title" for a mail entry.
+func _from(entry: Dictionary) -> String:
 	var company := Content.field("companies", str(entry.get("company_id", "")), "name")
-	if not with_title:
-		return company
 	return "%s - %s" % [company, Content.field("postings", str(entry.get("template_id", "")), "title")]
 
 
