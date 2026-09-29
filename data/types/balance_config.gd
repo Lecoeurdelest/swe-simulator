@@ -89,7 +89,6 @@ extends Resource
 @export var committee_cap: float = 0.85
 @export var input_lock_ms: int = 250
 @export var vs_duration_s: float = 2.0
-@export var vs_min_view_s: float = 1.0
 @export var typewriter_cps: float = 40.0
 
 @export_group("Offer and endings (11.6)")

@@ -141,7 +141,7 @@ func _notification(what: int) -> void:
 
 
 ## ARCHITECTURE 9: Pause open = Resume; the Ready overlay = Pause; Ducky's card = Back to the hunt;
-## the VS intro = skip it when allowed; anything else = Pause. Once an ending beat starts (K.O., the
+## the VS intro = a tap on it (VersusIntro.tap); anything else = Pause. Once an ending beat starts (K.O., the
 ## wheel, a rejection) Pause is out of reach: [II] hides, the Ready overlay's Back only resumes and
 ## other Backs do nothing, so Quit to title can't replay an interview whose ending you have seen.
 func handle_back() -> bool:
@@ -158,7 +158,7 @@ func handle_back() -> bool:
 		return true
 	if _ending:
 		return true  # the beat plays out: taps advance it
-	if _versus.try_skip():
+	if _versus.tap():
 		return true
 	_open_pause()
 	return true

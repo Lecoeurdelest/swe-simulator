@@ -3,12 +3,15 @@ extends Control
 ## The VS screen (GDD S07, ARCHITECTURE 11.5). The interview instances it and calls play(company_id, tier),
 ## then waits for `finished`. The AnimationPlayer's "intro" clip holds the timing table, so you can retime
 ## it in the editor; its method track calls slam() at 0.35 s. BalanceConfig.vs_duration_s stretches the
-## whole clip to that length. Tap anywhere (or Back) skips: after vs_min_view_s on the first interview of
-## a run, at once after that. Your side comes from GameState.run.
+## whole clip to that length. The clip's last frame holds, with a blinking "Tap to continue", until a
+## tap: tap() (a tap anywhere, or Back) does nothing before the slam, jumps to the end during the rest
+## of the clip, and finishes on the end. Dana's plate shows one joke stat and one special move
+## (InterviewPlan.vs_plate). Your side comes from GameState.run.
 
 signal finished
 
 const CLIP := &"intro"
+const BLINK_S := 0.5           # the hint's on/off step, as the title's "Tap to start" (GDD 9.1: <= 3 flashes/s)
 const HIT_STOP_S := 0.1        # GDD 9.1: the slam's 100 ms hit-stop
 const SHAKE_PX := 4.0          # GDD 9.1: a 4 px whole-pixel shake
 const SHAKE_STEP_S := 0.02
@@ -31,8 +34,8 @@ const FALLBACK_COLOR := Color(0.37, 0.34, 0.31)
 
 var _playing := false
 var _slammed := false
-var _elapsed := 0.0
-var _min_view_s := 0.0
+var _held := false             # the clip's last frame is showing: the next tap finishes
+var _blink: Tween
 var _company_id := ""          # the art pass puts this company's background behind Dana
 var _top_color := FALLBACK_COLOR
 var _bottom_color := FALLBACK_COLOR
@@ -49,11 +52,12 @@ var _bottom_color := FALLBACK_COLOR
 @onready var _player_stats: Label = %PlayerStats
 @onready var _vs_label: Label = %VSLabel
 @onready var _banner: Label = %Banner
+@onready var _tap_hint: Control = %TapHintPanel   # on its own panel, so it reads on any hoodie color
 
 
 func _ready() -> void:
 	hide()
-	set_process(false)
+	(%TapHint as Label).text = Content.text("barks", "ui_tap_to_continue")
 	_split.draw.connect(_draw_split)
 	_split.resized.connect(_split.queue_redraw)
 	_anim.animation_finished.connect(_on_animation_finished)
@@ -67,6 +71,7 @@ static func hoodie_color(hoodie: String) -> Color:
 	return HOODIE_COLORS.get(hoodie, FALLBACK_COLOR)
 
 
+
 func play(company_id: String, tier: String) -> void:
 	var run: RunState = GameState.run
 	var cfg: BalanceConfig = Content.balance
@@ -76,9 +81,9 @@ func play(company_id: String, tier: String) -> void:
 	_bottom_color = hoodie_color(str(bg_entry.get("hoodie", "")))
 	_set_name(_dana_name, Content.text("naming", "interviewer").to_upper())
 	_dana_title.text = Content.text("barks", "dana_title_" + tier)
-	_dana_stats.text = "\n".join(PackedStringArray([Content.text("barks", "vs_dana_stat_1"),
-		Content.text("barks", "vs_dana_stat_2"), Content.text("barks", "vs_dana_stat_3")]))
-	_dana_moves.text = Content.text("barks", "vs_dana_moves")
+	var plate := InterviewPlan.vs_plate(run)
+	_dana_stats.text = Content.text("barks", str(plate["stat"]))
+	_dana_moves.text = Content.text("barks", str(plate["move"]))
 	_set_name(_player_name, run.player_name.to_upper())
 	_player_nickname.text = Content.field("backgrounds", run.background_id, "vs_nickname")
 	_player_stats.text = "\n".join(PackedStringArray([_stat_bar(Content.text("barks", "ui_stat_knw"), run.stat("knw")),
@@ -86,14 +91,13 @@ func play(company_id: String, tier: String) -> void:
 		_stat_bar(Content.text("barks", "ui_stat_net"), run.stat("net"))]))
 	_vs_label.text = Content.text("barks", "vs_versus")
 	_banner.text = Content.text("barks", "vs_banner_" + tier)
-	_min_view_s = cfg.vs_min_view_s if run.interviews_taken == 0 else 0.0
-	_elapsed = 0.0
 	_slammed = false
+	_held = false
 	_playing = true
 	_shaker.position = Vector2.ZERO
+	_stop_blink()
 	_split.queue_redraw()
 	show()
-	set_process(true)
 	var clip_length := _anim.get_animation(CLIP).length
 	_anim.speed_scale = clip_length / cfg.vs_duration_s if cfg.vs_duration_s > 0.0 else 1.0
 	_anim.play(CLIP)
@@ -104,11 +108,15 @@ func is_playing() -> bool:
 	return _playing
 
 
-## A tap or Back: skips once the minimum view time has passed. Returns true if it skipped.
-func try_skip() -> bool:
-	if not _playing or _elapsed < _min_view_s:
+## A tap or Back while the screen shows; false when it doesn't. Ignored before the slam, so the tap on
+## GO NOW can't also skip it; during the rest of the clip it jumps to the end; on the end it finishes.
+func tap() -> bool:
+	if not _playing:
 		return false
-	_finish()
+	if _held:
+		_finish()
+	elif _slammed:
+		_hold()
 	return true
 
 
@@ -122,12 +130,8 @@ func slam() -> void:
 	_shake()
 	_anim.pause()
 	await get_tree().create_timer(HIT_STOP_S, false).timeout
-	if _playing and not _anim.is_playing():
+	if _playing and not _held and not _anim.is_playing():
 		_anim.play()
-
-
-func _process(delta: float) -> void:
-	_elapsed += delta
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -135,23 +139,45 @@ func _gui_input(event: InputEvent) -> void:
 	if mb == null or not mb.pressed or mb.button_index != MOUSE_BUTTON_LEFT:
 		return
 	accept_event()
-	try_skip()
+	tap()
+
+
+## The clip's last frame stays up, every key applied (so a tap mid-clip shows all the text at once), and
+## "Tap to continue" blinks under the banner.
+func _hold() -> void:
+	if _held:
+		return
+	_held = true
+	_anim.seek(_anim.get_animation(CLIP).length, true)
+	_anim.stop(true)
+	_tap_hint.modulate.a = 1.0
+	_blink = create_tween().set_loops()
+	_blink.tween_interval(BLINK_S)
+	_blink.tween_callback(func() -> void: _tap_hint.modulate.a = 1.0 - _tap_hint.modulate.a)
 
 
 func _finish() -> void:
 	if not _playing:
 		return
 	_playing = false
-	set_process(false)
+	_held = false
+	_stop_blink()
 	_anim.stop()
 	_shaker.position = Vector2.ZERO
 	hide()
 	finished.emit()
 
 
+func _stop_blink() -> void:
+	if _blink != null:
+		_blink.kill()
+		_blink = null
+	_tap_hint.modulate.a = 0.0
+
+
 func _on_animation_finished(anim_name: StringName) -> void:
 	if anim_name == CLIP:
-		_finish()
+		_hold()
 
 
 ## Whole-pixel steps only (ARCHITECTURE 1.3): no tweened in-between positions.

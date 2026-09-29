@@ -4,12 +4,26 @@ extends RefCounted
 ## Which questions one interview asks (GDD 5.8.2). GameState.start_interview picks them once and
 ## freezes them in the checkpoint, so a resume replays the same interview. Pure: the pools are
 ## parsed JSON (id -> entry), from Content.entries() in the game and from FileAccess in the tests.
-## Tested by test_interview_plan (picking, the prompts and the dice a checkpoint replays).
+## Tested by test_interview_plan (picking, the prompts and the dice a checkpoint replays, the VS plate).
+
+## GDD S07: Dana's VS plate shows one joke stat and one special move (barks.json ids), in turn.
+const VS_DANA_STATS: PackedStringArray = ["vs_dana_stat_1", "vs_dana_stat_2", "vs_dana_stat_3"]
+const VS_DANA_MOVES: PackedStringArray = ["vs_dana_move_1", "vs_dana_move_2", "vs_dana_move_3"]
 
 
 ## GDD 5.8.2: the warm-up belongs to the first interview of the first run only.
 static func warmup_due(run: RunState) -> bool:
 	return run.first_run and run.interviews_taken == 0
+
+
+## Dana's VS plate for this interview: {stat, move}, barks.json ids. Each list takes turns by how often
+## you met her before (run.times_met_dana counts once an interview ends), without dice (INV-04), so a
+## resumed interview shows the same lines.
+static func vs_plate(run: RunState) -> Dictionary:
+	return {
+		"stat": VS_DANA_STATS[posmod(run.times_met_dana, VS_DANA_STATS.size())],
+		"move": VS_DANA_MOVES[posmod(run.times_met_dana, VS_DANA_MOVES.size())],
+	}
 
 
 ## Returns {question_ids, warmup_id}. question_ids holds one id per cfg.prompt_pattern slot, in prompt

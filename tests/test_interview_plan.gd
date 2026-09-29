@@ -5,6 +5,7 @@ extends McpTestSuite
 
 const CHOICE_PATH := "res://data/content/questions_choice.json"
 const KNOWLEDGE_PATH := "res://data/content/questions_knowledge.json"
+const BARKS_PATH := "res://data/content/barks.json"
 const TIERS: PackedStringArray = ["startup", "mid", "big"]
 const SEEDS := 40
 
@@ -285,6 +286,21 @@ func test_resume_replays_the_saved_interview() -> void:
 		InterviewPlan.prompts(before["question_ids"], choice), "same prompts, same order")
 	assert_eq(after["warmup_id"], before["warmup_id"], "same warm-up")
 	assert_eq(_replay_dice(after, 0), _replay_dice(before, 0), "same shuffles, luck, zones and wheel")
+
+
+## GDD S07: the VS plate shows one joke stat and one special move, each in turn by how often you met
+## Dana, the same again on a resume (times_met_dana only counts finished interviews); every id exists.
+func test_vs_plate_takes_turns() -> void:
+	var barks := _load(BARKS_PATH)
+	var run := RunState.new()
+	for i: int in 7:
+		run.times_met_dana = i
+		var plate := InterviewPlan.vs_plate(run)
+		assert_eq(plate, InterviewPlan.vs_plate(run), "meeting %d: no dice" % (i + 1))
+		assert_eq(plate["stat"], InterviewPlan.VS_DANA_STATS[i % 3], "meeting %d" % (i + 1))
+		assert_eq(plate["move"], InterviewPlan.VS_DANA_MOVES[i % 3], "meeting %d" % (i + 1))
+	for id: String in InterviewPlan.VS_DANA_STATS + InterviewPlan.VS_DANA_MOVES:
+		assert_true(barks.has(id), "barks/%s exists" % id)
 
 
 func test_early_or_late_tap_replays_the_same_luck() -> void:

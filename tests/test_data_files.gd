@@ -40,7 +40,7 @@ var balance_expected: Dictionary = {
 	"ethics_good": -10.0, "ethics_neutral": -4.0, "ethics_bad_doubt": 8.0, "ethics_bad_comp": 15.0,
 	"insider_why_us": -18.0, "committee_band": 0.15, "committee_base": 0.40,
 	"committee_close_bonus": 0.20, "committee_net_div": 200.0, "committee_cap": 0.85,
-	"input_lock_ms": 250, "vs_duration_s": 2.0, "vs_min_view_s": 1.0, "typewriter_cps": 40.0,
+	"input_lock_ms": 250, "vs_duration_s": 2.0, "typewriter_cps": 40.0,
 	# 11.6 Offer and endings
 	"band_base": 0.25, "band_perf_weight": 0.50, "salary_round": 1000,
 	"nego_base": 0.55, "nego_net_div": 200.0, "nego_leverage": 0.15, "nego_cap": 0.85,

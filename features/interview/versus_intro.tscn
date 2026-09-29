@@ -192,9 +192,7 @@ autowrap_mode = 3
 [node name="DanaStats" type="Label" parent="Shaker/SafeArea/Column/DanaRow/DanaPlate/Rows" unique_id=593768256]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Candidates today: 11
-Coffee: 4th cup
-Patience: [###--]"
+text = "Candidates today: 11"
 
 [node name="DanaSlot" type="Control" parent="Shaker/SafeArea/Column/DanaRow" unique_id=1044482654]
 custom_minimum_size = Vector2(64, 96)
@@ -215,7 +213,7 @@ mouse_filter = 2
 [node name="DanaMoves" type="Label" parent="Shaker/SafeArea/Column/DanaMovesPanel" unique_id=1726125264]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Special moves: The Five-Year Plan, The Salary Expectation Trap, The Awkward Silence"
+text = "Special move: The Five-Year Plan"
 autowrap_mode = 3
 
 [node name="Middle" type="CenterContainer" parent="Shaker/SafeArea/Column" unique_id=1101914372]
@@ -290,6 +288,19 @@ theme_override_font_sizes/font_size = 16
 text = "ROUND 1: CULTURE FIT"
 horizontal_alignment = 1
 autowrap_mode = 3
+
+[node name="TapHintPanel" type="PanelContainer" parent="Shaker/SafeArea/Column"]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+
+[node name="TapHint" type="Label" parent="Shaker/SafeArea/Column/TapHintPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Tap to continue"
+horizontal_alignment = 1
 
 [node name="Flash" type="ColorRect" parent="." unique_id=2081490275]
 visible = false
