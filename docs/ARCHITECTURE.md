@@ -634,7 +634,7 @@ The offer (GDD 5.9, S10) is `{company_id, template_id, tier, job_title, salary, 
   - The committee wheel is rolled before it spins.
   - So a resume replays the same luck, zone centres, pivots and wheel however early or late you tap, and the run RNG doesn't move during the interview.
 - **The offer gets its own dice** (Step 6). `RunState.offer_rng(interview.seed)` seeds a fresh generator from the checkpoint's seed plus a salt (`"|offer"`, hashed), so it never replays the interview's own rolls. `make_offer()` picks the 2 perks, then the fine print (from `fine_print_pool`), on it. A replayed interview builds the same contract, and neither the run RNG nor the global RNG moves.
-- **Accept rolls no dice.** The background check that rolled on the run RNG at Accept was removed on 2026-09-29 (DECISIONS D9). Accept writes no save (section 8), so after a kill on the Hired card, accepting again hires the same job (`test_accept_after_a_hired_kill_hires_the_same_job`).
+- **Accept rolls no dice.** The background check that rolled on the run RNG at Accept was removed on 2026-09-29 (DECISIONS D9), so `GameState.answer_offer(true)` and `RunState.hire()` use no RNG at all. Accept writes no save (section 8), so after a kill on the Hired card, accepting again hires the same job (`test_accept_after_a_hired_kill_hires_the_same_job`).
 - **The VS plate takes turns without dice** (Step 7 review): `InterviewPlan.vs_plate(run)` picks Dana's one joke stat and one special move by `posmod(run.times_met_dana, 3)`, so a resumed interview shows the same lines (INV-04).
 - **Never use the global RNG in gameplay:** that means `randf()`, `randi()`, `randi_range()`, `Array.shuffle()` and `Array.pick_random()`. Use `Odds.roll`, `Odds.pick` and `Odds.shuffled` with the run or interview RNG.
   - Cosmetic randomness may use the global RNG: shake offsets, confetti, which idle frame plays.
@@ -661,7 +661,7 @@ The offer (GDD 5.9, S10) is `{company_id, template_id, tier, job_title, salary, 
 | Versioning | `RunState.VERSION = 1`. When the format changes, bump it and migrate the dictionary at the top of `from_dict` |
 | JSON gotchas | numbers come back as floats (`from_dict` turns whole ones back into ints, recursively); no Vector2 or Color; 64-bit values travel as strings |
 | Security | **Never load `.tres` or `.res` from `user://`**: a resource file can carry a script that runs on load. `JSON.to_native` defaults to `allow_objects=false` (verified 4.7.2), and we use `JSON.parse_string` anyway |
-| Settings | `user://settings.cfg` (ConfigFile), separate from the run, written only by the game. `[meta]` holds `intro_seen` (set by `finish_intro()`), `run_count` (a run counts once, when `change_phase()` deletes its save: Plan B or leaving the Hired card; `first_run` is `run_count == 0`), `last_background` (Background select preselects it), and later `tips_unlocked` (SHOULD) and `best_dream_<bg>` (LATER, DECISIONS D10); neither is written yet. `[options]` holds `haptics`, `relaxed_timing`, `reduced_motion`, `text_speed` (40 / 80 / 0 = instant) and `music_db` / `sfx_db` (SHOULD) |
+| Settings | `user://settings.cfg` (ConfigFile), separate from the run, written only by the game. `[meta]` holds `intro_seen` (set by `finish_intro()`), `run_count` (a run counts once, when `change_phase()` deletes its save: Plan B or leaving the Hired card; `first_run` is `run_count == 0`, read through `GameState.next_run_is_first()`; the debug-only title button "Reset first run" sets it back to 0), `last_background` (Background select preselects it), and later `tips_unlocked` (SHOULD) and `best_dream_<bg>` (LATER, DECISIONS D10); neither is written yet. `[options]` holds `haptics`, `relaxed_timing`, `reduced_motion`, `text_speed` (40 / 80 / 0 = instant) and `music_db` / `sfx_db` (SHOULD) |
 | Tests | never write to `user://` in tests. In the editor that is the real save folder. `test_save` round-trips through JSON strings instead |
 
 ---
@@ -782,7 +782,7 @@ ScreenRoot (Control, full rect; script has handle_back())
   - Its minimum size is 39x13, one monogram 16 line: the blocks sit on rows 4-10, the capitals of the label beside it, so a row of text keeps its 13 px height.
   - Filled amber `#FEAE34` (the PrimaryButton amber), empty `#181425`. `mouse_filter` IGNORE.
   - Used on the S03 background card (3 bars), the Study app's KNOWLEDGE row, and the VS intro's player plate (3 bars). The hub HUD has no stat bar.
-- **`DuckyNote`** (`ui/components/ducky_note.tscn`): the 254 px Ducky tip note. Every node in it is IGNORE, so it never blocks input, except inside a first-run coach mark: there `closable = true` shows a small "x" (`DuckyNote.CLOSE_MARK`, a placeholder until the art pass) at the header's right end, and the coach mark makes the note take a tap (section 11.4).
+- **`DuckyNote`** (`ui/components/ducky_note.tscn`): the 254 px Ducky tip note. Every node in it is IGNORE, so it never blocks input, unless `closable = true`: then it shows a small "x" (`DuckyNote.CLOSE_MARK`, a placeholder until the art pass) at the header's right end and takes its own tap. A tap counts on release, like a Button (press and release both on the note, no drag past the 6 px scroll deadzone) and emits `close_tapped`; the owner hides the note. The note is PASS: inside a ScrollContainer it lets the events go on, so a drag that starts on it still scrolls; elsewhere it accepts them, so the control under it never sees the tap. Closable notes: the first-run coach marks (section 11.4) and the offer's tip (section 11.7).
 
 ---
 
@@ -795,7 +795,7 @@ ScreenRoot (Control, full rect; script has handle_back())
   - When `SaveIO.exists()`, show two stacked buttons instead: `[ New game ]` above a full-width primary `[ CONTINUE ]`.
   - A small "Replay intro" text button bottom-left calls `replay_intro()`.
 - `handle_back()` shows "Quit?" on Android and desktop only; never on iOS.
-- As built in Step 3 (section 17.12; DECISIONS A4): with a save, tap-anywhere is off and only the two buttons start play; "Replay intro" always shows. The Step 1 stub's size readout survives as a debug-only `%SizeReadout` in the sky band, and debug builds also show the "Device check" button (DECISIONS A1). The art is still grey boxes.
+- As built in Step 3 (section 17.12; DECISIONS A4): with a save, tap-anywhere is off and only the two buttons start play; "Replay intro" always shows. The Step 1 stub's size readout survives as a debug-only `%SizeReadout` in the sky band, and debug builds also show a `%DebugRow` above the bottom row with the "Device check" button (DECISIONS A1) and "Reset first run" (A51: `GameState.reset_first_run()` sets `run_count` to 0, so the next New game gets the first-run coach marks, the day-2 guarantee and the warm-up again; the button is off when the next run already is a first run). The whole row is hidden in release builds. The art is still grey boxes.
 
 ### 11.2 Intro cutscene (S02)
 
@@ -860,8 +860,8 @@ As built in Step 5 (grey boxes; the files are listed in section 2):
 - **Mail (`mail_screen.gd`):** one vertical `ScrollContainer` list, in this order: the grace-day line, the first-run coach mark, the waiting invites (`invite_card.tscn`: `[ Later ]` folds the card to its header; `[ GO NOW  3 ]` shows `interview_cost()` and is greyed out when `can_take_interview()` is false or on a Plan B morning), the expiry notices, the rejections as one stack card with [Flip all] (and `HuntTips.inbox`'s tip under it), the quiet no-reply footer and the Radar update. It shows `morning_report` before Start day and `day_mail` later that day; the invites are always the live `run.invites`. `[ START DAY ]` is the pinned action row below the scroll, full width, always visible during the morning.
 - **Coach marks** (GDD 4.3, first run, day 1; `coach_mark.tscn`, `CoachMark`; agent defaults A30-A35): apply, flip, then Sleep (at `HuntTips.COACH_SLEEP_PIPS` = 2 energy or less, or after `COACH_SLEEP_APPS` = 4 applications), over the card's header strip; the first invite points at its GO NOW. The rule is `HuntTips.coach(run, has_card, card_back, flipped)` (returns `coach_apply` / `coach_flip` / `coach_sleep` / `""`) and `HuntTips.coach_invite(run)`. Since the Step 7 review (DECISIONS D11):
   - **A tap on the Ducky note closes the mark** at once, and doing the action still closes it too. This covers `coach_apply`, `coach_flip`, `coach_sleep` and Mail's invite mark (id `HuntTips.COACH_INVITE` = `"coach_invite"`, text `coach_invite_no_research`). The interview's `coach_meter` note is unchanged: it isn't tappable, because the Answer Meter takes taps anywhere.
-  - The note shows a small "x" (`closable`, section 10.5). A tap counts on release, like a Button: press and release both on the note, with no drag past the 6 px scroll deadzone. Over the deck the note accepts the events, so the card under it never flips or swipes; inside Mail's ScrollContainer it passes them on, so a drag that starts on the note still scrolls. The arrow strip stays IGNORE.
-  - `CoachMark` API: `point(coach_id, text, target, swipe = false)` (the id is the first argument), `clear()`, `coach_id()`, `signal closed(coach_id)`. `MailScreen` re-emits its mark's close as `signal coach_closed(coach_id)`. The hub connects both to `GameState.close_coach_mark`, which adds the id to `run.coach_closed` and saves at once (Quit to title writes no save).
+  - The note shows a small "x" (`closable`, section 10.5). A tap counts on release, like a Button: press and release both on the note, with no drag past the 6 px scroll deadzone. Over the deck the note accepts the events, so the card under it never flips or swipes; inside Mail's ScrollContainer it passes them on, so a drag that starts on the note still scrolls. The arrow strip stays IGNORE. Since the review fix pass the tap rule lives in `DuckyNote` (`close_tapped`), and `CoachMark` only listens to it.
+  - `CoachMark` API: `point(id, tip, target, swipe = false)` (the mark id is the first argument), `clear()`, `text()`, `signal closed(coach_id)`. `MailScreen` re-emits its mark's close as `signal coach_closed(coach_id)`. The hub connects both to `GameState.close_coach_mark`, which adds the id to `run.coach_closed` and saves at once (Quit to title writes no save).
   - A closed mark never shows again this run, and the next mark still waits for its own rule: closing Apply with no application shows nothing, and Flip waits for the first application.
   - Fix: the hub also refits the mark on `CoachMark.resized`. On its first show it used to be placed before its text had wrapped, so it sat mid-card over the title, tags and joke instead of over the header strip.
 - **Rules** all sit on `RunState`, `Odds` and `HuntTips`. The scene only shows `run` and calls verbs:
@@ -893,6 +893,7 @@ As built in Step 5 (grey boxes; the files are listed in section 2):
 - **The hint** is `%TapHintPanel`, a PanelContainer of its own under the banner, so it reads on any hoodie colour. It is IGNORE and transparent until the hold, then blinks 0.5 s on / 0.5 s off (`BLINK_S`, 1 flash/s like the title's "Tap to start"; GDD 9.1 allows up to 3).
 - **Less text** (D12; agent defaults A36-A39 and A46): Dana's plate shows her name, her title (`dana_title_<tier>`, 2 lines) and **one** joke stat, and the moves panel **one** special move. `InterviewPlan.vs_plate(run)` returns `{stat, move}` from `VS_DANA_STATS` (`vs_dana_stat_1..3`) and `VS_DANA_MOVES` (`vs_dana_move_1..3`, which replaced the one-line list `vs_dana_moves`), both at index `posmod(run.times_met_dana, 3)`, with no dice (section 7.2). Your plate is unchanged: name, nickname and 3 stats, now as `StatBar`s (section 10.5) in a 2-column GridContainer `PlayerStats` (h_separation 6, v_separation -1, so it keeps the old text rows' 170x37 size and the bars start where the "[###--]" text did).
 - A resumed interview (Continue) plays the VS screen again and waits for the tap.
+- **The clip starts after the scene fade** (review fix pass, 2026-09-29): `play()` runs while `SceneRouter` still fades the interview in, so it applies the 0.00 s keys, pauses on that frame with `Flash` hidden, awaits `SceneRouter.transition_finished`, then seeks to 0.00 again and plays. The fade reveals the first frame, and the flash and the bust slide-in are seen, as the offer paper waits for the fade (section 11.7).
 - As built in Step 4 and the Step 7 review: the AnimationPlayer's `intro` clip holds this table and its method track calls `slam()`; `vs_duration_s` (2.0) stretches the whole clip to that length. The halves are grey-box colors by tier and hoodie (`VersusIntro.tier_color()`, `hoodie_color()`), and the sound effect arrives with the audio pass. `try_skip()`, `_process` and `_min_view_s` are gone.
 
 ### 11.6 Interview (S08-S09)
@@ -973,21 +974,21 @@ Offer (Control, full rect)   offer.gd
 │    (hoodie colour), Desk, Dimmer (0.6), DanaBust (above the dimmer: Dana stays visible)
 ├─ SafeArea > Column (254, separation 4)
 │    StageSpacer (EXPAND_FILL) · Paper (PaperPanel 254) > Contract (RichTextLabel 240, fit_content,
-│    line spacing -1, autowrap off) · TipNote (DuckyNote) · DanaLine (hidden: Dana's Decline answer) ·
+│    line spacing -1, autowrap off) · TipNote (DuckyNote, closable) · DanaLine (hidden: Dana's Decline answer) ·
 │    ThumbBand: BackRow [ < Back ] 80x36 · ActionBar [ Decline ] 80x36 + [ ACCEPT ] 168x36
 └─ ModalLayer: PauseMenu, DeclineDialog (confirm_dialog)
 ```
 
 - **`offer.tscn`** (S10) only shows `run.offer` (section 7.1), one tip, and calls `answer_offer()`.
   - **The contract** is pre-wrapped at 40 columns by `UiText.word_wrap` and `UiText.field`, so the label never wraps by itself. Top to bottom (CONTENT.md 13.1): `offer_title` (the company), `offer_dear`, `offer_role` (the posting's title), a blank line, then one field per line after a 12-column label, values wrapping at 28 columns: Salary (yearly, `offer_salary`: `$71,000/year`), Equity (startups only: `offer_equity`, agent default), Work mode, Commute (2 lines), Perks (2, the second under the first, no trailing period), Fine print (up to 4 lines; never a repeat of a perk, `fine_print_pool`, section 7.1), then `offer_deadline`. The worst case is 19 lines, a 243 px paper (`test_contract_fits_the_paper` checks every tier).
-  - **The paper slides up** (0.3 s ease-out) after the scene fade. ACCEPT and Decline stay off until it lands, which is also the input lock. The stage's desk line follows the paper's resting top, so Dana sits right above the contract: at 270x480 only her lower part shows, at 294x639 all of her.
-  - **One tip** under the paper, `HuntTips.offer(run)`: `tip_equity_lottery` for a startup offer, else `tip_total_comp` (section 7.1).
+  - **The paper slides up** (0.3 s ease-out) after the scene fade. ACCEPT and Decline stay off until it lands, which is also the input lock. The stage's desk line follows the paper's top edge, so Dana sits right above the contract: at 270x480 only her lower part shows, at 294x639 all of her. While the paper rises from below, the desk line already waits at the paper's place.
+  - **One tip** under the paper, `HuntTips.offer(run)`: `tip_equity_lottery` for a startup offer, else `tip_total_comp` (section 7.1). It waits invisible (`modulate`, not `hide()`, so the column keeps its room and the paper's place doesn't move) and fades in (0.15 s) once the paper has landed; before the review fix pass the paper rose under the note and the buttons, which hid most of the contract for 0.3 s (REVIEW_QUEUE Q6). At rest nothing overlaps: at 270x480 the startup contract's paper spans y 90-321, the tip 325-394 and the thumb band 398-476. The tip is closable (agent default A47): a tap hides it for this offer only (nothing is saved), and the paper and the desk line ease (0.2 s) into the room it leaves. The same ease covers Dana's Decline line replacing the tip; each step aims at the column's latest place, because a wrapped label can take two layout passes to find its height.
   - **Buttons:** the `[ < Back ]` row (it opens Pause; section 9), then `[ Decline ][ ACCEPT ]` (80 + 168). Negotiate and drag-to-sign (both SHOULD) are not built. GDD S10 puts Negotiate full width above the action bar, where the Back row now sits, so building it means re-planning that row.
   - **Decline** opens the confirm dialog: `ui_decline_confirm`, or `ui_decline_confirm_grace` when `run.decline_ends_run()` (rent at 0: the grace day, where Decline is Plan B). Confirmed, Dana's `bark_dana_decline` replaces the tip; a tap, Back or 2.5 s moves on, and only then is `answer_offer(false)` called, so a kill during her line leaves the offer open.
   - **ACCEPT** calls `answer_offer(true)`: `run.hire()` and the Hired card. Accept writes no save (section 8). The background check and its rescind (back to the hunt, the same day) were removed on 2026-09-29 (DECISIONS D9).
 - **`phase2_stub.tscn`** (S11, the Hired card), in two beats, because everything at once needs about 500 px:
   - **Beat 1:** `EndingArt` (254x140: a sky in the tier colour, your bust in your hoodie colour) and the HIRED! stamp on its own panel, slammed in after the fade (2x for 0.05 s, then 1x; a 4 px whole-pixel shake of the picture; 40 ms haptic). Below it company, role and yearly salary (3 lines), then the tier's `end_hired_<tier>` (plus Stealth Mode's `hired_extra`). "Tap to continue" shows once the stamp is down plus the input lock; a tap (on release) or Back moves on. Beat 1 has no buttons.
-  - **Beat 2:** a second column appears: the Dream vs Reality sheet slides up (0.3 s) over the illustration while the action bar stays put (GDD 9.1). The panel holds `end_dream_header` ("YOUR JOB vs REMY'S VIDEO"), the 5 rows (`end_dream_row_*`, label left, points right with one decimal; each label names Remy's value, e.g. "Salary (Remy: $150k)"), the grade word (`Odds.dream_grade`, `end_dream_grade_N`; grade 1 is "All reality, no dream") with the score in Press Start 2P 16, and `end_dream_footer` ("100 is the life in Remy's video. Nobody gets 100. Not even Remy.", 2 lines); the Step 7 review rewrote these labels so the score explains itself (DECISIONS C4); below it `tip_written_offer` and TO BE CONTINUED (`end_tbc`) on its own panel. The rows come from `GameState.dream_breakdown()` and appear one per 0.35 s with the running (rounded) score, then everything else; the final score is `run.dream_score`. A tap finishes the tally at once.
+  - **Beat 2:** a second column appears: the Dream vs Reality sheet slides up (0.3 s) over the illustration while the action bar stays put (GDD 9.1). The panel holds `end_dream_header` ("YOUR JOB vs REMY'S VIDEO"), the 5 rows (`end_dream_row_*`, label left; the salary, remote, commute and flags labels name Remy's value, e.g. "Salary (Remy: $150k)", the rent label has none; points right out of the row's maximum, `"%.1f/%d"` with the `dream_w_*` weights, e.g. "18.9/40", agent default A48), the grade word (`Odds.dream_grade`, `end_dream_grade_N`; grade 1 is "All reality, no dream") with the score in Press Start 2P 16, and `end_dream_footer` ("100 is the life in Remy's video. Nobody gets 100. Not even Remy.", 2 lines); the Step 7 review rewrote these labels so the score explains itself (DECISIONS C4); below it `tip_written_offer` and TO BE CONTINUED (`end_tbc`) on its own panel. The rows come from `GameState.dream_breakdown()` and appear one per 0.35 s with the running (rounded) score, then everything else; the final score is `run.dream_score`. A tap finishes the tally at once.
   - **Buttons:** `[ < Title ][ NEW RUN ]` (80 + 168), on once the tally ends plus the input lock. Leaving deletes the save and counts the run (section 8); NEW RUN is `retry()`.
 - **`game_over.tscn`** (S12, the Plan B card) in one beat, about 362 px of content: `EndingArt` with the PLAN B stamp (a purple ring-light sky); one panel with `end_plan_b`, the background's `plan_b_line` and `end_plan_b_final`; one tip, `HuntTips.plan_b(run)` (section 7.1); the run stats (`end_stats`: days, applications, interviews, rejections; 2 lines). Buttons `[ < Title ][ RETRY ]`, on only after the stamp lands plus the input lock, because RETRY sits where Mail's START DAY is, and a second tap on it must not skip the ending. RETRY opens Background select with the same background preselected. The save was already deleted on entering GAME_OVER.
 
@@ -1777,12 +1778,12 @@ static func offer_rng(interview_seed: String) -> RandomNumberGenerator:
 
 ## The contract's commute line (GDD S10) as {id, args} into emails.json: no office days is the remote
 ## line; otherwise days x minutes each way and the weekly hours (GDD 5.9.5), one decimal: "12.7".
-static func offer_commute(office_days: int, commute_minutes: int) -> Dictionary:
+static func offer_commute(office_days: int, minutes_each_way: int) -> Dictionary:
 	if office_days <= 0:
 		return {"id": "offer_commute_remote", "args": {}}
-	var hours := office_days * 2.0 * commute_minutes / 60.0
+	var hours := office_days * 2.0 * minutes_each_way / 60.0
 	return {"id": "offer_commute_office",
-		"args": {"office_days": office_days, "commute_min": commute_minutes, "hours": "%.1f" % hours}}
+		"args": {"office_days": office_days, "commute_min": minutes_each_way, "hours": "%.1f" % hours}}
 
 
 ## GDD 5.9.4-5.9.5, Accept: the offer becomes the job, with its
@@ -2940,6 +2941,17 @@ func set_setting(section: String, key: String, value: Variant) -> void:
 	settings.save(SETTINGS_PATH)
 
 
+## The next new run is a first run: no run has counted yet (settings meta run_count, below).
+func next_run_is_first() -> bool:
+	return int(setting("meta", "run_count", 0)) == 0
+
+
+## Debug builds only (the Title's "Reset first run"): the next New game is a first run again, with its
+## coach marks, the day-2 guarantee and the warm-up. A saved run keeps its own first_run.
+func reset_first_run() -> void:
+	set_setting("meta", "run_count", 0)
+
+
 # ---------- saving ----------
 
 ## Writes only while a run is live (JOB_HUNT / INTERVIEW / OFFER); a no-op otherwise.
@@ -3091,7 +3103,7 @@ func _init_run(bg_id: String, player_name: String, run_seed: int) -> void:
 	run.set_background(cfg, bg)
 	run.player_name = player_name
 	run.gap_topics.assign(Odds.pick(rng, _gap_pool(), bg.gap_topics_count))
-	run.first_run = int(setting("meta", "run_count", 0)) == 0
+	run.first_run = next_run_is_first()
 	run.deal_board(cfg, _tiers(), _hunt_content(), rng)
 
 
@@ -3201,8 +3213,7 @@ func _bg() -> BackgroundData:
 ## order, so a resume replays it exactly. Nothing changes when refused.
 func start_interview(invite: Dictionary) -> void:
 	var cfg := Content.balance
-	var tier_data := Content.tier(str(invite.get("tier", "")))
-	if tier_data == null or not can_take_interview(invite):
+	if not can_take_interview(invite):
 		return
 	var cost := interview_cost(invite)
 	var taken := run.take_invite(int(invite.get("uid", -1)))
@@ -3636,13 +3647,15 @@ The scene `features/title/title.tscn`: a root `Title` (Control, full rect) with 
 extends Control
 ## Title screen (GDD S01, ARCHITECTURE 11.1), before the art pass.
 ## No save: tap anywhere = New game. With a save: [ New game ] above a full-width CONTINUE.
-## Debug builds also show the Step 1 size readout and the Step 2 "Device check" button.
+## Debug builds also show the Step 1 size readout and a debug row: the Step 2 "Device check" button
+## and "Reset first run" (the next New game gets the first-run coach marks again).
 
 ## Loaded by path when pressed, never preloaded: features/dev/ is excluded from release exports.
 const DEVICE_CHECK_PATH := "res://features/dev/device_check.tscn"
 const BLINK_SEC := 0.5
-## Debug-only label, English on purpose (not player text, so not in CONTENT.md).
+## Debug-only labels, English on purpose (not player text, so not in CONTENT.md).
 const DEBUG_DEVICE_CHECK := "Device check"
+const DEBUG_FIRST_RUN := "Reset first run"
 
 var _has_save: bool = false
 var _device_check: Control = null
@@ -3655,7 +3668,9 @@ var _device_check: Control = null
 @onready var _new_game_button: Button = %NewGameButton
 @onready var _continue_button: Button = %ContinueButton
 @onready var _replay_intro_button: Button = %ReplayIntroButton
+@onready var _debug_row: Control = %DebugRow
 @onready var _device_check_button: Button = %DeviceCheckButton
+@onready var _first_run_button: Button = %FirstRunButton
 @onready var _version: Label = %Version
 @onready var _quit_dialog: ConfirmDialog = %QuitDialog
 
@@ -3669,6 +3684,7 @@ func _ready() -> void:
 	_continue_button.text = UiText.primary(Content.text("barks", "ui_continue"))
 	_replay_intro_button.text = Content.text("barks", "ui_replay_intro")
 	_device_check_button.text = DEBUG_DEVICE_CHECK
+	_first_run_button.text = DEBUG_FIRST_RUN
 	_has_save = SaveIO.exists()
 	_tap_to_start.visible = not _has_save
 	_new_game_button.visible = _has_save
@@ -3676,11 +3692,14 @@ func _ready() -> void:
 	_version.text = "v%s" % ProjectSettings.get_setting("application/config/version")
 	_size_readout.visible = OS.is_debug_build()
 	set_process(OS.is_debug_build())
+	_debug_row.visible = OS.is_debug_build()
 	_device_check_button.visible = OS.is_debug_build() and ResourceLoader.exists(DEVICE_CHECK_PATH)
+	_first_run_button.disabled = GameState.next_run_is_first()  # off: the next run already is one
 	_new_game_button.pressed.connect(GameState.start_new_game)
 	_continue_button.pressed.connect(GameState.continue_game)
 	_replay_intro_button.pressed.connect(GameState.replay_intro)
 	_device_check_button.pressed.connect(_open_device_check)
+	_first_run_button.pressed.connect(_reset_first_run)
 	_quit_dialog.confirmed.connect(get_tree().quit)
 	if not _has_save:
 		var blink := create_tween().set_loops()
@@ -3734,6 +3753,11 @@ func _open_device_check() -> void:
 func _close_device_check() -> void:
 	_device_check.queue_free()
 	_device_check = null
+
+
+func _reset_first_run() -> void:
+	GameState.reset_first_run()
+	_first_run_button.disabled = true
 ```
 
 In a debug build in the 540x960 desktop window, the readout shows `win 540x960 game 270x480 integer`. (The Step 1 stub showed the same numbers as `window (540, 960)` / `game (270, 480) (integer)`, checked live on 2026-09-26 with no runtime errors.)
@@ -4430,18 +4454,13 @@ func test_decline_ends_the_run_only_at_zero_rent() -> void:
 
 ## GDD 5.11: a kill on the Hired card resumes at the offer (its save was written on entering OFFER,
 ## PHASE2_STUB is never saved). Accepting again hires with the same contract and the same Dream
-## score, and Accept rolls no dice (D9: no background check), so the run RNG never moves.
+## score (D9: no background check; hire() takes no RNG, so Accept cannot roll dice).
 func test_accept_after_a_hired_kill_hires_the_same_job() -> void:
 	for seed_value: int in range(1, 41):
 		var run := _won("intern", "big", str(seed_value * 31))
 		run.make_offer(cfg, tiers["big"], bgs["intern"], content, 70.0)
 		run.interview = {}
 		run.phase = GameFlow.Phase.OFFER
-		var rng := RandomNumberGenerator.new()
-		rng.seed = seed_value
-		rng.randi()
-		run.rng_seed = str(seed_value)
-		run.rng_state = str(rng.state)  # what GameState.save() writes on entering OFFER
 		var saved := JSON.stringify(run.to_dict())
 		var flags: Array = content["companies"][COMPANY["big"]]["red_flags"]
 		run.hire(cfg, bgs["intern"], flags)
@@ -4451,7 +4470,6 @@ func test_accept_after_a_hired_kill_hires_the_same_job() -> void:
 		back.hire(cfg, bgs["intern"], flags)
 		assert_eq(back.employment, run.employment, "seed %d: the same job" % seed_value)
 		assert_eq(back.dream_score, run.dream_score, "seed %d: the same Dream score" % seed_value)
-		assert_eq(back.rng_state, str(rng.state), "seed %d: Accept rolls no dice" % seed_value)
 ```
 
 ### 17.14 `core/interview_plan.gd` (Step 4)
@@ -4919,7 +4937,7 @@ static func pan_path(picture: Vector2, frame: Vector2) -> Array[Vector2]:
 | 14 | The game embedded in the editor's Game tab (possible since 4.4): the window size is the tab's size, the 540x960 override may not apply, and `game_eval` resizes are ignored (seen in Step 1). Desktop-only | float or undock the game window to test exact sizes. The guard rule still holds at any size |
 | 15 | (Android, LATER) `gradle_build/target_sdk` shows 36 in the preset; the 4.7.2 template already targets 36 | set it to 36 |
 | 16 | (Android, LATER) Play's closed-testing rule for new personal accounts (12 testers x 14 days) | check the Play Console when you create the account |
-| 17 | (Step 7 review) Coach notes: a tap on a Jobs coach note closes it without flipping or swiping the card under it, and in Mail a finger drag that starts on the invite coach note still scrolls the list. `game_manage` can't send a drag with a button held, so the drag is untested on desktop | if a drag closes the note, also ignore a release after a move past the deadzone in `CoachMark` (it already should); if the card reacts, check the note's `mouse_filter` |
+| 17 | (Step 7 review) Coach notes: a tap on a Jobs coach note closes it without flipping or swiping the card under it, and in Mail a finger drag that starts on the invite coach note still scrolls the list. `game_manage` can't send a drag with a button held, so the drag is untested on desktop | if a drag closes the note, also ignore a release after a move past the deadzone in `DuckyNote` (it already should); if the card reacts, check the note's `mouse_filter` |
 | 18 | (Step 7 review) The HP bars' 0.4 s white ghost reads as a drain, and the empty `#181425` stat blocks read on the `#262B44` panels at 4x | retime `HpBar.GHOST_SEC` (GDD 9.1) or change `StatBar.EMPTY_COLOR` to an outlined block like `PipBar` |
 
 ### 18.2 Pitfalls this architecture prevents (don't undo them)

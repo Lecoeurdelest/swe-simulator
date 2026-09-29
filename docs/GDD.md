@@ -493,7 +493,7 @@ The screen is your phone and DoomApply is the job app: the influencer hooked you
 **S07 VS intro** (MUST) - flat UI with busts, a 2 s clip that then waits for a tap, portrait split
 - Layout: a diagonal split across the middle (about y 210-270). Dana's half is on top (company color, company background behind), her 96 px bust top-right with her plate to its left: name, her title on 2 lines and **one** joke stat, then **one** special move full width. Your half is below (hoodie color), your bust bottom-left with your plate to its right: name, nickname ("THE THEORIST") and 3 stat bars (the S03 StatBar). The tier banner sits at the bottom (Press Start 2P 16, up to 2 lines). You stay left and Dana right, as on the interview stage.
 - Dana's stat and move take turns by `times_met_dana`, with no dice: the first interview of a run shows "Candidates today: 11" and "Special move: The Five-Year Plan", the second "Coffee: 4th cup" and "Special move: The Salary Expectation Trap", the third "Patience: [###--]" and "Special move: The Awkward Silence", then it starts over (`vs_dana_stat_1..3`, `vs_dana_move_1..3`).
-- 0.00 s white flash. 0.05-0.35 s the busts slide in along the diagonal (Dana down from the top-right, you up from the bottom-left). 0.35 s "VS" slams onto the diagonal (hit-stop 100 ms, 4 px whole-pixel shake, haptic). 0.4-0.9 s the plates and the banner appear. 2.0 s the last frame holds and "Tap to continue" (`ui_tap_to_continue`) blinks under the banner (0.5 s on, 0.5 s off) on its own small panel.
+- The clip starts once the scene fade is over, so the fade reveals its first frame. 0.00 s white flash. 0.05-0.35 s the busts slide in along the diagonal (Dana down from the top-right, you up from the bottom-left). 0.35 s "VS" slams onto the diagonal (hit-stop 100 ms, 4 px whole-pixel shake, haptic). 0.4-0.9 s the plates and the banner appear. 2.0 s the last frame holds and "Tap to continue" (`ui_tap_to_continue`) blinks under the banner (0.5 s on, 0.5 s off) on its own small panel.
 - **Tap anywhere, or Back** (Decided D12): before the slam it does nothing; during the rest of the clip it jumps to the last frame; on the last frame it starts the interview (Dana's greeting). It never moves on by itself, and a resumed interview plays it again and waits.
 - *Why:* the developer found the old auto-advance too fast for the amount of text (grey-box review, 2026-09-29). Waiting for a tap lets each player read at their own pace, and one stat plus one move halves the reading.
 
@@ -511,15 +511,15 @@ The screen is your phone and DoomApply is the job app: the influencer hooked you
 | ==+======+=======desk========+======+==== |
 | +---------------------------------------+ |
 | | DANA                            [II]  | |   dialogue box 254x76 (y 188-264),
-| | "Friday, 4:55 PM. Your change is      | |   4 lines; [II] = pause
-| | untested. What do you do?"            | |
-| |                                       | |
+| | "Friday, 4:55 PM. Your app update is  | |   4 lines; [II] = pause
+| | done, but nobody has tested it yet.   | |
+| | What do you do?"                      | |
 | +---------------------------------------+ |
 |                                           |   answer area (y 268-480)
 |                                           |
-| [ Test it, get a review, ship Monday.   ] |   answers 254x36, 6 px gaps,
-| [ Ask the team channel what to do.      ] |   y 348-468, 250 ms lock
-| [ Deploy and turn off my phone.         ] |
+| [ Test it, then release it on Monday.   ] |   answers 254x36, 6 px gaps,
+| [ Ask the team chat what to do.         ] |   y 348-468, 250 ms lock
+| [ Release it now. Turn off my phone.    ] |
 +-------------------------------------------+
 ```
 
@@ -573,13 +573,13 @@ The screen is your phone and DoomApply is the job app: the influencer hooked you
 +-------------------------------------------+
 ```
 
-- Contents: the paper (254 wide, about 250 tall) slides up from the bottom over the dimmed stage; Dana stays visible above it. One field per line after a 12-character label column (values wrap at 28 columns): role and company, **yearly salary**, at startups an "Equity: 0.0001%" line under it (section 7's joke equity; built in Step 6 as an agent default), work mode, commute preview (e.g. "4 days x 95 min each way = 12.7 h a week", 2 lines), 2 perks, 1 fine-print joke (up to 4 lines; `[?]` shows all 3, SHOULD), "Please decide before you sleep." One Ducky tip sits under the paper (8.3).
+- Contents: the paper (254 wide, about 250 tall) slides up from the bottom over the dimmed stage; Dana stays visible above it. One field per line after a 12-character label column (values wrap at 28 columns): role and company, **yearly salary**, at startups an "Equity: 0.0001%" line under it (section 7's joke equity; built in Step 6 as an agent default), work mode, commute preview (e.g. "4 days x 95 min each way = 12.7 h a week", 2 lines), 2 perks, 1 fine-print joke (up to 4 lines; `[?]` shows all 3, SHOULD), "Please decide before you sleep." One Ducky tip sits under the paper (8.3). It fades in once the paper has landed, so it never covers the rising contract, and a tap closes it for this offer (its "x" shows it, as on the coach marks, D11); the paper then eases down into the room it leaves (agent default A47).
 - Buttons: [**Negotiate**, full width above the action bar, once, SHOULD], then `[ Decline ][ ACCEPT ]` (80 + 168). Decline holds the action bar's bottom-left, so the on-screen Back (4.4), `[ < Back ]` (it opens Pause; Back never declines), has its own row above the action bar, where Negotiate would go. Decline opens a confirm dialog; on the grace day it says the run ends. SHOULD: ACCEPT becomes drag-to-sign along the 200 px line, left to right.
 - Out: Accept -> Hired card (5.9.4). Decline -> Dana's line -> DoomApply (same day), or Plan B on the grace day (5.10).
 
 **S11 Hired card** (MUST) - side-view illustration card, in two beats
 - Beat 1: the "HIRED!" stamp (Press Start 2P 32) slams onto a 254x140 illustration; below it company, role and salary (3 lines) and the Hired line for that tier (up to 3 lines). Tap anywhere to continue.
-- Beat 2: the **Dream vs Reality** panel slides up over the illustration: the header "YOUR JOB vs REMY'S VIDEO" (`end_dream_header`), its 5 rows (section 5.9.5; label left with Remy's number in brackets, e.g. "Salary (Remy: $150k)", points right with one decimal, one line each, tallying one by one), the score and grade, "100 is the life in Remy's video. Nobody gets 100. Not even Remy." (`end_dream_footer`, Decided C4), `tip_written_offer`, "TO BE CONTINUED - Phase 2: The Working Life" (`end_tbc`).
+- Beat 2: the **Dream vs Reality** panel slides up over the illustration: the header "YOUR JOB vs REMY'S VIDEO" (`end_dream_header`), its 5 rows (section 5.9.5; label left, the four video rows with Remy's number in brackets, e.g. "Salary (Remy: $150k)"; points right out of the row's maximum, e.g. "18.9/40" (A48); one line each, tallying one by one), the score and grade, "100 is the life in Remy's video. Nobody gets 100. Not even Remy." (`end_dream_footer`, Decided C4), `tip_written_offer`, "TO BE CONTINUED - Phase 2: The Working Life" (`end_tbc`).
 - Buttons: `[ < Title ][ NEW RUN ]`, in beat 2. Leaving it deletes the run save.
 - *Why two beats:* everything at once needs about 500 px, more than the 480 frame, and the pause lets the joke land before the score.
 
@@ -912,7 +912,7 @@ Intern 77.5%, Graduate 62.5%, Self-Taught 57.5% (+15 with a pending invite, cap 
 - **Decline:** confirm dialog -> Dana: "No worries! (Our ATS will remember this.)" -> company blacklisted -> back to the hunt, same day, rent keeps ticking.
 
 #### 5.9.5 Dream vs Reality score (on the Hired card)
-Compares the offer with the influencer's promise ($150k, fully remote, 3-step commute, no red flags). Gives Decline a real reason: chasing a better score. On the card the header reads "YOUR JOB vs REMY'S VIDEO" and each row names Remy's number: "Salary (Remy: $150k)", "Days at home (Remy: 5 of 5)", "Commute (Remy: 3 steps)", "Red flags (Remy: none)", "Rent days to spare" (`end_dream_*`, Decided C4: every row says what it is compared with).
+Compares the offer with the influencer's promise ($150k, fully remote, 3-step commute, no red flags). Gives Decline a real reason: chasing a better score. On the card the header reads "YOUR JOB vs REMY'S VIDEO" and the four rows from Remy's video name his number: "Salary (Remy: $150k)", "Days at home (Remy: 5 of 5)", "Commute (Remy: 3 steps)", "Red flags (Remy: none)", then "Rent days to spare" (`end_dream_*`, Decided C4: each video row says what it is compared with; the rent row has no Remy value because the video never mentions rent). Each row shows its points out of the row's weight ("18.9/40"), so the five add up to the 100 the footer talks about (agent default A48).
 
 ```
 salary_pts  = 40 * min(1, salary / 150000)
@@ -1085,7 +1085,7 @@ Simulated outcome differences are in section 5.12.
 | Committee loss or rejection without research | `tip_research_company` |
 | Red knowledge answer | `tip_think_aloud` |
 | Red behavioral answer | `tip_star_stories` |
-| Self-Taught teamwork answer | `tip_teamwork_without_job` |
+| Bad answer to harsh feedback (`eq_harsh_review`) | `tip_take_feedback` |
 | Bad closer answer | `tip_ask_questions` |
 | Specific ethics questions | each question's own tip (e.g. `tip_secrets`, `tip_ai_tools`, `tip_small_changes`) |
 | Offer opens | `tip_negotiate` (Negotiate shipped) or `tip_total_comp` |
@@ -1094,7 +1094,7 @@ Simulated outcome differences are in section 5.12.
 | Hired card | `tip_written_offer` |
 | Study action (first time) | `tip_fundamentals` |
 
-Removed with lying (D9): `tip_say_i_dont_know` (Come clean) and `tip_honesty_checks` (BUSTED, rescinded). `tip_keywords_honest` stays in `tips.json` but has no trigger in the MVP (it was the CV screen's).
+Removed with lying (D9): `tip_say_i_dont_know` (Come clean) and `tip_honesty_checks` (BUSTED, rescinded). `tip_keywords_honest` stays in `tips.json` but has no trigger in the MVP (it was the CV screen's). So does `tip_teamwork_without_job` since the review fix pass (A49): it was `eq_harsh_review`'s tip, which showed it to anyone who gave the bad answer; the Self-Taught's own answer there already carries its lesson.
 
 ### 8.4 The knowledge-question teaching loop
 Every knowledge question has a model answer (green), a hedged answer (yellow), a confidently-wrong answer (red) and Ducky's "Real answer" line. After a rejection, the result screen shows the model answer for your worst question. Every answered question goes into the Notebook (SHOULD), which doubles as a real study sheet.

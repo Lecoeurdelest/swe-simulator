@@ -29,7 +29,7 @@ project:
     - "Engine facts: docs/ARCHITECTURE.md wins; fix GDD.md (ARCHITECTURE header)."
     - "Every player-facing string and content id: docs/CONTENT.md."
     - "Step plan, task breakdown and Done-when criteria: docs/ROADMAP.md."
-    - "Design decision answers: docs/DECISIONS.md (one line each; D1-D8, P1 and C1 since 2026-09-26, D9-D12 and C2-C4 since 2026-09-29, plus the workflow rows W1-W7 and the agent defaults A1 onward). A change is a new superseding row there first, then the GDD section it points to (GDD 12)."
+    - "Design decision answers: docs/DECISIONS.md (one line each; D1-D8, P1 and C1 since 2026-09-26, D9-D12, P3 and C2-C4 since 2026-09-29, plus the workflow rows W1-W7 and the agent defaults A1 onward). A change is a new superseding row there first, then the GDD section it points to (GDD 12)."
     - "Execution state and evidence: .project/state.json and .project/evidence/."
 
 preservation:
@@ -44,8 +44,8 @@ preservation:
       superseded_by: BASE-DOCS-REVIEW
     # 2026-09-29: the docs after the Step 7 developer review (DECISIONS D9-D12, C2-C4, W7).
     - id: BASE-DOCS-REVIEW
-      source: "docs/GDD.md 1.2, docs/CONTENT.md 1.1, docs/ARCHITECTURE.md 1.4, docs/ROADMAP.md 1.2 and docs/DECISIONS.md (D9-D12, C2-C4, W7, A21-A46), synced with the code of commits d8db453..8aaae75"
-      revision: "the docs and tracking commit on branch step-07-dev-review that follows 8aaae75 (2026-09-29); sha256 of all five docs in the .project/generated-manifest.json inputs of that commit"
+      source: "docs/GDD.md 1.2, docs/CONTENT.md 1.1, docs/ARCHITECTURE.md 1.4, docs/ROADMAP.md 1.2 and docs/DECISIONS.md (D9-D12, P3, C2-C4, W7, A21-A51), synced with the code of commits d8db453..8aaae75 and the review fix pass f89cf09..62c2a68"
+      revision: "the docs and tracking commit on branch step-07-dev-review that follows 8aaae75, then the review fix pass docs commit that follows 62c2a68 (2026-09-29); sha256 of all five docs in the .project/generated-manifest.json inputs of the latest one"
     - id: BASE-CODE
       source: Step 1 foundation code copied from ARCHITECTURE section 17
       revision: 64ed38f
@@ -71,7 +71,7 @@ preservation:
       disposition: preserve
     - id: ART-DECISIONS
       path: docs/DECISIONS.md
-      role: decision log (D1-D12, P1-P2, C1-C4, W1-W7, agent defaults A1-A46); one line per decision, changed only by a new superseding row
+      role: decision log (D1-D12, P1-P3, C1-C4, W1-W7, agent defaults A1-A51); one line per decision, changed only by a new superseding row
       disposition: preserve
     # 2026-09-29: the parking lot the scope convention below points to now exists (the developer's Phase 2 ideas, D10).
     - id: ART-PARKING
@@ -188,8 +188,8 @@ decisions:
   - {id: D11, title: "Coach marks close on a tap", status: accepted, answer: "a tap on the Ducky note closes a first-run coach mark for the run (small x hint); doing the action still closes it", decided: "2026-09-29", source: "GDD 4.3, 12; docs/DECISIONS.md"}
   - {id: D12, title: "The VS intro waits for a tap and shows less text", status: accepted, answer: "the 2.0 s clip holds its last frame with a blinking Tap to continue; Dana's plate shows one joke stat and one special move, in turn", decided: "2026-09-29", source: "GDD S07, 12; docs/DECISIONS.md"}
   - {id: C2, title: "Review-queue copy approved, 4 wording fixes", status: accepted, answer: "section 3 copy as written; Graduate perk says knowledge question; no doubled period after a company name; fine print never repeats a perk; GDD coach_sleep line matches the JSON", decided: "2026-09-29", source: "docs/DECISIONS.md; CONTENT 3.1, 13.3"}
-  - {id: C3, title: "Choice questions in plain language", status: accepted, answer: "all 14 choice questions rewritten for non-tech players; ids, kinds, tiers and tips unchanged", decided: "2026-09-29", source: "docs/DECISIONS.md; CONTENT 7"}
-  - {id: C4, title: "New Hired-card copy", status: accepted, answer: "header YOUR JOB vs REMY'S VIDEO, rows naming Remy's value, grade 1 All reality, no dream, footer 100 is the life in Remy's video. Nobody gets 100. Not even Remy.", decided: "2026-09-29", source: "docs/DECISIONS.md; GDD 5.9.5; CONTENT 14"}
+  - {id: C3, title: "Choice questions in plain language", status: accepted, answer: "all 14 choice questions checked for non-tech players (11 reworded, 3 already plain kept); ids, kinds, tiers and tips unchanged (A49 later gave eq_harsh_review its own tip)", decided: "2026-09-29", source: "docs/DECISIONS.md; CONTENT 7"}
+  - {id: C4, title: "New Hired-card copy", status: accepted, answer: "header YOUR JOB vs REMY'S VIDEO, the four video rows naming Remy's value, grade 1 All reality, no dream, footer 100 is the life in Remy's video. Nobody gets 100. Not even Remy.", decided: "2026-09-29", source: "docs/DECISIONS.md; GDD 5.9.5; CONTENT 14"}
 
 invariants:
   # Global rules every task must keep. Full text and sources: .agent/rules/invariants.md
@@ -603,7 +603,7 @@ tasks:
     decision_ids: [D8, D9, D10, D11, D12, C2, C3, C4]
     depends_on: [STEP-06]
     acceptance_ids: [AC-S07-1, AC-S07-2, AC-S07-3, AC-S07-4]
-    amendments: ["2026-09-29 the developer's review of the v0.1 grey-box, built on branch step-07-dev-review before Playtest #1: CV editing and lying removed (D9, d8db453); plain-language choice questions, the Hired-card copy and 4 wording fixes (C2-C4, 5c0f968); coach marks close on a tap (D11, e255e6f); the VS intro waits for a tap (D12, 501def5); the real HP and stat bars (W7, 8aaae75); docs and tracking synced in the commit after 8aaae75. Phase 2 is parked (docs/ideas_parking_lot.md)"]
+    amendments: ["2026-09-29 the developer's review of the v0.1 grey-box, built on branch step-07-dev-review before Playtest #1: CV editing and lying removed (D9, d8db453); plain-language choice questions, the Hired-card copy and 4 wording fixes (C2-C4, 5c0f968); coach marks close on a tap (D11, e255e6f); the VS intro waits for a tap (D12, 501def5); the real HP and stat bars (W7, 8aaae75); docs and tracking synced in the commit after 8aaae75. Review fix pass (f89cf09..62c2a68, agent defaults A47-A51): D9 leftovers removed; the offer's Ducky tip fades in after the paper lands and closes on a tap; the VS clip starts after the scene fade; Hired-card rows show points out of the row maximum; tip fixes and tip_take_feedback; a debug-only Reset first run on the title. Phase 2 is parked (docs/ideas_parking_lot.md, DECISIONS P3)"]
   - id: STEP-08
     title: "SHOULD features, in GDD 10.2 order"
     source: {file: docs/ROADMAP.md, section: "Step 8"}

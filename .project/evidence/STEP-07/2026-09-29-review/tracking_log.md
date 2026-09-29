@@ -48,3 +48,5 @@ Role: review the two docs agents' uncommitted edits lightly, finish the plan tra
   - Added: the BASE-DOCS-REVIEW baseline, ART-PARKING, and the parking lot and review queue in CMP-DOCS.
   - STEP-04 to STEP-07 got amendments and decision ids.
 - `docs/task/README.md` and `.project/generated-manifest.json` were re-rendered with `.project/render.py`.
+
+Follow-up (review fix pass, 2026-09-29): REVIEW_QUEUE Q6 (the offer's tip note over the Fine print) was the 0.3 s paper slide-in, not an overlap at rest. The probe numbers and the fix (DECISIONS A47) are in `fix_log.md`.

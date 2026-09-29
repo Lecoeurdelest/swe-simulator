@@ -3,22 +3,22 @@
   "generator": ".project/render.py",
   "template_version": "task-index/1",
   "inputs": {
-    "docs/GDD.md": "95071ecec782df785102dc99ee395d122ac9f8ac6e1fb9c4f0bb48e50f7c6b82",
-    "docs/CONTENT.md": "fdd453f10a972e786c1ec06bf9f789566c8347d9cd10c9d58664096a69a7708c",
-    "docs/ARCHITECTURE.md": "0703e8891132897999e7f73d027934f26150c0ab111e3749dbdbf68a85417bd3",
+    "docs/GDD.md": "175652fb5b02da06967eb99d2b1d3d330b95440b9735acd67e925e77cab286ef",
+    "docs/CONTENT.md": "aeee7ca5235675ce924908f7c27ebc9e7eecf8ed2843e15347d44379c75eb6d0",
+    "docs/ARCHITECTURE.md": "53acad5f86679d741512c92aeb10732e4402e3690beb1d2b75ed4ecab3dabc87",
     "docs/ROADMAP.md": "40f10fd16f3b49fb26aff24350c6ed519ad5904b45f397ed8b14d31db3ab67e8",
-    "docs/DECISIONS.md": "6e7187e263f7d61b67e692956d9d659d1bbe3eb88f82f9a233783e7a4911c5b5",
-    "project.yaml": "63fe80f1b10a163d90b1968895978369358a98ce1b0b03711df4ea564e710afa",
-    ".project/state.json": "6b71ade14c0ea49f86ac299d00e40180c9dfc7451f2492b0ee67ad7938cf2237"
+    "docs/DECISIONS.md": "48a297dfbf0e154ac0dbcce69b9293b87323f450cb394ecc72dda84aed46af8c",
+    "project.yaml": "6be8913ac0b03908ee132aa71bb6d7212f3f26b433cb97af20c309f9a74295d9",
+    ".project/state.json": "16cc5e29a7420e2f1e154fd514b0809e23c5c2311794cd4b4a93aa5d6e886955"
   },
   "outputs": {
     "docs/task/README.md": {
       "owner": "generated",
-      "sha256": "50d13238c0f62684d9fe939a78db41545b55c7244e3b19fbb9fa84e6dba7eadf"
+      "sha256": "0ecf3674523b471f2acd9d7795ad972aba317ba4494a89a8a454d3277b7b2c2e"
     },
     "project.yaml": {
       "owner": "generated-by-agent from docs/*.md; regenerate on doc change",
-      "sha256": "63fe80f1b10a163d90b1968895978369358a98ce1b0b03711df4ea564e710afa"
+      "sha256": "6be8913ac0b03908ee132aa71bb6d7212f3f26b433cb97af20c309f9a74295d9"
     }
   },
   "hand_owned": [
@@ -34,6 +34,7 @@
   "bundles": [
     ".project/bundles/STEP-00.md",
     ".project/bundles/STEP-01.md",
-    ".project/bundles/STEP-02.md"
+    ".project/bundles/STEP-02.md",
+    ".project/bundles/STEP-07.md"
   ]
 }

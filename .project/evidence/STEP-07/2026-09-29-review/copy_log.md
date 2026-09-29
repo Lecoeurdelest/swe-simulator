@@ -3,7 +3,7 @@
 Branch `step-07-dev-review`, on top of d8db453 (CV editing and lying removed, DECISIONS D9).
 
 ## What changed
-- `data/content/questions_choice.json`: every prompt / answer / reaction string reworded for non-tech players (ids, kinds, tiers, tips, exclusives' backgrounds unchanged). Right answer jokingly obvious, wrong answer the joke (GDD 5.8.3).
+- `data/content/questions_choice.json`: prompt/answer/reaction strings reworded for non-tech players in 11 of the 14 questions (eq_why_us, eq_grind_culture and eq_any_questions unchanged; eq_meeting_overload and eq_weakness only one answer text; corrected in the review fix pass, see fix_log.md) (ids, kinds, tiers, tips, exclusives' backgrounds unchanged). Right answer jokingly obvious, wrong answer the joke (GDD 5.8.3).
 - `data/content/endings.json`: Hired card header, 5 row labels, grade 1 and footer (REVIEW_QUEUE Q4).
 - `data/content/backgrounds.json`: Graduate perk "first tech question" -> "first knowledge question". The Graduate flaw already says "unless you Tailor & Apply" (d8db453).
 - `data/content/tips.json`: plainer tip_small_changes, tip_blameless, tip_secrets, tip_teamwork_without_job, tip_star_stories, tip_ask_questions.

@@ -10,7 +10,7 @@ Status: v1.1, 2026-09-29 (v1.0: 2026-09-26). v1.1 follows the developer's review
 
 - **ASCII only** in player-facing strings: no curly quotes, accents, emoji or special dashes. The pixel font may not have them, and `tests/test_content_lint.gd` rejects them.
 - **Ids are snake_case and stable.** Don't rename an id once code refers to it; change the text instead.
-- **Placeholders:** `{player_name}`, `{company}`, `{job_title}`, `{salary}`, `{work_mode}`, `{commute_min}`, `{office_days}`, `{hours}`, `{last_company}`, `{knockout}`, `{insider}`, `{days}`, `{n}`, `{day}`, `{topic_1}`, `{topic_2}`, `{r}` (rejections), `{g}` (ghosted), `{i}` (interviews), `{yes_no}` ("yes" or "no"; no string uses it since the CV screen left, D9), `{total}` (prompts in this interview). Text in `[SQUARE_BRACKETS]` is deliberately left unfilled: that's the joke.
+- **Placeholders:** `{player_name}`, `{company}`, `{job_title}`, `{salary}`, `{work_mode}`, `{commute_min}`, `{office_days}`, `{hours}`, `{last_company}`, `{knockout}`, `{insider}`, `{days}`, `{n}`, `{day}`, `{topic_1}`, `{topic_2}`, `{r}` (rejections), `{g}` (ghosted), `{i}` (interviews), `{total}` (prompts in this interview). Text in `[SQUARE_BRACKETS]` is deliberately left unfilled: that's the joke.
 - **Text budgets** (GDD 2.7, enforced by the lint test, which also word-wraps every string at the 40-column portrait text width and checks the line cap):
 
 | Field | Max chars (lines at 40 columns) |
@@ -24,7 +24,7 @@ Status: v1.1, 2026-09-29 (v1.0: 2026-09-26). v1.1 follows the developer's review
 | Email body | 240 (7) |
 | Player name | 10 (1) |
 
-- **MVP amounts:** 9 companies (6 flagged `mvp`), 20 posting templates (+1 SHOULD), 18 CV lines, 13 choice questions (+ the Research opener), 22 knowledge questions, 30 tips, 10 rejection lines.
+- **MVP amounts:** 9 companies (6 flagged `mvp`), 20 posting templates (+1 SHOULD), 18 CV lines, 13 choice questions (+ the Research opener), 22 knowledge questions, 31 tips, 10 rejection lines.
 - **Refreshable jokes:** topical 2026 AI-hype lines live in `news.json` and `events.json` so they can be updated without code changes.
 
 ---
@@ -389,7 +389,7 @@ Q: Honest question: did you use an AI assistant on our at-home coding test?
 eq_leaked_password | teamwork: no | tiers: all | tip: tip_secrets
 Q: Someone posted the password to all our customer data in the company-wide group chat.
 + good | Tell security so they change it. | Exactly. Once a password leaks, it isn't a password anymore. It's trivia.
-~ neutral | Delete the message and move on. | Deleting it doesn't change it. Hacker bots copied it in seconds.
+~ neutral | Delete the message and move on. | Deleting it doesn't change it. Half the company already saw it. Some took screenshots.
 - bad | Screenshot it. Might be handy. | Please stay seated. Legal is walking over.
 ```
 
@@ -419,7 +419,7 @@ Q: Your boss wants a 3-month project done by Friday. It's Wednesday.
 ```
 
 ```
-eq_harsh_review | teamwork: yes | tiers: all | tip: tip_teamwork_without_job
+eq_harsh_review | teamwork: yes | tiers: all | tip: tip_take_feedback
 Q: A senior coworker checks your work and leaves one comment: 'this is garbage'.
 + good | Ask what to fix; discuss tone privately. | Mature. And yes, raise it. 'Garbage' isn't feedback.
 ~ neutral | Fix it silently and seethe. | Fixed code, unfixed feelings. Half marks.
@@ -788,7 +788,6 @@ On screen, `ducky` lines are prefixed with `ducky_real_answer` ("Real answer:").
 | `ui_research` | RESEARCH |
 | `ui_use_referral` | Use referral ({n} left) |
 | `ui_back` | Back |
-| `ui_done` | Done |
 | `ui_sleep` | Sleep |
 | `ui_tab_jobs` | Jobs |
 | `ui_tab_mail` | Mail |
@@ -844,11 +843,9 @@ On screen, `ducky` lines are prefixed with `ducky_real_answer` ("Real answer:").
 | `ui_odds_quick` | Quick apply |
 | `ui_odds_tailored` | Tailored |
 | `ui_deck_empty` | {n} new cards per morning. |
-| `ui_yes` | yes |
-| `ui_no` | no |
 | `ui_invite_line` | Interview with {company}: today or tomorrow |
 
-The hub's bottom dock (GDD 4.2 S04) uses `ui_tab_*` plus `ui_sleep`; dock labels are at most 6 characters. `ui_quit_confirm` appears on Android (LATER) and desktop only: iOS apps never quit themselves (GDD 4.4); `ui_quit` is its confirm button (added 2026-09-27 with no source text). `ui_logo_1`-`ui_logo_3` are the title logo's three lines (GDD S01). Added 2026-09-27 for the Step 4 interview, with text from the GDD mockups: `ui_composure`, `ui_doubt` and `ui_round` are the S08 bars band ("ROUND 2/5"; `{total}` is the number of prompts), `ui_back_to_hunt` and `bark_dana_other_candidates` are S09 (and GDD 5.8.6), `ui_stat_*` are the S03 stat bar labels (also on the S07 VS plate), and `vs_versus` is the S07 "VS" (ARCHITECTURE 11.5). Added 2026-09-27 for the Step 5 Background select, with text from the GDD S03 mockup: `ui_energy_per_day` (the card's energy pips row), `ui_rent_runway` and `ui_name` (the name row). Added 2026-09-27 for the Step 5 hub (DoomApply, part 1), with text from the GDD: `ui_radar_short` is the S04 HUD's "Radar [###---]" (the long `ui_radar` doesn't fit the HUD row), `ui_odds_quick` the card front's "Quick apply [##---] Unlikely" (S04 mockup), `ui_odds_tailored` the card back's tailored odds label (GDD 5.6 "Tailored"), and `ui_deck_empty` the empty-deck line (S04 "6 new cards per morning"; `{n}` is `board_new_per_day`). Added 2026-09-27 for the Step 5 hub (part 2), with text from the GDD: `ui_invite_line` is the invite card's line (S06 "Interview with {company}: today or tomorrow"); `ui_yes` / `ui_no` filled `{yes_no}` on the CV screen's chips, so nothing shows them since it left (D9). Added 2026-09-27 for the Step 6 offer, with no source text: `ui_decline_confirm_grace` replaces `ui_decline_confirm` on the grace day, when Decline ends the run (GDD 5.10), because "Rent keeps ticking" would be false there. Added 2026-09-27 for the Step 6 Hired card, with no source text: `ui_tap_to_continue` is the hint under beat 1 (GDD S11 "Tap anywhere to continue"); since 2026-09-29 the VS intro's held last frame shows it too (GDD S07, D12). Added 2026-09-27 for the Step 6 endings, a grammatical variant of `ui_rent_due`: `ui_rent_due_today` replaces "Rent due in 0 days" in the HUD and the night summary on the grace day and the Plan B morning. Added 2026-09-27 for Step 6, a grammatical variant of `ui_ghost_footer`: `ui_ghost_footer_one` replaces "1 applications: no reply" in Mail's footer.
+The hub's bottom dock (GDD 4.2 S04) uses `ui_tab_*` plus `ui_sleep`; dock labels are at most 6 characters. `ui_quit_confirm` appears on Android (LATER) and desktop only: iOS apps never quit themselves (GDD 4.4); `ui_quit` is its confirm button (added 2026-09-27 with no source text). `ui_logo_1`-`ui_logo_3` are the title logo's three lines (GDD S01). Added 2026-09-27 for the Step 4 interview, with text from the GDD mockups: `ui_composure`, `ui_doubt` and `ui_round` are the S08 bars band ("ROUND 2/5"; `{total}` is the number of prompts), `ui_back_to_hunt` and `bark_dana_other_candidates` are S09 (and GDD 5.8.6), `ui_stat_*` are the S03 stat bar labels (also on the S07 VS plate), and `vs_versus` is the S07 "VS" (ARCHITECTURE 11.5). Added 2026-09-27 for the Step 5 Background select, with text from the GDD S03 mockup: `ui_energy_per_day` (the card's energy pips row), `ui_rent_runway` and `ui_name` (the name row). Added 2026-09-27 for the Step 5 hub (DoomApply, part 1), with text from the GDD: `ui_radar_short` is the S04 HUD's "Radar [###---]" (the long `ui_radar` doesn't fit the HUD row), `ui_odds_quick` the card front's "Quick apply [##---] Unlikely" (S04 mockup), `ui_odds_tailored` the card back's tailored odds label (GDD 5.6 "Tailored"), and `ui_deck_empty` the empty-deck line (S04 "6 new cards per morning"; `{n}` is `board_new_per_day`). Added 2026-09-27 for the Step 5 hub (part 2), with text from the GDD: `ui_invite_line` is the invite card's line (S06 "Interview with {company}: today or tomorrow"). Removed 2026-09-29 with the CV screen (D9): `ui_done` (its DONE button) and `ui_yes` / `ui_no` (its `{yes_no}` chips), along with the `{yes_no}` placeholder. Added 2026-09-27 for the Step 6 offer, with no source text: `ui_decline_confirm_grace` replaces `ui_decline_confirm` on the grace day, when Decline ends the run (GDD 5.10), because "Rent keeps ticking" would be false there. Added 2026-09-27 for the Step 6 Hired card, with no source text: `ui_tap_to_continue` is the hint under beat 1 (GDD S11 "Tap anywhere to continue"); since 2026-09-29 the VS intro's held last frame shows it too (GDD S07, D12). Added 2026-09-27 for the Step 6 endings, a grammatical variant of `ui_rent_due`: `ui_rent_due_today` replaces "Rent due in 0 days" in the HUD and the night summary on the grace day and the Plan B morning. Added 2026-09-27 for Step 6, a grammatical variant of `ui_ghost_footer`: `ui_ghost_footer_one` replaces "1 applications: no reply" in Mail's footer.
 
 **Approved (DECISIONS C2, 2026-09-29):** the developer approved all the copy the review queue listed ("go with it"): every line above that was added with no source text, the grammatical variants and the labels copied from the GDD mockups. The CV screen's labels (the CV dock tab, the degree and "1+ yrs" chips, Lie risk, Honest / Polished / Lie, and the row labels), and the Come clean and Bluff buttons, were removed with it (D9).
 
@@ -889,13 +886,14 @@ Fields: `id, short (<=120, on screen), more (Notebook extra), triggers`. GDD 8.3
 | `tip_rest` | Rest before interviews. Tired answers go worse. Schedule the search like a job. | A job search is a marathon. Plan breaks on purpose. | Tired, `eq_grind_culture` |
 | `tip_think_aloud` | In technical interviews, think out loud. Interviewers grade your reasoning, not just the answer. | If you're stuck, say what you'd try first and why. | red knowledge answer |
 | `tip_clarify_first` | Ask clarifying questions before designing: users, scale, constraints. | Jumping straight to a solution is a common junior mistake. Interviewers like the questions. | `kq_url_shortener` |
-| `tip_star_stories` | Prepare 5 stories as Situation, Task, Action, Result: conflict, failure, teamwork, a win, learning fast. | End each one with what you learned. The same stories answer many questions. | red behavioral answer, `eq_weakness` |
-| `tip_teamwork_without_job` | No team yet? Public coding projects, coding contests and freelance clients give you feedback and team stories. | Feedback on your code from strangers is a fast way to learn how teams work. | Self-Taught teamwork answer |
+| `tip_star_stories` | Prepare 5 stories: conflict, failure, teamwork, a win, learning fast. Tell each as situation, task, action, result. | End each one with what you learned. The same stories answer many questions. | red behavioral answer, `eq_weakness` |
+| `tip_teamwork_without_job` | No team yet? Public coding projects, team coding events and freelance clients give you feedback and team stories. | Feedback on your code from strangers is a fast way to learn how teams work. | none in the MVP (`eq_harsh_review` uses `tip_take_feedback`; the Self-Taught's own answer there carries this lesson) |
+| `tip_take_feedback` | Rude feedback can still hold a real fix. Ask what to change, then raise the tone privately and calmly. | Separate the message from the delivery. Fix the work first, then talk about the tone one-on-one. | `eq_harsh_review` |
 | `tip_ask_questions` | Always ask a question at the end: what success looks like in 90 days, how the team works, real hours. | It shows interest, and the answers tell you whether you want the job. | `eq_any_questions` |
 | `tip_fundamentals` | Frameworks change fast. Fundamentals transfer: data structures, databases, networking, testing. | Learn one stack well, but keep the basics sharp. They show up in every interview. | first Study, several knowledge Qs |
 | `tip_ai_tools` | Use AI tools where allowed, but understand and test every line. You'll be asked to explain it. | Say what you used and how you checked it. | `eq_ai_takehome` |
 | `tip_secrets` | A leaked password is no longer secret. Report it so it gets changed; deleting the message isn't enough. | Never paste passwords into chats, emails or code. | `eq_leaked_password` |
-| `tip_small_changes` | Release small, tested updates early in the week. Friday releases are how weekends die. | Small updates are easier to check and easier to undo. | `eq_friday_deploy` |
+| `tip_small_changes` | Release small, tested updates early in the week, so problems get fixed before the weekend. | Small updates are easier to check and easier to undo. | `eq_friday_deploy` |
 | `tip_give_credit` | Credit teammates publicly. It builds trust, and people remember who shares. | It also makes your own wins more believable. | `eq_credit_theft` |
 | `tip_blameless` | Good teams review mistakes without blame: what happened, how it was fixed, and what stops a repeat. | Owning your part calmly is a strength, not a confession. | `eq_outage_blame` |
 | `tip_privacy` | Customer data is off-limits without a business reason. Access is logged. | Snooping is a fast way to lose a job and to hurt real people. | `eq_celebrity_orders` |
@@ -907,7 +905,7 @@ Fields: `id, short (<=120, on screen), more (Notebook extra), triggers`. GDD 8.3
 | `tip_fine_print` | Read non-compete, IP and probation clauses. Enforceability varies by country and state. Unsure? Ask a lawyer. | Ask HR what a clause covers and get the answer in writing before you sign. Whether it's enforceable is a question for an employment lawyer or legal aid. | fine print opened |
 | `tip_written_offer` | Don't stop other applications until you have a signed, written offer. | Check that it lists the start date, pay and work mode. | Hired card |
 
-Changed 2026-09-29: the tips for the plain-language choice questions (`tip_small_changes`, `tip_blameless`, `tip_secrets`, `tip_teamwork_without_job`, `tip_star_stories`, `tip_ask_questions`) lost their jargon (DECISIONS C3); tip accuracy is still yours to sign off. The two lying tips ("I don't know" beats a bluff; don't lie on a CV) were removed with lying (D9). `tip_keywords_honest` has no trigger in the MVP (it was the CV screen's), and `tip_quantify_impact` and `tip_projects_count` now come the night after a Tailor & Apply (GDD 8.3).
+Changed 2026-09-29: the tips for the plain-language choice questions (`tip_small_changes`, `tip_blameless`, `tip_secrets`, `tip_teamwork_without_job`, `tip_star_stories`, `tip_ask_questions`) lost their jargon (DECISIONS C3); tip accuracy is still yours to sign off. The two lying tips ("I don't know" beats a bluff; don't lie on a CV) were removed with lying (D9). `tip_keywords_honest` has no trigger in the MVP (it was the CV screen's), and `tip_quantify_impact` and `tip_projects_count` now come the night after a Tailor & Apply (GDD 8.3). Changed again in the review fix pass (DECISIONS A49, A50; please check their accuracy): `tip_star_stories` names the 5 topics before the structure; `tip_small_changes` lost the "how weekends die" hyperbole (GDD 1.3: the joke belongs to Dana's reaction); `tip_teamwork_without_job` says "team coding events", because most coding contests are solo; and `tip_take_feedback` is new: `eq_harsh_review`'s bad answer used to show `tip_teamwork_without_job`, which didn't match the cause (GDD 8.1 rule 4), so that tip has no trigger in the MVP now.
 
 ---
 
@@ -1068,7 +1066,7 @@ The fine print never repeats a perk on the same paper: an `fp_<x>` is left out w
 
 Background lines for Plan B are in section 3 (`plan_b_line`). The Stealth Mode Hired card adds its `hired_extra` from section 4.
 
-Changed 2026-09-29 (DECISIONS C4): the Dream vs Reality header, row labels, lowest grade and footer. Every row now names Remy's number, and the footer explains the 100 (the old one, "The video scored 100. The video was sponsored.", was neither clear nor funny to the developer). The rescinded-offer ending line was removed with the background check (D9).
+Changed 2026-09-29 (DECISIONS C4): the Dream vs Reality header, row labels, lowest grade and footer. The four rows from Remy's video now name his number (the rent row has none: the video never mentions rent), each row shows its points out of the row's maximum ("18.9/40", DECISIONS A48), and the footer explains the 100 (the old one, "The video scored 100. The video was sponsored.", was neither clear nor funny to the developer). The rescinded-offer ending line was removed with the background check (D9).
 
 ---
 
