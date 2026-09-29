@@ -6,8 +6,7 @@ Written at the end of the Step 7 review run, 2026-09-29. Your v0.1 review is bui
 
 `step-07-dev-review` sits on top of `main` (your Step 6 merge) with 12 commits: the CV and lying removal, the copy fixes, the coach marks, the VS intro, the bars, the docs and tracking sync, then the review fix pass (D9 leftovers; the offer tip and the VS fade; the Hired-card points; tip fixes; the debug Reset first run; its docs and tracking).
 
-- If the branch isn't on GitHub yet, push it first: `git push -u origin step-07-dev-review`.
-- Open one pull request `step-07-dev-review` -> `main` and merge it with **"Create a merge commit"** (not squash): <https://github.com/Lecoeurdelest/swe-simulator/compare/main...step-07-dev-review>
+- The pull request is open: [#6](https://github.com/Lecoeurdelest/swe-simulator/pull/6). Merge it with **"Create a merge commit"** (not squash).
 - Afterwards: `git switch main && git pull` on each machine. You can delete the branch on GitHub.
 - Heads-up: the verification runs on this PC may have left a test run in its save. If the title screen shows CONTINUE, tap New game for a clean run. They also pressed the new debug button "Reset first run" (A51), so your next New game on this PC is a first run, with Ducky's coach marks.
 
