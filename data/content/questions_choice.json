@@ -164,7 +164,7 @@
       {
         "kind": "neutral",
         "text": "Delete the message and move on.",
-        "reaction": "Deleting it doesn't change it. Hacker bots copied it in seconds."
+        "reaction": "Deleting it doesn't change it. Half the company already saw it. Some took screenshots."
       },
       {
         "kind": "bad",
@@ -270,7 +270,7 @@
       "mid",
       "big"
     ],
-    "tip": "tip_teamwork_without_job",
+    "tip": "tip_take_feedback",
     "opener_only": false,
     "answers": [
       {

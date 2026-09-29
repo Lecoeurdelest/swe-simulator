@@ -65,14 +65,19 @@
     "triggers": "kq_url_shortener"
   },
   "tip_star_stories": {
-    "short": "Prepare 5 stories as Situation, Task, Action, Result: conflict, failure, teamwork, a win, learning fast.",
+    "short": "Prepare 5 stories: conflict, failure, teamwork, a win, learning fast. Tell each as situation, task, action, result.",
     "more": "End each one with what you learned. The same stories answer many questions.",
     "triggers": "red behavioral answer, eq_weakness"
   },
   "tip_teamwork_without_job": {
-    "short": "No team yet? Public coding projects, coding contests and freelance clients give you feedback and team stories.",
+    "short": "No team yet? Public coding projects, team coding events and freelance clients give you feedback and team stories.",
     "more": "Feedback on your code from strangers is a fast way to learn how teams work.",
-    "triggers": "Self-Taught teamwork answer"
+    "triggers": "none in the MVP (eq_harsh_review uses tip_take_feedback; the Self-Taught's own answer there carries this lesson)"
+  },
+  "tip_take_feedback": {
+    "short": "Rude feedback can still hold a real fix. Ask what to change, then raise the tone privately and calmly.",
+    "more": "Separate the message from the delivery. Fix the work first, then talk about the tone one-on-one.",
+    "triggers": "eq_harsh_review"
   },
   "tip_ask_questions": {
     "short": "Always ask a question at the end: what success looks like in 90 days, how the team works, real hours.",
@@ -95,7 +100,7 @@
     "triggers": "eq_leaked_password"
   },
   "tip_small_changes": {
-    "short": "Release small, tested updates early in the week. Friday releases are how weekends die.",
+    "short": "Release small, tested updates early in the week, so problems get fixed before the weekend.",
     "more": "Small updates are easier to check and easier to undo.",
     "triggers": "eq_friday_deploy"
   },
