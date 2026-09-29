@@ -13,6 +13,8 @@ script = ExtResource("1_coach")
 [node name="Note" parent="." instance=ExtResource("2_duck")]
 unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 1
+closable = true
 
 [node name="Arrows" type="Control" parent="."]
 unique_name_in_owner = true

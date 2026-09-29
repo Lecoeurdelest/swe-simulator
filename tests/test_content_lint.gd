@@ -16,12 +16,15 @@ const TIERS: PackedStringArray = ["startup", "mid", "big"]
 const WRAP_COLUMNS := 40
 const MIN_CHOICE_PER_TIER := 11     # GDD 5.8.2: enough for 5 interviews
 const MIN_KNOWLEDGE_PER_TIER := 19
+## DECISIONS D9: your CV is always true. Tailor & Apply sends the Polished lines; there is no Lie.
+const CV_VARIANTS: PackedStringArray = ["honest", "polished"]
+const LIE_ONLY_FIELDS: PackedStringArray = ["degree_claim", "probe", "probe_at"]
 
 ## Budget category -> [max characters, max lines at 40 columns]. See budget_of() for the mapping.
 const BUDGETS: Dictionary = {
 	"answer": [40, 1],     # answer buttons and the insider "Why us?" button: exactly the button width
 	"one_line": [40, 1],   # red flags, posting title, salary text
-	"prompt": [100, 3],    # question prompts and CV lie probes
+	"prompt": [100, 3],    # question prompts
 	"spoken": [80, 3],     # knowledge green / yellow / red
 	"card": [60, 2],       # posting joke, company card joke and review, background one-liner, CV line
 	"dialogue": [120, 4],  # reactions, barks, coach lines, ducky, Dana's lines, cutscene captions
@@ -35,7 +38,7 @@ const BUDGETS: Dictionary = {
 const PLACEHOLDERS: PackedStringArray = [
 	"player_name", "company", "job_title", "salary", "work_mode", "commute_min", "office_days", "hours",
 	"last_company", "knockout", "insider", "days", "n", "day", "topic_1", "topic_2",
-	"r", "g", "i", "yes_no", "total",
+	"r", "g", "i", "total",
 ]
 
 ## CONTENT.md 1.3, matched case-insensitively as whole words. It lives here, not in the game data,
@@ -71,7 +74,7 @@ const DATA_KEYS: PackedStringArray = [
 	"variant", "ghost", "style", "hoodie", "_gap_topic_pool",
 ]
 ## Dictionaries keyed by ids: their keys show up as "*" in a field path.
-const ID_KEYED: PackedStringArray = ["probe_at", "_keywords", "_topics"]
+const ID_KEYED: PackedStringArray = ["_keywords", "_topics"]
 
 var _data: Dictionary = {}                # file name -> parsed Dictionary ({} if missing or broken)
 var _parse_errors: Array[String] = []
@@ -260,20 +263,14 @@ func test_ref_perk_and_fine_print_tiers() -> void:
 	_report(problems, "perk / fine-print tier")
 
 
-func test_ref_cv_line_backgrounds_and_probe_companies() -> void:
+func test_ref_cv_line_backgrounds() -> void:
 	var problems: Array[String] = []
 	var backgrounds := _entries("backgrounds")
-	var companies := _entries("companies")
 	var lines := _entries("cv_lines")
 	for id: String in lines:
 		var bg: String = str(_field(lines, id, "background"))
 		if not backgrounds.has(bg):
 			problems.append("cv_lines/%s: background '%s'" % [id, bg])
-		var probe_at: Variant = _field(lines, id, "probe_at", {})
-		if probe_at is Dictionary:
-			for company: String in probe_at:
-				if not companies.has(company):
-					problems.append("cv_lines/%s: probe_at company '%s'" % [id, company])
 	_report(problems, "CV line reference")
 
 
@@ -421,11 +418,11 @@ func test_shape_cv_lines_per_background() -> void:
 			if str(_field(lines, id, "background")) == bg:
 				slots.append("%s/%s" % [_field(lines, id, "line"), _field(lines, id, "variant")])
 		for line: String in ["edu", "exp", "proj"]:
-			for variant: String in ["honest", "polished", "lie"]:
+			for variant: String in CV_VARIANTS:
 				if slots.count(line + "/" + variant) != 1:
 					problems.append("%s: %d CV lines for %s/%s (want 1)" % [bg, slots.count(line + "/" + variant), line, variant])
-		if slots.size() != 9:
-			problems.append("%s: %d CV lines (want 9)" % [bg, slots.size()])
+		if slots.size() != 6:
+			problems.append("%s: %d CV lines (want 6)" % [bg, slots.size()])
 	_report(problems, "CV line count")
 
 
@@ -449,6 +446,28 @@ func test_shape_honest_flags_match_tres() -> void:
 		if bg.years_pass_honest != years:
 			problems.append("%s.tres years_pass_honest = %s, but its honest CV lines say %s" % [id, bg.years_pass_honest, years])
 	_report(problems, "honest flag")
+
+
+## D9: a CV line is honest or its honest Polished reframing. Polished never adds a degree the
+## background doesn't have (only a referral passes a degree knockout), and no lie-only field is left.
+func test_shape_cv_lines_stay_true() -> void:
+	var problems: Array[String] = []
+	var lines := _entries("cv_lines")
+	assert_gt(lines.size(), 0, "cv_lines.json is empty")
+	var degree_by_level: Dictionary = {}   # "background/variant" -> degree on its edu line
+	for id: String in lines:
+		var variant := str(_field(lines, id, "variant"))
+		if not variant in CV_VARIANTS:
+			problems.append("cv_lines/%s: variant '%s' (want honest or polished)" % [id, variant])
+		for field: String in LIE_ONLY_FIELDS:
+			if _field(lines, id, field) != null:
+				problems.append("cv_lines/%s: lie-only field '%s'" % [id, field])
+		if str(_field(lines, id, "line")) == "edu":
+			degree_by_level["%s/%s" % [_field(lines, id, "background"), variant]] = bool(_field(lines, id, "degree", false))
+	for bg: String in _entries("backgrounds"):
+		if degree_by_level.get(bg + "/polished") != degree_by_level.get(bg + "/honest"):
+			problems.append("%s: the Polished Education line changes the degree" % bg)
+	_report(problems, "true CV")
 
 
 func test_shape_tier_pool_minimums() -> void:
@@ -482,7 +501,7 @@ static func budget_of(file: String, id: String, field: String) -> String:
 		return "answer"
 	if field == "red_flags" or (file == "postings" and field in ["title", "salary_text"]):
 		return "one_line"
-	if field in ["prompt", "probe", "probe_at.*"]:
+	if field == "prompt":
 		return "prompt"
 	if field in ["green", "yellow", "red"]:
 		return "spoken"

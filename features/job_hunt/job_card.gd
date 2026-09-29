@@ -1,7 +1,7 @@
 class_name JobCard
 extends MarginContainer
 ## The DoomApply job card (GDD S04, ARCHITECTURE 11.4). Front: the tier's header strip, logo, company
-## and tier, the job title, 3 tags checked against the CV as set, the joke, a knockout chip and the
+## and tier, the job title, 3 tags checked against your honest CV, the joke, a knockout chip and the
 ## Quick Apply odds. Back: company and tier, applicants, posted, salary, the tailored odds and the
 ## referral toggle. It only shows and animates: the hub calls the GameState verbs.
 ## It is also the hub's swipe surface, one of the two Controls that read raw touch (INV-14): this

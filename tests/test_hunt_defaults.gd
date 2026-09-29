@@ -4,8 +4,7 @@ extends McpTestSuite
 ## other companies; a blacklist withdraws that company's waiting invites and silences its pending
 ## applications; a plain rejection's email is picked from the application uid, without dice; the
 ## first-run "saw your profile" fallback never uses a ghost job; passes_years stays a boolean.
-## Also the CV level setter. Loads the real .tres and JSON with load() / FileAccess, never the
-## Content autoload (INV-12).
+## Loads the real .tres and JSON with load() / FileAccess, never the Content autoload (INV-12).
 
 const TIER_IDS: PackedStringArray = ["startup", "mid", "big"]
 
@@ -67,7 +66,7 @@ func _app(run: RunState, tier_id: String, p: float, company_id: String, relevant
 		"reveal_day": Odds.reply_day(cfg, tiers[tier_id], run.day, knockout),
 		"p": p, "hits": 2 if relevant else 1, "relevant": relevant, "knockout": knockout,
 		"knockout_reason": {"id": "knock_degree", "args": {}} if knockout else {},
-		"is_ghost": false, "referral": false, "tailored": true, "lies": [], "status": "pending",
+		"is_ghost": false, "referral": false, "tailored": true, "status": "pending",
 	}
 	run.applications.append(app)
 	return app
@@ -313,24 +312,12 @@ func test_the_profile_fallback_never_uses_a_ghost_job() -> void:
 	assert_eq(_uids(report["invites"], "app_uid"), [real])
 
 
-# ---------- (e) kept as is, and the CV setter ----------
+# ---------- (e) kept as is ----------
 
 func test_passes_years_stays_a_boolean() -> void:
-	var run := _run("graduate")
-	for level: String in RunState.CV_LEVELS:
-		run.cv_levels["exp"] = level
+	for bg_id: String in ["intern", "graduate", "self_taught"]:
+		var run := _run(bg_id)
 		for tailored: bool in [false, true]:
 			var sent := run.cv_sent(content["cv_lines"], tailored)
-			assert_eq(typeof(sent["passes_years"]), TYPE_BOOL, "%s tailored=%s" % [level, tailored])
+			assert_eq(typeof(sent["passes_years"]), TYPE_BOOL, "%s tailored=%s" % [bg_id, tailored])
 			assert_eq(typeof(sent["degree"]), TYPE_BOOL)
-
-
-func test_set_cv_level_takes_only_known_lines_and_levels() -> void:
-	var run := _run("self_taught")
-	assert_true(run.set_cv_level("edu", "lie"))
-	assert_eq(run.cv_levels["edu"], "lie")
-	assert_true(run.set_cv_level("exp", "polished"))
-	assert_false(run.set_cv_level("hobbies", "lie"), "unknown line")
-	assert_false(run.set_cv_level("proj", "exaggerated"), "unknown level")
-	assert_eq(run.cv_levels, {"edu": "lie", "exp": "polished", "proj": "honest"})
-	assert_true(run.cv_sent(content["cv_lines"], false)["degree"], "the fake degree now passes degree knockouts")

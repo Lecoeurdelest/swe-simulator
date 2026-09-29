@@ -31,6 +31,15 @@ theme_override_colors/font_color = Color(0.14901961, 0.16862746, 0.26666668, 1)
 text = "Ducky"
 vertical_alignment = 1
 
+[node name="Close" type="Label" parent="Rows/Header"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 10
+theme_override_colors/font_color = Color(0.14901961, 0.16862746, 0.26666668, 1)
+text = "x"
+vertical_alignment = 1
+
 [node name="Tip" type="Label" parent="Rows" unique_id=1035375469]
 unique_name_in_owner = true
 layout_mode = 2

@@ -53,6 +53,18 @@ static func money(amount: int) -> String:
 	return ("-" if amount < 0 else "") + "$" + grouped
 
 
+## Content text with its {placeholders} filled (String.format), except that a value ending in "."
+## swallows a "." right after its placeholder, so a name that ends a sentence never doubles it:
+## ("Welcome to {company}. Hi.", {"company": "Engagement Farms Inc."}) -> "Welcome to Engagement
+## Farms Inc. Hi.". An ellipsis after a placeholder keeps its three dots.
+static func fill(template: String, args: Dictionary) -> String:
+	for key: Variant in args:
+		if str(args[key]).ends_with("."):
+			var tag := "{%s}" % key
+			template = template.replace(tag + ".", tag)
+	return template.format(args)
+
+
 ## Word wrap as an autowrapped Label does it, and as test_content_lint counts lines: a word moves to
 ## the next line when it would pass `columns`, a word longer than a whole line is cut, "\n" starts a
 ## line. monogram is monospaced, so columns are exact.

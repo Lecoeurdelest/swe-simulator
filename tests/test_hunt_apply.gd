@@ -1,7 +1,7 @@
 @tool
 extends McpTestSuite
 ## Applying (GDD 5.4, 5.6) through the real RunState path: the tags and gates actually sent, knockouts,
-## relevance, P_invite, referrals, lies, energy. The GDD 5.6 worked examples run end to end here.
+## relevance, P_invite, referrals, energy. The GDD 5.6 worked examples run end to end here.
 ## Loads the real .tres and JSON with load() / FileAccess, never the Content autoload (INV-12).
 
 const TIER_IDS: PackedStringArray = ["startup", "mid", "big"]
@@ -55,7 +55,7 @@ func _near(actual: float, expected: float, eps: float, what: String) -> void:
 	assert_true(absf(actual - expected) <= eps, "%s: expected %.4f, got %.4f" % [what, expected, actual])
 
 
-func test_tags_sent_follow_the_cv_levels() -> void:
+func test_quick_sends_the_honest_cv_and_tailor_the_polished_one() -> void:
 	var cv: Dictionary = content["cv_lines"]
 	var graduate := _run("graduate")
 	var honest := graduate.cv_sent(cv, false)
@@ -65,17 +65,7 @@ func test_tags_sent_follow_the_cv_levels() -> void:
 	assert_eq(tailored["tags"], ["java", "data", "python", "agile", "sql", "git", "apis"], "Tailor sends every line Polished: +3 tags")
 	assert_eq((_run("intern").cv_sent(cv, false)["tags"] as Array).size(), 5, "Intern honest: 5 tags")
 	assert_eq((_run("self_taught").cv_sent(cv, false)["tags"] as Array).size(), 6, "Self-Taught honest: 6 tags")
-	graduate.cv_levels["proj"] = "polished"
-	assert_eq(graduate.cv_sent(cv, false)["tags"], ["java", "python", "sql", "git", "apis"], "Quick Apply sends the CV as set")
-
-
-func test_tailor_never_downgrades_a_lie() -> void:
-	var run := _run("graduate")
-	run.cv_levels["exp"] = "lie"
-	var sent := run.cv_sent(content["cv_lines"], true)
-	assert_eq(sent["line_ids"], ["cv_graduate_edu_polished", "cv_graduate_exp_lie", "cv_graduate_proj_polished"])
-	assert_eq(sent["lies"], ["cv_graduate_exp_lie"])
-	assert_true((sent["tags"] as Array).has("testing"), "the Lie's extra tag goes out")
+	assert_eq(tailored["line_ids"], ["cv_graduate_edu_polished", "cv_graduate_exp_polished", "cv_graduate_proj_polished"])
 
 
 func test_gates_come_from_the_lines_sent() -> void:
@@ -86,9 +76,8 @@ func test_gates_come_from_the_lines_sent() -> void:
 	assert_true(graduate.cv_sent(cv, true)["passes_years"], "Polished Experience passes the years knockout")
 	assert_true(_run("intern").cv_sent(cv, false)["passes_years"], "the Intern's honest line passes")
 	var self_taught := _run("self_taught")
-	assert_false(self_taught.cv_sent(cv, true)["degree"], "no degree, even tailored")
-	self_taught.cv_levels["edu"] = "lie"
-	assert_true(self_taught.cv_sent(cv, false)["degree"], "a fake degree passes degree knockouts")
+	assert_false(self_taught.cv_sent(cv, false)["degree"], "no degree")
+	assert_false(self_taught.cv_sent(cv, true)["degree"], "no degree, even tailored: only a referral skips a degree knockout")
 
 
 func test_example_1_quick_apply_is_knocked_out_and_rejected_next_morning() -> void:
@@ -188,16 +177,18 @@ func test_the_application_record() -> void:
 	assert_eq(run.total_applications, 1)
 
 
-func test_lies_sent_are_recorded_once() -> void:
+## D9: nothing you send is a lie, so an application records none and the run carries none.
+func test_an_application_records_no_lies() -> void:
 	var run := _run("graduate")
-	run.cv_levels["exp"] = "lie"
-	var first := _apply(run, _card(run, "job_mid_qa", "co_beigeware"), false)
-	var second := _apply(run, _card(run, "job_mid_platform", "co_beigeware"), true)
-	assert_eq(first["lies"], ["cv_graduate_exp_lie"])
-	assert_eq(second["lies"], ["cv_graduate_exp_lie"])
-	assert_eq(run.lies_carried, ["cv_graduate_exp_lie"], "carried once")
-	run.cv_levels["exp"] = "polished"
-	assert_eq(_apply(run, _card(run, "job_mid_mobile", "co_beigeware"), false)["lies"], [])
+	var quick := _apply(run, _card(run, "job_mid_qa", "co_beigeware"), false)
+	var tailored := _apply(run, _card(run, "job_mid_platform", "co_beigeware"), true)
+	for app: Dictionary in [quick, tailored]:
+		assert_false(app.has("lies"))
+	for key: String in ["quick", "tailored", "referral"]:
+		var quote: Dictionary = run.card_odds(cfg, tiers, bgs["graduate"], content,
+			{"uid": 99, "template_id": "job_mid_backend", "company_id": "co_beigeware", "tier": "mid"})[key]
+		assert_false(quote.has("lies"), key)
+	assert_false(run.to_dict().has("lies_carried"))
 
 
 func test_card_odds_bands_and_knockout_chip() -> void:

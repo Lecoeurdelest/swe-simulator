@@ -23,9 +23,6 @@ extends Resource
 @export var tier_difficulty: int = 42
 @export var needle_speed: float = 0.60        # bar-widths per second
 @export var zone_jumps: bool = false          # startup "PIVOT!"
-@export var lie_probe_chance: float = 0.45
-@export var bluff_detect: float = 0.05
-@export var background_check: float = 0.30
 
 @export_group("Offer")
 @export var salary_min_k: int = 65            # yearly salary, thousands of dollars

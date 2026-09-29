@@ -1,0 +1,50 @@
+# Review fix pass: headless test run, 2026-09-29
+# git HEAD 62c2a68 (code), docs uncommitted at run time; Godot 4.7.2 headless, McpTestRunner over every tests/test_*.gd
+
+## all suites
+RESULT passed=217 failed=0 total=217 suites=20 ms=1012
+Content: 3 backgrounds, 3 tiers, 16/16 JSON files
+
+## content_lint alone
+RESULT passed=33 failed=0 total=33 suites=1 ms=26
+
+## parse check (every .gd and .tscn under autoload core data features ui tests loads)
+CHECK files=85 failed=0
+
+## GDScript warnings in a debug (-d) load of every script
+WARNING: The local variable "size" is shadowing an already-declared property in the base class "Control".
+   at: GDScript::reload (res://features/intro/intro.gd:234)
+
+## ARCHITECTURE section 17 (cmp17)
+17.1   core/game_flow.gd                             lines 1392-1433  SAME  (doc 1652 / file 1652)
+17.2   core/run_state.gd                             lines 1437-2237  SAME  (doc 35703 / file 35703)
+17.3   core/save_io.gd                               lines 2241-2284  SAME  (doc 1346 / file 1346)
+17.4   core/odds.gd                                  lines 2288-2586  SAME  (doc 12605 / file 12605)
+17.5   data/types/tier_data.gd                       lines 2592-2628  SAME  (doc 1373 / file 1373)
+17.5   data/types/background_data.gd                 lines 2632-2681  SAME  (doc 1556 / file 1556)
+17.5   data/types/balance_config.gd                  lines 2685-2798  SAME  (doc 4707 / file 4707)
+17.6   autoload/content.gd                           lines 2802-2894  SAME  (doc 3441 / file 3441)
+17.7   autoload/game_state.gd                        lines 2898-3306  SAME  (doc 15458 / file 15458)
+17.8   autoload/device.gd                            lines 3310-3428  SAME  (doc 4533 / file 4533)
+17.9   autoload/scene_router.gd                      lines 3432-3501  SAME  (doc 2401 / file 2401)
+17.10  ui/components/safe_area_margin.gd             lines 3505-3528  SAME  (doc 1005 / file 1005)
+17.11  features/interview/answer_meter.gd            lines 3532-3638  SAME  (doc 3991 / file 3991)
+17.12  features/title/title.gd                       lines 3646-3761  SAME  (doc 4990 / file 4990)
+17.13  tests/test_flow.gd                            lines 3769-3927  SAME  (doc 7957 / file 7957)
+17.13  tests/test_save.gd                            lines 3931-4009  SAME  (doc 3482 / file 3482)
+17.13  tests/test_odds.gd                            lines 4013-4107  SAME  (doc 3411 / file 3411)
+17.13  tests/test_interview.gd                       lines 4111-4195  SAME  (doc 3330 / file 3330)
+17.13  tests/test_offer.gd                           lines 4199-4473  SAME  (doc 13545 / file 13545)
+17.14  core/interview_plan.gd                        lines 4479-4613  SAME  (doc 6052 / file 6052)
+17.15  ui/components/ui_text.gd                      lines 4619-4718  SAME  (doc 4149 / file 4149)
+17.16  core/hunt_tips.gd                             lines 4724-4859  SAME  (doc 6556 / file 6556)
+17.17  features/intro/cutscene_plan.gd               lines 4865-4914  SAME  (doc 2192 / file 2192)
+
+## editor test_run (godot-ai, main scene open)
+passed=217 failed=0 skipped=0 suites=20 (bars, content_lint, data_files, endings, flow, hunt_apply, hunt_board, hunt_defaults, hunt_edges, hunt_reveal, hunt_sim, hunt_sleep, hunt_tips, interview, interview_plan, intro, odds, offer, save, ui_text)
+
+## render + validators (after the state.json update)
+render.py: ok
+check_project.py validate project.yaml: valid errors=0 warnings=['STEP-00: decision D4 is not accepted.']
+check_project.py audit-preservation project.yaml --root .: valid errors=0 warnings=['STEP-00: decision D4 is not accepted.']
+check_project.py audit-task-status docs/task/README.md: valid errors=0 warnings=[]

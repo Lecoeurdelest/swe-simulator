@@ -40,7 +40,7 @@ func _won(bg_id: String, tier_id: String, interview_seed: String) -> RunState:
 	run.set_background(cfg, bgs[bg_id])
 	run.interview = {
 		"invite_uid": 5, "company_id": COMPANY[tier_id], "template_id": POSTING[tier_id], "tier": tier_id,
-		"seed": interview_seed, "question_ids": [], "warmup_id": "", "probe_line": "", "tired": false,
+		"seed": interview_seed, "question_ids": [], "warmup_id": "", "tired": false,
 	}
 	return run
 
@@ -126,6 +126,28 @@ func test_perks_and_fine_print_match_the_tier() -> void:
 			var fine := str(made["fine_print"])
 			assert_true(fine.begins_with("fp_") and _tiers_of(fine).has(tier_id),
 				"%s: %s is %s fine print" % [tier_id, fine, tier_id])
+
+
+## REVIEW_QUEUE 3: the fine print never repeats a dealt perk (fp_<x> vs perk_<x>), so a startup
+## paper never lists "Unlimited PTO*" as both a perk and the fine print.
+func test_fine_print_never_repeats_a_perk() -> void:
+	var emails: Dictionary = content["emails"]
+	assert_true(emails.has("perk_unlimited_pto") and emails.has("fp_unlimited_pto"), "the pair this guards")
+	assert_false(RunState.fine_print_pool(emails, "startup", ["perk_unlimited_pto", "perk_pingpong"]).has("fp_unlimited_pto"),
+		"left out when its perk is dealt")
+	assert_true(RunState.fine_print_pool(emails, "startup", ["perk_kombucha", "perk_pingpong"]).has("fp_unlimited_pto"),
+		"still dealt when its perk is not")
+	var problems: Array[String] = []
+	var pto_papers := 0
+	for i: int in 200:
+		var made := _offer("intern", "startup", str(i * 7919 + 3))
+		var perks: Array = made["perks"]
+		if perks.has("perk_unlimited_pto"):
+			pto_papers += 1
+		if perks.has("perk_" + str(made["fine_print"]).trim_prefix("fp_")):
+			problems.append("seed %d: %s with %s" % [i, made["fine_print"], perks])
+	assert_gt(pto_papers, 0, "some papers dealt the PTO perk")
+	assert_true(problems.is_empty(), "%d paper(s) repeat a perk:\n  %s" % [problems.size(), "\n  ".join(PackedStringArray(problems))])
 
 
 ## The contract is picked on an RNG seeded from the checkpoint: the same interview (a resume replays
@@ -232,32 +254,20 @@ func test_decline_ends_the_run_only_at_zero_rent() -> void:
 
 
 ## GDD 5.11: a kill on the Hired card resumes at the offer (its save was written on entering OFFER,
-## PHASE2_STUB is never saved). Accepting again replays the background check on the same RNG state:
-## the same result, the same RNG state after it, and the same contract. Nothing re-rolls.
-func test_accept_after_a_hired_kill_rolls_the_same_dice() -> void:
-	var outcomes: Dictionary = {}
+## PHASE2_STUB is never saved). Accepting again hires with the same contract and the same Dream
+## score (D9: no background check; hire() takes no RNG, so Accept cannot roll dice).
+func test_accept_after_a_hired_kill_hires_the_same_job() -> void:
 	for seed_value: int in range(1, 41):
 		var run := _won("intern", "big", str(seed_value * 31))
-		run.applications.append({"uid": 9, "template_id": POSTING["big"], "company_id": COMPANY["big"],
-			"tier": "big", "lies": ["cv_intern_edu_lie"], "status": "interview"})
 		run.make_offer(cfg, tiers["big"], bgs["intern"], content, 70.0)
 		run.interview = {}
 		run.phase = GameFlow.Phase.OFFER
-		var rng := RandomNumberGenerator.new()
-		rng.seed = seed_value
-		rng.randi()
-		run.rng_seed = str(seed_value)
-		run.rng_state = str(rng.state)  # what GameState.save() writes on entering OFFER
 		var saved := JSON.stringify(run.to_dict())
-		var first := run.background_check_caught(tiers["big"], content, COMPANY["big"], rng)
+		var flags: Array = content["companies"][COMPANY["big"]]["red_flags"]
+		run.hire(cfg, bgs["intern"], flags)
 		var back := RunState.from_dict(JSON.parse_string(saved))
-		var replay := RandomNumberGenerator.new()
-		replay.seed = back.rng_seed.to_int()   # Continue: seed first, then state
-		replay.state = back.rng_state.to_int()
 		assert_eq(back.phase, GameFlow.Phase.OFFER, "Continue resumes at the offer")
 		assert_eq(back.offer, run.offer, "the same contract")
-		assert_eq(back.background_check_caught(tiers["big"], content, COMPANY["big"], replay), first,
-			"seed %d: the same background check" % seed_value)
-		assert_eq(replay.state, rng.state, "seed %d: the run RNG ends in the same state" % seed_value)
-		outcomes[first] = true
-	assert_eq(outcomes.size(), 2, "both outcomes happen across the seeds (Big: 70%)")
+		back.hire(cfg, bgs["intern"], flags)
+		assert_eq(back.employment, run.employment, "seed %d: the same job" % seed_value)
+		assert_eq(back.dream_score, run.dream_score, "seed %d: the same Dream score" % seed_value)

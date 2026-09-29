@@ -66,7 +66,7 @@ func _app(run: RunState, tier_id: String, p: float, relevant: bool = true, knock
 		"reveal_day": Odds.reply_day(cfg, tiers[tier_id], run.day, knockout),
 		"p": p, "hits": 2 if relevant else 1, "relevant": relevant, "knockout": knockout,
 		"knockout_reason": {"id": "knock_degree", "args": {}} if knockout else {},
-		"is_ghost": ghost, "referral": false, "tailored": true, "lies": [], "status": "pending",
+		"is_ghost": ghost, "referral": false, "tailored": true, "status": "pending",
 	}
 	run.applications.append(app)
 	return app
@@ -138,7 +138,7 @@ func _type_mismatches(a: Variant, b: Variant, path: String, out: Array[String]) 
 
 
 ## A scripted day: take the first invite when energy allows (blacklisting that company every 5th
-## day, as a decline or BUSTED would), skip up to 3 cards whose uid is a multiple of 3, then
+## day, as a decline would), skip up to 3 cards whose uid is a multiple of 3, then
 ## tailor 2+ tag matches (with a token on Mid/Big) and quick-apply the rest. Then Sleep, Start day.
 func _play_day(run: RunState, rng: RandomNumberGenerator) -> void:
 	var bg: BackgroundData = bgs[run.background_id]

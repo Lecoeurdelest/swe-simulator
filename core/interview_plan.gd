@@ -4,12 +4,26 @@ extends RefCounted
 ## Which questions one interview asks (GDD 5.8.2). GameState.start_interview picks them once and
 ## freezes them in the checkpoint, so a resume replays the same interview. Pure: the pools are
 ## parsed JSON (id -> entry), from Content.entries() in the game and from FileAccess in the tests.
-## Tested by test_interview_plan (picking, the prompts and the dice a checkpoint replays).
+## Tested by test_interview_plan (picking, the prompts and the dice a checkpoint replays, the VS plate).
+
+## GDD S07: Dana's VS plate shows one joke stat and one special move (barks.json ids), in turn.
+const VS_DANA_STATS: PackedStringArray = ["vs_dana_stat_1", "vs_dana_stat_2", "vs_dana_stat_3"]
+const VS_DANA_MOVES: PackedStringArray = ["vs_dana_move_1", "vs_dana_move_2", "vs_dana_move_3"]
 
 
 ## GDD 5.8.2: the warm-up belongs to the first interview of the first run only.
 static func warmup_due(run: RunState) -> bool:
 	return run.first_run and run.interviews_taken == 0
+
+
+## Dana's VS plate for this interview: {stat, move}, barks.json ids. Each list takes turns by how often
+## you met her before (run.times_met_dana counts once an interview ends), without dice (INV-04), so a
+## resumed interview shows the same lines.
+static func vs_plate(run: RunState) -> Dictionary:
+	return {
+		"stat": VS_DANA_STATS[posmod(run.times_met_dana, VS_DANA_STATS.size())],
+		"move": VS_DANA_MOVES[posmod(run.times_met_dana, VS_DANA_MOVES.size())],
+	}
 
 
 ## Returns {question_ids, warmup_id}. question_ids holds one id per cfg.prompt_pattern slot, in prompt
@@ -55,18 +69,11 @@ static func eligible(pool: Dictionary, tier_id: String) -> Array[String]:
 
 
 ## The prompts a checkpoint plays, in order: one {kind, id} per question id, kind "choice" or
-## "knowledge". GDD 5.8.2: a lie probe (probe_line, a cv_lines id) replaces knowledge prompt 2.
-static func prompts(question_ids: Array, choice_pool: Dictionary, probe_line: String) -> Array[Dictionary]:
+## "knowledge" (an old save's probe_line is never read: its knowledge prompt 2 is asked, DECISIONS D9).
+static func prompts(question_ids: Array, choice_pool: Dictionary) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
-	var knowledge_count := 0
 	for id: Variant in question_ids:
-		var kind := "choice" if choice_pool.has(str(id)) else "knowledge"
-		if kind == "knowledge":
-			knowledge_count += 1
-			if knowledge_count == 2 and probe_line != "":
-				out.append({"kind": "probe", "id": probe_line})
-				continue
-		out.append({"kind": kind, "id": str(id)})
+		out.append({"kind": "choice" if choice_pool.has(str(id)) else "knowledge", "id": str(id)})
 	return out
 
 
@@ -86,26 +93,6 @@ static func meter_rng(interview: RandomNumberGenerator) -> RandomNumberGenerator
 	var rng := RandomNumberGenerator.new()
 	rng.seed = interview.randi()
 	return rng
-
-
-## The question Dana asks about a Lie CV line (CONTENT.md section 6): its company-specific
-## "probe_at" line if it has one for this company, else its "probe". Raw text: the scene tr()s it.
-static func probe_question(cv_line: Dictionary, company_id: String) -> String:
-	var at: Dictionary = cv_line.get("probe_at", {})
-	return str(at.get(company_id, cv_line.get("probe", "")))
-
-
-## A background's Lie CV lines, sorted (edu, exp, proj). The debug probe toggle cycles through them
-## until Step 5 rolls the real probe.
-static func lie_lines(cv_pool: Dictionary, background_id: String) -> Array[String]:
-	var ids: Array[String] = []
-	for id: String in cv_pool:
-		var entry: Variant = cv_pool[id]
-		if entry is Dictionary and str((entry as Dictionary).get("background", "")) == background_id \
-				and str((entry as Dictionary).get("variant", "")) == "lie":
-			ids.append(id)
-	ids.sort()
-	return ids
 
 
 ## Moves each asked id to the end of `seen`, so `seen` stays ordered from least to most recently asked.

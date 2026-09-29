@@ -1,6 +1,6 @@
 @tool
 extends McpTestSuite
-## GDD 5.8.7 worked example (Intern vs Dana at Hierarchai) with the luck values fixed, plus bluff and Tired.
+## GDD 5.8.7 worked example (Intern vs Dana at Hierarchai) with the luck values fixed, plus Tired.
 
 var cfg: BalanceConfig
 var startup: TierData
@@ -68,12 +68,6 @@ func test_worked_example_5_8_7() -> void:
 	# 6. committee wheel
 	assert_true(Odds.committee_eligible(cfg, doubt, startup.doubt_hp))
 	_near(Odds.committee_win_p(cfg, doubt, startup.doubt_hp, 45), 0.68, 0.01, "wheel P_win")
-
-
-func test_bluff_odds_by_background_at_mid() -> void:
-	_near(Odds.bluff_p(cfg, mid, 50, 40, false), 0.45, 0.001, "Intern")
-	_near(Odds.bluff_p(cfg, mid, 55, 15, false), 0.35, 0.001, "Graduate")
-	_near(Odds.bluff_p(cfg, mid, 55, 10, false), 0.325, 0.001, "Self-Taught")
 
 
 func test_tired_rule() -> void:

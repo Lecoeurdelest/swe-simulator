@@ -93,16 +93,49 @@ func test_contract_field_lines() -> void:
 		assert_true(line.length() <= 40, "'%s' fits 40 columns" % line)
 
 
-## GDD S08: the probe buttons are 124x44, and Bluff carries its odds band on a second line. The
-## ProbeButton variation's padding and 12 px line pitch (DECISIONS A3) keep two lines inside 44.
-func test_probe_button_fits_two_lines_in_44() -> void:
-	var theme := load("res://ui/theme/main_theme.tres") as Theme
-	assert_eq(theme.get_type_variation_base(&"ProbeButton"), &"Button")
-	var font_height := theme.default_font.get_height(theme.default_font_size)
-	var two_lines := 2 * font_height + theme.get_constant(&"line_spacing", &"ProbeButton")
-	for style: String in ["normal", "pressed", "hover", "hover_pressed", "disabled"]:
-		var padding := theme.get_stylebox(style, &"ProbeButton").get_minimum_size().y
-		assert_eq(padding + two_lines, 44.0, "%s: two lines fill the 44 px button exactly" % style)
+## REVIEW_QUEUE 3: a value ending in "." never doubles the period after its placeholder.
+func test_fill_never_doubles_a_period() -> void:
+	assert_eq(UiText.fill("Welcome to {company}. You have 45 minutes.", {"company": "Engagement Farms Inc."}),
+		"Welcome to Engagement Farms Inc. You have 45 minutes.", "the name's period ends the sentence")
+	assert_eq(UiText.fill("Welcome to {company}. Hi.", {"company": "Murkcloud"}), "Welcome to Murkcloud. Hi.",
+		"a name without a period keeps the template's")
+	assert_eq(UiText.fill("At {company}? ...Yeah.", {"company": "Stealth Mode Inc."}),
+		"At Stealth Mode Inc.? ...Yeah.", "other punctuation stays")
+	assert_eq(UiText.fill("{company}... Hi.", {"company": "Stealth Mode Inc."}), "Stealth Mode Inc... Hi.",
+		"an ellipsis keeps three dots")
+	assert_eq(UiText.fill("Day {day}. {n} left.", {"day": 3, "n": 2}), "Day 3. 2 left.", "numbers as before")
+	assert_eq(UiText.fill("No placeholders.", {}), "No placeholders.", "no args")
+
+
+## Content.text() and field() fill placeholders through UiText.fill (read as text: tests never load
+## the autoload, INV-12).
+func test_content_fills_through_ui_text() -> void:
+	var source := FileAccess.get_file_as_string("res://autoload/content.gd")
+	assert_eq(source.count("UiText.fill("), 2, "text() and field() both use UiText.fill")
+	assert_false(source.contains(".format("), "no raw String.format left in Content")
+
+
+## Every text that names a company, filled with every company name, gets no ".." its template lacks.
+func test_company_names_never_double_a_period() -> void:
+	var names: Array[String] = []
+	for entry: Variant in _load_json("companies").values():
+		if entry is Dictionary:
+			names.append(str((entry as Dictionary).get("name", "")))
+	assert_true(names.any(func(n: String) -> bool: return n.ends_with(".")), "a company name ends in '.'")
+	var problems: Array[String] = []
+	var checked := 0
+	for file: String in ["barks", "emails", "endings", "events", "news", "postings"]:
+		for template: String in _strings(_load_json(file)):
+			for key: String in ["company", "last_company"]:
+				if not template.contains("{%s}" % key):
+					continue
+				checked += 1
+				for company_name: String in names:
+					var text := UiText.fill(template, {key: company_name})
+					if text.count("..") > template.count(".."):
+						problems.append("%s: %s" % [file, text])
+	assert_gt(checked, 0, "no template names a company")
+	assert_true(problems.is_empty(), "%d double period(s):\n  %s" % [problems.size(), "\n  ".join(PackedStringArray(problems))])
 
 
 func test_call_pattern_reads_only_whole_literals() -> void:
@@ -168,3 +201,17 @@ func _load_json(file: String) -> Dictionary:
 		return {}
 	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 	return data if data is Dictionary else {}
+
+
+## Every string in a parsed JSON value, however deep.
+static func _strings(value: Variant) -> Array[String]:
+	var out: Array[String] = []
+	if value is String:
+		out.append(value)
+	elif value is Dictionary:
+		for item: Variant in (value as Dictionary).values():
+			out.append_array(_strings(item))
+	elif value is Array:
+		for item: Variant in value:
+			out.append_array(_strings(item))
+	return out

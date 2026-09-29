@@ -2,7 +2,7 @@
 extends McpTestSuite
 ## Smoke simulation of day 1 -> the morning of day 2 on a Medium (Graduate) first run, driving the real
 ## RunState rules (ROADMAP Step 5 Done-when: "an invite arrives on the morning of day 2").
-## The bot keeps a Polished CV (like the GDD 5.12 bot) and, in deck order, tailors when 2+ tags match.
+## In deck order, the bot tailors when 2+ tags match and Quick Applies otherwise (like the GDD 5.12 bot).
 
 const TIER_IDS: PackedStringArray = ["startup", "mid", "big"]
 const RUNS := 200
@@ -39,8 +39,6 @@ func _first_morning(bg_id: String, seed_value: int, max_apps: int) -> Dictionary
 	var run := RunState.new()
 	run.set_background(cfg, bg)
 	run.first_run = true
-	for line: String in RunState.CV_LINES:
-		run.cv_levels[line] = "polished"
 	run.deal_board(cfg, tiers, content, rng)
 	var sent := 0
 	while not run.board.is_empty() and run.energy >= cfg.cost_quick_apply and sent < max_apps:

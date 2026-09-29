@@ -7,7 +7,6 @@
   "site_brag": "HumbleBrag",
   "site_launch": "LaunchPadd",
   "app_reviews": "Cubicle Whispers",
-  "app_cv": "Buzzwordsmith",
   "app_study": "BigOhNo",
   "app_ai": "Guessomatic",
   "ats_robot": "Parsinator 3000",
@@ -15,7 +14,6 @@
   "interviewer": "Dana",
   "uni_intern": "Byteburg State University",
   "uni_graduate": "Metro City University",
-  "uni_fake": "Very Famous University",
   "_keywords": {
     "python": "Python",
     "javascript": "JavaScript",
@@ -59,14 +57,12 @@
     "site_brag": "site tab 2 and the Network action (SHOULD). \"Thrilled to announce: everything.\"",
     "site_launch": "site tab 3, startups (SHOULD). \"Equity instead of money since forever.\"",
     "app_reviews": "the Research lookup. \"Anonymous reviews. Your manager knows it was you.\"",
-    "app_cv": "the CV screen. \"Now with 40% more synergy.\"",
     "app_study": "the Study action. \"Invert a binary tree. You will never do this at work.\"",
     "app_ai": "the AI assistant everyone pretends not to use",
     "ats_robot": "the applicant-tracking robot",
     "mascot": "a rubber debugging duck that gives the real tips",
     "interviewer": "one interviewer, three tier outfits",
     "uni_intern": "the Intern's real school",
-    "uni_graduate": "the Graduate's real school",
-    "uni_fake": "the school in every degree lie"
+    "uni_graduate": "the Graduate's real school"
   }
 }

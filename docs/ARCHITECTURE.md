@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Version | 1.3, 2026-09-27: synced with the code at the end of Step 6 (offer, endings, intro, Back). 1.2, 2026-09-27: synced with the code at the end of Step 5 (ISSUE-08). 1.1, 2026-09-26: portrait, iPhone first (`docs/DECISIONS.md` D1, D2, P1) |
+| Version | 1.4, 2026-09-29: synced with the code after the Step 7 developer review (CV editing and lying removed, DECISIONS D9; coach marks close on a tap, D11; the VS intro waits for a tap, D12; the real HP and stat bars, W7). 1.3, 2026-09-27: synced with the code at the end of Step 6 (offer, endings, intro, Back). 1.2, 2026-09-27: synced with the code at the end of Step 5 (ISSUE-08). 1.1, 2026-09-26: portrait, iPhone first (`docs/DECISIONS.md` D1, D2, P1) |
 | Engine | Godot 4.7.2-stable on both machines (Steam build on the Windows PC, the godotengine.org zip on the MacBook), GDScript, `gl_compatibility` renderer |
 | Readers | You (the developer) and every future Claude session that implements the game |
 | Design source of truth | `docs/GDD.md` (rules and numbers) and `docs/CONTENT.md` (every string and id) |
@@ -23,7 +23,7 @@ If this doc and the GDD disagree on a rule or a number, the GDD wins; fix this d
   - 24 unit tests passed.
   - 42 runtime checks passed: the scale guard at 8 screen sizes; the save rules for new game, Continue, Retry, Plan B and Hired; the interview checkpoint; the focus pause; the Answer Meter idle fix; and SafeAreaMargin.
   - Those guard sizes were landscape. The portrait guard is the same math with the axes swapped, and was checked live in this project on 2026-09-26: the title stub reads `window (540, 960)` / `game (270, 480) (integer)`, and `test_run` passes 24/24.
-  - Section 17 has since grown with Steps 3-6. At the end of Step 6 (2026-09-27) every block was compared with its repo file and the changed ones re-copied, and those files pass the repo's `test_run` (225 tests in 21 suites; `.project/evidence/STEP-06/2026-09-27-r1/test_run.json`).
+  - Section 17 has since grown with Steps 3-6. At the end of Step 6 (2026-09-27) every block was compared with its repo file and the changed ones re-copied, and those files pass the repo's `test_run` (225 tests in 21 suites; `.project/evidence/STEP-06/2026-09-27-r1/test_run.json`). After the Step 7 review (2026-09-29) every block was re-synced the same way; the repo then passes 217 tests in 20 suites (`.project/evidence/STEP-07/2026-09-29-review/`).
 - **(verified: addon source)**: read in `res://addons/godot_ai` (v4.2.3).
 - **(unverified)**: test it on a device before you rely on it. The full list is in section 18.
 
@@ -191,7 +191,7 @@ environment/defaults/default_clear_color=Color(0.07, 0.07, 0.1, 1)
 | Role | Font | License | Size |
 |---|---|---|---|
 | All body text, UI, dialogue, CV | **monogram** (datagoblin, itch.io) | CC0 | **16**, or 32 for a rare big number |
-| Title logo, VS screen, K.O. / OFFER! / BUSTED! banners | **Press Start 2P** | OFL 1.1 | 8 / 16 / 24 / 32 |
+| Title logo, VS screen, K.O. / OFFER! banners | **Press Start 2P** | OFL 1.1 | 8 / 16 / 24 / 32 |
 
 - Put the files in `res://ui/fonts/`: `PressStart2P-Regular.ttf`, the Press Start 2P license as `OFL.txt`, and monogram's `monogram/` folder as its download unpacks it. The body font is `res://ui/fonts/monogram/ttf/monogram.ttf`; `monogram-extended*.ttf` are unused, and `monogram/pico-8/` has a `.gdignore`.
   - `.txt` is not a resource type (verified: scratch run), so the export preset needs the non-resource include filter `ui/fonts/*.txt`.
@@ -204,7 +204,7 @@ environment/defaults/default_clear_color=Color(0.07, 0.07, 0.1, 1)
   - `multichannel_signed_distance_field` = off
 - Use each font only at its native size or whole multiples of it.
   - **monogram 16, measured on desktop (Step 2, `.project/evidence/STEP-02/2026-09-27-pc/font_metrics.json`): a 6 px advance and a 13 px glyph height** (ascent 11 + descent 2). The 6 px advance is what GDD 2.7 assumes, so a 240 px text column holds exactly 40 characters; answer buttons have zero slack. The theme's `Label/constants/line_spacing = -1` gives the 12 px line pitch the GDD budgets use (DECISIONS A3).
-  - A 13 px glyph makes two-line buttons taller than planned: with the default button padding the probe row's 124x44 buttons rendered 124x47. Since Step 6 the `ProbeButton` theme variation (section 10.2) trims their padding so two lines fit exactly in 44 px (`test_ui_text`).
+  - A 13 px glyph makes two-line buttons taller than planned: with the default button padding the lie probe's 124x44 buttons rendered 124x47. Step 6's `ProbeButton` theme variation trimmed the padding to 10 px top and 9 px bottom, so two 12 px-pitch lines filled 44 px exactly. The probe and that variation were removed on 2026-09-29 (DECISIONS D9); a future two-line button needs the same trim.
   - Press Start 2P measured an exact 8 px grid (8x8 at size 8, 16x16 at 16).
   - These are font-file metrics, so they hold on every platform; crispness at 4x still needs the iPhone (section 18.1 #6).
 - Make monogram 16 the default font inside `main_theme.tres`. `gui/theme/custom_font` also exists, but the theme is the one place to change it.
@@ -251,9 +251,10 @@ res://
 │  ├─ intro/                       intro.tscn (its dialogue box is inside it), cutscene_plan.gd (CutscenePlan,
 │  │                               a pure helper), hold_skip_pill.gd (art/ arrives with the art pass)
 │  ├─ background_select/           background_select.tscn, background_card.tscn, dice_button.gd
-│  ├─ job_hunt/                    job_hunt.tscn (the hub; its CV, Mail and Study panels are inside it),
-│  │                               job_card.tscn, cv_row.tscn, invite_card.tscn, night_screen.tscn,
-│  │                               coach_mark.tscn, cv_screen.gd, mail_screen.gd, dock_button.gd
+│  ├─ job_hunt/                    job_hunt.tscn (the hub; its Mail and Study panels are inside it),
+│  │                               job_card.tscn, invite_card.tscn, night_screen.tscn, coach_mark.tscn,
+│  │                               mail_screen.gd, dock_button.gd (the CV screen's cv_screen.gd and
+│  │                               cv_row.tscn were removed on 2026-09-29, DECISIONS D9)
 │  ├─ interview/                   interview.tscn, versus_intro.tscn, answer_meter.gd, committee_wheel.gd
 │  │                               (art/ and sfx/ arrive with the art pass)
 │  ├─ offer/                       offer.tscn        (the paper contract, S10)
@@ -266,8 +267,8 @@ res://
 │  │                               a .gdignore), PressStart2P-Regular.ttf, OFL.txt
 │  └─ components/                  safe_area_margin.gd, confirm_dialog, pause_menu, ducky_note, pip_bar.gd,
 │                                  ui_text.gd (a pure UI helper), ending_art (the ending cards' 254x140
-│                                  picture and stamp, Step 6), and two placeholders the developer
-│                                  replaces (DECISIONS W3): hp_bar (Step 4 You-do), stat_bar (Step 5 You-do)
+│                                  picture and stamp, Step 6), hp_bar and stat_bar (section 10.5; W3
+│                                  placeholders until Claude built them in the Step 7 review, DECISIONS W7)
 ├─ art/shared/                     palette.png, icons, logos (empty until the art pass)
 ├─ audio/sfx/   audio/music/       (empty until the audio pass)
 ├─ tests/                          test_*.gd (excluded from exports)
@@ -307,7 +308,7 @@ The order matters because each autoload's `_ready()` may only use autoloads abov
 |---|---|---|---|---|
 | 0 | `_mcp_game_helper` | addon | godot-ai's runtime bridge. The addon's export plugin strips it from exports (verified: addon source) | (none) |
 | 1 | `Content` | `autoload/content.gd` | read-only registry of the `.tres` and JSON data | `balance`, `background(id)`, `tier(id)`, `entries(file)`, `entry(file, id)`, `text(file, id, args)`, `field(file, id, key, args)`, static `load_tres_dir(dir)`, static `load_json(path)` |
-| 2 | `GameState` | `autoload/game_state.gd` | owns the RunState, the run RNG, the phase and `settings.cfg` | signals `phase_changed(from, to)` and `run_changed`; `run`, `rng`, `preselect_background`; `setting()`, `set_setting()`, `save()`; flow verbs (section 4) plus `new_run_seed()` and `preview_gap_topics()` for Background select; hunt verbs `quick_apply`, `tailor_apply`, `skip_card`, `set_cv_level`, `commit_cv`, `study`, `sleep`, `start_day`, `mark_tip_shown` and the read-only `card_odds(card)`; interview verbs `start_interview`, `finish_interview` (a win builds the offer) and the read-only `interview_cost(invite)`, `can_take_interview(invite)`; offer verbs `answer_offer`, `end_run_plan_b` and the read-only `dream_breakdown()` (the Hired card's rows); debug only `debug_quick_start`, `debug_fake_invite` (section 17.7) |
+| 2 | `GameState` | `autoload/game_state.gd` | owns the RunState, the run RNG, the phase and `settings.cfg` | signals `phase_changed(from, to)` and `run_changed`; `run`, `rng`, `preselect_background`; `setting()`, `set_setting()`, `save()`; flow verbs (section 4) plus `new_run_seed()` and `preview_gap_topics()` for Background select; hunt verbs `quick_apply`, `tailor_apply`, `skip_card`, `study`, `sleep`, `start_day`, `mark_tip_shown`, `close_coach_mark` (Step 7 review) and the read-only `card_odds(card)` (`set_cv_level` and `commit_cv` were removed with the CV screen, DECISIONS D9); interview verbs `start_interview`, `finish_interview` (a win builds the offer) and the read-only `interview_cost(invite)`, `can_take_interview(invite)`; offer verbs `answer_offer`, `end_run_plan_b` and the read-only `dream_breakdown()` (the Hired card's rows); debug only `debug_quick_start`, `debug_fake_invite` (section 17.7) |
 | 3 | `Device` | `autoload/device.gd` | phone glue: scale guard, safe area, Back, haptics | signals `layout_changed` and `back_unhandled`; `safe_insets()`, `keyboard_height()`, `handle_back()`, `haptic(ms)`, `haptics_enabled` |
 | 4 | `SceneRouter` | `autoload/scene_router.gd` (CanvasLayer) | fades between scenes when the phase changes | signal `transition_finished(phase)`; `busy`, `go_to(phase)` |
 
@@ -316,13 +317,13 @@ The order matters because each autoload's `_ready()` may only use autoloads abov
 | Class | File | Holds |
 |---|---|---|
 | `GameFlow` | `core/game_flow.gd` | `Phase` enum, `TRANSITIONS`, `SAVED_PHASES`, `can_transition`, `is_saved`, `deletes_save`, `can_resume` |
-| `RunState` | `core/run_state.gd` | all saved run data, plus the rule methods that change it (section 7.1: the character, the board, applying, Sleep and the morning reveal, invites, the lie-probe and background-check rolls, and since Step 6 the offer, hiring and the Dream vs Reality rows); `to_dict` / `from_dict` |
+| `RunState` | `core/run_state.gd` | all saved run data, plus the rule methods that change it (section 7.1: the character, the board, applying, Sleep and the morning reveal, invites, and since Step 6 the offer, hiring and the Dream vs Reality rows; the lie-probe and background-check rolls were removed on 2026-09-29, DECISIONS D9); `to_dict` / `from_dict` |
 | `SaveIO` | `core/save_io.gd` | `exists`, `write` (temp file, then rename), `read`, `delete` |
-| `Odds` | `core/odds.gd` | every formula in GDD 5.6-5.10 (P_invite, bands, knockouts, card rolls, the reveal, the Radar, expiry, ghosting, the rent check, the interview, the bluff band, the offer, the Dream vs Reality score, its rows `dream_breakdown` and grade `dream_grade`), plus RNG helpers (`roll`, `pick`, `shuffled`) |
-| `InterviewPlan` | `core/interview_plan.gd` (Step 4) | question picking for one interview (`pick`, `eligible`, `warmup_due`, `mark_seen`), the prompts a checkpoint plays (`prompts`), the interview and meter RNGs (`interview_rng`, `meter_rng`), the probe question (`probe_question`, `lie_lines`) |
-| `HuntTips` | `core/hunt_tips.gd` (Step 5) | which Ducky tip the hunt shows, and when (GDD 8.3): `inbox`, `night`, `cv_opened`, `cv_level_chosen`, `studied`, `had_invite`; since Step 6 also the offer's tip (`offer`) and the Plan B card's (`plan_b`). It only reads the run |
+| `Odds` | `core/odds.gd` | every formula in GDD 5.6-5.10 (P_invite, bands, knockouts, card rolls, the reveal, the Radar, expiry, ghosting, the rent check, the interview, the offer, the Dream vs Reality score, its rows `dream_breakdown` and grade `dream_grade`), plus RNG helpers (`roll`, `pick`, `shuffled`) |
+| `InterviewPlan` | `core/interview_plan.gd` (Step 4) | question picking for one interview (`pick`, `eligible`, `warmup_due`, `mark_seen`), the prompts a checkpoint plays (`prompts`), the interview and meter RNGs (`interview_rng`, `meter_rng`), and since the Step 7 review Dana's VS plate (`vs_plate`). The probe question (`probe_question`, `lie_lines`) was removed on 2026-09-29 (DECISIONS D9) |
+| `HuntTips` | `core/hunt_tips.gd` (Step 5) | which Ducky tip the hunt shows, and when (GDD 8.3): `inbox`, `night` (since D9 also the two Tailor & Apply tips that `cv_opened` and `cv_level_chosen` gave on the removed CV screen), `studied`, `had_invite`; since Step 6 also the offer's tip (`offer`) and the Plan B card's (`plan_b`); since the Step 7 review the first-run coach marks (`coach`, `coach_invite`). It only reads the run |
 
-`UiText` (`ui/components/ui_text.gd`, Step 4) is also `@tool` and pure, but it is a **UI helper, not a rule class**: static string styling (`primary`, `back`, `cost`, `meter`, `band`, `count`, `money`) for text that scenes fetch from `Content`, and since Step 6 `word_wrap` (the lint's line rule, returning the lines) and `field` (the offer contract's label column). It holds no words of its own (INV-15).
+`UiText` (`ui/components/ui_text.gd`, Step 4) is also `@tool` and pure, but it is a **UI helper, not a rule class**: static string styling (`primary`, `back`, `cost`, `meter`, `band`, `count`, `money`) for text that scenes fetch from `Content`, and since Step 6 `word_wrap` (the lint's line rule, returning the lines) and `field` (the offer contract's label column). Since the Step 7 review it also has `fill(template, args)`, which `Content.text()` and `Content.field()` use to fill placeholders (section 6.3). It holds no words of its own (INV-15).
 
 `CutscenePlan` (`features/intro/cutscene_plan.gd`, Step 6, section 17.17) is the same kind of pure `@tool` helper: `panels(entries)` turns `cutscene.json` into the intro's play order, `total_seconds(plan)` sums the pans, and `pan_path(picture, frame)` says where a picture pans. It lives with the intro because nothing else uses it.
 
@@ -362,9 +363,9 @@ enum Phase { TITLE, INTRO, BACKGROUND_SELECT, JOB_HUNT, INTERVIEW, OFFER, PHASE2
 | BACKGROUND_SELECT | JOB_HUNT | `choose_background()` |
 | JOB_HUNT | INTERVIEW | `start_interview(invite)` |
 | JOB_HUNT | GAME_OVER | `end_run_plan_b()`, called by Mail's `start_day()` when the morning report says `plan_b`: rent is at 0 and no invite is waiting, or the grace day is already used |
-| INTERVIEW | OFFER / JOB_HUNT | `finish_interview(won, composure_left, busted, came_clean)` |
-| OFFER | PHASE2_STUB | `answer_offer(true)`, when the background check passes |
-| OFFER | JOB_HUNT | `answer_offer(false)` (Decline), or the offer is rescinded by the background check |
+| INTERVIEW | OFFER / JOB_HUNT | `finish_interview(won, composure_left)` |
+| OFFER | PHASE2_STUB | `answer_offer(true)` (Accept; there is no background check since DECISIONS D9) |
+| OFFER | JOB_HUNT | `answer_offer(false)` (Decline). The background check's rescind, which also led here, was removed on 2026-09-29 (D9) |
 | OFFER | GAME_OVER | `answer_offer(false)` on the grace day (rent at 0): Decline -> Plan B (GDD 5.10) |
 | PHASE2_STUB | TITLE / BACKGROUND_SELECT | `quit_to_title()` / `retry()` ("New run") |
 | GAME_OVER | TITLE / BACKGROUND_SELECT | `quit_to_title()` / `retry()` |
@@ -458,12 +459,11 @@ There are three `@tool` Resource classes (code in section 17.5). **Every field i
 | `tier_difficulty` | 40 | 42 | 44 |
 | `needle_speed` (bar-widths/s) | 0.60 | 0.60 | 0.75 |
 | `zone_jumps` | true | false | false |
-| `lie_probe_chance` | 0.30 | 0.45 | 0.60 |
-| `bluff_detect` | 0.0 | 0.05 | 0.15 |
-| `background_check` | 0.0 | 0.30 | 0.70 |
 | `salary_min_k` / `salary_max_k` (yearly, $k) | 50 / 70 | 65 / 90 | 95 / 125 |
 | `office_days` | 0 | 2 | 4 |
 | `meeting_load` / `layoff_risk` / `growth_mult` (Phase 2) | 0.2 / 0.3 / 1.5 | 0.5 / 0.1 / 1.0 | 0.8 / 0.2 / 0.8 |
+
+Removed on 2026-09-29 with lying (DECISIONS D9): TierData's `lie_probe_chance`, `bluff_detect` and `background_check`, and BalanceConfig's whole "Lying (11.5)" group (`max_probes_per_interview`, the `bluff_*` fields, `busted_doubt` / `busted_comp`, `come_clean_doubt` / `come_clean_comp`). The Step 7 review also removed BalanceConfig's `vs_min_view_s` (section 11.5). `test_data_files` expects none of them.
 
 - **`BackgroundData`**: one per background. Script defaults are the Graduate values.
 
@@ -489,7 +489,7 @@ There are three `@tool` Resource classes (code in section 17.5). **Every field i
 **Derived values (not fields):**
 - Energy per day = `energy_max - commute_pips`, which gives 9 / 8 / 6.
 - `lone_wolf` starts as `teamwork_mult < teamwork_mult_after_network`, which is true only for the Self-Taught. `Odds.teamwork_mult(bg, lone_wolf)` picks which multiplier applies.
-- `has_degree_honest` and `years_pass_honest` repeat what `cv_lines.json` says about the honest lines. The runtime knockout logic reads the **CV lines actually sent**; the BG flags are for the background card. `test_content_lint` checks that the two agree.
+- `has_degree_honest` and `years_pass_honest` repeat what `cv_lines.json` says about the honest lines. The runtime knockout logic reads the **CV lines actually sent**; the BG flags are for the background card, and `years_pass_honest` also picks the first Tailor & Apply night tip (`HuntTips.night`: `tip_projects_count` when the honest CV fails "1+ years"). `test_content_lint` checks that the two agree.
 
 **Creating them with godot-ai:** use `resource_manage create` with `type=TierData`, `resource_path=res://data/tiers/big.tres` and the table's values. This works because the classes are `@tool`.
 
@@ -500,7 +500,7 @@ There are three `@tool` Resource classes (code in section 17.5). **Every field i
 - Keys that start with `_` are metadata, not ids. For example, `naming.json` has `_keywords`, `_topics` and `_gap_topic_pool`.
 - **JSON numbers load as floats: wrap them in `int()`.** Tier lists are always explicit, as `["startup", "mid", "big"]`; don't write `"all"`.
 - **ASCII only** in player-facing strings (lint-checked).
-- **Every displayed string goes through `tr()`.** `Content.text()` and `Content.field()` do this, then fill `{placeholders}` with `String.format(args)`.
+- **Every displayed string goes through `tr()`.** `Content.text()` and `Content.field()` do this, then fill `{placeholders}` with `UiText.fill(template, args)` (since the Step 7 review). It is `String.format`, except that a value ending in "." swallows a "." right after its placeholder, so "Welcome to {company}." with "Engagement Farms Inc." never prints "..", while an ellipsis after a placeholder keeps its three dots (`test_ui_text` fills every `{company}` / `{last_company}` template with every company name).
   - Static Label text in scenes is English. Controls translate it automatically when a translation exists later.
 - Non-displayed fields (`art`, `visual`, `audio`, `note`) are notes for the artist. The lint skips them.
 - `Content` reads JSON with `FileAccess` from `res://`. **`.json` is a recognized resource type in 4.7.2**, so "export all resources" includes it (verified: scratch run). Still confirm on the phone in Step 5 that the texts load.
@@ -514,12 +514,12 @@ There are three `@tool` Resource classes (code in section 17.5). **Every field i
 | `tiers.json` | GDD 7 | `"startup": {"name": "Startup", "tag": "START"}`, `"mid": {"name": "Mid-size", "tag": "MID"}`, `"big": {"name": "Big corp", "tag": "BIG"}` |
 | `companies.json` | 4 | `"co_beigeware": {"name", "tier", "mvp", "tagline", "card_joke", "insider", "dana_line", "review", "red_flags": [], "hired_extra"?, "art"}` |
 | `postings.json` | 5 | `"job_mid_backend": {"tier", "company": "any" or a co_ id, "title", "tags": [3], "degree": bool, "min_years": int, "ghost": "roll" or "always", "joke", "salary_text", "should": bool, "research_reveal"? and "note"? (the SHOULD Unicorn only)}`, plus the plain-string UI ids `card_*`, `knock_*`, `research_*`, `hirebot_*`, `stamp_sent` |
-| `cv_lines.json` | 6 | `"cv_intern_edu_honest": {"background", "line": "edu", "variant": "honest", "text", "tags": [], "degree": bool, "passes_years": bool, "degree_claim": bool, "probe": "", "probe_at": {"co_stealth": "..."}?}` |
+| `cv_lines.json` | 6 | `"cv_intern_edu_honest": {"background", "line": "edu", "variant": "honest" or "polished", "text", "tags": [], "degree": bool, "passes_years": bool}`: 6 per background. The `lie` variant and the lie-only fields `degree_claim`, `probe` and `probe_at` were removed on 2026-09-29 (DECISIONS D9) |
 | `questions_choice.json` | 7 | `"eq_friday_deploy": {"prompt", "teamwork": bool, "tiers": [...], "tip", "opener_only": bool, "answers": [{"kind": "good", "text", "reaction"}, ...], "exclusive": {"background", "kind", "text", "reaction"}?}` |
 | `questions_knowledge.json` | 9 | `"kq_hash_map": {"prompt", "topic", "kind": "tech" or "behavioral", "difficulty": 1-3, "weak_for": a bg id or "none", "tiers": [...], "tip", "green", "yellow", "red", "ducky"}` |
 | `barks.json` | 8, 10 | plain strings: `dana_title_*`, `bark_*`, `vs_*`, `meter_*`, `ducky_real_answer`, `ui_*`, `coach_*` |
 | `tips.json` | 11 | `"tip_ats_knockouts": {"short", "more", "triggers"}` |
-| `emails.json` | 12, 13 | `mail_invite_*` / `mail_knockout`: `{"subject", "body"}`; `mail_reject_NN`, `notif_*`, `mail_rescinded`, `offer_*`: plain strings; `perk_*` / `fp_*`: `{"tiers": [...], "text"}` |
+| `emails.json` | 12, 13 | `mail_invite_*` / `mail_knockout`: `{"subject", "body"}`; `mail_reject_NN`, `notif_*`, `offer_*`: plain strings (`mail_rescinded` was removed with the background check, D9); `perk_*` / `fp_*`: `{"tiers": [...], "text"}` |
 | `endings.json` | 14 | plain strings (`end_*`) |
 | `events.json` | 15.1 | `"evt_mom_call": {"text", "effect", "ducky"?}` (SHOULD) |
 | `news.json` | 15.2 | plain strings (`news_*`) |
@@ -536,7 +536,7 @@ Reading text:
 | Tiers | `startup`, `mid`, `big` |
 | Stats | `knw`, `exp`, `net` |
 | CV lines | `edu`, `exp`, `proj` |
-| CV variants | `honest`, `polished`, `lie` |
+| CV variants | `honest`, `polished` (`lie` was removed on 2026-09-29, DECISIONS D9) |
 | Keywords | `python, javascript, java, sql, git, cloud, testing, apis, mobile, data, agile, ai` |
 | Knowledge topics | `algorithms, data_structures, databases, web, tools, concurrency, system_design, security, behavioral` |
 
@@ -555,29 +555,31 @@ Reading text:
 | Group | Fields |
 |---|---|
 | Flow and RNG | `phase`, `rng_seed`, `rng_state` (both Strings), `first_run` |
-| Character (Phase 2 carries it to work) | `background_id`, `player_name`, `stats {knw, exp, net}`, `lone_wolf`, `gap_topics`, `commute_pips`, `commute_minutes`, `cv_levels {edu, exp, proj}`, `lies_carried` (Lie cv-line ids sent and never busted or confessed), `confessed` ("company_id\|cv_line_id" pairs) |
-| Day loop | `day`, `energy`, `rent_days_left`, `grace_used`, `referral_tokens`, `pity_count` (the Recruiter Radar), `interviews_today`, `next_uid`, `board`, `applications`, `applied` ("template_id\|company_id" pairs never dealt again), `dropped` (pairs that fell off the board unapplied: they return "Reposted"), `invites`, `morning_report` (built by Sleep), `day_mail` (the morning report after Start day, until the next Sleep), `tips_shown` (once-per-run tips, `HuntTips`), `blacklist`, `researched`, `seen_question_ids` |
+| Character (Phase 2 carries it to work) | `background_id`, `player_name`, `stats {knw, exp, net}`, `lone_wolf`, `gap_topics`, `commute_pips`, `commute_minutes`. Your CV is your background's true CV, so the run stores no CV setting |
+| Day loop | `day`, `energy`, `rent_days_left`, `grace_used`, `referral_tokens`, `pity_count` (the Recruiter Radar), `interviews_today`, `next_uid`, `board`, `applications`, `applied` ("template_id\|company_id" pairs never dealt again), `dropped` (pairs that fell off the board unapplied: they return "Reposted"), `invites`, `morning_report` (built by Sleep), `day_mail` (the morning report after Start day, until the next Sleep), `tips_shown` (once-per-run tips, `HuntTips`), `coach_closed` (first-run coach mark ids tapped closed: never shown again this run; Step 7 review, section 11.4), `blacklist` (companies whose offer you declined), `researched`, `seen_question_ids` |
 | Interview | `interview` (the checkpoint, section 8), `interviews_taken`, `times_met_dana`, `dana_last_company` |
-| Offer and job | `offer` (the offer on the table, built by `make_offer`: shape below), `rescinded {company_id, template_id, tier, mail_id}` (a background check withdrew the offer; the next Sleep clears it), `employment` (set by `hire()` on an Accept that passed the check: the offer copied, plus `red_flags`, the company's `companies.json` list; Phase 2 reads it), `dream_score` (-1 until `hire()` scores the job) |
+| Offer and job | `offer` (the offer on the table, built by `make_offer`: shape below), `employment` (set by `hire()` on Accept: the offer copied, plus `red_flags`, the company's `companies.json` list; Phase 2 reads it), `dream_score` (-1 until `hire()` scores the job) |
 | Run stats | `total_applications`, `total_rejections` |
 
-The comments in section 17.2 give the shapes of the list entries: a board card `{uid, template_id, company_id, tier, posted_days_ago, applicants, is_ghost, reposted}`; an application `{uid, template_id, company_id, tier, day_sent, reveal_day, p, hits, relevant, knockout, knockout_reason {id, args}, is_ghost, referral, tailored, lies, status}`, where status goes pending -> invited | rejected | silent (-> ghosted) and invited -> interview | expired; an invite `{uid, app_uid, company_id, template_id, tier, day_received, kind, mail_id}`, where kind is rolled, radar, guarantee or profile.
+**Removed on 2026-09-29 (DECISIONS D9):** `cv_levels`, `lies_carried`, `confessed` and `rescinded`, an application's `lies` and the checkpoint's `probe_line`. **Old saves still load** (`test_a_save_from_before_d9_still_loads`): `from_dict` copies only the fields the RunState has, so the removed top-level keys are ignored and the next save drops them. An old application's `lies` and an old checkpoint's `probe_line` stay inside their dictionaries, but nothing reads them: a resumed interview asks its knowledge prompt 2. No `VERSION` bump was needed.
+
+The comments in section 17.2 give the shapes of the list entries: a board card `{uid, template_id, company_id, tier, posted_days_ago, applicants, is_ghost, reposted}`; an application `{uid, template_id, company_id, tier, day_sent, reveal_day, p, hits, relevant, knockout, knockout_reason {id, args}, is_ghost, referral, tailored, status}`, where status goes pending -> invited | rejected | silent (-> ghosted) and invited -> interview | expired; an invite `{uid, app_uid, company_id, template_id, tier, day_received, kind, mail_id}`, where kind is rolled, radar, guarantee or profile.
 
 The offer (GDD 5.9, S10) is `{company_id, template_id, tier, job_title, salary, work_mode, office_days, commute {id, args}, perks, fine_print, equity_text, negotiated}`, plain data only (INV-07), so the paper can be drawn again after a resume:
 - `job_title` is the posting's `title` as the JSON has it; the screen `tr()`s it.
 - `salary` is `Odds.offer_salary` (yearly dollars) and `office_days` is `tier.office_days`.
-- Every other text is an `emails.json` id: `work_mode` is `offer_mode_<tier>`; `commute.id` is `offer_commute_remote` (no office days) or `offer_commute_office`, with `commute.args` = `{office_days, commute_min, hours}` and the weekly hours as one-decimal text ("12.7"); `perks` holds 2 `perk_*` ids and `fine_print` 1 `fp_*` id, all listed for the offer's tier; `equity_text` is `offer_equity` at startups, else `""`.
+- Every other text is an `emails.json` id: `work_mode` is `offer_mode_<tier>`; `commute.id` is `offer_commute_remote` (no office days) or `offer_commute_office`, with `commute.args` = `{office_days, commute_min, hours}` and the weekly hours as one-decimal text ("12.7"); `perks` holds 2 `perk_*` ids and `fine_print` 1 `fp_*` id, all listed for the offer's tier. The fine print comes from `fine_print_pool(emails, tier_id, perks)` (Step 7 review): the tier's `fp_*` ids minus any `fp_<x>` whose `perk_<x>` was dealt on the same paper, so a startup never lists "Unlimited PTO*" twice (today `perk_unlimited_pto` / `fp_unlimited_pto` is the only such pair; a thematic overlap such as `perk_pizza` with `fp_perks` is allowed as a joke); `equity_text` is `offer_equity` at startups, else `""`.
 - `negotiated` stays false until Negotiate (SHOULD) exists.
 
 **Rule methods** (section 17.2). They take their data as arguments: `cfg` (BalanceConfig), `tiers` (`{"startup": TierData, "mid": ..., "big": ...}`), `bg` (this run's BackgroundData), `rng` (the run RNG) and `content` (the parsed `postings`, `companies`, `cv_lines` and `emails` JSON, keyed by file name; `GameState._hunt_content()` builds it).
-- **Character and CV:** `set_background(cfg, bg)`, `set_cv_level(line, level)`, `cv_sent(cv_lines, tailored)` (the lines, tags, degree, `passes_years` and lies actually sent), `cv_line(cv_lines, line, level)`, `stat(id)`, `spend_energy(pips)`, `new_uid()`.
+- **Character and CV:** `set_background(cfg, bg)`, `cv_sent(cv_lines, tailored)` (your background's true CV: Quick Apply sends every line Honest, Tailor & Apply sends every line as its Polished version, an honest reframing, for that one application; returns the lines, tags, degree and `passes_years` actually sent), `stat(id)`, `spend_energy(pips)`, `new_uid()`. `set_cv_level` and `cv_line` were removed with the CV screen (D9).
 - **Board:** `deal_board(cfg, tiers, content, rng)`, `skip_card(card_uid)`, `blacklist_company(company_id)`, static `pair_key(template_id, company_id)`.
-- **Applying:** `card_odds(cfg, tiers, bg, content, card)` (what a card shows: tags checked against the CV as set, and `{p, band, hits, relevant, knockout, lies}` for quick, tailored and referral) and `apply_card(cfg, tiers, bg, content, card_uid, tailored, referral)`. P is frozen when the application is sent, rounded to 9 decimals so a Continue rolls against exactly the same P.
+- **Applying:** `card_odds(cfg, tiers, bg, content, card)` (what a card shows: tags checked against your honest CV, and `{p, band, hits, relevant, knockout}` for quick, tailored and referral) and `apply_card(cfg, tiers, bg, content, card_uid, tailored, referral)`. P is frozen when the application is sent, rounded to 9 decimals so a Continue rolls against exactly the same P.
 - **The day:** `sleep(cfg, tiers = {}, bg = null, content = {}, rng = null) -> Dictionary`, `start_day() -> bool`, `take_invite(invite_uid)`, static `reject_mail_id(content, app_uid)`.
-- **Interview and offer:** `roll_probe(cfg, tier, content, app_uid, rng)`, `settle_probe(company_id, cv_line_id, came_clean, busted)`, `background_check_caught(tier, content, company_id, rng)`, `rescind_offer()`.
-- **The offer and the job (Step 6):** `make_offer(cfg, tier, bg, content, composure_left)` builds the whole offer from the interview checkpoint (so `finish_interview()` calls it before clearing the checkpoint) and returns a copy; static `offer_rng(interview_seed)` (section 7.2); static `offer_commute(office_days, commute_minutes)`; `decline_ends_run()` (rent at 0: a Decline on the grace day is Plan B, GDD 5.10); `hire(cfg, bg, company_red_flags)` (the offer becomes `employment` and is scored into `dream_score`; the offer itself stays); `dream_breakdown(cfg, bg)` (the Hired card's five rows, from the numbers `hire()` scored).
+- **Interview and offer** (removed 2026-09-29, DECISIONS D9): `roll_probe`, `settle_probe`, `background_check_caught` and `rescind_offer` are gone with the lie probe and the background check.
+- **The offer and the job (Step 6):** `make_offer(cfg, tier, bg, content, composure_left)` builds the whole offer from the interview checkpoint (so `finish_interview()` calls it before clearing the checkpoint) and returns a copy; static `offer_rng(interview_seed)` (section 7.2); static `offer_commute(office_days, commute_minutes)`; static `fine_print_pool(emails, tier_id, perks)` (Step 7 review); `decline_ends_run()` (rent at 0: a Decline on the grace day is Plan B, GDD 5.10); `hire(cfg, bg, company_red_flags)` (Accept: the offer becomes `employment` and is scored into `dream_score`; the offer itself stays); `dream_breakdown(cfg, bg)` (the Hired card's five rows, from the numbers `hire()` scored).
 
-**Sleep is one committed action.** `sleep()` runs the night tick (day +1, rent -1 down to 0, energy refilled, today's interview slot freed, `rescinded` and `day_mail` cleared, every board card one day older), then the whole morning: invites expire, applications due today reveal in send order (the Radar moves as each one resolves), the day-2 guarantee, ghosting, the board refill, the "saw your profile" fallback and the rent check. The result is stored in `run.morning_report` and returned:
+**Sleep is one committed action.** `sleep()` runs the night tick (day +1, rent -1 down to 0, energy refilled, today's interview slot freed, `day_mail` cleared, every board card one day older), then the whole morning: invites expire, applications due today reveal in send order (the Radar moves as each one resolves), the day-2 guarantee, ghosting, the board refill, the "saw your profile" fallback and the rent check. The result is stored in `run.morning_report` and returned:
 
 | Key | Holds |
 |---|---|
@@ -604,12 +606,12 @@ The offer (GDD 5.9, S10) is `{company_id, template_id, tier, job_title, salary, 
 
 **Step 5 agent defaults** (please review; `test_hunt_defaults` pins them):
 - **A dry deck falls back.** A tier deals from its MVP companies first. Once none of their template+company pairs is free, the tier's other companies step in, so the board never starves (38 pairs with the 6 MVP companies, 58 with all 9; GDD 5.6).
-- **A blacklist is immediate** (Decline, BUSTED, rescinded). The company's cards leave the board at once, its waiting invites are withdrawn without a mail (their applications end "expired"), and its pending applications reveal silent, without dice.
+- **A blacklist is immediate** (a declined offer; BUSTED and a rescinded offer also blacklisted until D9 removed them). The company's cards leave the board at once, its waiting invites are withdrawn without a mail (their applications end "expired"), and its pending applications reveal silent, without dice.
 - **A plain rejection's email is picked from the application's uid**, without dice, so a resume or a replayed Sleep shows the same line.
 - **The guarantee never picks a ghost job or a blacklisted company.** The "saw your profile" fallback takes the startup card with the best tailored odds; ties go to the oldest card, never to deck order. With only ghost startup cards left, there is no fallback invite.
 - **`passes_years` stays a yes/no.** A line that counts as years passes every years knockout, whatever `min_years` says.
-- **The lie probe** (`roll_probe`, GDD 5.8.5) looks only at the Lie lines sent in the application the invite answers, in CV order. A line counts when it shares a tag with the posting or claims a degree; each counting line rolls `tier.lie_probe_chance` until one hits, so there is one probe at most. A "saw your profile" invite has no application, so it never probes.
-- **The background check** (`background_check_caught`, GDD 5.9.4) rolls `tier.background_check` once, on Accept, when any unconfessed degree-claim Lie was sent to this company, in any application.
+- **The lie probe** (removed 2026-09-29, DECISIONS D9). Every application sends only true CV lines, so nothing is probed.
+- **The background check** (removed 2026-09-29, DECISIONS D9). Accept always hires; no offer is rescinded.
 
 **Step 6 agent defaults** (please review; `test_offer`, `test_endings` and `test_flow` pin them; the build logs in `.project/evidence/STEP-06/2026-09-27-r1/` list the screen-level ones):
 - **Startup equity is its own contract field** ("Equity: 0.0001%", under the salary). S10 has no Equity line, and `fp_equity` is one of the startup fine-print picks, so a startup contract can mention equity twice.
@@ -618,17 +620,22 @@ The offer (GDD 5.9, S10) is `{company_id, template_id, tier, job_title, salary, 
 - **The Dream vs Reality rows** are `Odds.dream_breakdown`: `dream_score`'s five terms, unrounded, added in the same order, so the card's rounded sum is always `dream_score`. The grade bands are `Odds.DREAM_GRADE_MINS` (40 / 60 / 80), fixed GDD 5.9.5 rules rather than tuning.
 - **A run counts once** (settings `run_count`, which `first_run` reads) when its save is deleted: entering Plan B, or leaving the Hired card. Not on Accept, because a kill on the Hired card resumes at the offer. A run abandoned with New game is never counted.
 
+**Step 7 review** (`test_hunt_tips` and `test_offer` pin these):
+- **A closed coach mark stays closed for the run** (`coach_closed`, written at once by `GameState.close_coach_mark`, because Quit to title writes no save), and the next mark still waits for its own rule (section 11.4). Agent defaults, please review (DECISIONS A32, A33).
+- **The fine print never repeats a perk** (`fine_print_pool`, above): one of the REVIEW_QUEUE wording fixes (DECISIONS C2).
+
 ### 7.2 Seeded randomness
 
 - **One run RNG.** `GameState.rng` is seeded in `choose_background()`. The global `randi()` is used only to pick that seed.
 - **The interview gets its own RNG.**
-  - `start_interview()` rolls on the run RNG in this order: `interview.seed`, then the questions and the warm-up (`InterviewPlan.pick`), then the lie probe (`RunState.roll_probe`). Then it saves the checkpoint.
+  - `start_interview()` rolls on the run RNG in this order: `interview.seed`, then the questions and the warm-up (`InterviewPlan.pick`). Then it saves the checkpoint. (The lie-probe roll that came third was removed on 2026-09-29, DECISIONS D9.)
   - The interview scene seeds a fresh `RandomNumberGenerator` from the seed (`InterviewPlan.interview_rng`).
   - Each Answer Meter gets a generator of its own, seeded from one roll of the interview RNG (`InterviewPlan.meter_rng`). The pivot only rolls if you tap after it, so rolling it on the interview RNG itself would shift every later roll.
-  - The bluff is rolled before you choose between Come clean and Bluff, and the committee wheel is rolled before it spins.
-  - So a resume replays the same luck, zone centres, pivots, bluff and wheel however early or late you tap, and the run RNG doesn't move during the interview.
-- **The offer gets its own dice** (Step 6). `RunState.offer_rng(interview.seed)` seeds a fresh generator from the checkpoint's seed plus a salt (`"|offer"`, hashed), so it never replays the interview's own rolls. `make_offer()` picks the 2 perks, then the fine print, on it. A replayed interview builds the same contract, and neither the run RNG nor the global RNG moves.
-- **The background check on Accept rolls on the run RNG.** Accept writes no save (section 8), so after a kill on the Hired card the save still holds the RNG state from before the check, and accepting again rolls the same dice (`test_accept_after_a_hired_kill_rolls_the_same_dice`).
+  - The committee wheel is rolled before it spins.
+  - So a resume replays the same luck, zone centres, pivots and wheel however early or late you tap, and the run RNG doesn't move during the interview.
+- **The offer gets its own dice** (Step 6). `RunState.offer_rng(interview.seed)` seeds a fresh generator from the checkpoint's seed plus a salt (`"|offer"`, hashed), so it never replays the interview's own rolls. `make_offer()` picks the 2 perks, then the fine print (from `fine_print_pool`), on it. A replayed interview builds the same contract, and neither the run RNG nor the global RNG moves.
+- **Accept rolls no dice.** The background check that rolled on the run RNG at Accept was removed on 2026-09-29 (DECISIONS D9), so `GameState.answer_offer(true)` and `RunState.hire()` use no RNG at all. Accept writes no save (section 8), so after a kill on the Hired card, accepting again hires the same job (`test_accept_after_a_hired_kill_hires_the_same_job`).
+- **The VS plate takes turns without dice** (Step 7 review): `InterviewPlan.vs_plate(run)` picks Dana's one joke stat and one special move by `posmod(run.times_met_dana, 3)`, so a resumed interview shows the same lines (INV-04).
 - **Never use the global RNG in gameplay:** that means `randf()`, `randi()`, `randi_range()`, `Array.shuffle()` and `Array.pick_random()`. Use `Odds.roll`, `Odds.pick` and `Odds.shuffled` with the run or interview RNG.
   - Cosmetic randomness may use the global RNG: shake offsets, confetti, which idle frame plays.
 - **Roll in a fixed order** in rule code only, never in UI code or `_process`.
@@ -646,15 +653,15 @@ The offer (GDD 5.9, S10) is `{company_id, template_id, tier, job_title, salary, 
 | When it's written | **Only while the run is live** (`JOB_HUNT`, `INTERVIEW`, `OFFER`). Three triggers: after every committed action (`_commit()`); on every change into those phases; and on `NOTIFICATION_APPLICATION_PAUSED`, `APPLICATION_FOCUS_OUT` and `WM_CLOSE_REQUEST` |
 | Never written on | entering TITLE, INTRO, BACKGROUND_SELECT, PHASE2_STUB or GAME_OVER |
 | Deleted when | **entering GAME_OVER**, and **leaving PHASE2_STUB** (Title or New run). `change_phase()` deletes it and counts the finished run in the same place (`run_count`, below) |
-| Accept and the Hired card | Accept writes **no** save: PHASE2_STUB is never saved, so the file on disk stays the OFFER one, with the RNG state from before the background check. Killing the app on the Hired card resumes at the offer with the same contract, and accepting again rolls the same dice (section 7.2) |
-| Committed actions | apply, tailor, skip, research, study, network, a CV change (on leaving the CV screen, or on Pause "Quit to title" from it), sleep, start day, start interview, interview result (a win saves the whole offer with the OFFER phase), negotiate, an offer decision that stays in the run (Decline, or a rescind: saved with JOB_HUNT) |
-| Interview | `start_interview()` checks today's slot and the energy, takes the invite out of Mail, pays, then freezes a **checkpoint** in `run.interview`: `invite_uid`, `company_id`, `template_id`, `tier`, `seed`, `question_ids` (in prompt order), `warmup_id` (`""` except on the first interview of the first run), `probe_line` (a Lie cv-line id, or `""`) and `tired`. `change_phase(INTERVIEW)` saves it. Doubt, Composure and the prompt index live in the scene, so a resume **restarts that interview with the same seed and the same questions** (GDD 5.11). Saves during the interview rewrite the same checkpoint, which is harmless. `finish_interview()` clears it |
+| Accept and the Hired card | Accept writes **no** save: PHASE2_STUB is never saved, so the file on disk stays the OFFER one. Killing the app on the Hired card resumes at the offer with the same contract, and accepting again hires the same job (section 7.2) |
+| Committed actions | apply, tailor, skip, research, study, network, closing a first-run coach mark (`close_coach_mark`, Step 7 review), sleep, start day, start interview, interview result (a win saves the whole offer with the OFFER phase), negotiate, an offer decision that stays in the run (Decline: saved with JOB_HUNT). The CV change and the rescind were removed on 2026-09-29 (DECISIONS D9) |
+| Interview | `start_interview()` checks today's slot and the energy, takes the invite out of Mail, pays, then freezes a **checkpoint** in `run.interview`: `invite_uid`, `company_id`, `template_id`, `tier`, `seed`, `question_ids` (in prompt order), `warmup_id` (`""` except on the first interview of the first run) and `tired`. (An old save's `probe_line` is never read, section 7.1.) `change_phase(INTERVIEW)` saves it. Doubt, Composure and the prompt index live in the scene, so a resume **restarts that interview with the same seed and the same questions** (GDD 5.11). Saves during the interview rewrite the same checkpoint, which is harmless. `finish_interview()` clears it |
 | Continue | `SaveIO.read()`. Then `GameFlow.can_resume(saved.phase)` must be true, or it falls back to `start_new_game()`. Then set the seed, then the state, then `change_phase(saved)` |
 | Retry / New run | `retry()` builds a **fresh `RunState`** and remembers `preselect_background` |
 | Versioning | `RunState.VERSION = 1`. When the format changes, bump it and migrate the dictionary at the top of `from_dict` |
 | JSON gotchas | numbers come back as floats (`from_dict` turns whole ones back into ints, recursively); no Vector2 or Color; 64-bit values travel as strings |
 | Security | **Never load `.tres` or `.res` from `user://`**: a resource file can carry a script that runs on load. `JSON.to_native` defaults to `allow_objects=false` (verified 4.7.2), and we use `JSON.parse_string` anyway |
-| Settings | `user://settings.cfg` (ConfigFile), separate from the run, written only by the game. `[meta]` holds `intro_seen` (set by `finish_intro()`), `run_count` (a run counts once, when `change_phase()` deletes its save: Plan B or leaving the Hired card; `first_run` is `run_count == 0`), `last_background` (Background select preselects it), and later `tips_unlocked` (SHOULD) and `best_dream_<bg>` (neither is written yet). `[options]` holds `haptics`, `relaxed_timing`, `reduced_motion`, `text_speed` (40 / 80 / 0 = instant) and `music_db` / `sfx_db` (SHOULD) |
+| Settings | `user://settings.cfg` (ConfigFile), separate from the run, written only by the game. `[meta]` holds `intro_seen` (set by `finish_intro()`), `run_count` (a run counts once, when `change_phase()` deletes its save: Plan B or leaving the Hired card; `first_run` is `run_count == 0`, read through `GameState.next_run_is_first()`; the debug-only title button "Reset first run" sets it back to 0), `last_background` (Background select preselects it), and later `tips_unlocked` (SHOULD) and `best_dream_<bg>` (LATER, DECISIONS D10); neither is written yet. `[options]` holds `haptics`, `relaxed_timing`, `reduced_motion`, `text_speed` (40 / 80 / 0 = instant) and `music_db` / `sfx_db` (SHOULD) |
 | Tests | never write to `user://` in tests. In the editor that is the real save folder. `test_save` round-trips through JSON strings instead |
 
 ---
@@ -686,13 +693,13 @@ Phones kill background apps without warning, which is why saving happens on paus
 | Title | pass Back to the open debug device check (it counts presses) or close an open dialog; else show "Quit?" (Android and desktop only; iOS apps never quit themselves). Confirm calls `get_tree().quit()` |
 | Intro | `finish_intro()` (skip). It has no `[ < Back ]` button: a one-tap skip next to hold-to-skip would defeat the hold, so the pill is its on-screen way out |
 | Background select | `quit_to_title()`. While you type the name, the field takes the first Esc (typing ends), and a tap anywhere outside the field also ends typing, because the iOS keyboard hides `[ < Title ]` |
-| Job hunt | close the top modal (Pause, the Sleep confirm, the night screen); wait while a card is flying; flip the card back; or return from an app (CV, Mail, Study) to Jobs, except during the morning; else open Pause |
-| Interview | Pause open: resume; the "Ready?" overlay: open Pause (during an ending beat: resume only); Ducky's card: `[ Back to the hunt ]`; an ending beat (K.O., the committee banner and wheel, a rejection): nothing, taps advance it, and `[II]` is hidden from the first ending beat on, so Pause > Quit to title > Continue can't replay an interview whose ending you've seen; the VS intro: skip it if allowed; else open Pause |
+| Job hunt | close the top modal (Pause, the Sleep confirm, the night screen); wait while a card is flying; flip the card back; or return from an app (Mail, Study) to Jobs, except during the morning; else open Pause |
+| Interview | Pause open: resume; the "Ready?" overlay: open Pause (during an ending beat: resume only); Ducky's card: `[ Back to the hunt ]`; an ending beat (K.O., the committee banner and wheel, a rejection): nothing, taps advance it, and `[II]` is hidden from the first ending beat on, so Pause > Quit to title > Continue can't replay an interview whose ending you've seen; the VS intro: Back acts like a tap (`VersusIntro.tap()`: nothing before the slam, then jump to the clip's end, then continue), so there is no Pause during the VS intro; else open Pause |
 | Offer | the Decline confirm open: cancel it; Pause open: resume; Dana's Decline line: move on (that commits the Decline); after ACCEPT: nothing; else open Pause. Back never declines an offer |
 | Hired | beat 1: move on to the tally, like a tap; after that: `quit_to_title()` (a tap finishes the tally; Back leaves) |
 | Plan B | `quit_to_title()` |
 
-**Kill tests.** [`docs/KILL_TESTS.md`](KILL_TESTS.md) is the checklist for the ROADMAP Step 6 You-do: kill the game at 5 moments (mid-hunt, right after Sleep, mid-interview, on the offer, on the Hired card) and check that CONTINUE puts you back where this section and section 8 say. It also gives the desktop equivalent (stop the game from the editor, which is harsher: no pause notification). All 5 passed on the Windows PC on 2026-09-27; the iPhone row is yours.
+**Kill tests.** [`docs/KILL_TESTS.md`](KILL_TESTS.md) is the checklist for the ROADMAP Step 6 iPhone check (still the developer's under DECISIONS W7): kill the game at 5 moments (mid-hunt, right after Sleep, mid-interview, on the offer, on the Hired card) and check that CONTINUE puts you back where this section and section 8 say. It also gives the desktop equivalent (stop the game from the editor, which is harsher: no pause notification). All 5 passed on the Windows PC on 2026-09-27; the iPhone row is yours.
 
 ---
 
@@ -722,7 +729,7 @@ ScreenRoot (Control, full rect; script has handle_back())
 
 - **One file:** `ui/theme/main_theme.tres`, built with `theme_manage`. Set `gui/theme/custom` to it only after it exists.
 - **Default font:** monogram 16.
-- **Type variations:** `PrimaryButton`, `DangerButton`, `PaperPanel`, `HeaderLabel`; Step 5 added `SelectorButton` (toggle buttons: the S03 selector, the CV segments, the referral toggle, the hub's DEBUG toggle), `DockButton` (the hub's dock), `Chip` (the job card's knockout chips) and `GoldPill` ("Invite waiting"); Step 6 added `ProbeButton` (the lie probe's Come clean / Bluff: 10 px top and 9 px bottom padding, so two 12 px-pitch lines fill the 124x44 button exactly).
+- **Type variations:** `PrimaryButton`, `DangerButton`, `PaperPanel`, `HeaderLabel`; Step 5 added `SelectorButton` (toggle buttons: the S03 selector, the referral toggle, the hub's DEBUG toggle; the CV segments used it until D9), `DockButton` (the hub's dock), `Chip` (the job card's knockout chips) and `GoldPill` ("Invite waiting"). Step 6's `ProbeButton` (the lie probe's Come clean / Bluff) was removed on 2026-09-29 with the probe (DECISIONS D9; its padding trick is in section 1.4).
 - **Labels:** `Label/constants/line_spacing = -1`, for the 12 px line pitch (section 1.4, DECISIONS A3). Primary-button labels are upper-cased and Back labels get "< " by `UiText` (section 17.15), not by the theme.
 - **Grey-box styling:** flat `StyleBoxFlat` colors now. In the art pass, swap in pixel 9-slices with `set_stylebox_texture` and whole-pixel margins; layouts stay the same.
 - **Colorblind-safe:** green/red is never the only signal. Match tags carry a check or a cross; meter zones carry text; odds bands are dots plus a word.
@@ -750,7 +757,7 @@ ScreenRoot (Control, full rect; script has handle_back())
 6. **250 ms input lock** whenever answer buttons or the meter appear, so the tap that finished the typewriter text can't also pick an answer.
 7. **Buttons use `action_mode` Button Release** (the default). Whether dragging a ScrollContainer triggers a release is **unverified on the iPhone**; test it in Step 2.
    - Desktop result (Step 2, `.project/evidence/STEP-02/2026-09-27-pc/`): with default STOP buttons, a drag that starts on a row doesn't scroll the list at all. With `mouse_filter = PASS` rows it scrolls, never fires the row, and taps still fire: the ScrollContainer cancels the press.
-   - So buttons inside a scrolling list use PASS (the CV rows' segments, Mail's buttons). A saved scene bakes the project's scroll deadzone into its ScrollContainer, so the lists re-read `gui/common/default_scroll_deadzone` in `_ready()`.
+   - So buttons inside a scrolling list use PASS (Mail's buttons; the CV rows' segments until D9). Mail's invite coach note passes its events on too, so a drag that starts on it still scrolls (section 11.4). A saved scene bakes the project's scroll deadzone into its ScrollContainer, so the lists re-read `gui/common/default_scroll_deadzone` in `_ready()`.
    - If the iPhone still fires a row on a drag, also ignore a release when the pointer moved more than the deadzone since the press.
 8. **No typing** except the optional name field (10 characters); the dice button is the main path. The iOS keyboard covers roughly the bottom 40% in portrait, so the name row lifts above it while typing, using `Device.keyboard_height()`: it reads `DisplayServer.virtual_keyboard_get_height()` (implemented on iOS), assumes native pixels and divides by the scale, as `safe_insets()` does. The unit is unverified until the iPhone test (section 18.1 #12).
 
@@ -760,6 +767,22 @@ ScreenRoot (Control, full rect; script has handle_back())
 - **Text always sits on solid panels**, never directly over dithered sky or parallax.
 - A full-width panel is 254 px outside and 240 px of text: 40 characters at monogram 16.
 - The GDD 2.7 text budgets (120 / 100 / 40 / 80 / 60 / 120 / 240) and their line caps at 40 columns are enforced by `test_content_lint` (section 12.3).
+
+### 10.5 Shared components (Step 7 review)
+
+`hp_bar` and `stat_bar` were plain W3 placeholders until Claude built them in the Step 7 review (DECISIONS W7). Both are `@tool` Controls that draw themselves in `_draw()`, so the editor shows them and the editor-side tests can build one (section 12.1); they never animate in the editor. `test_bars` tests them. The look and feel choices are agent defaults for your review (DECISIONS A40-A45).
+
+- **`HpBar`** (`ui/components/hp_bar.gd` + `.tscn`, 122x8; the interview's Composure and Doubt bars, GDD S08 and 9.1). API: `fill_color`, `max_value`, `value`, static `fill_px(amount, full, width)` and `ghost_value()`.
+  - When the value drops, the coloured fill jumps to it and a white ghost over the lost part shrinks to the new value over `GHOST_SEC` (0.4 s, eased in, quad), so it lingers, then catches up. A rise just jumps. A second hit mid-drain continues from where the ghost is.
+  - Widths are whole pixels (section 1.3), so the ghost shrinks 1 px at a time. Anything above 0 shows at least 1 px, so a sliver of Doubt never reads as a K.O. Values are clamped to 0..`max_value` for display.
+  - Setting `max_value` settles the bar with no ghost, so the interview start and a resume (which rebuilds the scene) never animate.
+  - The ghost's tween belongs to the bar node, so it stops while the tree is paused (Pause, focus loss).
+  - Colours: background `#181425` (the palette's darkest ink), ghost white. Both bars fill left to right; mirroring Composure so both anchor at the centre is a design question for the developer.
+- **`StatBar`** (`ui/components/stat_bar.gd` + `.tscn`; a Control, it was a Label): a stat (0-100) as 5 blocks of 7x7 px, 1 px apart. Filled blocks = static `filled_segments(value)` = `clampi(roundi(value * 5 / 100.0), 0, 5)` (value / 20, rounded, GDD 5.1).
+  - Its minimum size is 39x13, one monogram 16 line: the blocks sit on rows 4-10, the capitals of the label beside it, so a row of text keeps its 13 px height.
+  - Filled amber `#FEAE34` (the PrimaryButton amber), empty `#181425`. `mouse_filter` IGNORE.
+  - Used on the S03 background card (3 bars), the Study app's KNOWLEDGE row, and the VS intro's player plate (3 bars). The hub HUD has no stat bar.
+- **`DuckyNote`** (`ui/components/ducky_note.tscn`): the 254 px Ducky tip note. Every node in it is IGNORE, so it never blocks input, unless `closable = true`: then it shows a small "x" (`DuckyNote.CLOSE_MARK`, a placeholder until the art pass) at the header's right end and takes its own tap. A tap counts on release, like a Button (press and release both on the note, no drag past the 6 px scroll deadzone) and emits `close_tapped`; the owner hides the note. The note is PASS: inside a ScrollContainer it lets the events go on, so a drag that starts on it still scrolls; elsewhere it accepts them, so the control under it never sees the tap. Closable notes: the first-run coach marks (section 11.4) and the offer's tip (section 11.7).
 
 ---
 
@@ -772,7 +795,7 @@ ScreenRoot (Control, full rect; script has handle_back())
   - When `SaveIO.exists()`, show two stacked buttons instead: `[ New game ]` above a full-width primary `[ CONTINUE ]`.
   - A small "Replay intro" text button bottom-left calls `replay_intro()`.
 - `handle_back()` shows "Quit?" on Android and desktop only; never on iOS.
-- As built in Step 3 (section 17.12; DECISIONS A4): with a save, tap-anywhere is off and only the two buttons start play; "Replay intro" always shows. The Step 1 stub's size readout survives as a debug-only `%SizeReadout` in the sky band, and debug builds also show the "Device check" button (DECISIONS A1). The art is still grey boxes.
+- As built in Step 3 (section 17.12; DECISIONS A4): with a save, tap-anywhere is off and only the two buttons start play; "Replay intro" always shows. The Step 1 stub's size readout survives as a debug-only `%SizeReadout` in the sky band, and debug builds also show a `%DebugRow` above the bottom row with the "Device check" button (DECISIONS A1) and "Reset first run" (A51: `GameState.reset_first_run()` sets `run_count` to 0, so the next New game gets the first-run coach marks, the day-2 guarantee and the warm-up again; the button is off when the next run already is a first run). The whole row is hidden in release builds. The art is still grey boxes.
 
 ### 11.2 Intro cutscene (S02)
 
@@ -806,7 +829,7 @@ As built in Step 5 (`background_select.tscn`, `background_card.tscn`, `dice_butt
 - **One full-width `background_card.tscn`** (254 wide; its height follows its content), showing numbers from `BackgroundData` and text from `backgrounds.json`:
   - a 60x72 bust placeholder (the 96 px bust cropped to its top 72 px arrives with the art), then "title - difficulty"
   - energy pips with the commute pips greyed out (`PipBar`), and the runway days
-  - the one-liner, 3 stat bars (`StatBar`: 5 segments, value / 20, rounded; a text placeholder until the Step 5 You-do), a perk (+) and a flaw (-)
+  - the one-liner, 3 stat bars (`StatBar`, section 10.5: 5 amber 7x7 blocks, value / 20, rounded), a perk (+) and a flaw (-)
   - the Self-Taught's two gap topics under the flaw
 - Below it, in the thumb band: the name row (label, a `LineEdit` 34 px tall with `max_length = 10`, a 34x34 dice button), a **3-button selector** (80x40 each, two lines: INTERN / EASY, GRADUATE / MEDIUM, SELF-TAUGHT / HARD) and `[ < Title ][ CHOOSE ]` (80 + 168).
 - **Switching:** tap a selector button, or swipe the card (it reads raw touch like the job card: a quarter of the base width, with a haptic when the drag crosses it). The ends don't wrap, and the new card slides in from the side. CHOOSE confirms.
@@ -819,12 +842,12 @@ As built in Step 5 (`background_select.tscn`, `background_card.tscn`, `dice_butt
 
 As built in Step 5 (grey boxes; the files are listed in section 2):
 - **`job_hunt.tscn` is one scene: your phone running the DoomApply app** (GDD S04). From the top: the HUD (information only: day, rent in red from `rent_warning_days`, energy pips with "n/m", and the Radar as a text meter), the app header (the app's name, plus a gold "Invite waiting" pill), the body, the action row, and a **bottom dock**.
-  - **Dock** (`dock_button.gd`): 5 app slots of 47x40 px (6 of 39 px with Network, SHOULD), each a 16x16 icon (drawn placeholders) above a label of up to 6 characters: Jobs, CV, Mail, Study, [Network], and Sleep (the moon) at the right end. Mail shows a gold badge while an invite is waiting.
-  - The body swaps **panels, not scenes:** Jobs (the deck), CV (`cv_screen.gd`), Mail (`mail_screen.gd`), Study (BigOhNo: KNOWLEDGE bar, a joke per study, `tip_fundamentals` on the first). Every app except Jobs shows `[ < Back ]` to Jobs, which is also what `handle_back()` does.
-  - **Night** is a modal (`night_screen.tscn` in the ModalLayer): the lock screen's one notification card with the night numbers from `morning_report.night` and at most one tip. A tap or Back unlocks it; then the hub opens on Mail with the morning report. Until Start day, only Mail is open: the other dock slots and Sleep are disabled. A Continue between Sleep and Start day replays the night, then the same morning.
-  - A rescinded offer (GDD 5.9.4) opens the hub on Mail, to show its mail and tip first.
+  - **Dock** (`dock_button.gd`): 4 slots of 60x40 px, 4 px apart (5 of 47x40 px until the CV slot was removed on 2026-09-29, DECISIONS D9), each a 16x16 icon (drawn placeholders) above a label of up to 6 characters: Jobs, Mail, Study, and Sleep (the moon) at the right end. Network (SHOULD) will need one more, narrower slot. Mail shows a gold badge while an invite is waiting.
+  - The body swaps **panels, not scenes:** Jobs (the deck), Mail (`mail_screen.gd`), Study (BigOhNo: the KNOWLEDGE `StatBar`, a joke per study, `tip_fundamentals` on the first). Every app except Jobs shows `[ < Back ]` to Jobs, which is also what `handle_back()` does.
+  - **Night** is a modal (`night_screen.tscn` in the ModalLayer): the lock screen's one notification card with the night numbers from `morning_report.night` and at most one tip (`HuntTips.night`, each once per run: the first referral -> `tip_referrals`; 8 Quick Applies without an invite -> `tip_tailor_over_spray`; after a Tailor & Apply, `tip_projects_count` when your honest CV fails "1+ years", then `tip_quantify_impact`. The last two moved here from the removed CV screen, D9). A tap or Back unlocks it; then the hub opens on Mail with the morning report. Until Start day, only Mail is open: the other dock slots and Sleep are disabled. A Continue between Sleep and Start day replays the night, then the same morning.
+  - A rescinded offer opening the hub on Mail (removed 2026-09-29, DECISIONS D9): there is no background check, so no offer is rescinded.
 - **The deck:** 6 new cards each morning (2 per tier), at most 10 on the board (section 7.1). The card (`job_card.tscn`) is 254 wide; with no card left, an "empty deck" note shows instead.
-  - **Card front:** a 238x48 header strip (a tier-colored placeholder until the crops of the tier's interview background exist), a 16x16 logo placeholder, company and tier, title, 3 tags with a check or cross against the CV as set, the joke, a red knockout chip when the CV as set fails one, and the Quick Apply odds band.
+  - **Card front:** a 238x48 header strip (a tier-colored placeholder until the crops of the tier's interview background exist), a 16x16 logo placeholder, company and tier, title, 3 tags with a check or cross against your honest CV, the joke, a red knockout chip when your honest CV fails one, and the Quick Apply odds band.
   - **Action row:** `[=]` 34 px (Pause: the hub's on-screen Back), SKIP 80, `APPLY  1` 128 (APPLY spans the screen centre). Actions you can't afford are greyed out.
   - **Swipe right or APPLY** = Quick Apply (1 pip). **Swipe left or SKIP** = skip. **Tap** = flip.
   - **Card back:** title, company and tier, applicants, posted days ago (plus "Reposted"), salary text, the knockout chip, the tailored odds band, and the `[Use referral]` toggle (34 px tall; the odds switch to the referral quote). Research (SHOULD) is not built. The action row becomes `[ < Back ][ TAILOR & APPLY  2 ]`. Both faces stay in the layout, so the card keeps one height.
@@ -833,15 +856,20 @@ As built in Step 5 (grey boxes; the files are listed in section 2):
   - a move over 68 px (a quarter of the base width) is a swipe (there is no flick detection);
   - a move under the scroll deadzone is a tap;
   - anything else settles back. The back doesn't swipe: its actions are on the action row.
-- **The CV screen (Buzzwordsmith, `cv_screen.gd` + `cv_row.tscn`):** a 2-row header (the tag set with the Lie-risk dots, 0-3, then the "Degree" and "Counts as 1+ yrs" chips), then Education, Experience and Projects in a list that scrolls when a tip needs the room, each with a full-width Honest / Polished / Lie segmented control (3 x 82 x 34). `[ < Back ][ DONE ]`. A segment tap calls `set_cv_level()` (free, no save); leaving the screen calls `commit_cv()`.
-- **Mail (`mail_screen.gd`):** one vertical `ScrollContainer` list, in this order: the grace-day line, the first-run coach mark, the waiting invites (`invite_card.tscn`: `[ Later ]` folds the card to its header; `[ GO NOW  3 ]` shows `interview_cost()` and is greyed out when `can_take_interview()` is false or on a Plan B morning), a rescinded offer with its tip, the expiry notices, the rejections as one stack card with [Flip all] (and `HuntTips.inbox`'s tip under it), the quiet no-reply footer and the Radar update. It shows `morning_report` before Start day and `day_mail` later that day; the invites are always the live `run.invites`. `[ START DAY ]` is the pinned action row below the scroll, full width, always visible during the morning.
-- **Coach marks** (GDD 4.3, first run, day 1; `coach_mark.tscn`): apply, flip, then Sleep (at 2 energy or less, or after 4 applications), over the card's header strip; the first invite points at its GO NOW.
+- **The CV screen (Buzzwordsmith)** (removed 2026-09-29, DECISIONS D9, with `cv_screen.gd`, `cv_row.tscn`, the CV dock slot and the Honest / Polished / Lie control). Your CV is your background's true CV: Quick Apply sends it as it is, and the card back's TAILOR & APPLY sends every line as its honest Polished reframing for that one application (`RunState.cv_sent`). There is no separate "Polish CV" button: none of KNOWLEDGE, EXPERIENCE or NETWORK fits it, and Tailor & Apply already is the per-job polish.
+- **Mail (`mail_screen.gd`):** one vertical `ScrollContainer` list, in this order: the grace-day line, the first-run coach mark, the waiting invites (`invite_card.tscn`: `[ Later ]` folds the card to its header; `[ GO NOW  3 ]` shows `interview_cost()` and is greyed out when `can_take_interview()` is false or on a Plan B morning), the expiry notices, the rejections as one stack card with [Flip all] (and `HuntTips.inbox`'s tip under it), the quiet no-reply footer and the Radar update. It shows `morning_report` before Start day and `day_mail` later that day; the invites are always the live `run.invites`. `[ START DAY ]` is the pinned action row below the scroll, full width, always visible during the morning.
+- **Coach marks** (GDD 4.3, first run, day 1; `coach_mark.tscn`, `CoachMark`; agent defaults A30-A35): apply, flip, then Sleep (at `HuntTips.COACH_SLEEP_PIPS` = 2 energy or less, or after `COACH_SLEEP_APPS` = 4 applications), over the card's header strip; the first invite points at its GO NOW. The rule is `HuntTips.coach(run, has_card, card_back, flipped)` (returns `coach_apply` / `coach_flip` / `coach_sleep` / `""`) and `HuntTips.coach_invite(run)`. Since the Step 7 review (DECISIONS D11):
+  - **A tap on the Ducky note closes the mark** at once, and doing the action still closes it too. This covers `coach_apply`, `coach_flip`, `coach_sleep` and Mail's invite mark (id `HuntTips.COACH_INVITE` = `"coach_invite"`, text `coach_invite_no_research`). The interview's `coach_meter` note is unchanged: it isn't tappable, because the Answer Meter takes taps anywhere.
+  - The note shows a small "x" (`closable`, section 10.5). A tap counts on release, like a Button: press and release both on the note, with no drag past the 6 px scroll deadzone. Over the deck the note accepts the events, so the card under it never flips or swipes; inside Mail's ScrollContainer it passes them on, so a drag that starts on the note still scrolls. The arrow strip stays IGNORE. Since the review fix pass the tap rule lives in `DuckyNote` (`close_tapped`), and `CoachMark` only listens to it.
+  - `CoachMark` API: `point(id, tip, target, swipe = false)` (the mark id is the first argument), `clear()`, `text()`, `signal closed(coach_id)`. `MailScreen` re-emits its mark's close as `signal coach_closed(coach_id)`. The hub connects both to `GameState.close_coach_mark`, which adds the id to `run.coach_closed` and saves at once (Quit to title writes no save).
+  - A closed mark never shows again this run, and the next mark still waits for its own rule: closing Apply with no application shows nothing, and Flip waits for the first application.
+  - Fix: the hub also refits the mark on `CoachMark.resized`. On its first show it used to be placed before its text had wrapped, so it sat mid-card over the title, tags and joke instead of over the header strip.
 - **Rules** all sit on `RunState`, `Odds` and `HuntTips`. The scene only shows `run` and calls verbs:
   - `quick_apply(card_uid)`, `tailor_apply(card_uid, use_referral)`, `skip_card(card_uid)`, `card_odds(card)`
-  - `set_cv_level(line, level)`, `commit_cv()`, `study()`, `sleep()`, `start_day()`, `mark_tip_shown(tip_id)`
+  - `study()`, `sleep()`, `start_day()`, `mark_tip_shown(tip_id)`, `close_coach_mark(coach_id)`
   - `start_interview(invite)` (Mail's GO NOW; from the morning inbox it calls `start_day()` first), `quit_to_title()`
 - **Sleep** asks first when 2 or more pips are left: "You still have N energy. Sleep anyway?" with `[ < Back ][ SLEEP ]`.
-- **Debug builds** show a DEBUG row above the deck: "Fake invite" for each tier (`debug_fake_invite(tier)`, then straight into its interview) and "Rent runs out" (`end_run_plan_b()`).
+- **Debug builds** show a DEBUG row above the deck: "Fake invite" for each tier (`debug_fake_invite(tier)`, then straight into its interview) and "Rent runs out" (`end_run_plan_b()`). With the row open, a Jobs coach note covers "Rent runs out" (a tap there closes the note); release builds have no DEBUG row.
 
 ### 11.5 VS intro (S07)
 
@@ -854,14 +882,19 @@ As built in Step 5 (grey boxes; the files are listed in section 2):
 | 0.05-0.35 s | busts slide in along the diagonal (Dana down from the top-right, you up from the bottom-left), easing out with a small overshoot |
 | 0.35 s | "VS" (Press Start 2P 32) slams onto the diagonal, driven by a method track |
 | 0.4-0.9 s | name plates, and the tier banner from `barks.json` (`vs_banner_*`, Press Start 2P 16, up to 2 lines) |
-| 2.0 s | `finished` |
+| 2.0 s | the last frame holds; "Tap to continue" (`ui_tap_to_continue`) blinks under the banner until a tap (Step 7 review, DECISIONS D12). Before the review this row was `finished` |
 
 - **The slam at 0.35 s** (the method track):
   - a 100 ms hit-stop: `anim.pause()`, a timer, then `anim.play()`;
   - a 4 px whole-pixel shake;
   - `Device.haptic(40)` and a sound effect.
-- **Skip (tap anywhere):** after `vs_min_view_s` (1.0 s) on the first viewing of a run; immediately after that. Skip calls `_finish()`, which stops the animation and emits `finished`.
-- As built in Step 4: the AnimationPlayer's `intro` clip holds this table and its method track calls `slam()`; `vs_duration_s` stretches the whole clip to that length. The interview's Back goes through `try_skip()`. The halves are grey-box colors by tier and hoodie (`VersusIntro.tier_color()`, `hoodie_color()`), and the sound effect arrives with the audio pass.
+- **Skip (tap anywhere)** (removed in the Step 7 review with `vs_min_view_s`, DECISIONS D12): the screen no longer ends by itself, so there is nothing to skip. It waits for a tap instead:
+- **`VersusIntro.tap() -> bool`** (a tap anywhere goes through `_gui_input`; the interview's Back calls it too, section 9). It returns false when the VS screen isn't showing. Before the slam (0.35 s) a tap is ignored, so the tap on GO NOW can't also skip it. During the rest of the clip it jumps to the last frame (`_hold()`: every key applied, so all the text shows, and the hint starts blinking). On the held frame it calls `_finish()`, which emits `finished`, and the interview starts Dana's greeting.
+- **The hint** is `%TapHintPanel`, a PanelContainer of its own under the banner, so it reads on any hoodie colour. It is IGNORE and transparent until the hold, then blinks 0.5 s on / 0.5 s off (`BLINK_S`, 1 flash/s like the title's "Tap to start"; GDD 9.1 allows up to 3).
+- **Less text** (D12; agent defaults A36-A39 and A46): Dana's plate shows her name, her title (`dana_title_<tier>`, 2 lines) and **one** joke stat, and the moves panel **one** special move. `InterviewPlan.vs_plate(run)` returns `{stat, move}` from `VS_DANA_STATS` (`vs_dana_stat_1..3`) and `VS_DANA_MOVES` (`vs_dana_move_1..3`, which replaced the one-line list `vs_dana_moves`), both at index `posmod(run.times_met_dana, 3)`, with no dice (section 7.2). Your plate is unchanged: name, nickname and 3 stats, now as `StatBar`s (section 10.5) in a 2-column GridContainer `PlayerStats` (h_separation 6, v_separation -1, so it keeps the old text rows' 170x37 size and the bars start where the "[###--]" text did).
+- A resumed interview (Continue) plays the VS screen again and waits for the tap.
+- **The clip starts after the scene fade** (review fix pass, 2026-09-29): `play()` runs while `SceneRouter` still fades the interview in, so it applies the 0.00 s keys, pauses on that frame with `Flash` hidden, awaits `SceneRouter.transition_finished`, then seeks to 0.00 again and plays. The fade reveals the first frame, and the flash and the bust slide-in are seen, as the offer paper waits for the fade (section 11.7).
+- As built in Step 4 and the Step 7 review: the AnimationPlayer's `intro` clip holds this table and its method track calls `slam()`; `vs_duration_s` (2.0) stretches the whole clip to that length. The halves are grey-box colors by tier and hoodie (`VersusIntro.tier_color()`, `hoodie_color()`), and the sound effect arrives with the audio pass. `try_skip()`, `_process` and `_min_view_s` are gone.
 
 ### 11.6 Interview (S08-S09)
 
@@ -875,15 +908,15 @@ Interview (Control, full rect)  interview.gd
 ├─ SafeArea (every container and panel in it: mouse_filter = IGNORE)
 │  └─ Column (VBox, 254 wide, separation 0; y values from GDD S08)
 │     ├─ BarsBand (y 0-28): labels COMPOSURE · "ROUND 2/5" · DOUBT, then ComposureBar and DoubtBar
-│     │                     (hp_bar placeholders, 122x8 each)
+│     │                     (HpBar, 122x8 each: the white ghost bar, section 10.5)
 │     ├─ StageSpacer (EXPAND_FILL, empty: the stage shows through; 160 px on 270x480, 248 on an iPhone 15)
 │     ├─ DialogueBox (254x76): NameTab, Line (4 lines), PauseButton [II] (34x34 hit area) at its top-right
 │     └─ AnswerArea (212 px, glued to the bottom safe edge)
 │        ├─ MeterRow (40 px): the Answer Meter's bar is drawn 15 px down it; the zone labels are drawn
 │        │                    on the row itself (Vague above the bar, the others below)
 │        └─ ThumbSlot (one child visible at a time): AnswerColumn (3 x 254x36, gap 6) | TapPad (120 px:
-│             "Tap anywhere!", "TIRED: needle is faster") | ProbeRow (2 x 124x44 ProbeButton, gap 6;
-│             section 1.4) | DuckyCard (a full-width DuckyNote + [ Back to the hunt ])
+│             "Tap anywhere!", "TIRED: needle is faster") | DuckyCard (a full-width DuckyNote +
+│             [ Back to the hunt ]). The lie probe's ProbeRow was removed on 2026-09-29 (DECISIONS D9)
 ├─ VersusIntro (instance, full rect)
 ├─ ResultLayer (covers the stage band): CoachNote (the warm-up's Ducky line), KOBanner, CommitteeWheel (128 px)
 ├─ DebugLayer (debug builds only; freed in release): the DBG toggle (34x34, stage band top-left) and its grid
@@ -899,24 +932,21 @@ Interview (Control, full rect)  interview.gd
 
 1. **Set up** from the checkpoint (section 8).
    - The interview RNG is `InterviewPlan.interview_rng(run.interview.seed)`.
-   - The prompts are `InterviewPlan.prompts(question_ids, ...)`: one per `cfg.prompt_pattern` slot (`[choice, knowledge, knowledge, knowledge, choice]`), with the probe (if `probe_line` is set) in place of knowledge prompt 2.
+   - The prompts are `InterviewPlan.prompts(question_ids, choice_pool)`: one per `cfg.prompt_pattern` slot (`[choice, knowledge, knowledge, knowledge, choice]`). Every knowledge slot asks a knowledge question; an old save's `probe_line` is never read.
    - Doubt = `tier.doubt_hp`; Composure = `bg.composure_max`.
-2. **Open.** Play the VS intro. Then the greeting: `bark_dana_greet_again` ({last_company}) once you have met Dana this run, else `bark_dana_greet_<tier>`; then the background's `dana_opener` on the first interview of a run; then `bark_dana_tired` if you arrived Tired.
+2. **Open.** Play the VS intro and wait for its `finished` (after your tap, section 11.5). Then the greeting: `bark_dana_greet_again` ({last_company}) once you have met Dana this run, else `bark_dana_greet_<tier>`; then the background's `dana_opener` on the first interview of a run; then `bark_dana_tired` if you arrived Tired.
 3. **The warm-up** (`warmup_id`, only on the first interview of the first run) comes before prompt 2: a knowledge prompt labelled "WARM-UP - DOESN'T COUNT" (`vs_warmup`), with Ducky's `coach_meter` note. It changes neither Doubt nor Composure (DECISIONS A6).
-4. **Choice prompt.** Type out the prompt in the dialogue box. Show 3 stacked answer buttons in the thumb band, shuffled with `Odds.shuffled` on the interview RNG (your background's exclusive answer replaces the neutral one), after the 250 ms lock. When one is tapped, apply `Odds.ethics_doubt_delta` (teamwork questions use `Odds.teamwork_mult`) and `ethics_composure_loss`, then show Dana's reaction.
+4. **Choice prompt.** Type out the prompt in the dialogue box (the Step 7 review rewrote every choice question in plain language for non-tech players, DECISIONS C3; ids, tiers and tips are unchanged). Show 3 stacked answer buttons in the thumb band, shuffled with `Odds.shuffled` on the interview RNG (your background's exclusive answer replaces the neutral one), after the 250 ms lock. When one is tapped, apply `Odds.ethics_doubt_delta` (teamwork questions use `Odds.teamwork_mult`) and `ethics_composure_loss`, then show Dana's reaction.
 5. **Knowledge prompt.** Compute P, S (luck on the interview RNG), h (the Graduate's `textbook_zone_bonus` on the first real knowledge prompt) and the needle speed (Tired: faster), then show the TapPad and `meter.start(..., InterviewPlan.meter_rng(rng))`.
    - **The zone and its labels show while Dana asks; the needle starts when her line ends** (DECISIONS A8). That is the visible-luck rule.
    - `await meter.resolved`, then Q from `Odds.answer_q` and the deltas; the input grade (PERFECT, GOOD, CLOSE, ...uhh) shows over the needle.
    - Your character speaks the green, yellow or red line in the dialogue box; on red, Ducky's "Real answer: ..." appears as a full-width note in the thumb band. Then Dana reacts (`bark_dana_great_*`, `_ok_*`, `_bad_*`).
-6. **Lie probe.** `bark_dana_probe_intro`, then the line's probe question (`InterviewPlan.probe_question`: the company's `probe_at` line if it has one). Two half-width buttons at the bottom of the thumb band: [Come clean] left, [Bluff] right with its odds band on a second line (`Odds.bluff_p`, `Odds.bluff_band`, DECISIONS A11). The bluff is rolled before you choose.
-   - Come clean: Doubt -5, Composure -10, then Dana's line and `tip_say_i_dont_know`.
-   - Bluff that holds: Doubt -15.
-   - BUSTED: Doubt +20, Composure -30, the banner and two 30 ms haptics, then Dana's line and `tip_honesty_checks`. The interview goes on (DECISIONS A10).
+6. **Lie probe** (removed 2026-09-29, DECISIONS D9, with Come clean / Bluff, BUSTED, their barks and tips, `Odds.bluff_p` / `bluff_band` and the ProbeRow). Knowledge prompt 2 is always a knowledge question.
 7. **After each prompt:** Doubt at or below 0 is a **K.O.** ("K.O.!" for 0.5 s, then "OFFER!"); Composure at or below 0 is a rejection. From the first ending beat (K.O., the committee banner, a rejection) `[II]` hides and Back does nothing but resume a "Ready?" overlay (Step 6, section 9).
 8. **After prompt 5:**
    - If `committee_eligible`, roll the result on the interview RNG, then spin the wheel in the stage band for 2 s with its win wedge drawn at `committee_win_p`. A loss is a rejection with `tip_research_company`.
    - Otherwise it's a rejection. The thumb band becomes the Ducky card: one tip (DECISIONS A9), the model answer of your worst knowledge question, and a full-width `[ Back to the hunt ]`.
-9. **Finish.** Call `GameState.finish_interview(won, composure_left, busted, came_clean)`. It blacklists the company after a BUSTED, settles the probe (`RunState.settle_probe`), builds the whole offer on a win (`RunState.make_offer`, section 7.1) and clears the checkpoint.
+9. **Finish.** Call `GameState.finish_interview(won, composure_left)`. It counts the interview, builds the whole offer on a win (`RunState.make_offer`, section 7.1) and clears the checkpoint. (Its `busted` and `came_clean` arguments went with the probe, D9.)
 
 **The Answer Meter** (section 17.11):
 - **Position:** it draws its bar at the y the scene passes to `set_bar_y()`: 15 px down the MeterRow, in the meter's own coordinates. Before the first call it falls back to 40 px above its own bottom edge. So the TapPad sits under the thumb and never covers the needle. `answer_meter_width_px` stays 200 (GDD S08).
@@ -929,9 +959,9 @@ Interview (Control, full rect)  interview.gd
 - On the tap it plays a haptic (20 ms for PERFECT, else 10 ms) and emits `resolved(input_quality)`; no tap after `max_round_trips` (3) is a miss.
 
 **Debug** (debug builds only):
-- Launched alone (`project_run mode="custom"`, `run.background_id` empty), `_ready()` calls `GameState.debug_quick_start()` and freezes a checkpoint the way `start_interview()` does, with the real `InterviewPlan` picks. User args choose the setup: `--iv-bg=intern --iv-tier=big --iv-probe=edu` (defaults: Graduate, Mid, no probe).
-- The DBG panel forces each outcome through the real ending code: K.O., wheel win, wheel loss, Composure 0, BUSTED. Its probe toggle cycles the checkpoint's `probe_line` through your background's Lie lines until knowledge prompt 2 is asked.
-- It prints `IVSTART`, `IVTRACE`, `IVWHEEL`, `IVFORCE`, `IVRESULT` and (the probe toggle) `IVDEBUG` lines for agent playtests.
+- Launched alone (`project_run mode="custom"`, `run.background_id` empty), `_ready()` calls `GameState.debug_quick_start()` and freezes a checkpoint the way `start_interview()` does, with the real `InterviewPlan` picks. User args choose the setup: `--iv-bg=intern --iv-tier=big` (defaults: Graduate, Mid).
+- The DBG panel forces each outcome through the real ending code: K.O., wheel win, wheel loss, Composure 0. (The BUSTED button, the probe toggle and `--iv-probe` went with the probe, D9.)
+- It prints `IVSTART`, `IVTRACE`, `IVWHEEL`, `IVFORCE` and `IVRESULT` lines for agent playtests.
 
 ### 11.7 Offer, Hired card, Plan B (S10-S12)
 
@@ -944,21 +974,21 @@ Offer (Control, full rect)   offer.gd
 │    (hoodie colour), Desk, Dimmer (0.6), DanaBust (above the dimmer: Dana stays visible)
 ├─ SafeArea > Column (254, separation 4)
 │    StageSpacer (EXPAND_FILL) · Paper (PaperPanel 254) > Contract (RichTextLabel 240, fit_content,
-│    line spacing -1, autowrap off) · TipNote (DuckyNote) · DanaLine (hidden: Dana's Decline answer) ·
+│    line spacing -1, autowrap off) · TipNote (DuckyNote, closable) · DanaLine (hidden: Dana's Decline answer) ·
 │    ThumbBand: BackRow [ < Back ] 80x36 · ActionBar [ Decline ] 80x36 + [ ACCEPT ] 168x36
 └─ ModalLayer: PauseMenu, DeclineDialog (confirm_dialog)
 ```
 
 - **`offer.tscn`** (S10) only shows `run.offer` (section 7.1), one tip, and calls `answer_offer()`.
-  - **The contract** is pre-wrapped at 40 columns by `UiText.word_wrap` and `UiText.field`, so the label never wraps by itself. Top to bottom (CONTENT.md 13.1): `offer_title` (the company), `offer_dear`, `offer_role` (the posting's title), a blank line, then one field per line after a 12-column label, values wrapping at 28 columns: Salary (yearly, `offer_salary`: `$71,000/year`), Equity (startups only: `offer_equity`, agent default), Work mode, Commute (2 lines), Perks (2, the second under the first, no trailing period), Fine print (up to 4 lines), then `offer_deadline`. The worst case is 19 lines, a 243 px paper (`test_contract_fits_the_paper` checks every tier).
-  - **The paper slides up** (0.3 s ease-out) after the scene fade. ACCEPT and Decline stay off until it lands, which is also the input lock. The stage's desk line follows the paper's resting top, so Dana sits right above the contract: at 270x480 only her lower part shows, at 294x639 all of her.
-  - **One tip** under the paper, `HuntTips.offer(run)`: `tip_equity_lottery` for a startup offer, else `tip_total_comp` (section 7.1).
+  - **The contract** is pre-wrapped at 40 columns by `UiText.word_wrap` and `UiText.field`, so the label never wraps by itself. Top to bottom (CONTENT.md 13.1): `offer_title` (the company), `offer_dear`, `offer_role` (the posting's title), a blank line, then one field per line after a 12-column label, values wrapping at 28 columns: Salary (yearly, `offer_salary`: `$71,000/year`), Equity (startups only: `offer_equity`, agent default), Work mode, Commute (2 lines), Perks (2, the second under the first, no trailing period), Fine print (up to 4 lines; never a repeat of a perk, `fine_print_pool`, section 7.1), then `offer_deadline`. The worst case is 19 lines, a 243 px paper (`test_contract_fits_the_paper` checks every tier).
+  - **The paper slides up** (0.3 s ease-out) after the scene fade. ACCEPT and Decline stay off until it lands, which is also the input lock. The stage's desk line follows the paper's top edge, so Dana sits right above the contract: at 270x480 only her lower part shows, at 294x639 all of her. While the paper rises from below, the desk line already waits at the paper's place.
+  - **One tip** under the paper, `HuntTips.offer(run)`: `tip_equity_lottery` for a startup offer, else `tip_total_comp` (section 7.1). It waits invisible (`modulate`, not `hide()`, so the column keeps its room and the paper's place doesn't move) and fades in (0.15 s) once the paper has landed; before the review fix pass the paper rose under the note and the buttons, which hid most of the contract for 0.3 s (REVIEW_QUEUE Q6). At rest nothing overlaps: at 270x480 the startup contract's paper spans y 90-321, the tip 325-394 and the thumb band 398-476. The tip is closable (agent default A47): a tap hides it for this offer only (nothing is saved), and the paper and the desk line ease (0.2 s) into the room it leaves. The same ease covers Dana's Decline line replacing the tip; each step aims at the column's latest place, because a wrapped label can take two layout passes to find its height.
   - **Buttons:** the `[ < Back ]` row (it opens Pause; section 9), then `[ Decline ][ ACCEPT ]` (80 + 168). Negotiate and drag-to-sign (both SHOULD) are not built. GDD S10 puts Negotiate full width above the action bar, where the Back row now sits, so building it means re-planning that row.
   - **Decline** opens the confirm dialog: `ui_decline_confirm`, or `ui_decline_confirm_grace` when `run.decline_ends_run()` (rent at 0: the grace day, where Decline is Plan B). Confirmed, Dana's `bark_dana_decline` replaces the tip; a tap, Back or 2.5 s moves on, and only then is `answer_offer(false)` called, so a kill during her line leaves the offer open.
-  - **ACCEPT** calls `answer_offer(true)`: the background check (section 7.1), then either the rescind (back to the hunt, the same day) or `run.hire()` and the Hired card. Accept writes no save (section 8).
+  - **ACCEPT** calls `answer_offer(true)`: `run.hire()` and the Hired card. Accept writes no save (section 8). The background check and its rescind (back to the hunt, the same day) were removed on 2026-09-29 (DECISIONS D9).
 - **`phase2_stub.tscn`** (S11, the Hired card), in two beats, because everything at once needs about 500 px:
   - **Beat 1:** `EndingArt` (254x140: a sky in the tier colour, your bust in your hoodie colour) and the HIRED! stamp on its own panel, slammed in after the fade (2x for 0.05 s, then 1x; a 4 px whole-pixel shake of the picture; 40 ms haptic). Below it company, role and yearly salary (3 lines), then the tier's `end_hired_<tier>` (plus Stealth Mode's `hired_extra`). "Tap to continue" shows once the stamp is down plus the input lock; a tap (on release) or Back moves on. Beat 1 has no buttons.
-  - **Beat 2:** a second column appears: the Dream vs Reality sheet slides up (0.3 s) over the illustration while the action bar stays put (GDD 9.1). The panel holds `end_dream_header`, the 5 rows (`end_dream_row_*`, label left, points right with one decimal), the grade word (`Odds.dream_grade`, `end_dream_grade_N`) with the score in Press Start 2P 16, and `end_dream_footer`; below it `tip_written_offer` and TO BE CONTINUED (`end_tbc`) on its own panel. The rows come from `GameState.dream_breakdown()` and appear one per 0.35 s with the running (rounded) score, then everything else; the final score is `run.dream_score`. A tap finishes the tally at once.
+  - **Beat 2:** a second column appears: the Dream vs Reality sheet slides up (0.3 s) over the illustration while the action bar stays put (GDD 9.1). The panel holds `end_dream_header` ("YOUR JOB vs REMY'S VIDEO"), the 5 rows (`end_dream_row_*`, label left; the salary, remote, commute and flags labels name Remy's value, e.g. "Salary (Remy: $150k)", the rent label has none; points right out of the row's maximum, `"%.1f/%d"` with the `dream_w_*` weights, e.g. "18.9/40", agent default A48), the grade word (`Odds.dream_grade`, `end_dream_grade_N`; grade 1 is "All reality, no dream") with the score in Press Start 2P 16, and `end_dream_footer` ("100 is the life in Remy's video. Nobody gets 100. Not even Remy.", 2 lines); the Step 7 review rewrote these labels so the score explains itself (DECISIONS C4); below it `tip_written_offer` and TO BE CONTINUED (`end_tbc`) on its own panel. The rows come from `GameState.dream_breakdown()` and appear one per 0.35 s with the running (rounded) score, then everything else; the final score is `run.dream_score`. A tap finishes the tally at once.
   - **Buttons:** `[ < Title ][ NEW RUN ]` (80 + 168), on once the tally ends plus the input lock. Leaving deletes the save and counts the run (section 8); NEW RUN is `retry()`.
 - **`game_over.tscn`** (S12, the Plan B card) in one beat, about 362 px of content: `EndingArt` with the PLAN B stamp (a purple ring-light sky); one panel with `end_plan_b`, the background's `plan_b_line` and `end_plan_b_final`; one tip, `HuntTips.plan_b(run)` (section 7.1); the run stats (`end_stats`: days, applications, interviews, rejections; 2 lines). Buttons `[ < Title ][ RETRY ]`, on only after the stamp lands plus the input lock, because RETRY sits where Mail's START DAY is, and a second tap on it must not skip the ending. RETRY opens Background select with the same background preselected. The save was already deleted on entering GAME_OVER.
 
@@ -995,29 +1025,30 @@ Offer (Control, full rect)   offer.gd
 | File | Suite | Tests | Covers | Created in |
 |---|---|---|---|---|
 | `test_flow.gd` | `flow` | 10 | every required transition (including Decline on the grace day, OFFER -> GAME_OVER), the illegal jumps, the save policy (`is_saved`, `deletes_save`, `can_resume`), a fresh RunState for Retry; and, reading scripts as text, that `SceneRouter.SCENES` has one existing screen per phase, each with `handle_back()`, and that no script under `features/` calls `change_scene_*()` or `change_phase()` or assigns a phase (INV-01, INV-02); since Step 6, that a run counts once, next to the save deletion (a Hired-card kill, then Continue and Accept again, still counts it once) | Step 1, grew in Steps 3, 5 and 6 (section 17.13) |
-| `test_save.gd` | `save` | 3 | RunState <-> JSON round trip; 64-bit RNG state (2^53 + 1 and negative); seed-then-state replay | Step 1 (section 17.13) |
+| `test_save.gd` | `save` | 4 | RunState <-> JSON round trip; 64-bit RNG state (2^53 + 1 and negative); seed-then-state replay; since the Step 7 review, a save from before D9 still loads and the next save drops the removed keys | Step 1, grew in the Step 7 review (section 17.13) |
 | `test_odds.gd` | `odds` | 8 | P_invite worked examples (16.8%, 12.3%, 30.7%, 19.0%), clamps, bands, knockouts, relevance, determinism | Step 1 (section 17.13) |
-| `test_interview.gd` | `interview` | 4 | the GDD 5.8.7 walkthrough with fixed luck (Doubt 105.5, 68.6, then about 13.1; wheel 68%), bluff 45 / 35 / 32.5%, Tired, input bands | Step 1 (section 17.13) |
-| `test_offer.gd` | `offer` | 13 | salary $71,000, negotiation 77.5 / 62.5% with the 85% cap, Dream scores 68 / 57 / 49; since Step 6 the whole offer (GDD 5.9, S10): `make_offer` fills every field as plain data, 2 different perks and 1 fine print listed for the tier, the same checkpoint builds the same contract, a startup offer is remote with equity, the contract fits the paper at every tier, the commute hours, the offer surviving a save, the offer's tip, `decline_ends_run` only at 0 rent, and Accept after a Hired-card kill rolling the same dice | Step 1, grew in Step 6 (section 17.13) |
+| `test_interview.gd` | `interview` | 3 | the GDD 5.8.7 walkthrough with fixed luck (Doubt 105.5, 68.6, then about 13.1; wheel 68%), Tired, input bands (the bluff odds test went with D9) | Step 1 (section 17.13) |
+| `test_offer.gd` | `offer` | 14 | salary $71,000, negotiation 77.5 / 62.5% with the 85% cap, Dream scores 68 / 57 / 49; since Step 6 the whole offer (GDD 5.9, S10): `make_offer` fills every field as plain data, 2 different perks and 1 fine print listed for the tier, the same checkpoint builds the same contract, a startup offer is remote with equity, the contract fits the paper at every tier, the commute hours, the offer surviving a save, the offer's tip, `decline_ends_run` only at 0 rent, and Accept after a Hired-card kill hiring the same job; since the Step 7 review, the fine print never repeating a perk | Step 1, grew in Step 6 and the Step 7 review (section 17.13) |
 | `test_data_files.gd` | `data_files` | 4 | the 7 `.tres` files hold exactly the GDD section 11 defaults, and the derived values (9 / 8 / 6 energy; only the Self-Taught is a lone wolf). Changing a tuned value means updating GDD 11 and this test in the same commit | Step 3 |
-| `test_content_lint.gd` | `content_lint` | 32 | see 12.3 | Step 4, grows each step |
-| `test_interview_plan.gd` | `interview_plan` | 15 | `InterviewPlan` (GDD 5.8.2): prompt order and tier filtering, no opener-only picks, no repeats across interviews, the warm-up (first interview of the first run only, an unpicked difficulty-1 question that leaves the real picks unchanged), same seed same picks, dry pools, the prompts a checkpoint plays, and a resume or an early or late tap replaying the same luck | Step 4 |
-| `test_ui_text.gd` | `ui_text` | 12 | `UiText` (capitals, the Back arrow, costs, meters, bands, thousands, money; since Step 6 `word_wrap` wrapping where the lint counts lines, and `field`'s label column), the `ProbeButton` fitting two lines in 44 px, and every literal `Content.text()` / `Content.field()` id in the scripts exists in the JSON | Step 4, grew in Step 6 |
-| `test_lie_probe.gd` | `lie_probe` | 5 | the bluff odds band words, the degree-claim weight, coming clean beating bluffing on average, and what Come clean, a bluff win and BUSTED leave in the run (`settle_probe`) | Step 4 |
+| `test_content_lint.gd` | `content_lint` | 33 | see 12.3 | Step 4, grows each step |
+| `test_interview_plan.gd` | `interview_plan` | 15 | `InterviewPlan` (GDD 5.8.2): prompt order and tier filtering, no opener-only picks, no repeats across interviews, the warm-up (first interview of the first run only, an unpicked difficulty-1 question that leaves the real picks unchanged), same seed same picks, dry pools, the prompts a checkpoint plays, and a resume or an early or late tap replaying the same luck; since the Step 7 review Dana's VS plate taking turns (the probe-question test went with D9) | Step 4 |
+| `test_ui_text.gd` | `ui_text` | 14 | `UiText` (capitals, the Back arrow, costs, meters, bands, thousands, money; since Step 6 `word_wrap` wrapping where the lint counts lines, and `field`'s label column), and every literal `Content.text()` / `Content.field()` id in the scripts exists in the JSON; since the Step 7 review `fill` never doubling a period, `Content` filling through `UiText.fill` (read as text), and every `{company}` / `{last_company}` template filled with every company name. The `ProbeButton` test went with D9 | Step 4, grew in Step 6 and the Step 7 review |
+| `test_lie_probe.gd` | `lie_probe` | 0 | removed 2026-09-29 with the lie probe (DECISIONS D9); it tested the bluff odds, the degree-claim weight and `settle_probe` | Step 4 |
 | `test_hunt_board.gd` | `hunt_board` | 10 | GDD 5.6 board: 6 cards (2 per tier) from MVP companies, card rolls in range, the 10-card cap, applied pairs never dealt again, reposts, blacklisted companies, same seed same board, skip, cards aging overnight | Step 5 |
-| `test_hunt_apply.gd` | `hunt_apply` | 12 | applying through the real `RunState` path: the tags and gates actually sent, Tailor never downgrading a Lie, the GDD 5.6 worked examples end to end, referrals, energy, the application record, lies recorded once, the card's odds and knockout chip | Step 5 |
+| `test_hunt_apply.gd` | `hunt_apply` | 11 | applying through the real `RunState` path: Quick Apply sending the honest CV and Tailor & Apply the Polished one, the gates actually sent (only a referral skips a degree knockout), the GDD 5.6 worked examples end to end, referrals, energy, the application record, an application recording no lies (D9), the card's odds and knockout chip | Step 5 |
 | `test_hunt_reveal.gd` | `hunt_reveal` | 14 | GDD 5.7: the reveal in send order on the reveal morning, knockouts the next morning, ghost jobs, ghosting after 7 days, the Radar, invite validity, the day-2 guarantee and its fallback, and that every content id the rules emit exists | Step 5 |
 | `test_hunt_sleep.gd` | `hunt_sleep` | 10 | Sleep as one committed action (section 7.1), the Step 1 night-tick form, the report surviving a save, a kill after Sleep showing the same morning, Plan B and the grace day (GDD 5.10), Start day, `take_invite` | Step 5 |
 | `test_hunt_sim.gd` | `hunt_sim` | 2 | a smoke simulation of a Medium first run: an invite on the morning of day 2 (ROADMAP Step 5 Done-when); 2 day-1 applications are below the guarantee | Step 5 |
 | `test_hunt_edges.gd` | `hunt_edges` | 25 | edge cases and invariants: exact-cost energy, double applies, empty and blacklisted tiers, Radar sequencing, send order across tiers, which reveals use dice, expiry on the last valid day, rent at 0, plain data and determinism over long runs (with or without nightly saves) | Step 5 |
-| `test_hunt_defaults.gd` | `hunt_defaults` | 12 | the Step 5 agent defaults (section 7.1): the dry-deck fallback (38 pairs with the 6 MVP companies, all 58 of the 9 companies, each dealt once), blacklist effects, the rejection mail picked by uid, the ghost-free profile fallback, `passes_years` staying a yes/no, `set_cv_level` | Step 5 |
-| `test_probe_trigger.gd` | `probe_trigger` | 11 | GDD 5.8.5 `RunState.roll_probe` (only Lie lines sent, tag overlap or degree claim, one probe at most, the tier chance, replays) and GDD 5.9.4 `background_check_caught` / `rescind_offer` | Step 5 |
-| `test_hunt_tips.gd` | `hunt_tips` | 13 | `HuntTips` (GDD 8.3): the inbox, night, CV and Study tips, once-per-run tips, `had_invite`, `day_mail` and `tips_shown` surviving a save | Step 5 |
+| `test_hunt_defaults.gd` | `hunt_defaults` | 11 | the Step 5 agent defaults (section 7.1): the dry-deck fallback (38 pairs with the 6 MVP companies, all 58 of the 9 companies, each dealt once), blacklist effects, the rejection mail picked by uid, the ghost-free profile fallback, `passes_years` staying a yes/no (the `set_cv_level` test went with D9) | Step 5 |
+| `test_probe_trigger.gd` | `probe_trigger` | 0 | removed 2026-09-29 with the lie probe and the background check (DECISIONS D9); it tested `roll_probe`, `background_check_caught` and `rescind_offer` | Step 5 |
+| `test_hunt_tips.gd` | `hunt_tips` | 14 | `HuntTips` (GDD 8.3): the inbox, night (since D9 including the Tailor & Apply tips) and Study tips, once-per-run tips, `had_invite`; since the Step 7 review the first-run coach marks (the day-1 rule, a mark tapped closed staying closed, the invite mark until the first interview); `day_mail`, `tips_shown` and `coach_closed` surviving a save (an old save without `coach_closed` loads with `[]`) | Step 5, grew in the Step 7 review |
 | `test_endings.gd` | `endings` | 6 | GDD 5.9.5 Dream vs Reality: `Odds.dream_breakdown` row by row against the three worked examples, its rounded sum always equal to `dream_score` (and each row within its weight), the grade bands; `RunState.hire` (employment, red flags, score, a save round trip); the texts both ending cards show; the Plan B tip matching the cause | Step 6 |
+| `test_bars.gd` | `bars` | 5 | `StatBar` segments (value / 20, rounded, clamped) and its 39x13 size; `HpBar.fill_px` in whole pixels (a 1 px sliver, clamps); the start settling with no ghost, and the settled ghost following the value (no drain out of the tree) | Step 7 review |
 | `test_intro.gd` | `intro` | 4 | `CutscenePlan`: panels in `order`, not id order; what is not a panel is skipped; `pan_path` from the picture's size; the real `cutscene.json` plays as GDD S02 says (6 panels in order 1-6, at most 40 s of pans, exactly one title card) | Step 6 |
 | `test_balance.gd` | `balance` | | the GDD 5.12 simulation, ported | Step 7 |
 
-The 5 Step-1 files had 24 tests, all passing against the section-17 code (verified: scratch run, and in this repo on 2026-09-26 after the portrait change). At the end of Step 5 there were 19 suites and 200 tests. At the end of Step 6 there are **21 suites and 225 tests**, all passing (2026-09-27, `.project/evidence/STEP-06/2026-09-27-r1/test_run.json`). The suites that load data read the real `.tres` with `load()` and the JSON with `FileAccess`, never through `Content` (INV-12).
+The 5 Step-1 files had 24 tests, all passing against the section-17 code (verified: scratch run, and in this repo on 2026-09-26 after the portrait change). At the end of Step 5 there were 19 suites and 200 tests. At the end of Step 6 there were 21 suites and 225 tests (2026-09-27, `.project/evidence/STEP-06/2026-09-27-r1/test_run.json`). The Step 7 review removed the 2 lie-probe suites (204 tests in 19 suites after D9) and added `bars`: there are now **20 suites and 217 tests**, all passing (2026-09-29, headless and in the editor; `.project/evidence/STEP-07/2026-09-29-review/`). The suites that load data read the real `.tres` with `load()` and the JSON with `FileAccess`, never through `Content` (INV-12).
 
 ### 12.3 `test_content_lint.gd` checks
 
@@ -1030,14 +1061,14 @@ It reads the 16 JSON files with `FileAccess` and the background `.tres` with `lo
    - tags in `_keywords`; topics in `_topics`; every `_gap_topic_pool` entry in `_topics`
    - question `tip` in `tips.json` and question `tiers`; `weak_for` is a background or `"none"`; `exclusive.background`
    - perk and fine-print `tiers`
-   - CV line `background`, and the companies in `probe_at`
+   - CV line `background` (the `probe_at` company check went with D9)
    - background ids match the `.tres` ids, and every background `.tres` has its text in `backgrounds.json`
 3. **Text budgets** from GDD 2.7, per field. The test also word-wraps each string at 40 columns and checks the line cap. The wrap is greedy by spaces, like an autowrapped Label: a newline starts a line, and a word longer than a line breaks mid-word.
 
    | Field | Max chars | Lines at 40 columns |
    |---|---|---|
    | dialogue: reactions, barks (all of `barks.json`, so coach and UI lines too), `ducky`, `dana_line`, `dana_opener`, cutscene captions | 120 | 4 |
-   | `prompt`, CV `probe` and `probe_at` lines | 100 | 3 |
+   | `prompt` (CV `probe` and `probe_at` lines until D9) | 100 | 3 |
    | answer `text`, the exclusive answer, `insider` (the "Why us?" button) | 40 | 1 |
    | `green` / `yellow` / `red` | 80 | 3 |
    | posting `joke`, `card_joke`, company `review`, `one_liner`, CV `text` | 60 | 2 |
@@ -1053,14 +1084,15 @@ It reads the 16 JSON files with `FileAccess` and the background `.tres` with `lo
 6. **Placeholders:** every `{x}` is in the CONTENT 0 list.
 7. **Shape checks:**
    - each choice question has exactly one good, one neutral and one bad answer;
-   - each background has 9 CV lines, one per line and variant;
+   - each background has 6 CV lines, one per line and variant (`honest`, `polished`; 9 with `lie` until D9);
+   - CV lines stay true (D9): no other variant, no lie-only field (`degree_claim`, `probe`, `probe_at`), and a Polished Education line never changes the degree (only a referral skips a degree knockout);
    - `has_degree_honest` / `years_pass_honest` match that background's honest CV lines;
    - per tier there are at least 11 choice and at least 19 knowledge questions.
 
 ### 12.4 `test_balance.gd` (Step 7)
 
 - Port the GDD 5.12 bot:
-  - it keeps a Polished CV;
+  - it keeps a Polished CV. Since DECISIONS D9 there is no CV setting: a Quick Apply sends the honest CV and only Tailor & Apply sends the Polished lines, so this bot rule and the 5.12 numbers need re-checking when the port happens;
   - it tailors when 2 or more tags match, and uses referrals on Mid and Big;
   - it researches before 30% of interviews, and studies once after each lost interview;
   - it taps with about 75 ms of timing error;
@@ -1176,7 +1208,7 @@ Android returns after the MVP and needs an Android phone to test on. Keep it pos
 - **Line endings:** `.gitattributes` forces LF (`* text=auto eol=lf`), so both machines write identical files.
 - **`.godot/` is ignored.** The first open on the Mac rebuilds it and reimports everything. It's slow once; that's expected.
 - **Commit the `*.uid` and `*.import` files** (173 `.uid` files are tracked; `.import` files arrive with the first assets). Move and rename files only in Godot's FileSystem dock.
-- **The `.claude/skills` symlink:** git stores it as a symlink (mode 120000) to `../.agent/skills`. This PC has `core.symlinks=false`, so here it's a plain text file containing `../.agent/skills`; git on macOS makes a real link, so the project skills load only on the Mac. Never replace the Windows placeholder with a real folder and commit it: that turns the symlink into a normal entry.
+- **The git symlinks:** git stores four symlinks (mode 120000): `.claude/CLAUDE.md`, `.claude/skills` (to `../.agent/skills`), `.code/AGENTS.md` and `.code/skills`. On Windows they work only with Developer Mode on and `core.symlinks=true` in the **repo** config (`git config --local`: git writes a local `false` when it clones on Windows, and that overrides the global setting); otherwise they check out as one-line text files. The Windows PC was fixed on 2026-09-27 (ISSUE-04); git on macOS makes real links. Never replace a placeholder with a real file or folder and commit it: that turns the symlink into a normal entry.
 - **Python caches** are ignored (`__pycache__/`, section 14.2). One `.pyc` under `.agent/skills/plan-driven-development/scripts/__pycache__/` was committed before that rule; remove it from the index once with `git rm -r --cached .agent/skills/plan-driven-development/scripts/__pycache__`.
 - **Path case:** both file systems are case-insensitive, but the exported pack is not. Match the case of every `res://` path exactly.
 - **Engine:** both machines run exactly 4.7.2. Commit before any update, and update both machines together.
@@ -1265,7 +1297,7 @@ __pycache__/
 
 - **`viewport` stretch mode is the biggest win.** It shades 130-240k pixels per frame whatever the phone's resolution.
 - **`max_fps = 60` plus vsync** stops 120 Hz iPhones from rendering twice as often.
-- **Leave low-processor mode off.** It's the default (verified 4.7.2); it helps only static screens and hurts frame pacing. If battery becomes a problem, try `OS.low_processor_usage_mode = true` on the CV and inbox panels only.
+- **Leave low-processor mode off.** It's the default (verified 4.7.2); it helps only static screens and hurts frame pacing. If battery becomes a problem, try `OS.low_processor_usage_mode = true` on the Mail and Study panels only.
 - **Keep `gl_compatibility`.** It has the widest device support and starts fastest, and it's the only renderer the iOS simulator supports. On iOS it runs on native OpenGL ES 3.0, its only iOS driver in 4.7.2 (verified: 4.7.2 `main.cpp`); Apple has deprecated OpenGL ES since iOS 12, but it still runs.
 - **Habits:**
   - call `queue_redraw()` only while something moves (the Answer Meter stops processing when it's done);
@@ -1347,12 +1379,12 @@ func _ready() -> void:
 
 ---
 
-## 17. Code skeletons (synced with the repo, 2026-09-27)
+## 17. Code skeletons (synced with the repo, 2026-09-29)
 
-Copy these verbatim. **Each block is its repo file, byte for byte, as of the end of Step 6** (the Step 6 doc sync; the Step 5 one was ISSUE-08).
-- The Step 1 skeletons were first verified in a scratch run: they compiled on 4.7.2 with `untyped_declaration` and the other common warnings set to **error**, and the section 17.13 tests passed against them. The synced files pass the repo's `test_run`: 225 tests in 21 suites on 2026-09-27 (section 12.2).
+Copy these verbatim. **Each block is its repo file, byte for byte, as of the Step 7 developer review** (the 2026-09-29 doc sync, after DECISIONS D9-D12; the Step 6 sync was 2026-09-27, the Step 5 one ISSUE-08).
+- The Step 1 skeletons were first verified in a scratch run: they compiled on 4.7.2 with `untyped_declaration` and the other common warnings set to **error**, and the section 17.13 tests passed against them. The synced files pass the repo's tests: 217 tests in 20 suites on 2026-09-29 (section 12.2).
 - "Step N:" comments mark where a step added code, or where a later step adds it.
-- Some blocks need files that aren't shown here. `game_state.gd` (17.7) needs the other pure classes (17.1-17.4, 17.14). `title.gd` (17.12) needs `ConfirmDialog` (`ui/components/confirm_dialog.tscn`), `UiText` (17.15) and the `barks.json` ids it reads. Section 17.13 shows 5 of the 21 test files; the rest are listed in section 12.2.
+- Some blocks need files that aren't shown here. `game_state.gd` (17.7) needs the other pure classes (17.1-17.4, 17.14). `title.gd` (17.12) needs `ConfirmDialog` (`ui/components/confirm_dialog.tscn`), `UiText` (17.15) and the `barks.json` ids it reads. Section 17.13 shows 5 of the 20 test files; the rest are listed in section 12.2.
 - Transient "Identifier not found: Content" (or `GameState`, `SceneRouter`, `Device`) errors are expected until all four autoloads are registered.
 
 ### 17.1 `core/game_flow.gd`
@@ -1417,7 +1449,6 @@ const VERSION := 1
 ## Job hunt ids (GDD 5.0). The board deals round-robin in TIER_IDS order.
 const TIER_IDS: PackedStringArray = ["startup", "mid", "big"]
 const CV_LINES: PackedStringArray = ["edu", "exp", "proj"]
-const CV_LEVELS: PackedStringArray = ["honest", "polished", "lie"]
 const GUARANTEE_DAY := 2              # the first-run guarantee: day-1 applications, the morning of day 2
 const REJECT_MAIL_PREFIX := "mail_reject_"   # emails.json: the plain rejection lines
 const OFFER_PERKS := 2                # GDD 5.9, S10: every offer lists 2 perks and 1 fine-print joke
@@ -1438,9 +1469,6 @@ var lone_wolf: bool = false           # Self-Taught until the first Network (SHO
 var gap_topics: Array[String] = []
 var commute_pips: int = 0
 var commute_minutes: int = 0
-var cv_levels: Dictionary[String, String] = {"edu": "honest", "exp": "honest", "proj": "honest"}
-var lies_carried: Array[String] = []  # Lie cv-line ids that were sent and never busted or confessed
-var confessed: Array[String] = []     # "company_id|cv_line_id": no background check for that pair
 
 # --- day loop ---
 var day: int = 1
@@ -1453,7 +1481,7 @@ var interviews_today: int = 0
 var next_uid: int = 1
 var board: Array[Dictionary] = []         # the deck, top card first: {uid, template_id, company_id, tier, posted_days_ago, applicants, is_ghost, reposted}
 # applications, in send order: {uid (= the card's), template_id, company_id, tier, day_sent, reveal_day, p, hits,
-#   relevant, knockout, knockout_reason {id, args}, is_ghost, referral, tailored, lies, status}
+#   relevant, knockout, knockout_reason {id, args}, is_ghost, referral, tailored, status}
 #   status: pending -> invited | rejected | silent (-> ghosted); invited -> interview | expired
 var applications: Array[Dictionary] = []
 var applied: Array[String] = []           # "template_id|company_id": never dealt again this run
@@ -1464,12 +1492,13 @@ var invites: Array[Dictionary] = []
 var morning_report: Dictionary = {}       # built by Sleep; the hunt scene shows it, "Start day" clears it
 var day_mail: Dictionary = {}             # the morning report after "Start day": Mail keeps showing it until the next Sleep
 var tips_shown: Array[String] = []        # tip ids a once-per-run trigger already showed (HuntTips, GDD 8.3)
-var blacklist: Array[String] = []         # company ids: declined, BUSTED or rescinded
+var coach_closed: Array[String] = []      # first-run coach marks tapped closed: never shown again this run (HuntTips.coach)
+var blacklist: Array[String] = []         # company ids whose offer you declined
 var researched: Array[String] = []        # company ids (SHOULD)
 var seen_question_ids: Array[String] = []
 
 # --- interview checkpoint: a resume replays exactly this interview (GDD 5.11) ---
-var interview: Dictionary = {}        # {invite_uid, company_id, template_id, tier, seed, question_ids, probe_line, warmup_id, tired}
+var interview: Dictionary = {}        # {invite_uid, company_id, template_id, tier, seed, question_ids, warmup_id, tired}
 var interviews_taken: int = 0
 var times_met_dana: int = 0
 var dana_last_company: String = ""
@@ -1478,7 +1507,6 @@ var dana_last_company: String = ""
 # the offer on the table (make_offer): {company_id, template_id, tier, job_title, salary, work_mode, office_days,
 #   commute {id, args}, perks [ids], fine_print, equity_text, negotiated}; texts are emails.json ids, job_title the posting's title
 var offer: Dictionary = {}
-var rescinded: Dictionary = {}        # the offer a background check withdrew: {company_id, template_id, tier, mail_id}; the next Sleep clears it
 var employment: Dictionary = {}       # the accepted offer + red_flags (hire(); Phase 2 reads this)
 var dream_score: int = -1
 var total_applications: int = 0
@@ -1503,19 +1531,6 @@ func new_uid() -> int:
 	return next_uid - 1
 
 
-## The lie probe's lasting effects (GDD 5.8.5), applied with the interview result so nothing is saved
-## mid-interview: Come clean marks the line confessed for this company (no background check there,
-## 5.9.4), and a confessed or BUSTED line is no longer a lie you carry (Phase 2 hook).
-func settle_probe(company_id: String, cv_line_id: String, came_clean: bool, busted: bool) -> void:
-	if cv_line_id == "":
-		return
-	var pair := company_id + "|" + cv_line_id
-	if came_clean and not confessed.has(pair):
-		confessed.append(pair)
-	if came_clean or busted:
-		lies_carried.erase(cv_line_id)
-
-
 ## A new run's starting numbers from its background (GDD 5.2). GameState adds the name, the seed,
 ## the gap topics and first_run, then deals the day-1 board.
 func set_background(cfg: BalanceConfig, bg: BackgroundData) -> void:
@@ -1527,15 +1542,6 @@ func set_background(cfg: BalanceConfig, bg: BackgroundData) -> void:
 	rent_days_left = bg.runway_days
 	referral_tokens = bg.referral_tokens
 	lone_wolf = bg.teamwork_mult < bg.teamwork_mult_after_network
-
-
-## The CV screen (GDD 5.4): one line set to Honest, Polished or Lie. Free; it only changes the
-## applications sent after it. False (and no change) for an unknown line or level.
-func set_cv_level(line: String, level: String) -> bool:
-	if not CV_LINES.has(line) or not CV_LEVELS.has(level):
-		return false
-	cv_levels[line] = level
-	return true
 
 
 # ---------- job hunt (GDD 5.6-5.10). Every rule takes its data as arguments: ----------
@@ -1576,10 +1582,9 @@ func deal_board(cfg: BalanceConfig, tiers: Dictionary, content: Dictionary, rng:
 	return dealt_count
 
 
-## Declined offer, BUSTED or rescinded (GDD 5.7): the company is blacklisted for the run. Its cards
-## leave the board at once (not only at the next morning's deal), its waiting invites are withdrawn
-## without a mail (their applications end "expired"), and its pending applications reveal as
-## silent (_reveal_outcomes).
+## A declined offer (GDD 5.7): the company is blacklisted for the run. Its cards leave the board at
+## once (not only at the next morning's deal), its waiting invites are withdrawn without a mail (their
+## applications end "expired"), and its pending applications reveal as silent (_reveal_outcomes).
 func blacklist_company(company_id: String) -> void:
 	if not blacklist.has(company_id):
 		blacklist.append(company_id)
@@ -1604,19 +1609,16 @@ func skip_card(card_uid: int) -> bool:
 	return true
 
 
-## The CV lines actually sent (GDD 5.4): as set on the CV screen, or, when tailored, every Honest
-## line goes out Polished (a Lie stays a Lie). Returns {line_ids, tags (the union), degree,
-## passes_years, lies (the Lie line ids)}.
+## The CV lines actually sent (GDD 5.4): your background's true CV. Quick Apply sends every line
+## Honest; Tailor & Apply sends every line as its Polished version (honest reframing) for that one
+## application. Returns {line_ids, tags (the union), degree, passes_years}.
 func cv_sent(cv_lines: Dictionary, tailored: bool) -> Dictionary:
+	var level := "polished" if tailored else "honest"
 	var line_ids: Array[String] = []
 	var tags: Array[String] = []
-	var lies: Array[String] = []
 	var degree := false
 	var passes_years := false
 	for line: String in CV_LINES:
-		var level: String = cv_levels.get(line, "honest")
-		if tailored and level == "honest":
-			level = "polished"
 		var id := _cv_line_id(cv_lines, line, level)
 		if id.is_empty():
 			continue
@@ -1627,14 +1629,12 @@ func cv_sent(cv_lines: Dictionary, tailored: bool) -> Dictionary:
 				tags.append(str(tag))
 		degree = degree or bool(entry.get("degree", false))
 		passes_years = passes_years or bool(entry.get("passes_years", false))
-		if level == "lie":
-			lies.append(id)
-	return {"line_ids": line_ids, "tags": tags, "degree": degree, "passes_years": passes_years, "lies": lies}
+	return {"line_ids": line_ids, "tags": tags, "degree": degree, "passes_years": passes_years}
 
 
-## What a card shows (GDD S04): its 3 tags checked against the CV as set ({tag, hit}), and for each
+## What a card shows (GDD S04): its 3 tags checked against your honest CV ({tag, hit}), and for each
 ## way to apply ("quick", "tailored", "referral" = tailored + a token) {p, band, hits, relevant,
-## knockout, lies}. knockout is the red chip: {id, args} into postings.json ("card_knockout" wraps
+## knockout}. knockout is the red chip: {id, args} into postings.json ("card_knockout" wraps
 ## it), or {} for none. Ghost risk is never included. {} if the card's data is missing.
 func card_odds(cfg: BalanceConfig, tiers: Dictionary, bg: BackgroundData, content: Dictionary, card: Dictionary) -> Dictionary:
 	var tier := _tier(tiers, str(card.get("tier", "")))
@@ -1642,10 +1642,10 @@ func card_odds(cfg: BalanceConfig, tiers: Dictionary, bg: BackgroundData, conten
 	if tier == null or posting.is_empty():
 		return {}
 	var cv := _file(content, "cv_lines")
-	var as_set: Array = cv_sent(cv, false)["tags"]
+	var honest: Array = cv_sent(cv, false)["tags"]
 	var tag_rows: Array[Dictionary] = []
 	for tag: Variant in posting.get("tags", []):
-		tag_rows.append({"tag": str(tag), "hit": as_set.has(str(tag))})
+		tag_rows.append({"tag": str(tag), "hit": honest.has(str(tag))})
 	return {
 		"tags": tag_rows,
 		"quick": _quote(cfg, tier, bg, posting, cv, false, false),
@@ -1680,16 +1680,12 @@ func apply_card(cfg: BalanceConfig, tiers: Dictionary, bg: BackgroundData, conte
 		"reveal_day": Odds.reply_day(cfg, tier, day, not knockout.is_empty()),
 		"p": _frozen_p(quote["p"]), "hits": quote["hits"], "relevant": quote["relevant"],
 		"knockout": not knockout.is_empty(), "knockout_reason": knockout,
-		"is_ghost": card["is_ghost"], "referral": referral, "tailored": tailored,
-		"lies": quote["lies"], "status": "pending",
+		"is_ghost": card["is_ghost"], "referral": referral, "tailored": tailored, "status": "pending",
 	}
 	applications.append(app)
 	applied.append(pair_key(str(card["template_id"]), str(card["company_id"])))
 	board.remove_at(i)
 	total_applications += 1
-	for lie: String in quote["lies"]:
-		if not lies_carried.has(lie):
-			lies_carried.append(lie)
 	return app
 
 
@@ -1714,7 +1710,6 @@ func sleep(cfg: BalanceConfig, tiers: Dictionary = {}, bg: BackgroundData = null
 	rent_days_left = maxi(rent_days_left - 1, 0)
 	energy = cfg.energy_max - commute_pips
 	interviews_today = 0
-	rescinded = {}
 	day_mail = {}
 	for card: Dictionary in board:
 		card["posted_days_ago"] = int(card["posted_days_ago"]) + 1
@@ -1747,58 +1742,6 @@ func take_invite(invite_uid: int) -> Dictionary:
 	return {}
 
 
-## GDD 5.8.5, rolled by GameState.start_interview on the run RNG before the checkpoint is frozen:
-## the Lie CV line Dana probes in this interview, or "". The Lie lines sent in that application
-## count, in CV order, when one shares a tag with the posting or is a degree claim; each counting
-## line rolls tier.lie_probe_chance until one hits. One probe at most: the checkpoint holds a single
-## probe_line (cfg.max_probes_per_interview = 0 turns probes off). No application (a "saw your
-## profile" invite) means no lies sent, so no probe.
-func roll_probe(cfg: BalanceConfig, tier: TierData, content: Dictionary, app_uid: int, rng: RandomNumberGenerator) -> String:
-	var app := _application(app_uid)
-	if app.is_empty() or cfg.max_probes_per_interview <= 0:
-		return ""
-	var cv := _file(content, "cv_lines")
-	var posting_tags: Array = _posting(content, str(app["template_id"])).get("tags", [])
-	for id: Variant in app.get("lies", []):
-		var line: Variant = cv.get(str(id))
-		if not (line is Dictionary):
-			continue
-		var counts := bool((line as Dictionary).get("degree_claim", false))
-		for tag: Variant in (line as Dictionary).get("tags", []):
-			counts = counts or posting_tags.has(tag)
-		if counts and Odds.roll(rng, tier.lie_probe_chance):
-			return str(id)
-	return ""
-
-
-## GDD 5.9.4, on Accept: true when the background check catches you. Only a degree-claim Lie sent
-## to this company (in any application) and never confessed there rolls tier.background_check, once,
-## on the run RNG; otherwise no dice and false.
-func background_check_caught(tier: TierData, content: Dictionary, company_id: String, rng: RandomNumberGenerator) -> bool:
-	var cv := _file(content, "cv_lines")
-	for app: Dictionary in applications:
-		if str(app["company_id"]) != company_id:
-			continue
-		for id: Variant in app.get("lies", []):
-			var line: Variant = cv.get(str(id))
-			if line is Dictionary and bool((line as Dictionary).get("degree_claim", false)) \
-					and not confessed.has(company_id + "|" + str(id)):
-				return Odds.roll(rng, tier.background_check)
-	return false
-
-
-## Caught by the background check (GDD 5.9.4): the offer is withdrawn and its company blacklisted.
-## `rescinded` keeps the "OFFER RESCINDED" mail for the hunt scene until the next Sleep.
-func rescind_offer() -> void:
-	var company_id := str(offer.get("company_id", ""))
-	rescinded = {
-		"company_id": company_id, "template_id": offer.get("template_id", ""), "tier": offer.get("tier", ""),
-		"mail_id": "mail_rescinded",
-	}
-	offer = {}
-	blacklist_company(company_id)
-
-
 ## GDD 5.9, S10: the whole offer, built by GameState.finish_interview from the interview checkpoint
 ## (so call it before the checkpoint is cleared). Plain data only (INV-07): the numbers, the posting's
 ## title (the raw JSON text; the screen tr()s it) and emails.json ids for every other text, so the
@@ -1811,7 +1754,7 @@ func make_offer(cfg: BalanceConfig, tier: TierData, bg: BackgroundData, content:
 	var emails := _file(content, "emails")
 	var rng := offer_rng(str(interview.get("seed", "")))
 	var perks := Odds.pick(rng, _tier_entries(emails, "perk_", tier_id), OFFER_PERKS)
-	var fine_print := Odds.pick(rng, _tier_entries(emails, "fp_", tier_id), 1)
+	var fine_print := Odds.pick(rng, fine_print_pool(emails, tier_id, perks), 1)
 	offer = {
 		"company_id": str(interview.get("company_id", "")), "template_id": template_id, "tier": tier_id,
 		"job_title": str(_posting(content, template_id).get("title", "")),
@@ -1835,15 +1778,15 @@ static func offer_rng(interview_seed: String) -> RandomNumberGenerator:
 
 ## The contract's commute line (GDD S10) as {id, args} into emails.json: no office days is the remote
 ## line; otherwise days x minutes each way and the weekly hours (GDD 5.9.5), one decimal: "12.7".
-static func offer_commute(office_days: int, commute_minutes: int) -> Dictionary:
+static func offer_commute(office_days: int, minutes_each_way: int) -> Dictionary:
 	if office_days <= 0:
 		return {"id": "offer_commute_remote", "args": {}}
-	var hours := office_days * 2.0 * commute_minutes / 60.0
+	var hours := office_days * 2.0 * minutes_each_way / 60.0
 	return {"id": "offer_commute_office",
-		"args": {"office_days": office_days, "commute_min": commute_minutes, "hours": "%.1f" % hours}}
+		"args": {"office_days": office_days, "commute_min": minutes_each_way, "hours": "%.1f" % hours}}
 
 
-## GDD 5.9.4-5.9.5, an Accept that passed the background check: the offer becomes the job, with its
+## GDD 5.9.4-5.9.5, Accept: the offer becomes the job, with its
 ## company's red flags (GDD 10.4; company_red_flags is that company's companies.json list), and is
 ## scored Dream vs Reality with the rent days left today. The offer stays as it was.
 func hire(cfg: BalanceConfig, bg: BackgroundData, company_red_flags: Array) -> void:
@@ -2154,7 +2097,6 @@ func _quote(cfg: BalanceConfig, tier: TierData, bg: BackgroundData, posting: Dic
 		"p": p, "band": Odds.odds_band(cfg, p), "hits": hits, "relevant": Odds.is_relevant(cfg, hits),
 		"knockout": Odds.knockout_reason(bool(posting.get("degree", false)), int(posting.get("min_years", 0)),
 			bool(sent["degree"]), bool(sent["passes_years"]), referral),
-		"lies": sent["lies"],
 	}
 
 
@@ -2164,14 +2106,8 @@ static func _frozen_p(p: float) -> float:
 	return ("%.9f" % p).to_float()
 
 
-## This background's cv_lines.json entry for a line at a level (the CV screen shows its text and
-## tags), or {} if the content has none.
-func cv_line(cv_lines: Dictionary, line: String, level: String) -> Dictionary:
-	var id := _cv_line_id(cv_lines, line, level)
-	return cv_lines[id] if not id.is_empty() else {}
-
-
-## The cv_lines.json id for this background's line at a level (the fields decide, not the id's spelling).
+## The cv_lines.json id for this background's line at a level, "honest" or "polished" (the fields
+## decide, not the id's spelling).
 func _cv_line_id(cv_lines: Dictionary, line: String, level: String) -> String:
 	for key: Variant in cv_lines:
 		var entry: Variant = cv_lines[key]
@@ -2211,6 +2147,16 @@ static func _file(content: Dictionary, file: String) -> Dictionary:
 	if d is Dictionary:
 		return d
 	return {}
+
+
+## GDD S10: the tier's fine print (fp_* in emails.json) minus any that repeats a perk on the same
+## paper: fp_<x> is left out when perk_<x> was dealt, so a startup never lists "Unlimited PTO*" twice.
+static func fine_print_pool(emails: Dictionary, tier_id: String, perks: Array) -> Array[String]:
+	var pool: Array[String] = []
+	for id: String in _tier_entries(emails, "fp_", tier_id):
+		if not perks.has("perk_" + id.trim_prefix("fp_")):
+			pool.append(id)
+	return pool
 
 
 ## The sorted ids starting with prefix whose "tiers" list this tier (perk_*, fp_* in emails.json).
@@ -2510,22 +2456,6 @@ static func committee_win_p(cfg: BalanceConfig, doubt: float, doubt_max: float, 
 	return minf(cfg.committee_cap, cfg.committee_base + cfg.committee_close_bonus * closeness + net / cfg.committee_net_div)
 
 
-static func bluff_p(cfg: BalanceConfig, tier: TierData, knw: int, experience: int, degree_claim: bool) -> float:
-	var p := cfg.bluff_base + (knw - 50) / cfg.bluff_knw_div + (experience - cfg.bluff_exp_ref) / cfg.bluff_exp_div
-	p -= tier.bluff_detect + (cfg.bluff_weight_degree if degree_claim else cfg.bluff_weight_lie)
-	return clampf(p, cfg.bluff_min, cfg.bluff_max)
-
-
-## The Bluff button's odds band, 1-5 (the card words: Long shot ... Good). Step 4 addition, agent
-## default: five equal steps across the bluff's own range (bluff_min-bluff_max), because the card
-## thresholds (3-20%) would call every bluff "Good" or "Decent". Mid, normal lie: Intern 45% Possible.
-static func bluff_band(cfg: BalanceConfig, p: float) -> int:
-	var span := cfg.bluff_max - cfg.bluff_min
-	if span <= 0.0:
-		return 3
-	return clampi(1 + floori((p - cfg.bluff_min) / span * 5.0), 1, 5)
-
-
 # ---------- offer and endings (GDD 5.9) ----------
 
 static func round_to(value: float, step: int) -> int:
@@ -2685,9 +2615,6 @@ extends Resource
 @export var tier_difficulty: int = 42
 @export var needle_speed: float = 0.60        # bar-widths per second
 @export var zone_jumps: bool = false          # startup "PIVOT!"
-@export var lie_probe_chance: float = 0.45
-@export var bluff_detect: float = 0.05
-@export var background_check: float = 0.30
 
 @export_group("Offer")
 @export var salary_min_k: int = 65            # yearly salary, thousands of dollars
@@ -2847,24 +2774,7 @@ extends Resource
 @export var committee_cap: float = 0.85
 @export var input_lock_ms: int = 250
 @export var vs_duration_s: float = 2.0
-@export var vs_min_view_s: float = 1.0
 @export var typewriter_cps: float = 40.0
-
-@export_group("Lying (11.5)")
-@export var max_probes_per_interview: int = 1
-@export var bluff_base: float = 0.50
-@export var bluff_knw_div: float = 200.0
-@export var bluff_exp_ref: float = 20.0
-@export var bluff_exp_div: float = 200.0
-@export var bluff_weight_lie: float = 0.10
-@export var bluff_weight_degree: float = 0.20
-@export var bluff_min: float = 0.10
-@export var bluff_max: float = 0.80
-@export var bluff_win_doubt: float = -15.0
-@export var busted_doubt: float = 20.0
-@export var busted_comp: float = 30.0
-@export var come_clean_doubt: float = -5.0
-@export var come_clean_comp: float = 10.0
 
 @export_group("Offer and endings (11.6)")
 @export var band_base: float = 0.25
@@ -2949,7 +2859,7 @@ func text(file: String, id: String, args: Dictionary = {}) -> String:
 		push_warning("Content: missing text %s/%s" % [file, id])
 		return id
 	var raw: String = e if e is String else str((e as Dictionary).get("text", id))
-	return tr(raw).format(args)
+	return UiText.fill(tr(raw), args)
 
 
 ## One text field of a structured entry, e.g. field("questions_knowledge", "kq_hash_map", "prompt").
@@ -2958,7 +2868,7 @@ func field(file: String, id: String, key: String, args: Dictionary = {}) -> Stri
 	if not (e is Dictionary) or not (e as Dictionary).has(key):
 		push_warning("Content: missing %s/%s.%s" % [file, id, key])
 		return id
-	return tr(str(e[key])).format(args)
+	return UiText.fill(tr(str(e[key])), args)
 
 
 static func load_tres_dir(dir: String) -> Array[Resource]:
@@ -3029,6 +2939,17 @@ func setting(section: String, key: String, default: Variant) -> Variant:
 func set_setting(section: String, key: String, value: Variant) -> void:
 	settings.set_value(section, key, value)
 	settings.save(SETTINGS_PATH)
+
+
+## The next new run is a first run: no run has counted yet (settings meta run_count, below).
+func next_run_is_first() -> bool:
+	return int(setting("meta", "run_count", 0)) == 0
+
+
+## Debug builds only (the Title's "Reset first run"): the next New game is a first run again, with its
+## coach marks, the day-2 guarantee and the warm-up. A saved run keeps its own first_run.
+func reset_first_run() -> void:
+	set_setting("meta", "run_count", 0)
 
 
 # ---------- saving ----------
@@ -3141,7 +3062,7 @@ func debug_quick_start(bg_id: String, phase: GameFlow.Phase, run_seed: int = 202
 
 ## Debug only (the hub's DEBUG row keeps an interview one tap away): a waiting invite from the tier's
 ## first MVP company that isn't blacklisted, for the tier's first open posting, as if it arrived this
-## morning. No application backs it, so it never probes. No dice. {} when the tier has no company left.
+## morning. No application backs it. No dice. {} when the tier has no company left.
 func debug_fake_invite(tier_id: String) -> Dictionary:
 	var company_id := _first_entry_id("companies", func(id: String, e: Dictionary) -> bool:
 		return str(e.get("tier", "")) == tier_id and bool(e.get("mvp", false)) and not run.blacklist.has(id))
@@ -3182,7 +3103,7 @@ func _init_run(bg_id: String, player_name: String, run_seed: int) -> void:
 	run.set_background(cfg, bg)
 	run.player_name = player_name
 	run.gap_topics.assign(Odds.pick(rng, _gap_pool(), bg.gap_topics_count))
-	run.first_run = int(setting("meta", "run_count", 0)) == 0
+	run.first_run = next_run_is_first()
 	run.deal_board(cfg, _tiers(), _hunt_content(), rng)
 
 
@@ -3192,13 +3113,14 @@ func _gap_pool() -> Array:
 
 # ---------- job hunt verbs (each committed action ends with _commit()) ----------
 
-## Swipe right or APPLY: Quick Apply with the CV as set (1 pip). False when refused: the card is
+## Swipe right or APPLY: Quick Apply with your honest CV (1 pip). False when refused: the card is
 ## gone, its company is blacklisted, or there isn't enough energy.
 func quick_apply(card_uid: int) -> bool:
 	return _apply(card_uid, false, false)
 
 
-## Card back TAILOR & APPLY (2 pips), optionally spending a referral token.
+## Card back TAILOR & APPLY (2 pips): every CV line goes out Polished for this application; optionally
+## spending a referral token.
 func tailor_apply(card_uid: int, use_referral: bool) -> bool:
 	return _apply(card_uid, true, use_referral)
 
@@ -3216,19 +3138,6 @@ func skip_card(card_uid: int) -> bool:
 		return false
 	_commit()
 	return true
-
-
-## A CV screen segment tap (GDD S05): free and instant. It is saved when the screen closes (commit_cv).
-func set_cv_level(line: String, level: String) -> bool:
-	if not run.set_cv_level(line, level):
-		return false
-	run_changed.emit()
-	return true
-
-
-## Leaving the CV screen (DONE or Back): the CV change is one committed action (ARCHITECTURE 8).
-func commit_cv() -> void:
-	_commit()
 
 
 func study() -> bool:
@@ -3256,7 +3165,7 @@ func start_day() -> void:
 		_commit()
 
 
-## What a board card shows (GDD S04): its 3 tags checked against the CV as set, and the odds of each
+## What a board card shows (GDD S04): its 3 tags checked against your honest CV, and the odds of each
 ## way to apply (RunState.card_odds). {} if the card's data is missing. Changes nothing.
 func card_odds(card: Dictionary) -> Dictionary:
 	return run.card_odds(Content.balance, _tiers(), _bg(), _hunt_content(), card)
@@ -3267,6 +3176,15 @@ func card_odds(card: Dictionary) -> Dictionary:
 func mark_tip_shown(tip_id: String) -> void:
 	if not run.tips_shown.has(tip_id):
 		run.tips_shown.append(tip_id)
+
+
+## A first-run coach mark tapped closed (GDD 4.3, HuntTips.coach): it never shows again this run. Saved
+## at once, because Quit to title writes no save and Continue must not bring it back.
+func close_coach_mark(coach_id: String) -> void:
+	if coach_id.is_empty() or run.coach_closed.has(coach_id):
+		return
+	run.coach_closed.append(coach_id)
+	_commit()
 
 
 ## The hunt rules' data arguments (RunState, "job hunt" section).
@@ -3291,12 +3209,11 @@ func _bg() -> BackgroundData:
 # ---------- interview ----------
 
 ## Mail "GO NOW": today's slot and the energy are checked, the invite leaves Mail, the energy is paid,
-## then the interview is frozen: its seed, its questions (GDD 5.13) and the lie-probe roll (GDD 5.8.5),
-## all on the run RNG in that order, so a resume replays it exactly. Nothing changes when refused.
+## then the interview is frozen: its seed, then its questions (GDD 5.13), on the run RNG in that
+## order, so a resume replays it exactly. Nothing changes when refused.
 func start_interview(invite: Dictionary) -> void:
 	var cfg := Content.balance
-	var tier_data := Content.tier(str(invite.get("tier", "")))
-	if tier_data == null or not can_take_interview(invite):
+	if not can_take_interview(invite):
 		return
 	var cost := interview_cost(invite)
 	var taken := run.take_invite(int(invite.get("uid", -1)))
@@ -3314,7 +3231,6 @@ func start_interview(invite: Dictionary) -> void:
 		"seed": interview_seed, "tired": Odds.is_tired(cfg, run.energy),
 		"question_ids": plan["question_ids"],  # prompt order (cfg.prompt_pattern)
 		"warmup_id": plan["warmup_id"],        # "" unless the first interview of the first run
-		"probe_line": run.roll_probe(cfg, tier_data, _hunt_content(), int(taken["app_uid"]), rng),
 	}
 	InterviewPlan.mark_seen(run.seen_question_ids, plan["question_ids"] + [plan["warmup_id"]])
 	change_phase(GameFlow.Phase.INTERVIEW)  # saves the checkpoint
@@ -3336,18 +3252,14 @@ func can_take_interview(invite: Dictionary) -> bool:
 	return cost >= 0 and run.interviews_today < Content.balance.max_interviews_per_day and run.energy >= cost
 
 
-## won = K.O. or committee win. busted = the lie probe ended in BUSTED (company blacklisted).
-## came_clean = you came clean on the probe (Step 4: that line counts as confessed for this company).
-## A win builds the whole offer from the checkpoint (RunState.make_offer) before it is cleared.
-func finish_interview(won: bool, composure_left: float, busted: bool = false, came_clean: bool = false) -> void:
+## won = K.O. or committee win. A win builds the whole offer from the checkpoint (RunState.make_offer)
+## before it is cleared.
+func finish_interview(won: bool, composure_left: float) -> void:
 	var iv := run.interview
 	var company_id: String = iv.get("company_id", "")
 	run.interviews_taken += 1
 	run.times_met_dana += 1
 	run.dana_last_company = company_id
-	if busted:
-		run.blacklist_company(company_id)
-	run.settle_probe(company_id, str(iv.get("probe_line", "")), came_clean, busted)
 	if won:
 		run.make_offer(Content.balance, Content.tier(str(iv["tier"])), _bg(), _hunt_content(), composure_left)
 	run.interview = {}
@@ -3358,11 +3270,9 @@ func finish_interview(won: bool, composure_left: float, busted: bool = false, ca
 
 ## Decline (after the confirm dialog): the company is blacklisted and the hunt goes on the same day,
 ## except on the grace day (rent at 0), when declining is Plan B (GDD 5.10, RunState.decline_ends_run).
-## Accept: an unconfessed degree-claim Lie sent to this company rolls tier.background_check on the
-## run RNG (GDD 5.9.4). Caught: the offer is rescinded (run.rescinded holds mail_rescinded), the
-## company blacklisted, back to the hunt the same day. Otherwise the Hired card.
-## Accept writes no save: PHASE2_STUB is never saved, so a kill on the Hired card resumes at the
-## offer with the RNG state from before the check (GDD 5.11), and accepting again rolls the same dice.
+## Accept: the offer becomes the job (run.hire) and the Hired card shows. Accept writes no save:
+## PHASE2_STUB is never saved, so a kill on the Hired card resumes at the offer (GDD 5.11), and
+## accepting again hires with the same contract. No dice.
 func answer_offer(accept: bool) -> void:
 	var company_id: String = run.offer.get("company_id", "")
 	if not accept:
@@ -3373,11 +3283,6 @@ func answer_offer(accept: bool) -> void:
 			end_run_plan_b()
 		else:
 			change_phase(GameFlow.Phase.JOB_HUNT)
-		return
-	var tier_data := Content.tier(str(run.offer.get("tier", "")))
-	if tier_data != null and run.background_check_caught(tier_data, _hunt_content(), company_id, rng):
-		run.rescind_offer()
-		change_phase(GameFlow.Phase.JOB_HUNT)
 		return
 	run.hire(Content.balance, _bg(), Content.entries("companies").get(company_id, {}).get("red_flags", []))
 	change_phase(GameFlow.Phase.PHASE2_STUB)
@@ -3742,13 +3647,15 @@ The scene `features/title/title.tscn`: a root `Title` (Control, full rect) with 
 extends Control
 ## Title screen (GDD S01, ARCHITECTURE 11.1), before the art pass.
 ## No save: tap anywhere = New game. With a save: [ New game ] above a full-width CONTINUE.
-## Debug builds also show the Step 1 size readout and the Step 2 "Device check" button.
+## Debug builds also show the Step 1 size readout and a debug row: the Step 2 "Device check" button
+## and "Reset first run" (the next New game gets the first-run coach marks again).
 
 ## Loaded by path when pressed, never preloaded: features/dev/ is excluded from release exports.
 const DEVICE_CHECK_PATH := "res://features/dev/device_check.tscn"
 const BLINK_SEC := 0.5
-## Debug-only label, English on purpose (not player text, so not in CONTENT.md).
+## Debug-only labels, English on purpose (not player text, so not in CONTENT.md).
 const DEBUG_DEVICE_CHECK := "Device check"
+const DEBUG_FIRST_RUN := "Reset first run"
 
 var _has_save: bool = false
 var _device_check: Control = null
@@ -3761,7 +3668,9 @@ var _device_check: Control = null
 @onready var _new_game_button: Button = %NewGameButton
 @onready var _continue_button: Button = %ContinueButton
 @onready var _replay_intro_button: Button = %ReplayIntroButton
+@onready var _debug_row: Control = %DebugRow
 @onready var _device_check_button: Button = %DeviceCheckButton
+@onready var _first_run_button: Button = %FirstRunButton
 @onready var _version: Label = %Version
 @onready var _quit_dialog: ConfirmDialog = %QuitDialog
 
@@ -3775,6 +3684,7 @@ func _ready() -> void:
 	_continue_button.text = UiText.primary(Content.text("barks", "ui_continue"))
 	_replay_intro_button.text = Content.text("barks", "ui_replay_intro")
 	_device_check_button.text = DEBUG_DEVICE_CHECK
+	_first_run_button.text = DEBUG_FIRST_RUN
 	_has_save = SaveIO.exists()
 	_tap_to_start.visible = not _has_save
 	_new_game_button.visible = _has_save
@@ -3782,11 +3692,14 @@ func _ready() -> void:
 	_version.text = "v%s" % ProjectSettings.get_setting("application/config/version")
 	_size_readout.visible = OS.is_debug_build()
 	set_process(OS.is_debug_build())
+	_debug_row.visible = OS.is_debug_build()
 	_device_check_button.visible = OS.is_debug_build() and ResourceLoader.exists(DEVICE_CHECK_PATH)
+	_first_run_button.disabled = GameState.next_run_is_first()  # off: the next run already is one
 	_new_game_button.pressed.connect(GameState.start_new_game)
 	_continue_button.pressed.connect(GameState.continue_game)
 	_replay_intro_button.pressed.connect(GameState.replay_intro)
 	_device_check_button.pressed.connect(_open_device_check)
+	_first_run_button.pressed.connect(_reset_first_run)
 	_quit_dialog.confirmed.connect(get_tree().quit)
 	if not _has_save:
 		var blink := create_tween().set_loops()
@@ -3840,6 +3753,11 @@ func _open_device_check() -> void:
 func _close_device_check() -> void:
 	_device_check.queue_free()
 	_device_check = null
+
+
+func _reset_first_run() -> void:
+	GameState.reset_first_run()
+	_first_run_button.disabled = true
 ```
 
 In a debug build in the 540x960 desktop window, the readout shows `win 540x960 game 270x480 integer`. (The Step 1 stub showed the same numbers as `window (540, 960)` / `game (270, 480) (integer)`, checked live on 2026-09-26 with no runtime errors.)
@@ -4015,6 +3933,10 @@ static func _scripts_under(dir: String) -> Array[String]:
 extends McpTestSuite
 ## RunState <-> JSON round trip (GDD 5.11). Never writes to user:// (in the editor that is the real save folder).
 
+## RunState fields removed by DECISIONS D9 (lying and the CV screen).
+const REMOVED_KEYS: PackedStringArray = ["lies_carried", "confessed", "cv_levels", "rescinded"]
+
+
 func suite_name() -> String:
 	return "save"
 
@@ -4029,7 +3951,6 @@ func test_round_trip_keeps_every_kind_of_field() -> void:
 	r.background_id = "self_taught"
 	r.stats["knw"] = 60
 	r.gap_topics.assign(["web", "security"])
-	r.cv_levels["exp"] = "lie"
 	r.applications.append({"uid": 7, "tier": "mid", "reveal_day": 3, "p": 0.168, "knockout": false})
 	r.interview = {"seed": "3141592653", "question_ids": ["kq_hash_map", "kq_left_join"]}
 	var back := _round_trip(r)
@@ -4037,7 +3958,6 @@ func test_round_trip_keeps_every_kind_of_field() -> void:
 	assert_eq(back.background_id, "self_taught")
 	assert_eq(back.stats["knw"], 60)
 	assert_eq(back.gap_topics, r.gap_topics)
-	assert_eq(back.cv_levels["exp"], "lie")
 	assert_eq(typeof(back.applications[0]["reveal_day"]), TYPE_INT, "whole JSON numbers come back as ints")
 	assert_eq(back.applications[0]["p"], 0.168)
 	assert_eq(back.interview["question_ids"], ["kq_hash_map", "kq_left_join"])
@@ -4064,6 +3984,28 @@ func test_seed_then_state_replays_the_same_dice() -> void:
 	b.seed = saved_seed.to_int()    # seed first: setting seed resets state
 	b.state = saved_state.to_int()
 	assert_eq([b.randi(), b.randi(), b.randi()], expected)
+
+
+## DECISIONS D9 (2026-09-29): a save written before lying and the CV screen were removed still loads.
+## Keys the RunState no longer has are ignored, and the next save drops them; an old checkpoint's
+## probe_line is never read (its knowledge prompt 2 is asked).
+func test_a_save_from_before_d9_still_loads() -> void:
+	var old := RunState.new().to_dict()
+	old["phase"] = GameFlow.Phase.INTERVIEW
+	old["lies_carried"] = ["cv_intern_edu_lie"]
+	old["confessed"] = ["co_nimbus|cv_intern_edu_lie"]
+	old["cv_levels"] = {"edu": "lie", "exp": "polished", "proj": "honest"}
+	old["rescinded"] = {"company_id": "co_nimbus", "template_id": "job_big_ai_engineer", "tier": "big", "mail_id": "mail_rescinded"}
+	old["applications"] = [{"uid": 3, "tier": "big", "lies": ["cv_intern_edu_lie"], "status": "interview"}]
+	old["interview"] = {"seed": "42", "question_ids": ["eq_a", "kq_1", "kq_2", "kq_3", "eq_b"],
+		"warmup_id": "", "probe_line": "cv_intern_edu_lie"}
+	var back := RunState.from_dict(JSON.parse_string(JSON.stringify(old)))
+	assert_eq(back.phase, GameFlow.Phase.INTERVIEW)
+	assert_eq(back.interview["question_ids"].size(), 5, "the checkpoint's 5 questions")
+	assert_eq(back.applications[0]["status"], "interview")
+	var saved := back.to_dict()
+	for key: String in REMOVED_KEYS:
+		assert_false(saved.has(key), "%s is dropped by the next save" % key)
 ```
 
 `test_odds.gd` (the example test):
@@ -4169,7 +4111,7 @@ func test_same_seed_same_rolls() -> void:
 ```gdscript
 @tool
 extends McpTestSuite
-## GDD 5.8.7 worked example (Intern vs Dana at Hierarchai) with the luck values fixed, plus bluff and Tired.
+## GDD 5.8.7 worked example (Intern vs Dana at Hierarchai) with the luck values fixed, plus Tired.
 
 var cfg: BalanceConfig
 var startup: TierData
@@ -4239,12 +4181,6 @@ func test_worked_example_5_8_7() -> void:
 	_near(Odds.committee_win_p(cfg, doubt, startup.doubt_hp, 45), 0.68, 0.01, "wheel P_win")
 
 
-func test_bluff_odds_by_background_at_mid() -> void:
-	_near(Odds.bluff_p(cfg, mid, 50, 40, false), 0.45, 0.001, "Intern")
-	_near(Odds.bluff_p(cfg, mid, 55, 15, false), 0.35, 0.001, "Graduate")
-	_near(Odds.bluff_p(cfg, mid, 55, 10, false), 0.325, 0.001, "Self-Taught")
-
-
 func test_tired_rule() -> void:
 	assert_true(Odds.is_tired(cfg, 6 - 3 - 1), "Self-Taught in person: 6 - 3 - 1 = 2 pips left")
 	assert_false(Odds.is_tired(cfg, 9 - 3))
@@ -4303,7 +4239,7 @@ func _won(bg_id: String, tier_id: String, interview_seed: String) -> RunState:
 	run.set_background(cfg, bgs[bg_id])
 	run.interview = {
 		"invite_uid": 5, "company_id": COMPANY[tier_id], "template_id": POSTING[tier_id], "tier": tier_id,
-		"seed": interview_seed, "question_ids": [], "warmup_id": "", "probe_line": "", "tired": false,
+		"seed": interview_seed, "question_ids": [], "warmup_id": "", "tired": false,
 	}
 	return run
 
@@ -4389,6 +4325,28 @@ func test_perks_and_fine_print_match_the_tier() -> void:
 			var fine := str(made["fine_print"])
 			assert_true(fine.begins_with("fp_") and _tiers_of(fine).has(tier_id),
 				"%s: %s is %s fine print" % [tier_id, fine, tier_id])
+
+
+## REVIEW_QUEUE 3: the fine print never repeats a dealt perk (fp_<x> vs perk_<x>), so a startup
+## paper never lists "Unlimited PTO*" as both a perk and the fine print.
+func test_fine_print_never_repeats_a_perk() -> void:
+	var emails: Dictionary = content["emails"]
+	assert_true(emails.has("perk_unlimited_pto") and emails.has("fp_unlimited_pto"), "the pair this guards")
+	assert_false(RunState.fine_print_pool(emails, "startup", ["perk_unlimited_pto", "perk_pingpong"]).has("fp_unlimited_pto"),
+		"left out when its perk is dealt")
+	assert_true(RunState.fine_print_pool(emails, "startup", ["perk_kombucha", "perk_pingpong"]).has("fp_unlimited_pto"),
+		"still dealt when its perk is not")
+	var problems: Array[String] = []
+	var pto_papers := 0
+	for i: int in 200:
+		var made := _offer("intern", "startup", str(i * 7919 + 3))
+		var perks: Array = made["perks"]
+		if perks.has("perk_unlimited_pto"):
+			pto_papers += 1
+		if perks.has("perk_" + str(made["fine_print"]).trim_prefix("fp_")):
+			problems.append("seed %d: %s with %s" % [i, made["fine_print"], perks])
+	assert_gt(pto_papers, 0, "some papers dealt the PTO perk")
+	assert_true(problems.is_empty(), "%d paper(s) repeat a perk:\n  %s" % [problems.size(), "\n  ".join(PackedStringArray(problems))])
 
 
 ## The contract is picked on an RNG seeded from the checkpoint: the same interview (a resume replays
@@ -4495,40 +4453,28 @@ func test_decline_ends_the_run_only_at_zero_rent() -> void:
 
 
 ## GDD 5.11: a kill on the Hired card resumes at the offer (its save was written on entering OFFER,
-## PHASE2_STUB is never saved). Accepting again replays the background check on the same RNG state:
-## the same result, the same RNG state after it, and the same contract. Nothing re-rolls.
-func test_accept_after_a_hired_kill_rolls_the_same_dice() -> void:
-	var outcomes: Dictionary = {}
+## PHASE2_STUB is never saved). Accepting again hires with the same contract and the same Dream
+## score (D9: no background check; hire() takes no RNG, so Accept cannot roll dice).
+func test_accept_after_a_hired_kill_hires_the_same_job() -> void:
 	for seed_value: int in range(1, 41):
 		var run := _won("intern", "big", str(seed_value * 31))
-		run.applications.append({"uid": 9, "template_id": POSTING["big"], "company_id": COMPANY["big"],
-			"tier": "big", "lies": ["cv_intern_edu_lie"], "status": "interview"})
 		run.make_offer(cfg, tiers["big"], bgs["intern"], content, 70.0)
 		run.interview = {}
 		run.phase = GameFlow.Phase.OFFER
-		var rng := RandomNumberGenerator.new()
-		rng.seed = seed_value
-		rng.randi()
-		run.rng_seed = str(seed_value)
-		run.rng_state = str(rng.state)  # what GameState.save() writes on entering OFFER
 		var saved := JSON.stringify(run.to_dict())
-		var first := run.background_check_caught(tiers["big"], content, COMPANY["big"], rng)
+		var flags: Array = content["companies"][COMPANY["big"]]["red_flags"]
+		run.hire(cfg, bgs["intern"], flags)
 		var back := RunState.from_dict(JSON.parse_string(saved))
-		var replay := RandomNumberGenerator.new()
-		replay.seed = back.rng_seed.to_int()   # Continue: seed first, then state
-		replay.state = back.rng_state.to_int()
 		assert_eq(back.phase, GameFlow.Phase.OFFER, "Continue resumes at the offer")
 		assert_eq(back.offer, run.offer, "the same contract")
-		assert_eq(back.background_check_caught(tiers["big"], content, COMPANY["big"], replay), first,
-			"seed %d: the same background check" % seed_value)
-		assert_eq(replay.state, rng.state, "seed %d: the run RNG ends in the same state" % seed_value)
-		outcomes[first] = true
-	assert_eq(outcomes.size(), 2, "both outcomes happen across the seeds (Big: 70%)")
+		back.hire(cfg, bgs["intern"], flags)
+		assert_eq(back.employment, run.employment, "seed %d: the same job" % seed_value)
+		assert_eq(back.dream_score, run.dream_score, "seed %d: the same Dream score" % seed_value)
 ```
 
 ### 17.14 `core/interview_plan.gd` (Step 4)
 
-Which questions one interview asks (GDD 5.8.2), the prompts a checkpoint plays, the interview and meter RNGs, and the probe question. `GameState.start_interview()` and the interview scene call it; `test_interview_plan` tests it.
+Which questions one interview asks (GDD 5.8.2), the prompts a checkpoint plays, the interview and meter RNGs, and since the Step 7 review Dana's VS plate (`vs_plate`); the probe question went with D9. `GameState.start_interview()`, the interview scene and `VersusIntro` call it; `test_interview_plan` tests it.
 
 ```gdscript
 @tool
@@ -4537,12 +4483,26 @@ extends RefCounted
 ## Which questions one interview asks (GDD 5.8.2). GameState.start_interview picks them once and
 ## freezes them in the checkpoint, so a resume replays the same interview. Pure: the pools are
 ## parsed JSON (id -> entry), from Content.entries() in the game and from FileAccess in the tests.
-## Tested by test_interview_plan (picking, the prompts and the dice a checkpoint replays).
+## Tested by test_interview_plan (picking, the prompts and the dice a checkpoint replays, the VS plate).
+
+## GDD S07: Dana's VS plate shows one joke stat and one special move (barks.json ids), in turn.
+const VS_DANA_STATS: PackedStringArray = ["vs_dana_stat_1", "vs_dana_stat_2", "vs_dana_stat_3"]
+const VS_DANA_MOVES: PackedStringArray = ["vs_dana_move_1", "vs_dana_move_2", "vs_dana_move_3"]
 
 
 ## GDD 5.8.2: the warm-up belongs to the first interview of the first run only.
 static func warmup_due(run: RunState) -> bool:
 	return run.first_run and run.interviews_taken == 0
+
+
+## Dana's VS plate for this interview: {stat, move}, barks.json ids. Each list takes turns by how often
+## you met her before (run.times_met_dana counts once an interview ends), without dice (INV-04), so a
+## resumed interview shows the same lines.
+static func vs_plate(run: RunState) -> Dictionary:
+	return {
+		"stat": VS_DANA_STATS[posmod(run.times_met_dana, VS_DANA_STATS.size())],
+		"move": VS_DANA_MOVES[posmod(run.times_met_dana, VS_DANA_MOVES.size())],
+	}
 
 
 ## Returns {question_ids, warmup_id}. question_ids holds one id per cfg.prompt_pattern slot, in prompt
@@ -4588,18 +4548,11 @@ static func eligible(pool: Dictionary, tier_id: String) -> Array[String]:
 
 
 ## The prompts a checkpoint plays, in order: one {kind, id} per question id, kind "choice" or
-## "knowledge". GDD 5.8.2: a lie probe (probe_line, a cv_lines id) replaces knowledge prompt 2.
-static func prompts(question_ids: Array, choice_pool: Dictionary, probe_line: String) -> Array[Dictionary]:
+## "knowledge" (an old save's probe_line is never read: its knowledge prompt 2 is asked, DECISIONS D9).
+static func prompts(question_ids: Array, choice_pool: Dictionary) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
-	var knowledge_count := 0
 	for id: Variant in question_ids:
-		var kind := "choice" if choice_pool.has(str(id)) else "knowledge"
-		if kind == "knowledge":
-			knowledge_count += 1
-			if knowledge_count == 2 and probe_line != "":
-				out.append({"kind": "probe", "id": probe_line})
-				continue
-		out.append({"kind": kind, "id": str(id)})
+		out.append({"kind": "choice" if choice_pool.has(str(id)) else "knowledge", "id": str(id)})
 	return out
 
 
@@ -4619,26 +4572,6 @@ static func meter_rng(interview: RandomNumberGenerator) -> RandomNumberGenerator
 	var rng := RandomNumberGenerator.new()
 	rng.seed = interview.randi()
 	return rng
-
-
-## The question Dana asks about a Lie CV line (CONTENT.md section 6): its company-specific
-## "probe_at" line if it has one for this company, else its "probe". Raw text: the scene tr()s it.
-static func probe_question(cv_line: Dictionary, company_id: String) -> String:
-	var at: Dictionary = cv_line.get("probe_at", {})
-	return str(at.get(company_id, cv_line.get("probe", "")))
-
-
-## A background's Lie CV lines, sorted (edu, exp, proj). The debug probe toggle cycles through them
-## until Step 5 rolls the real probe.
-static func lie_lines(cv_pool: Dictionary, background_id: String) -> Array[String]:
-	var ids: Array[String] = []
-	for id: String in cv_pool:
-		var entry: Variant = cv_pool[id]
-		if entry is Dictionary and str((entry as Dictionary).get("background", "")) == background_id \
-				and str((entry as Dictionary).get("variant", "")) == "lie":
-			ids.append(id)
-	ids.sort()
-	return ids
 
 
 ## Moves each asked id to the end of `seen`, so `seen` stays ordered from least to most recently asked.
@@ -4681,7 +4614,7 @@ static func _easiest(pool: Dictionary, ids: Array[String]) -> Array[String]:
 
 ### 17.15 `ui/components/ui_text.gd` (Step 4)
 
-Pure string styling for labels and money (GDD 4.2 mockups): capitals on primary buttons, the "< " Back prefix, energy costs, text meters and odds bands, thousands separators; since Step 6 also word wrap as the content lint counts lines, and the offer contract's label column. A pure UI helper, not a rule class: scenes pass it text from `Content`. `test_ui_text` tests it.
+Pure string styling for labels and money (GDD 4.2 mockups): capitals on primary buttons, the "< " Back prefix, energy costs, text meters and odds bands, thousands separators; since Step 6 also word wrap as the content lint counts lines, and the offer contract's label column; since the Step 7 review `fill`, which `Content` uses to fill placeholders without doubling a period. A pure UI helper, not a rule class: scenes pass it text from `Content`. `test_ui_text` tests it.
 
 ```gdscript
 @tool
@@ -4739,6 +4672,18 @@ static func money(amount: int) -> String:
 	return ("-" if amount < 0 else "") + "$" + grouped
 
 
+## Content text with its {placeholders} filled (String.format), except that a value ending in "."
+## swallows a "." right after its placeholder, so a name that ends a sentence never doubles it:
+## ("Welcome to {company}. Hi.", {"company": "Engagement Farms Inc."}) -> "Welcome to Engagement
+## Farms Inc. Hi.". An ellipsis after a placeholder keeps its three dots.
+static func fill(template: String, args: Dictionary) -> String:
+	for key: Variant in args:
+		if str(args[key]).ends_with("."):
+			var tag := "{%s}" % key
+			template = template.replace(tag + ".", tag)
+	return template.format(args)
+
+
 ## Word wrap as an autowrapped Label does it, and as test_content_lint counts lines: a word moves to
 ## the next line when it would pass `columns`, a word longer than a whole line is cut, "\n" starts a
 ## line. monogram is monospaced, so columns are exact.
@@ -4774,31 +4719,33 @@ static func field(label: String, value: String, label_columns: int, columns: int
 
 ### 17.16 `core/hunt_tips.gd` (Step 5)
 
-Which Ducky tip the job hunt shows, and when (GDD 8.3); since Step 6 also the offer's tip and the Plan B card's. Pure: it only reads the run; the hub records a once-per-run tip with `GameState.mark_tip_shown()`. `test_hunt_tips` tests it, and `test_offer` / `test_endings` test `offer` and `plan_b`.
+Which Ducky tip the job hunt shows, and when (GDD 8.3); since Step 6 also the offer's tip and the Plan B card's; since the Step 7 review also the first-run coach marks (`coach`, `coach_invite`). Pure: it only reads the run; the hub records a once-per-run tip with `GameState.mark_tip_shown()` and a closed coach mark with `GameState.close_coach_mark()`. `test_hunt_tips` tests it, and `test_offer` / `test_endings` test `offer` and `plan_b`.
 
 ```gdscript
 @tool
 class_name HuntTips
 extends RefCounted
 ## Which Ducky tip the job hunt shows, and when (GDD 8.3). A tip waits for a natural pause (8.1 rule 3):
-## the night summary, the morning inbox, the CV screen, Study, and the offer that ends the hunt.
+## the night summary, the morning inbox, Study, and the offer that ends the hunt. Also the first run's
+## coach marks (GDD 4.3).
 ## Pure: it only reads the run.
-## GameState.mark_tip_shown() records a once-per-run tip in run.tips_shown.
+## GameState.mark_tip_shown() records a once-per-run tip in run.tips_shown; GameState.close_coach_mark()
+## records a coach mark tapped closed in run.coach_closed.
 
 const SPRAY_QUICK_APPLIES := 8   # GDD 8.3: "8 Quick Applies without an invite"
 const REJECTION_TIP_EVERY := 10  # GDD 8.3: "first rejection email / every 10th rejection"
+const COACH_SLEEP_PIPS := 2      # GDD 4.3: the Sleep coach mark at 2 energy or less...
+const COACH_SLEEP_APPS := 4      # ...or after 4 applications
+const COACH_INVITE := "coach_invite"  # the invite's mark, whichever line Ducky says (Research is SHOULD)
 ## An application only reaches these statuses after an invite arrived for it.
 const INVITED_STATUSES: PackedStringArray = ["invited", "interview", "expired"]
 
 
-## Mail's one tip (GDD S06, 8.1 rule 2, 8.3): an offer rescinded today -> tip_honesty_checks
-## ("BUSTED or rescinded"); else, under the rejection stack, the run's first knockout rejection ->
-## tip_ats_knockouts; else its first rejection, or every 10th -> tip_rejection_numbers; "" for none.
-## The run is read after the Sleep that built the report (its rejections are counted), so one report
-## gives the same tip in the morning and in Mail later that day, until a rescind takes the slot.
+## Mail's one tip (GDD S06, 8.1 rule 2, 8.3), under the rejection stack: the run's first knockout
+## rejection -> tip_ats_knockouts; else its first rejection, or every 10th -> tip_rejection_numbers;
+## "" for none. The run is read after the Sleep that built the report (its rejections are counted),
+## so one report gives the same tip in the morning and in Mail later that day.
 static func inbox(run: RunState, report: Dictionary) -> String:
-	if not run.rescinded.is_empty():
-		return "tip_honesty_checks"
 	var rejections: Array = report.get("rejections", [])
 	if rejections.is_empty():
 		return ""
@@ -4817,8 +4764,10 @@ static func inbox(run: RunState, report: Dictionary) -> String:
 
 
 ## Tonight's tip on the lock screen, each once per run: the first referral used -> tip_referrals;
-## 8 Quick Applies without an invite -> tip_tailor_over_spray. "" for none.
-static func night(run: RunState) -> String:
+## 8 Quick Applies without an invite -> tip_tailor_over_spray; after a Tailor & Apply (every line sent
+## as its honest Polished reframing) -> tip_projects_count when bg's honest CV fails "1+ years"
+## (years_pass_honest: the Graduate, the Self-Taught), then tip_quantify_impact. "" for none.
+static func night(run: RunState, bg: BackgroundData = null) -> String:
 	if not run.tips_shown.has("tip_referrals"):
 		for app: Dictionary in run.applications:
 			if bool(app.get("referral", false)):
@@ -4830,30 +4779,43 @@ static func night(run: RunState) -> String:
 				quick += 1
 		if quick >= SPRAY_QUICK_APPLIES:
 			return "tip_tailor_over_spray"
-	return ""
-
-
-## The CV screen's first open this run -> tip_quantify_impact (GDD S05).
-static func cv_opened(run: RunState) -> String:
-	return "" if run.tips_shown.has("tip_quantify_impact") else "tip_quantify_impact"
-
-
-## A CV segment tap: Polished on Experience -> tip_projects_count, once per run (GDD 8.3), for a
-## background whose honest Experience line fails the years knockout and whose Polished one passes it
-## (the Graduate and the Self-Taught). The lines decide, never the background id (INV-09).
-static func cv_level_chosen(run: RunState, cv_lines: Dictionary, line: String, level: String) -> String:
-	if line != "exp" or level != "polished" or run.tips_shown.has("tip_projects_count"):
-		return ""
-	var honest := run.cv_line(cv_lines, "exp", "honest")
-	var polished := run.cv_line(cv_lines, "exp", "polished")
-	if not bool(honest.get("passes_years", false)) and bool(polished.get("passes_years", false)):
-		return "tip_projects_count"
+	if _any_tailored(run):
+		if bg != null and not bg.years_pass_honest and not run.tips_shown.has("tip_projects_count"):
+			return "tip_projects_count"
+		if not run.tips_shown.has("tip_quantify_impact"):
+			return "tip_quantify_impact"
 	return ""
 
 
 ## After a Study action: the first one this run -> tip_fundamentals (GDD 8.3).
 static func studied(run: RunState) -> String:
 	return "" if run.tips_shown.has("tip_fundamentals") else "tip_fundamentals"
+
+
+## The Jobs screen's coach mark on day 1 of the first run (GDD 4.3): "coach_sleep" at COACH_SLEEP_PIPS
+## energy or less or after COACH_SLEEP_APPS applications (over the empty deck too); else, with a card
+## up, "coach_apply" until the first application, then "coach_flip" until a card was flipped (flipped)
+## or tailored; "" for none, and never over the card's back. Each goes away when you do what it asks.
+## One tapped closed (run.coach_closed) never comes back, and the mark after it still waits for its
+## own rule: closing Apply doesn't bring Flip early.
+static func coach(run: RunState, has_card: bool, card_back: bool, flipped: bool) -> String:
+	if not run.first_run or run.day != 1 or (has_card and card_back):
+		return ""
+	var id := ""
+	if run.energy <= COACH_SLEEP_PIPS or run.total_applications >= COACH_SLEEP_APPS:
+		id = "coach_sleep"
+	elif has_card and run.total_applications == 0:
+		id = "coach_apply"
+	elif has_card and not flipped and not _any_tailored(run):
+		id = "coach_flip"
+	return "" if run.coach_closed.has(id) else id
+
+
+## Mail's coach mark (GDD 4.3 "Day 2 morning"): the first run's invites point at their GO NOW until the
+## first interview, unless it was tapped closed.
+static func coach_invite(run: RunState) -> bool:
+	return run.first_run and run.interviews_taken == 0 and run.interview.is_empty() and not run.invites.is_empty() \
+		and not run.coach_closed.has(COACH_INVITE)
 
 
 ## The offer's one tip (GDD S10, 8.1 rule 2, 8.3): a startup offer, which carries the joke equity ->
@@ -4887,6 +4849,13 @@ static func _knockout_rejections(run: RunState) -> int:
 		if str(app.get("status", "")) == "rejected" and bool(app.get("knockout", false)):
 			count += 1
 	return count
+
+
+static func _any_tailored(run: RunState) -> bool:
+	for app: Dictionary in run.applications:
+		if bool(app.get("tailored", false)):
+			return true
+	return false
 ```
 
 ### 17.17 `features/intro/cutscene_plan.gd` (Step 6)
@@ -4957,7 +4926,7 @@ static func pan_path(picture: Vector2, frame: Vector2) -> Array[Vector2]:
 | 3 | Whether `window_width/height_override` are ignored on iOS | if not, clear them in an `ios` feature override (and `android`, LATER) |
 | 4 | Whether the letterbox uses `default_clear_color` | irrelevant with ≤ 3 px |
 | 5 | Safe area on a real Dynamic Island: does Godot still report the 59 pt top and 34 pt bottom insets with the status bar and home indicator hidden? | preview with `debug_fake_insets = (0, 45, 0, 26)`; measure on the phone and update GDD 2.9 |
-| 6 | Fonts on the iPhone at 4x: monogram's 16 px metrics (the 40-column budgets need a 6 px advance) and Press Start 2P's 8 px grid; glyph coverage for other languages. **Measured on desktop (Step 2): monogram 16 has a 6 px advance and a 13 px glyph height; Press Start 2P has an exact 8 px grid** (section 1.4). The theme's `line_spacing = -1` gives the 12 px line pitch (DECISIONS A3). Two-line buttons came out taller than planned (the probe buttons rendered 124x47), so Step 6's `ProbeButton` style trims their padding to fit 124x44 exactly (section 10.2). On the iPhone, check crispness at 4x and that the 12 px pitch reads well | pick a native size before building layouts; if the 12 px pitch reads cramped on the phone, revisit A3 and the GDD 2.7 budgets together |
+| 6 | Fonts on the iPhone at 4x: monogram's 16 px metrics (the 40-column budgets need a 6 px advance) and Press Start 2P's 8 px grid; glyph coverage for other languages. **Measured on desktop (Step 2): monogram 16 has a 6 px advance and a 13 px glyph height; Press Start 2P has an exact 8 px grid** (section 1.4). The theme's `line_spacing = -1` gives the 12 px line pitch (DECISIONS A3). Two-line buttons came out taller than planned (the lie probe's buttons rendered 124x47); Step 6's `ProbeButton` style trimmed their padding to fit 124x44 exactly, and was removed with the probe (DECISIONS D9; section 1.4 keeps the numbers). On the iPhone, check crispness at 4x and that the 12 px pitch reads well | pick a native size before building layouts; if the 12 px pitch reads cramped on the phone, revisit A3 and the GDD 2.7 budgets together |
 | 7 | iOS haptics: is a 10 ms tap felt, and do haptics survive a background/resume? No entitlement is expected (unverified) | raise tap-level haptics to 20 ms, or add an amplitude parameter to `Device.haptic()` (GDD 9.3); keep the Settings toggle |
 | 8 | That the JSON texts load in the exported iOS build (Step 5) | add `data/content/*.json` to the include filter |
 | 9 | The 7-day Personal Team expiry: does reinstalling over the same bundle ID keep the save? | re-run from Xcode before every playtest; join the paid program before Step 13 |
@@ -4968,6 +4937,8 @@ static func pan_path(picture: Vector2, frame: Vector2) -> Array[Vector2]:
 | 14 | The game embedded in the editor's Game tab (possible since 4.4): the window size is the tab's size, the 540x960 override may not apply, and `game_eval` resizes are ignored (seen in Step 1). Desktop-only | float or undock the game window to test exact sizes. The guard rule still holds at any size |
 | 15 | (Android, LATER) `gradle_build/target_sdk` shows 36 in the preset; the 4.7.2 template already targets 36 | set it to 36 |
 | 16 | (Android, LATER) Play's closed-testing rule for new personal accounts (12 testers x 14 days) | check the Play Console when you create the account |
+| 17 | (Step 7 review) Coach notes: a tap on a Jobs coach note closes it without flipping or swiping the card under it, and in Mail a finger drag that starts on the invite coach note still scrolls the list. `game_manage` can't send a drag with a button held, so the drag is untested on desktop | if a drag closes the note, also ignore a release after a move past the deadzone in `DuckyNote` (it already should); if the card reacts, check the note's `mouse_filter` |
+| 18 | (Step 7 review) The HP bars' 0.4 s white ghost reads as a drain, and the empty `#181425` stat blocks read on the `#262B44` panels at 4x | retime `HpBar.GHOST_SEC` (GDD 9.1) or change `StatBar.EMPTY_COLOR` to an outlined block like `PipBar` |
 
 ### 18.2 Pitfalls this architecture prevents (don't undo them)
 
