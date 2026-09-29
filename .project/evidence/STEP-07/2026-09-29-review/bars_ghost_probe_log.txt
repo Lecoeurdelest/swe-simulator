@@ -1,0 +1,27 @@
+# Game log of a throwaway probe scene (res://__bars_probe.tscn, deleted after the run, never committed):
+# one hp_bar.tscn instance (process_mode PAUSABLE, like the interview's bars) under an ALWAYS root,
+# max_value 128 then value 128, then value 0 (a K.O.-sized hit). ghost_px = HpBar.fill_px(ghost, 128, 122).
+# At drain time 0.2 s the probe paused the tree for 6 s, then unpaused. Run r133977380-20, 2026-09-29.
+PROBE start value=128.0 ghost=128.0
+PROBE hit value=0 ghost_px=122
+PROBE t=0.031 ghost_px=121
+PROBE t=0.061 ghost_px=119
+PROBE t=0.091 ghost_px=116
+PROBE t=0.122 ghost_px=111
+PROBE t=0.152 ghost_px=104
+PROBE t=0.182 ghost_px=97
+PROBE t=0.213 ghost_px=88
+PROBE paused at t=0.213 ghost_px=88
+PROBE unpause after 6.0 s ghost_px=88 (unchanged while paused)
+PROBE t=0.243 ghost_px=77
+PROBE t=0.273 ghost_px=65
+PROBE t=0.304 ghost_px=52
+PROBE t=0.334 ghost_px=37
+PROBE t=0.364 ghost_px=21
+PROBE t=0.394 ghost_px=3
+PROBE t=0.425 ghost_px=0
+PROBE drained at game t=0.425
+PROBE rise ghost=128.0 value=128.0
+PROBE second hit: ghost 126.35 -> starts at 126.35 (value 64)
+PROBE after 0.45 s ghost=64.00 value=64.0
+PROBE new max settles: ghost=64.00 value=64.0

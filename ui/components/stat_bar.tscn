@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://dfx7pi5lxmpth" path="res://ui/components/stat_bar.gd" id="1_stat"]
 
-[node name="StatBar" type="Label" unique_id=1600314867]
-text = "[-----]"
+[node name="StatBar" type="Control" unique_id=1600314867]
+layout_mode = 3
+anchors_preset = 0
+mouse_filter = 2
 script = ExtResource("1_stat")

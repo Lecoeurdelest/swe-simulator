@@ -16,8 +16,6 @@ const HIT_STOP_S := 0.1        # GDD 9.1: the slam's 100 ms hit-stop
 const SHAKE_PX := 4.0          # GDD 9.1: a 4 px whole-pixel shake
 const SHAKE_STEP_S := 0.02
 const SLAM_HAPTIC_MS := 40     # GDD 9.3
-const STAT_SEGMENTS := 5       # GDD 5.1: a stat shows as 5 segments, value / 20, rounded
-const STAT_LABEL_WIDTH := 10   # "EXPERIENCE", so the three bars line up
 const NAME_BIG_MAX := 9        # GDD 2.7: the plate fits 9 characters at Press Start 2P 16, longer names use 8
 const NAME_BIG := 16
 const NAME_SMALL := 8
@@ -49,7 +47,12 @@ var _bottom_color := FALLBACK_COLOR
 @onready var _dana_moves: Label = %DanaMoves
 @onready var _player_name: Label = %PlayerName
 @onready var _player_nickname: Label = %PlayerNickname
-@onready var _player_stats: Label = %PlayerStats
+@onready var _knw_label: Label = %KnwLabel
+@onready var _exp_label: Label = %ExpLabel
+@onready var _net_label: Label = %NetLabel
+@onready var _knw_bar: StatBar = %KnwBar
+@onready var _exp_bar: StatBar = %ExpBar
+@onready var _net_bar: StatBar = %NetBar
 @onready var _vs_label: Label = %VSLabel
 @onready var _banner: Label = %Banner
 @onready var _tap_hint: Control = %TapHintPanel   # on its own panel, so it reads on any hoodie color
@@ -58,6 +61,9 @@ var _bottom_color := FALLBACK_COLOR
 func _ready() -> void:
 	hide()
 	(%TapHint as Label).text = Content.text("barks", "ui_tap_to_continue")
+	_knw_label.text = Content.text("barks", "ui_stat_knw")
+	_exp_label.text = Content.text("barks", "ui_stat_exp")
+	_net_label.text = Content.text("barks", "ui_stat_net")
 	_split.draw.connect(_draw_split)
 	_split.resized.connect(_split.queue_redraw)
 	_anim.animation_finished.connect(_on_animation_finished)
@@ -86,9 +92,9 @@ func play(company_id: String, tier: String) -> void:
 	_dana_moves.text = Content.text("barks", str(plate["move"]))
 	_set_name(_player_name, run.player_name.to_upper())
 	_player_nickname.text = Content.field("backgrounds", run.background_id, "vs_nickname")
-	_player_stats.text = "\n".join(PackedStringArray([_stat_bar(Content.text("barks", "ui_stat_knw"), run.stat("knw")),
-		_stat_bar(Content.text("barks", "ui_stat_exp"), run.stat("exp")),
-		_stat_bar(Content.text("barks", "ui_stat_net"), run.stat("net"))]))
+	_knw_bar.value = run.stat("knw")
+	_exp_bar.value = run.stat("exp")
+	_net_bar.value = run.stat("net")
 	_vs_label.text = Content.text("barks", "vs_versus")
 	_banner.text = Content.text("barks", "vs_banner_" + tier)
 	_slammed = false
@@ -201,8 +207,3 @@ func _draw_split() -> void:
 func _set_name(label: Label, text: String) -> void:
 	label.text = text
 	label.add_theme_font_size_override(&"font_size", NAME_BIG if text.length() <= NAME_BIG_MAX else NAME_SMALL)
-
-
-static func _stat_bar(label: String, value: int) -> String:
-	var filled := clampi(roundi(value / 20.0), 0, STAT_SEGMENTS)
-	return "%s [%s%s]" % [label.rpad(STAT_LABEL_WIDTH), "#".repeat(filled), "-".repeat(STAT_SEGMENTS - filled)]

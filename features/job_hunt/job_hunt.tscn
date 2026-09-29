@@ -301,10 +301,10 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "KNOWLEDGE"
 
-[node name="KnwBar" type="Label" parent="SafeArea/Column/Body/StudyPanel/StudyNote/StudyRows/KnwRow"]
+[node name="KnwBar" type="Control" parent="SafeArea/Column/Body/StudyPanel/StudyNote/StudyRows/KnwRow"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "[###--]"
+mouse_filter = 2
 script = ExtResource("14_stat")
 
 [node name="StudyJoke" type="Label" parent="SafeArea/Column/Body/StudyPanel/StudyNote/StudyRows"]
