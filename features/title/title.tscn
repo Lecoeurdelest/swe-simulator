@@ -119,6 +119,24 @@ layout_mode = 2
 theme_type_variation = &"PrimaryButton"
 text = "CONTINUE"
 
+[node name="DebugRow" type="HBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=955368814]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="DeviceCheckButton" type="Button" parent="SafeArea/Column/ThumbBand/DebugRow" unique_id=213760248]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+text = "Device check"
+
+[node name="FirstRunButton" type="Button" parent="SafeArea/Column/ThumbBand/DebugRow" unique_id=758399065]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+text = "Reset first run"
+
 [node name="BottomRow" type="HBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=1046506678]
 layout_mode = 2
 mouse_filter = 2
@@ -130,12 +148,6 @@ custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
 text = "Replay intro"
 flat = true
-
-[node name="DeviceCheckButton" type="Button" parent="SafeArea/Column/ThumbBand/BottomRow" unique_id=213760248]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 34)
-layout_mode = 2
-text = "Device check"
 
 [node name="Version" type="Label" parent="SafeArea/Column/ThumbBand/BottomRow" unique_id=1927397448]
 unique_name_in_owner = true

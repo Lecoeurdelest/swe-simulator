@@ -43,6 +43,17 @@ func set_setting(section: String, key: String, value: Variant) -> void:
 	settings.save(SETTINGS_PATH)
 
 
+## The next new run is a first run: no run has counted yet (settings meta run_count, below).
+func next_run_is_first() -> bool:
+	return int(setting("meta", "run_count", 0)) == 0
+
+
+## Debug builds only (the Title's "Reset first run"): the next New game is a first run again, with its
+## coach marks, the day-2 guarantee and the warm-up. A saved run keeps its own first_run.
+func reset_first_run() -> void:
+	set_setting("meta", "run_count", 0)
+
+
 # ---------- saving ----------
 
 ## Writes only while a run is live (JOB_HUNT / INTERVIEW / OFFER); a no-op otherwise.
@@ -194,7 +205,7 @@ func _init_run(bg_id: String, player_name: String, run_seed: int) -> void:
 	run.set_background(cfg, bg)
 	run.player_name = player_name
 	run.gap_topics.assign(Odds.pick(rng, _gap_pool(), bg.gap_topics_count))
-	run.first_run = int(setting("meta", "run_count", 0)) == 0
+	run.first_run = next_run_is_first()
 	run.deal_board(cfg, _tiers(), _hunt_content(), rng)
 
 
