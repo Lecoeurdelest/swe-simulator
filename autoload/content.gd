@@ -57,7 +57,7 @@ func text(file: String, id: String, args: Dictionary = {}) -> String:
 		push_warning("Content: missing text %s/%s" % [file, id])
 		return id
 	var raw: String = e if e is String else str((e as Dictionary).get("text", id))
-	return tr(raw).format(args)
+	return UiText.fill(tr(raw), args)
 
 
 ## One text field of a structured entry, e.g. field("questions_knowledge", "kq_hash_map", "prompt").
@@ -66,7 +66,7 @@ func field(file: String, id: String, key: String, args: Dictionary = {}) -> Stri
 	if not (e is Dictionary) or not (e as Dictionary).has(key):
 		push_warning("Content: missing %s/%s.%s" % [file, id, key])
 		return id
-	return tr(str(e[key])).format(args)
+	return UiText.fill(tr(str(e[key])), args)
 
 
 static func load_tres_dir(dir: String) -> Array[Resource]:

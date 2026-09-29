@@ -28,7 +28,7 @@
     ]
   },
   "eq_friday_deploy": {
-    "prompt": "Friday, 4:55 PM. Your change is untested. What do you do?",
+    "prompt": "Friday, 4:55 PM. Your app update is done, but nobody has tested it yet. What do you do?",
     "teamwork": false,
     "tiers": [
       "startup",
@@ -40,23 +40,23 @@
     "answers": [
       {
         "kind": "good",
-        "text": "Test it, get a review, ship Monday.",
-        "reaction": "Correct. Weekends are for sleeping, not rollbacks."
+        "text": "Test it, then release it on Monday.",
+        "reaction": "Correct. Weekends are for sleeping, not for fixing Friday's surprises."
       },
       {
         "kind": "neutral",
-        "text": "Ask the team channel what to do.",
-        "reaction": "Safe. The channel replies 'LGTM' (looks good to me) to everything."
+        "text": "Ask the team chat what to do.",
+        "reaction": "Safe-ish. The team chat says 'Looks good!' to everything. It said it to a blank page once."
       },
       {
         "kind": "bad",
-        "text": "Deploy and turn off my phone.",
-        "reaction": "Bold. You just described our last three incidents."
+        "text": "Release it now. Turn off my phone.",
+        "reaction": "Bold. That's exactly how our last three weekends got cancelled."
       }
     ]
   },
   "eq_credit_theft": {
-    "prompt": "Your teammate fixed the bug. In the meeting, your manager thanks YOU.",
+    "prompt": "Your teammate Jordan fixed the big bug. In the meeting, your manager thanks YOU.",
     "teamwork": true,
     "tiers": [
       "startup",
@@ -69,7 +69,7 @@
       {
         "kind": "good",
         "text": "Say it was Jordan's fix, not mine.",
-        "reaction": "Correct. Steal credit once and nobody reviews your code again."
+        "reaction": "Correct. Steal credit once and your whole team starts keeping receipts."
       },
       {
         "kind": "neutral",
@@ -90,7 +90,7 @@
     }
   },
   "eq_outage_blame": {
-    "prompt": "Your change took checkout down for 10 minutes. The postmortem is tomorrow.",
+    "prompt": "Your update broke the site's Pay button for 10 minutes. Tomorrow the team reviews what went wrong.",
     "teamwork": true,
     "tiers": [
       "startup",
@@ -102,13 +102,13 @@
     "answers": [
       {
         "kind": "good",
-        "text": "Own it: cause, fix, and prevention.",
-        "reaction": "Perfect. Postmortems fix systems, not people."
+        "text": "Own it, explain it, prevent it.",
+        "reaction": "Perfect. That meeting is for fixing the process, not the person. The process is in trouble."
       },
       {
         "kind": "neutral",
-        "text": "Say it was 'a config issue'.",
-        "reaction": "True. And who changed the config? (You. It was you.)"
+        "text": "Say it was 'a settings issue'.",
+        "reaction": "True. And who changed the settings? (You. It was you.)"
       },
       {
         "kind": "bad",
@@ -118,7 +118,7 @@
     ]
   },
   "eq_ai_takehome": {
-    "prompt": "Did you use an AI assistant on your take-home?",
+    "prompt": "Honest question: did you use an AI assistant on our at-home coding test?",
     "teamwork": false,
     "tiers": [
       "startup",
@@ -130,23 +130,23 @@
     "answers": [
       {
         "kind": "good",
-        "text": "Yes. I reviewed and tested every line.",
+        "text": "Yes, and I can explain every line.",
         "reaction": "Great. We allow tools. We don't allow mysteries."
       },
       {
         "kind": "neutral",
         "text": "A little. Mostly for vibes.",
-        "reaction": "Vibes don't pass code review. Close, though."
+        "reaction": "'Vibes' won't help when I ask what line 12 does. Close, though."
       },
       {
         "kind": "bad",
         "text": "Never. What's an AI?",
-        "reaction": "Your screen share shows Guessomatic. Open. Right now."
+        "reaction": "The screen you're sharing shows Guessomatic, the AI app. Open. Right now."
       }
     ]
   },
   "eq_leaked_password": {
-    "prompt": "The production database password is posted in a public team channel.",
+    "prompt": "Someone posted the password to all our customer data in the company-wide group chat.",
     "teamwork": false,
     "tiers": [
       "startup",
@@ -158,13 +158,13 @@
     "answers": [
       {
         "kind": "good",
-        "text": "Tell security so it gets rotated.",
-        "reaction": "Exactly. A leaked secret is a burned secret."
+        "text": "Tell security so they change it.",
+        "reaction": "Exactly. Once a password leaks, it isn't a password anymore. It's trivia."
       },
       {
         "kind": "neutral",
         "text": "Delete the message and move on.",
-        "reaction": "Deleted is not rotated. The bots already saw it."
+        "reaction": "Deleting it doesn't change it. Hacker bots copied it in seconds."
       },
       {
         "kind": "bad",
@@ -187,17 +187,17 @@
       {
         "kind": "good",
         "text": "No. No business reason, no access.",
-        "reaction": "Correct. Also: every query is logged."
+        "reaction": "Correct. Also, every look-up is recorded. Every single one."
       },
       {
         "kind": "neutral",
-        "text": "Only if we anonymize it first.",
-        "reaction": "Nice try. It's still a person's data."
+        "text": "Only if we hide the name first.",
+        "reaction": "Nice try. Hiding the name doesn't make it your business."
       },
       {
         "kind": "bad",
         "text": "Sure, in incognito mode.",
-        "reaction": "Incognito hides it from your browser. Not from our audit logs."
+        "reaction": "Private mode hides it from your browser history. Not from our security team."
       }
     ]
   },
@@ -218,7 +218,7 @@
       },
       {
         "kind": "neutral",
-        "text": "Attend all, camera off, code quietly.",
+        "text": "Attend all, camera off, work quietly.",
         "reaction": "Relatable. Our nod-detection AI flagged you anyway."
       },
       {
@@ -229,7 +229,7 @@
     ]
   },
   "eq_impossible_deadline": {
-    "prompt": "Your product manager wants a 3-month feature by Friday.",
+    "prompt": "Your boss wants a 3-month project done by Friday. It's Wednesday.",
     "teamwork": true,
     "tiers": [
       "startup",
@@ -241,29 +241,29 @@
     "answers": [
       {
         "kind": "good",
-        "text": "Offer a smaller v1 and flag the risks.",
-        "reaction": "Scope, risks, in writing. Someone's been burned before."
+        "text": "Offer a smaller version and flag risks.",
+        "reaction": "A smaller plan and the risks, in writing. Someone's been burned before."
       },
       {
         "kind": "neutral",
         "text": "Say yes and hope.",
-        "reaction": "Hope is not a sprint plan."
+        "reaction": "Hope is not a plan. We know. We tried it last quarter."
       },
       {
         "kind": "bad",
-        "text": "Ship a 'Coming Soon' button.",
-        "reaction": "...That is literally our roadmap."
+        "text": "Put up a 'Coming Soon' sign.",
+        "reaction": "...That's literally our five-year plan."
       }
     ],
     "exclusive": {
       "background": "graduate",
       "kind": "good",
-      "text": "Per my PM course: cut scope, flag risk.",
+      "text": "My course says: do less, warn early.",
       "reaction": "Textbook. Literally. But right."
     }
   },
   "eq_harsh_review": {
-    "prompt": "A senior dev comments 'this is garbage' on your pull request.",
+    "prompt": "A senior coworker checks your work and leaves one comment: 'this is garbage'.",
     "teamwork": true,
     "tiers": [
       "startup",
@@ -275,7 +275,7 @@
     "answers": [
       {
         "kind": "good",
-        "text": "Ask what to fix; raise tone privately.",
+        "text": "Ask what to fix; discuss tone privately.",
         "reaction": "Mature. And yes, raise it. 'Garbage' isn't feedback."
       },
       {
@@ -285,15 +285,15 @@
       },
       {
         "kind": "bad",
-        "text": "Reply 'no u'.",
-        "reaction": "A classic. Not a career move."
+        "text": "Reply: 'I know you are, but what am I?'",
+        "reaction": "A playground classic. Not a career move."
       }
     ],
     "exclusive": {
       "background": "self_taught",
       "kind": "neutral",
-      "text": "My only reviewer so far is Guessomatic.",
-      "reaction": "Honest. Open-source code reviews would change that. Try it."
+      "text": "So far, only an AI app reviews my work.",
+      "reaction": "Honest. Help out on free, public coding projects: real humans review your work there."
     }
   },
   "eq_weakness": {
@@ -309,7 +309,7 @@
     "answers": [
       {
         "kind": "good",
-        "text": "I over-polish, so now I timebox.",
+        "text": "I overdo details, so I set time limits.",
         "reaction": "A real answer! I'm writing that down in pen."
       },
       {
@@ -371,8 +371,8 @@
       },
       {
         "kind": "bad",
-        "text": "Badge in, grab coffee, leave.",
-        "reaction": "'Coffee badging.' The badge readers have feelings now."
+        "text": "Swipe in, grab a free coffee, go home.",
+        "reaction": "Ah, 'coffee badging'. It's so common it has a name. Our door scanners keep score."
       }
     ]
   },

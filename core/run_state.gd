@@ -316,7 +316,7 @@ func make_offer(cfg: BalanceConfig, tier: TierData, bg: BackgroundData, content:
 	var emails := _file(content, "emails")
 	var rng := offer_rng(str(interview.get("seed", "")))
 	var perks := Odds.pick(rng, _tier_entries(emails, "perk_", tier_id), OFFER_PERKS)
-	var fine_print := Odds.pick(rng, _tier_entries(emails, "fp_", tier_id), 1)
+	var fine_print := Odds.pick(rng, fine_print_pool(emails, tier_id, perks), 1)
 	offer = {
 		"company_id": str(interview.get("company_id", "")), "template_id": template_id, "tier": tier_id,
 		"job_title": str(_posting(content, template_id).get("title", "")),
@@ -709,6 +709,16 @@ static func _file(content: Dictionary, file: String) -> Dictionary:
 	if d is Dictionary:
 		return d
 	return {}
+
+
+## GDD S10: the tier's fine print (fp_* in emails.json) minus any that repeats a perk on the same
+## paper: fp_<x> is left out when perk_<x> was dealt, so a startup never lists "Unlimited PTO*" twice.
+static func fine_print_pool(emails: Dictionary, tier_id: String, perks: Array) -> Array[String]:
+	var pool: Array[String] = []
+	for id: String in _tier_entries(emails, "fp_", tier_id):
+		if not perks.has("perk_" + id.trim_prefix("fp_")):
+			pool.append(id)
+	return pool
 
 
 ## The sorted ids starting with prefix whose "tiers" list this tier (perk_*, fp_* in emails.json).

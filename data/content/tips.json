@@ -65,17 +65,17 @@
     "triggers": "kq_url_shortener"
   },
   "tip_star_stories": {
-    "short": "Prepare 5 STAR stories: conflict, failure, teamwork, a win, learning fast.",
-    "more": "Situation, Task, Action, Result, plus what you learned. Reuse them across questions.",
+    "short": "Prepare 5 stories as Situation, Task, Action, Result: conflict, failure, teamwork, a win, learning fast.",
+    "more": "End each one with what you learned. The same stories answer many questions.",
     "triggers": "red behavioral answer, eq_weakness"
   },
   "tip_teamwork_without_job": {
-    "short": "No team yet? Open source, hackathons and freelance clients give you reviews and team stories.",
-    "more": "Code review from strangers is a fast way to learn how teams work.",
+    "short": "No team yet? Public coding projects, coding contests and freelance clients give you feedback and team stories.",
+    "more": "Feedback on your code from strangers is a fast way to learn how teams work.",
     "triggers": "Self-Taught teamwork answer"
   },
   "tip_ask_questions": {
-    "short": "Always ask a question at the end: success in 90 days, code review, on-call.",
+    "short": "Always ask a question at the end: what success looks like in 90 days, how the team works, real hours.",
     "more": "It shows interest, and the answers tell you whether you want the job.",
     "triggers": "eq_any_questions"
   },
@@ -90,13 +90,13 @@
     "triggers": "eq_ai_takehome"
   },
   "tip_secrets": {
-    "short": "A leaked password or key is compromised. Report it so it gets rotated; deleting the message isn't enough.",
-    "more": "Never paste secrets into chat, tickets or code.",
+    "short": "A leaked password is no longer secret. Report it so it gets changed; deleting the message isn't enough.",
+    "more": "Never paste passwords into chats, emails or code.",
     "triggers": "eq_leaked_password"
   },
   "tip_small_changes": {
-    "short": "Ship small, tested changes early in the week. Friday deploys are how weekends die.",
-    "more": "Small changes are easier to review and easier to roll back.",
+    "short": "Release small, tested updates early in the week. Friday releases are how weekends die.",
+    "more": "Small updates are easier to check and easier to undo.",
     "triggers": "eq_friday_deploy"
   },
   "tip_give_credit": {
@@ -105,7 +105,7 @@
     "triggers": "eq_credit_theft"
   },
   "tip_blameless": {
-    "short": "Good teams run blameless postmortems: what happened, how it was fixed, what prevents it.",
+    "short": "Good teams review mistakes without blame: what happened, how it was fixed, and what stops a repeat.",
     "more": "Owning your part calmly is a strength, not a confession.",
     "triggers": "eq_outage_blame"
   },

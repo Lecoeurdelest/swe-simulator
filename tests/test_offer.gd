@@ -128,6 +128,28 @@ func test_perks_and_fine_print_match_the_tier() -> void:
 				"%s: %s is %s fine print" % [tier_id, fine, tier_id])
 
 
+## REVIEW_QUEUE 3: the fine print never repeats a dealt perk (fp_<x> vs perk_<x>), so a startup
+## paper never lists "Unlimited PTO*" as both a perk and the fine print.
+func test_fine_print_never_repeats_a_perk() -> void:
+	var emails: Dictionary = content["emails"]
+	assert_true(emails.has("perk_unlimited_pto") and emails.has("fp_unlimited_pto"), "the pair this guards")
+	assert_false(RunState.fine_print_pool(emails, "startup", ["perk_unlimited_pto", "perk_pingpong"]).has("fp_unlimited_pto"),
+		"left out when its perk is dealt")
+	assert_true(RunState.fine_print_pool(emails, "startup", ["perk_kombucha", "perk_pingpong"]).has("fp_unlimited_pto"),
+		"still dealt when its perk is not")
+	var problems: Array[String] = []
+	var pto_papers := 0
+	for i: int in 200:
+		var made := _offer("intern", "startup", str(i * 7919 + 3))
+		var perks: Array = made["perks"]
+		if perks.has("perk_unlimited_pto"):
+			pto_papers += 1
+		if perks.has("perk_" + str(made["fine_print"]).trim_prefix("fp_")):
+			problems.append("seed %d: %s with %s" % [i, made["fine_print"], perks])
+	assert_gt(pto_papers, 0, "some papers dealt the PTO perk")
+	assert_true(problems.is_empty(), "%d paper(s) repeat a perk:\n  %s" % [problems.size(), "\n  ".join(PackedStringArray(problems))])
+
+
 ## The contract is picked on an RNG seeded from the checkpoint: the same interview (a resume replays
 ## it) gives the same contract, different interviews vary, and no other RNG is involved.
 func test_same_checkpoint_same_contract() -> void:
