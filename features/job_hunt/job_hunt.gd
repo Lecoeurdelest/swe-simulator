@@ -3,14 +3,12 @@ extends Control
 ## the top: the HUD (information only), the app header, the body (one app at a time: Jobs = the deck,
 ## Mail = the inbox, Study = BigOhNo), the action row and the dock. Sleep locks the phone (the night
 ## summary); after it, Mail holds the morning inbox until Start day. On the first run Ducky's coach
-## marks sit over the card's header strip (GDD 4.3). Rules live in RunState and HuntTips: this scene
-## shows `run` and calls GameState verbs.
+## marks sit over the card's header strip (GDD 4.3); a tap closes one for the run. Rules live in
+## RunState and HuntTips: this scene shows `run` and calls GameState verbs.
 
 enum App { JOBS, MAIL, STUDY }
 
 const SLEEP_CONFIRM_PIPS := 2  # GDD S04: Sleep asks first while 2 or more pips are left
-const COACH_SLEEP_PIPS := 2    # GDD 4.3: the Sleep coach mark at 2 energy or less...
-const COACH_SLEEP_APPS := 4    # ...or after 4 applications
 const MENU_MARK := "="         # stands in for the menu icon until the art pass (GDD S04 "[=]")
 const WARNING_COLOR := Color(0.89411765, 0.23137255, 0.26666668)  # the rent countdown at 3 days (GDD 5.10)
 const STUDY_JOKES: PackedStringArray = ["ui_study_joke_1", "ui_study_joke_2", "ui_study_joke_3"]
@@ -115,7 +113,10 @@ func _ready() -> void:
 	_card.tapped.connect(_on_card_tapped)
 	_card.resized.connect(_fit_coach)
 	_empty_deck.resized.connect(_fit_coach)
+	_coach.resized.connect(_fit_coach)  # a new note's height is only known once its text has wrapped
 	_mail.go_now.connect(_on_go_now)
+	_mail.coach_closed.connect(GameState.close_coach_mark)
+	_coach.closed.connect(GameState.close_coach_mark)
 	_night.dismissed.connect(_refresh)
 	_sleep_confirm.confirmed.connect(_sleep)
 	_pause.quit_to_title_pressed.connect(GameState.quit_to_title)
@@ -172,7 +173,7 @@ func _refresh() -> void:
 		_docks[each].set_pressed_no_signal(each == app)
 	match app:
 		App.MAIL:
-			_mail.show_mail(_mail_report(), _morning_pending(), _coach_invite())
+			_mail.show_mail(_mail_report(), _morning_pending(), HuntTips.coach_invite(run))
 		App.STUDY:
 			_knw_bar.value = run.stat("knw")
 	if not _busy:
@@ -339,34 +340,24 @@ func _finish_card(next: bool) -> void:
 
 # ---------- first-run coach marks (GDD 4.3) ----------
 
-## Which coach mark the Jobs screen shows now, "" for none. Each goes away when you do what it asks:
-## apply, flip a card, sleep. The invite's mark lives in Mail (MailScreen). Never shown mid-animation
-## or over the card's back.
+## Which coach mark the Jobs screen shows now (HuntTips.coach), "" for none. Never mid-animation. The
+## invite's mark lives in Mail (MailScreen). A tap on a mark closes it: GameState.close_coach_mark
+## keeps it closed for the run.
 func _coach_id() -> String:
-	var run := GameState.run
-	if not run.first_run or run.day != 1 or _busy or _current_app() != App.JOBS or _night.is_open():
+	if _busy or _current_app() != App.JOBS or _night.is_open():
 		return ""
-	if _card.visible and _card.is_back():
-		return ""
-	if run.energy <= COACH_SLEEP_PIPS or run.total_applications >= COACH_SLEEP_APPS:
-		return "coach_sleep"
-	if not _card.visible:
-		return ""
-	if run.total_applications == 0:
-		return "coach_apply"
-	if not _flipped_once and not _any_tailored(run):
-		return "coach_flip"
-	return ""
+	return HuntTips.coach(GameState.run, _card.visible, _card.is_back(), _flipped_once)
 
 
 func _update_coach() -> void:
-	match _coach_id():
+	var id := _coach_id()
+	match id:
 		"coach_apply":
-			_coach.point(Content.text("barks", "coach_apply"), _apply_button, true)
+			_coach.point(id, Content.text("barks", id), _apply_button, true)
 		"coach_flip":
-			_coach.point(Content.text("barks", "coach_flip"), _card)
+			_coach.point(id, Content.text("barks", id), _card)
 		"coach_sleep":
-			_coach.point(Content.text("barks", "coach_sleep"), _sleep_dock)
+			_coach.point(id, Content.text("barks", id), _sleep_dock)
 		_:
 			_coach.clear()
 	_fit_coach()
@@ -386,20 +377,6 @@ func _fit_coach() -> void:
 		var body := _coach_spacer.get_parent().get_parent() as Control
 		below = minf(below, body.size.y - _coach.get_combined_minimum_size().y)
 	_coach_spacer.custom_minimum_size.y = maxf(roundf(below), 0.0)
-
-
-## GDD 4.3 "Day 2 morning": the first invite of the first run points at its GO NOW, until the first
-## interview (Research is SHOULD, so Ducky's line is the no-research one).
-func _coach_invite() -> bool:
-	var run := GameState.run
-	return run.first_run and run.interviews_taken == 0 and run.interview.is_empty() and not run.invites.is_empty()
-
-
-static func _any_tailored(run: RunState) -> bool:
-	for app: Dictionary in run.applications:
-		if bool(app.get("tailored", false)):
-			return true
-	return false
 
 
 # ---------- the other apps and the day ----------

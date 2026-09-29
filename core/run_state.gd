@@ -55,6 +55,7 @@ var invites: Array[Dictionary] = []
 var morning_report: Dictionary = {}       # built by Sleep; the hunt scene shows it, "Start day" clears it
 var day_mail: Dictionary = {}             # the morning report after "Start day": Mail keeps showing it until the next Sleep
 var tips_shown: Array[String] = []        # tip ids a once-per-run trigger already showed (HuntTips, GDD 8.3)
+var coach_closed: Array[String] = []      # first-run coach marks tapped closed: never shown again this run (HuntTips.coach)
 var blacklist: Array[String] = []         # company ids whose offer you declined
 var researched: Array[String] = []        # company ids (SHOULD)
 var seen_question_ids: Array[String] = []

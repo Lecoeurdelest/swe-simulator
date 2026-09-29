@@ -8,6 +8,7 @@ extends VBoxContainer
 ## list. Buttons in the list PASS their input on, so a drag scrolls (Step 2 result).
 
 signal go_now(invite: Dictionary)
+signal coach_closed(coach_id: String)  # the invite's coach mark was tapped closed
 
 const INVITE_CARD := preload("res://features/job_hunt/invite_card.tscn")
 const COACH_MARK := preload("res://features/job_hunt/coach_mark.tscn")
@@ -34,7 +35,8 @@ func _ready() -> void:
 
 
 ## report = run.morning_report before Start day (morning = true: a Plan B morning greys GO NOW out), or
-## run.day_mail later that day. coach = show the first-run invite coach mark (GDD 4.3).
+## run.day_mail later that day. coach = show the first-run invite coach mark (GDD 4.3, HuntTips.coach_invite);
+## a tap closes it and emits coach_closed.
 func show_mail(report: Dictionary, morning: bool, coach: bool) -> void:
 	var run := GameState.run
 	var key := hash([report, run.invites, run.energy, run.interviews_today, run.day, morning, coach])
@@ -47,11 +49,12 @@ func show_mail(report: Dictionary, morning: bool, coach: bool) -> void:
 	if coach and not run.invites.is_empty():
 		_coach = COACH_MARK.instantiate()
 		_add(_coach)
+		_coach.closed.connect(coach_closed.emit)
 	var plan_b := morning and bool(report.get("plan_b", false))
 	for invite: Dictionary in run.invites:
 		_add_invite(invite, plan_b)
 	if _coach != null and not _invite_cards.is_empty():
-		_coach.point(Content.text("barks", "coach_invite_no_research"), _invite_cards[0].go_button())
+		_coach.point(HuntTips.COACH_INVITE, Content.text("barks", "coach_invite_no_research"), _invite_cards[0].go_button())
 		_coach.visible = not _invite_cards[0].is_folded()  # it points at GO NOW: gone while Later folds it
 	for notice: Variant in report.get("expired", []):
 		var mail_id := str((notice as Dictionary).get("mail_id", "mail_invite_expired"))

@@ -269,6 +269,15 @@ func mark_tip_shown(tip_id: String) -> void:
 		run.tips_shown.append(tip_id)
 
 
+## A first-run coach mark tapped closed (GDD 4.3, HuntTips.coach): it never shows again this run. Saved
+## at once, because Quit to title writes no save and Continue must not bring it back.
+func close_coach_mark(coach_id: String) -> void:
+	if coach_id.is_empty() or run.coach_closed.has(coach_id):
+		return
+	run.coach_closed.append(coach_id)
+	_commit()
+
+
 ## The hunt rules' data arguments (RunState, "job hunt" section).
 func _tiers() -> Dictionary:
 	var out: Dictionary = {}

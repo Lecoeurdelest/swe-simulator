@@ -1,7 +1,8 @@
 @tool
 extends McpTestSuite
-## Where the job hunt's Ducky tips fire (GDD 8.3, S04, S06) through HuntTips, and the two plain-data
-## fields the hub's apps read: day_mail (Mail after Start day) and tips_shown (once-per-run tips).
+## Where the job hunt's Ducky tips and first-run coach marks fire (GDD 8.3, 4.3, S04, S06) through
+## HuntTips, and the plain-data fields the hub's apps read: day_mail (Mail after Start day), tips_shown
+## (once-per-run tips) and coach_closed (coach marks tapped closed).
 ## Pure: fixtures are built in code, saves go through JSON strings, never user:// (INV-12).
 
 const TIER_IDS: PackedStringArray = ["startup", "mid", "big"]
@@ -172,6 +173,68 @@ func test_first_study_tip_once() -> void:
 	assert_eq(HuntTips.studied(run), "")
 
 
+## GDD 4.3 on day 1 of the first run: Apply, then Flip after the first application until a card is
+## flipped or tailored, then Sleep at 2 energy or less or after 4 applications. Never over the card's
+## back, never on another day or run.
+func test_coach_marks_follow_the_first_day() -> void:
+	var run := _run("graduate")
+	run.first_run = true
+	assert_eq(HuntTips.coach(run, true, false, false), "coach_apply", "the deck opens")
+	assert_eq(HuntTips.coach(run, true, true, false), "", "never over the card's back")
+	assert_eq(HuntTips.coach(run, false, false, false), "", "no card, and Sleep isn't due")
+	_app(run, "mid", 0.1, false, false)
+	run.total_applications = 1
+	assert_eq(HuntTips.coach(run, true, false, false), "coach_flip", "after the first application")
+	assert_eq(HuntTips.coach(run, true, false, true), "", "a card was flipped")
+	_app(run, "mid", 0.1, false, true)
+	assert_eq(HuntTips.coach(run, true, false, false), "", "a Tailor & Apply counts as flipping")
+	run.energy = HuntTips.COACH_SLEEP_PIPS
+	assert_eq(HuntTips.coach(run, true, false, true), "coach_sleep", "2 energy left")
+	assert_eq(HuntTips.coach(run, false, false, true), "coach_sleep", "over the empty deck too")
+	run.energy = 8
+	run.total_applications = HuntTips.COACH_SLEEP_APPS
+	assert_eq(HuntTips.coach(run, true, false, true), "coach_sleep", "4 applications")
+	run.day = 2
+	assert_eq(HuntTips.coach(run, true, false, true), "", "day 1 only")
+	run.day = 1
+	run.first_run = false
+	assert_eq(HuntTips.coach(run, true, false, true), "", "the first run only")
+
+
+## A tap closes a coach mark for the run (run.coach_closed); the next mark still waits for its own rule.
+func test_a_coach_mark_tapped_closed_stays_closed() -> void:
+	var run := _run("graduate")
+	run.first_run = true
+	run.coach_closed.append("coach_apply")
+	assert_eq(HuntTips.coach(run, true, false, false), "", "Apply closed: Flip doesn't show early")
+	_app(run, "mid", 0.1, false, false)
+	run.total_applications = 1
+	assert_eq(HuntTips.coach(run, true, false, false), "coach_flip", "Flip after the first application")
+	run.coach_closed.append("coach_flip")
+	assert_eq(HuntTips.coach(run, true, false, false), "")
+	run.energy = 1
+	assert_eq(HuntTips.coach(run, true, false, false), "coach_sleep", "Sleep when its rule says so")
+	run.coach_closed.append("coach_sleep")
+	assert_eq(HuntTips.coach(run, true, false, false), "")
+
+
+func test_invite_coach_mark_until_the_first_interview() -> void:
+	var run := _run("graduate")
+	run.first_run = true
+	assert_false(HuntTips.coach_invite(run), "no invite waiting")
+	run.invites.append({"uid": run.new_uid(), "app_uid": -1, "company_id": "co_beigeware", "template_id": "job_mid_qa",
+		"tier": "mid", "day_received": 2, "kind": "guarantee", "mail_id": "mail_invite_mid"})
+	assert_true(HuntTips.coach_invite(run))
+	run.coach_closed.append(HuntTips.COACH_INVITE)
+	assert_false(HuntTips.coach_invite(run), "tapped closed")
+	run.coach_closed.clear()
+	run.interviews_taken = 1
+	assert_false(HuntTips.coach_invite(run), "after the first interview")
+	run.interviews_taken = 0
+	run.first_run = false
+	assert_false(HuntTips.coach_invite(run), "the first run only")
+
+
 func test_start_day_keeps_the_mail_until_the_next_sleep() -> void:
 	var run := _run("graduate")
 	run.day = 5
@@ -193,12 +256,17 @@ func test_new_fields_survive_a_save() -> void:
 	_sleep(run, _rng(34))
 	run.start_day()
 	run.tips_shown.append("tip_quantify_impact")
+	run.coach_closed.append("coach_apply")
 	var back := RunState.from_dict(JSON.parse_string(JSON.stringify(run.to_dict())))
 	assert_eq(back.day_mail, run.day_mail)
 	assert_eq(back.tips_shown, run.tips_shown)
 	assert_eq(back.tips_shown.get_typed_builtin(), TYPE_STRING, "still Array[String]")
+	assert_eq(back.coach_closed, run.coach_closed, "a closed coach mark stays closed after Continue")
+	assert_eq(back.coach_closed.get_typed_builtin(), TYPE_STRING, "still Array[String]")
 	var old_save := run.to_dict()
 	old_save.erase("day_mail")
 	old_save.erase("tips_shown")
+	old_save.erase("coach_closed")
 	var older := RunState.from_dict(JSON.parse_string(JSON.stringify(old_save)))
-	assert_true(older.day_mail.is_empty() and older.tips_shown.is_empty(), "a save from before these fields loads with defaults")
+	assert_true(older.day_mail.is_empty() and older.tips_shown.is_empty() and older.coach_closed.is_empty(),
+		"a save from before these fields loads with defaults")
