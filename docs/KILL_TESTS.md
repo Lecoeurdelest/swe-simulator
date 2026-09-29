@@ -1,6 +1,6 @@
 # Kill tests (Step 6)
 
-A phone kills background apps without warning, so the game saves after every committed action and when it loses focus (ARCHITECTURE 8, 9; GDD 5.11). This checklist is the ROADMAP Step 6 "You do": kill the game at 5 moments and check that CONTINUE puts you back where the table says. It takes about 15 minutes.
+A phone kills background apps without warning, so the game saves after every committed action and when it loses focus (ARCHITECTURE 8, 9; GDD 5.11). This checklist is the ROADMAP Step 6 iPhone check (it stays yours: DECISIONS W7 suspended only the learning exercises): kill the game at 5 moments and check that CONTINUE puts you back where the table says. It takes about 15 minutes.
 
 ## How to kill the game
 
@@ -15,9 +15,9 @@ Start a fresh run (New game on the title) and play it through the 5 moments in o
 
 | # | Kill when | Expected after CONTINUE |
 |---|---|---|
-| 1 | **Mid-hunt:** on Jobs after a couple of APPLY taps (change a CV line too, then leave the CV screen). | The hub on the same day, with the same energy, the same top card and deck, the same applications sent and the CV as you left it. |
+| 1 | **Mid-hunt:** on Jobs after a couple of APPLY taps (on a first run, tap a Ducky note closed too). | The hub on the same day, with the same energy, the same top card and deck and the same applications sent. A Ducky note you tapped closed stays closed. |
 | 2 | **Right after Sleep:** while the night lock screen shows. | The same night summary again ("Applied N - Rejected N - ..."), then a tap shows the same morning inbox. Sleep is not run twice: same day number, same mail. |
-| 3 | **Mid-interview:** after answering a question or two. | The same interview starts again from the VS intro: same company, same questions in the same order, Doubt and Composure full again. The energy was paid once (not again), the invite is gone from Mail, and today's interview stays used. |
+| 3 | **Mid-interview:** after answering a question or two. | The same interview starts again from the VS intro (it waits for your tap): same company, same questions in the same order, Doubt and Composure full again. The energy was paid once (not again), the invite is gone from Mail, and today's interview stays used. |
 | 4 | **On the offer:** while the paper contract shows. | The same contract: company, role, salary, work mode, commute, both perks and the fine print unchanged. ACCEPT and Decline work. |
 | 5 | **On the Hired card:** after ACCEPT, while HIRED! or the Dream vs Reality tally shows. | The **offer** again (the Hired card is never saved), with the same contract. ACCEPT gives the same Hired card and the same Dream score. Then leave it with `< Title` or NEW RUN: the title no longer shows CONTINUE (the save is cleared). |
 

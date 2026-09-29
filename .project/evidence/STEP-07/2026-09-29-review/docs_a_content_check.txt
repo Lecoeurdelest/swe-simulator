@@ -1,0 +1,10 @@
+## check_content.py (ids named in CONTENT.md vs data/content/*.json)
+NAMED IN DOC BUT NOT IN JSON: []
+JSON TOP-LEVEL IDS THE DOC NEVER NAMES: []
+TABLE TEXT MISMATCHES:
+
+## check_content2.py (field-level text of every table row, bullet and question block)
+checked 558 mismatches 0
+
+## gen_s7.py (section 7 draft vs questions_choice.json)
+blocks 14 missing from draft 0

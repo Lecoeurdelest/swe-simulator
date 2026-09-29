@@ -5,6 +5,10 @@
 # 2026-09-27: regenerated for docs v1.1 (D1 portrait, D2 270x480, P1 iPhone first). Changed statements follow
 # the current docs; the prior wording is in git at 6f40919. Ids are never renumbered: replaced criteria and
 # decisions stay below as superseded, linked to their replacements.
+# 2026-09-29: updated for the Step 7 developer review (docs GDD 1.2, CONTENT 1.1, ARCHITECTURE 1.4, ROADMAP 1.2;
+# DECISIONS D9-D12, C2-C4, W7). CV editing and lying were removed (D9): MUST-07 and AC-DOD-05 are retired, not
+# deleted, and the statements that named the lie probe, BUSTED or the skippable VS intro follow the current docs.
+# The prior wording is in git at 8aaae75.
 schema_version: 1
 
 project:
@@ -25,7 +29,7 @@ project:
     - "Engine facts: docs/ARCHITECTURE.md wins; fix GDD.md (ARCHITECTURE header)."
     - "Every player-facing string and content id: docs/CONTENT.md."
     - "Step plan, task breakdown and Done-when criteria: docs/ROADMAP.md."
-    - "Design decision answers: docs/DECISIONS.md (one line each; D1-D8, P1 and C1 since 2026-09-26). A change is a new superseding row there first, then the GDD section it points to (GDD 12)."
+    - "Design decision answers: docs/DECISIONS.md (one line each; D1-D8, P1 and C1 since 2026-09-26, D9-D12 and C2-C4 since 2026-09-29, plus the workflow rows W1-W7 and the agent defaults A1 onward). A change is a new superseding row there first, then the GDD section it points to (GDD 12)."
     - "Execution state and evidence: .project/state.json and .project/evidence/."
 
 preservation:
@@ -37,6 +41,11 @@ preservation:
     - id: BASE-DOCS-PORTRAIT
       source: "docs/GDD.md, docs/CONTENT.md, docs/ARCHITECTURE.md, docs/ROADMAP.md (all v1.1, portrait and iPhone first) and docs/DECISIONS.md (new)"
       revision: "uncommitted on top of 6f40919 (Windows PC, 2026-09-27); sha256 of the four v1.1 docs in the 2026-09-27 .project/generated-manifest.json inputs; docs/DECISIONS.md, which render.py does not hash, e46ddcee7e7d1be9644f11456aca81f2eb8d79ae9ed26a055ee03d5d019c05d8. Replace with the commit id once pushed."
+      superseded_by: BASE-DOCS-REVIEW
+    # 2026-09-29: the docs after the Step 7 developer review (DECISIONS D9-D12, C2-C4, W7).
+    - id: BASE-DOCS-REVIEW
+      source: "docs/GDD.md 1.2, docs/CONTENT.md 1.1, docs/ARCHITECTURE.md 1.4, docs/ROADMAP.md 1.2 and docs/DECISIONS.md (D9-D12, C2-C4, W7, A21-A46), synced with the code of commits d8db453..8aaae75"
+      revision: "the docs and tracking commit on branch step-07-dev-review that follows 8aaae75 (2026-09-29); sha256 of all five docs in the .project/generated-manifest.json inputs of that commit"
     - id: BASE-CODE
       source: Step 1 foundation code copied from ARCHITECTURE section 17
       revision: 64ed38f
@@ -46,7 +55,7 @@ preservation:
   artifacts:
     - id: ART-GDD
       path: docs/GDD.md
-      role: design source of truth (rules, numbers, MUST/SHOULD/LATER scope, decisions D1-D8 and P1 in section 12)
+      role: design source of truth (rules, numbers, MUST/SHOULD/LATER scope, decisions D1-D12 and P1 in section 12)
       disposition: preserve
     - id: ART-CONTENT
       path: docs/CONTENT.md
@@ -62,7 +71,12 @@ preservation:
       disposition: preserve
     - id: ART-DECISIONS
       path: docs/DECISIONS.md
-      role: decision log (D1-D8, P1, C1); one line per decision, changed only by a new superseding row
+      role: decision log (D1-D12, P1-P2, C1-C4, W1-W7, agent defaults A1-A46); one line per decision, changed only by a new superseding row
+      disposition: preserve
+    # 2026-09-29: the parking lot the scope convention below points to now exists (the developer's Phase 2 ideas, D10).
+    - id: ART-PARKING
+      path: docs/ideas_parking_lot.md
+      role: parked ideas, not designed or built until the developer schedules one (ROADMAP 1 best practice 8, risk 1)
       disposition: preserve
     - id: ART-CORE
       path: core/*.gd
@@ -94,13 +108,18 @@ preservation:
     - "Tuning lives in the 7 .tres files and text in the 16 JSON files; rebalancing never needs a script edit (ROADMAP 1)."
     # 2026-09-27 (W3, W6; developer approved in chat): replaces "Every step keeps its You-do task for the developer's own hands;
     # Claude does not do it for them (ROADMAP 4, risk 8)." Still true; the placeholder and no-quiz rules are added.
-    - "Every step keeps its You-do task for the developer; Claude never does it. Where a You-do produces something the game needs to run, Claude builds a plain placeholder and the proper version stays queued for the developer. Explanation checks are recorded from the developer's statement and never quizzed (DECISIONS W3, W6)."
+    # 2026-09-29 (W7; the developer in the Step 7 review: "You do" learning exercises are suspended and Claude
+    # implements the features from now on): replaces "Every step keeps its You-do task for the developer; Claude
+    # never does it. Where a You-do produces something the game needs to run, Claude builds a plain placeholder and
+    # the proper version stays queued for the developer. Explanation checks are recorded from the developer's
+    # statement and never quizzed (DECISIONS W3, W6)."
+    - "The You-do learning exercises are suspended (DECISIONS W7, superseding W3): Claude builds those features too and queues no new ones. What only the developer can do stays theirs: installs, signing, iPhone checks, and sign-offs on scope, tone and tips. Explanation checks are recorded from the developer's statement and never quizzed (W6)."
     # 2026-09-27 (W1; developer approved in chat: "You can also push with git without stopping for my approvals"): replaces
     # "The developer commits; Claude suggests the message and commits before script_patch or engine updates (ROADMAP 10, ARCHITECTURE 14.3)."
     - "Claude commits after each verified increment on a per-step branch (step-NN-<slug>, each branched from the previous step's branch) and pushes without asking; it still commits before script_patch or engine updates. The developer reviews and merges on GitHub in step order with merge commits (DECISIONS W1; ARCHITECTURE 14.3)."
-    - "Dependency gate: a step may start when every earlier step is done or has only developer-owned criteria left (device, You-do, manual review); those steps stay in_progress/verifying until the developer confirms (DECISIONS W2)."
+    - "Dependency gate: a step may start when every earlier step is done or has only developer-owned criteria left (device, manual review; You-do exercises are suspended, W7); those steps stay in_progress/verifying until the developer confirms (DECISIONS W2)."
     - "While the developer is away, design huddles take the documented recommended default, logged in docs/DECISIONS.md as 'agent default, please review'; scope, tone and tip accuracy wait for the developer (DECISIONS W4)."
-    - "Current mode (2026-09-27): PC only (P2); autonomous run from Step 2's PC part through Step 6, with a summary after each step (DECISIONS W5)."
+    - "Current mode (2026-09-27): PC only (P2); autonomous run from Step 2's PC part through Step 6, with a summary after each step (DECISIONS W5). Since 2026-09-29 the developer's review fixes are built on the Step 7 branch (step-07-dev-review); Phase 2 is not designed or built until the developer decides (docs/ideas_parking_lot.md)."
     - "The 2x rule: a task past twice its estimate stops and is cut or simplified (ROADMAP 1)."
     - "Two machines share the GitHub repo: everyday building on the Windows PC, iPhone builds on the MacBook; pull before you start, push before you switch, and run the same Godot 4.7.2 on both (ROADMAP 10; ARCHITECTURE 14.1)."
   status_dimensions:
@@ -130,7 +149,8 @@ components:
   - {id: CMP-ART, title: "Art assets and style guide", paths: ["art/", "art_src/", "features/*/art/"], source: "ROADMAP 5; GDD 2.5-2.6"}
   - {id: CMP-AUDIO, title: "Audio", paths: ["audio/"], source: "ROADMAP 6; GDD 9.2"}
   # 2026-09-27 (Step 6 doc sync): docs/KILL_TESTS.md, the Step 6 kill-test checklist (ROADMAP Step 6 task 6), added.
-  - {id: CMP-DOCS, title: "Decision log, kill-test checklist, credits, devlog", paths: [docs/DECISIONS.md, docs/KILL_TESTS.md, CREDITS.md, docs/devlog.md], source: "ROADMAP 1, 5, 9, Step 6; ARCHITECTURE 9"}
+  # 2026-09-29 (Step 7 review): the ideas parking lot and the developer's review queue added.
+  - {id: CMP-DOCS, title: "Decision log, kill-test checklist, ideas parking lot, review queue, credits, devlog", paths: [docs/DECISIONS.md, docs/KILL_TESTS.md, docs/ideas_parking_lot.md, docs/REVIEW_QUEUE.md, CREDITS.md, docs/devlog.md], source: "ROADMAP 1, 5, 9, Step 6; ARCHITECTURE 9; .agent/AGENTS.md"}
 
 decisions:
   # ARCHITECTURE section 0: accepted engineering decisions.
@@ -155,13 +175,21 @@ decisions:
   - {id: D1, title: "Orientation", status: accepted, answer: "portrait only (orientation = 1, no upside-down)", default: "(a) landscape only, sensor", decided: "2026-09-26", source: "GDD 12; GDD 2.1; docs/DECISIONS.md"}
   - {id: D2, title: "Base resolution", status: accepted, answer: "270x480 (the portrait mirror of 480x270), viewport + expand + integer + the Device scale guard", default: "(a) 480x270, viewport + integer + guard", decided: "2026-09-26", source: "GDD 12; GDD 2.2; docs/DECISIONS.md"}
   - {id: D3, title: "Knowledge-question mechanic", status: accepted, answer: "the default: one-tap Answer Meter", default: "(a) one-tap Answer Meter", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
-  - {id: D4, title: "Lying depth", status: accepted, answer: "the default", default: "(a) 3 CV lines x Honest/Polished/Lie + Come clean/Bluff + background check for degree lies", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
+  - {id: D4, title: "Lying depth", status: superseded, superseded_by: [D9], answer: "the default", default: "(a) 3 CV lines x Honest/Polished/Lie + Come clean/Bluff + background check for degree lies", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
   - {id: D5, title: "Fail state", status: accepted, answer: "the default", default: "(a) one Plan B ending, grace day, one-tap retry", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
   - {id: D6, title: "Customization depth", status: accepted, answer: "the default; cosmetics LATER", default: "(a) background + name dice", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
   - {id: D7, title: "Negotiation", status: accepted, answer: "the default: once, never rescinded", default: "(b) one-tap Negotiate, first SHOULD after Research", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
   - {id: D8, title: "Interview brutality (run length)", status: accepted, answer: "the default; revisit after Playtest #1 (Step 7)", default: "(a) Doubt HP 118/128/132 for playtest #1, then decide", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
   - {id: P1, title: "Platform", status: accepted, answer: "iPhone first, built and deployed from the developer's MacBook (Xcode, free Personal Team signing); Android LATER (no Android phone to test on)", decided: "2026-09-26", source: "GDD 12; GDD 2.10; docs/DECISIONS.md"}
   - {id: C1, title: "Parody names after a trademark web check", status: accepted, answer: "12 parody names renamed (e.g. SynergAI -> Hierarchai, HireBot 3000 -> Parsinator 3000); content ids unchanged; a real trademark search still runs before any public release", decided: "2026-09-26", source: "docs/DECISIONS.md; CONTENT 1.1, 4"}
+  # docs/DECISIONS.md, decided by the developer in the Step 7 review of the v0.1 grey-box (2026-09-29).
+  - {id: D9, title: "CV editing and lying removed", status: accepted, supersedes: D4, answer: "no CV screen, no Lie variants, no lie probe (Come clean / Bluff / BUSTED), no background check, no OFFER RESCINDED; Quick Apply sends the background's true CV, Tailor & Apply its honest Polished lines; no separate Polish CV button (no stat fits)", decided: "2026-09-29", source: "GDD 5.4, 12; docs/DECISIONS.md"}
+  - {id: D10, title: "Best Dream score per background", status: accepted, answer: "LATER", decided: "2026-09-29", source: "GDD 3.1, 10.3, 12; docs/DECISIONS.md"}
+  - {id: D11, title: "Coach marks close on a tap", status: accepted, answer: "a tap on the Ducky note closes a first-run coach mark for the run (small x hint); doing the action still closes it", decided: "2026-09-29", source: "GDD 4.3, 12; docs/DECISIONS.md"}
+  - {id: D12, title: "The VS intro waits for a tap and shows less text", status: accepted, answer: "the 2.0 s clip holds its last frame with a blinking Tap to continue; Dana's plate shows one joke stat and one special move, in turn", decided: "2026-09-29", source: "GDD S07, 12; docs/DECISIONS.md"}
+  - {id: C2, title: "Review-queue copy approved, 4 wording fixes", status: accepted, answer: "section 3 copy as written; Graduate perk says knowledge question; no doubled period after a company name; fine print never repeats a perk; GDD coach_sleep line matches the JSON", decided: "2026-09-29", source: "docs/DECISIONS.md; CONTENT 3.1, 13.3"}
+  - {id: C3, title: "Choice questions in plain language", status: accepted, answer: "all 14 choice questions rewritten for non-tech players; ids, kinds, tiers and tips unchanged", decided: "2026-09-29", source: "docs/DECISIONS.md; CONTENT 7"}
+  - {id: C4, title: "New Hired-card copy", status: accepted, answer: "header YOUR JOB vs REMY'S VIDEO, rows naming Remy's value, grade 1 All reality, no dream, footer 100 is the life in Remy's video. Nobody gets 100. Not even Remy.", decided: "2026-09-29", source: "docs/DECISIONS.md; GDD 5.9.5; CONTENT 14"}
 
 invariants:
   # Global rules every task must keep. Full text and sources: .agent/rules/invariants.md
@@ -243,12 +271,17 @@ requirements:
     source: {file: docs/GDD.md, section: "10.1 item 6; 5.3; 5.6"}
     acceptance:
       - {id: AC-DOD-04, statement: "The job hunt is the DoomApply phone app with a bottom dock: 6 new cards per day, at most 10 on the board; card front shows logo, title, 3 match tags, a joke and the odds band; swipe right or APPLY = Quick Apply (1 energy); flip gives Tailor & Apply (2); Study (2); the Intern's 2 referrals; Sleep; energy, rent and Radar always visible.", verification: [behavioral_test, manual_review]}
+  # 2026-09-29 (DECISIONS D9, the developer's call): the CV screen and lying were removed. The requirement and its
+  # criterion stay, retired, so the ids and history remain readable; GDD 10.1 item 7 keeps its number.
   - id: MUST-07
-    title: "CV screen: 3 lines x Honest / Polished / Lie"
+    title: "CV screen: 3 lines x Honest / Polished / Lie (removed 2026-09-29, DECISIONS D9)"
     risk: standard
+    relevance: retired
+    retired_on: "2026-09-29"
+    approval: "D9 in docs/DECISIONS.md (developer, 2026-09-29)"
     source: {file: docs/GDD.md, section: "10.1 item 7; 5.4"}
     acceptance:
-      - {id: AC-DOD-05, statement: "The CV screen has 3 lines, each settable to Honest, Polished or Lie.", verification: [manual_review]}
+      - {id: AC-DOD-05, statement: "The CV screen has 3 lines, each settable to Honest, Polished or Lie.", verification: [manual_review], relevance: retired, retired_on: "2026-09-29", reason: "D9: no CV screen; your CV is your background's true CV and Tailor & Apply sends its Polished lines (GDD 5.4; ROADMAP 1.2 section 2 lists it as cut)"}
   - id: MUST-08
     title: "Morning inbox batch reveal, Recruiter Radar, first-run day-2 guarantee"
     risk: standard
@@ -265,19 +298,22 @@ requirements:
       - {id: AC-S04-1, statement: "On the iPhone, interviews at the three tiers feel different: startup PIVOT, Big's fast needle.", verification: [device_observation]}
       - {id: AC-DOD-07, statement: "6 companies and 3 interview backgrounds exist; tiers differ in odds, reply speed, Doubt HP, needle speed, question pool, salary and work mode.", verification: [document_check, behavioral_test]}
   - id: MUST-10
-    title: "VS intro (2 s, skippable after first view), player bust per background, Dana in 3 outfits"
+    title: "VS intro (a 2 s clip, then it waits for a tap: D12), player bust per background, Dana in 3 outfits"
     risk: standard
-    source: {file: docs/GDD.md, section: "10.1 item 10"}
+    source: {file: docs/GDD.md, section: "10.1 item 10; S07"}
     acceptance:
-      - {id: AC-DOD-08, statement: "The VS intro lasts 2 s, is skippable after the first view, and shows a bust for each background and Dana in 3 outfits.", verification: [manual_review]}
+      # 2026-09-29 (D12): was "The VS intro lasts 2 s, is skippable after the first view, and shows ...".
+      - {id: AC-DOD-08, statement: "The VS intro is a 2 s clip that then waits for a tap, and shows a bust for each background and Dana in 3 outfits.", verification: [manual_review]}
   - id: MUST-11
-    title: "Interview: bars, 5 prompts, Answer Meter, lie probe, K.O. / wheel / rejection"
+    title: "Interview: bars, 5 prompts, Answer Meter, K.O. / wheel / rejection (the lie probe was removed: D9)"
     risk: standard
     source: {file: docs/GDD.md, section: "10.1 item 11; 5.8"}
     acceptance:
       - {id: AC-S04-2, statement: "The player sees the odds (zone width) before the needle moves, the thumb never covers the needle, and Dana's reactions explain what happened.", verification: [manual_review]}
-      - {id: AC-S04-3, statement: "Every outcome has been seen at least once: K.O., wheel win, wheel loss, Composure 0, BUSTED (via debug), and a rejection with a tip plus the model answer.", verification: [manual_review]}
-      - {id: AC-DOD-09, statement: "The interview has Composure and Doubt bars, 5 prompts, the Answer Meter and the lie probe; it ends in K.O., the committee wheel or rejection; a loss always shows a tip plus the model answer.", verification: [behavioral_test, manual_review]}
+      # 2026-09-29 (D9): BUSTED (via debug) left the outcome list; ROADMAP 1.2 Step 4 Done-when.
+      - {id: AC-S04-3, statement: "Every outcome has been seen at least once: K.O., wheel win, wheel loss, Composure 0, and a rejection with a tip plus the model answer.", verification: [manual_review]}
+      # 2026-09-29 (D9): "and the lie probe" left the list.
+      - {id: AC-DOD-09, statement: "The interview has Composure and Doubt bars, 5 prompts and the Answer Meter; it ends in K.O., the committee wheel or rejection; a loss always shows a tip plus the model answer.", verification: [behavioral_test, manual_review]}
   - id: MUST-12
     title: "Offer modal: role, yearly salary, work mode, commute preview, 2 perks, 1 fine print; Accept; Decline with confirm"
     risk: standard
@@ -326,14 +362,16 @@ requirements:
     risk: standard
     source: {file: docs/GDD.md, section: "10.1 item 17"}
     acceptance:
-      - {id: AC-DOD-15, statement: "At least 15 knowledge questions, 10 ethics questions, 20 posting templates, 27 CV strings, 10 rejection lines and 15 tips ship in data/content.", verification: [behavioral_test]}
+      # 2026-09-29 (D9): 27 CV strings became 18 (Honest and Polished only).
+      - {id: AC-DOD-15, statement: "At least 15 knowledge questions, 10 ethics questions, 20 posting templates, 18 CV strings, 10 rejection lines and 15 tips ship in data/content.", verification: [behavioral_test]}
   - id: MUST-18
     title: "About 10 SFX"
     risk: standard
     source: {file: docs/GDD.md, section: "10.1 item 18; 9.2"}
     acceptance:
       - {id: AC-S12-1, statement: "Sound can be muted.", verification: [manual_review]}
-      - {id: AC-DOD-16, statement: "About 10 sound effects ship (tap, apply, reject stamp, invite, hit, K.O., VS slam, BUSTED, typewriter, error).", verification: [manual_review]}
+      # 2026-09-29 (D9): BUSTED's record scratch left the list (GDD 9.2).
+      - {id: AC-DOD-16, statement: "About 10 sound effects ship (tap, apply, reject stamp, invite, hit, K.O., VS slam, typewriter, error).", verification: [manual_review]}
 
   # ---------- GDD 10.2 SHOULD (built in this order inside the Step 8 timebox) ----------
   - id: SHOULD-01
@@ -351,7 +389,7 @@ requirements:
   - {id: SHOULD-03, title: "Network action and 3 site tabs", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 3"}, acceptance: [{id: AC-SH-03, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
   - {id: SHOULD-04, title: "Static top-down room hub", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 4"}, acceptance: [{id: AC-SH-04, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
   - {id: SHOULD-05, title: "Hard-mode commute strip", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 5"}, acceptance: [{id: AC-SH-05, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
-  - {id: SHOULD-06, title: "Drag-to-sign and background check screen", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 6"}, acceptance: [{id: AC-SH-06, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
+  - {id: SHOULD-06, title: "Drag-to-sign (the background-check screen left with lying, D9)", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 6"}, acceptance: [{id: AC-SH-06, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
   - {id: SHOULD-07, title: "Parallax and idle animations", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 7"}, acceptance: [{id: AC-SH-07, statement: "Shipped within Step 8 or Step 9, or recorded on the cut list.", verification: [document_check]}]}
   - {id: SHOULD-08, title: "Morning event cards and the Unicorn posting", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 8"}, acceptance: [{id: AC-SH-08, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
   - {id: SHOULD-09, title: "Career Notebook and Settings", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 9"}, acceptance: [{id: AC-SH-09, statement: "Shipped within the Step 8 timebox, or recorded on the cut list (Relaxed Timing is kept either way).", verification: [document_check]}]}
@@ -471,6 +509,8 @@ tasks:
     hours: 3
     requirement_ids: [MUST-01, REQ-TOOLCHAIN, REQ-DECISIONS]
     component_ids: [CMP-REPO, CMP-DOCS]
+    # D4 stays: Step 0 answered it, and D9 superseded it on 2026-09-29, so the validator warns that D4 is no
+    # longer accepted. That warning is expected.
     decision_ids: [D1, D2, D3, D4, D5, D6, D7, D8, P1]
     depends_on: []
     acceptance_ids: [AC-S00-1, AC-S00-2, AC-S00-3]
@@ -520,18 +560,23 @@ tasks:
     hours: 14
     requirement_ids: [MUST-03, MUST-09, MUST-10, MUST-11, MUST-14, MUST-15, MUST-17]
     component_ids: [CMP-INTERVIEW, CMP-CONTENT, CMP-CORE, CMP-TESTS, CMP-DEV]
-    decision_ids: [D3, D8, C1]
+    # 2026-09-29: D9, D12 and C3 added; they changed what this step built (see amendments).
+    decision_ids: [D3, D8, C1, D9, D12, C3]
     depends_on: [STEP-03]
     acceptance_ids: [AC-S04-1, AC-S04-2, AC-S04-3, AC-S04-4, AC-S04-5]
+    amendments: ["2026-09-29 Step 7 developer review (ISSUE-10): the lie probe removed (D9, d8db453); the VS intro holds its last frame until a tap and shows one joke stat and one move (D12, 501def5); the choice questions in plain language (C3, 5c0f968); the real HpBar with the 0.4 s white ghost replaced the placeholder (W7, 8aaae75)"]
   - id: STEP-05
     title: "Job-hunt grey-box"
     source: {file: docs/ROADMAP.md, section: "Step 5"}
     hours: 16
     requirement_ids: [MUST-05, MUST-06, MUST-07, MUST-08, MUST-13, MUST-15, MUST-17, REQ-TONE]
     component_ids: [CMP-HUNT, CMP-BGSELECT, CMP-CONTENT, CMP-CORE, CMP-TESTS]
-    decision_ids: [D4, D6]
+    # 2026-09-29: D4 (this step's huddle) was superseded by D9, which removed the CV screen this step built;
+    # D11 and C2 changed its coach marks and the Graduate's perk text (see amendments).
+    decision_ids: [D9, D6, D11, C2]
     depends_on: [STEP-04]
     acceptance_ids: [AC-S05-1, AC-S05-2, AC-S05-3, AC-S05-4, AC-S05-5]
+    amendments: ["2026-09-29 Step 7 developer review (ISSUE-10): the CV screen, Lie lines and the lie-probe trigger removed, the dock is 4 slots (D9, d8db453); coach marks close on a tap (D11, e255e6f); the Graduate's perk says knowledge question (C2, 5c0f968); the real StatBar replaced the placeholder (W7, 8aaae75)"]
   - id: STEP-06
     title: "Offer, endings, save/resume, Back, intro text slides"
     source: {file: docs/ROADMAP.md, section: "Step 6"}
@@ -540,20 +585,25 @@ tasks:
     # 2026-09-27 (Step 6 doc sync): CMP-CORE, CMP-UI, CMP-TESTS and CMP-DOCS added, because Step 6 as built changed
     # core/ (offer, hire, Dream rows, tips), ui/ (EndingArt, UiText, ProbeButton), tests/ and wrote docs/KILL_TESTS.md.
     component_ids: [CMP-ENDINGS, CMP-INTRO, CMP-CONTENT, CMP-AUTOLOAD, CMP-CORE, CMP-UI, CMP-TESTS, CMP-DOCS]
-    decision_ids: [D7]
+    # 2026-09-29: D9, C2 and C4 added; they changed what this step built (see amendments).
+    decision_ids: [D7, D9, C2, C4]
     depends_on: [STEP-05]
     acceptance_ids: [AC-S06-1, AC-S06-2, AC-S06-3, AC-S06-4]
     outputs: [docs/KILL_TESTS.md]
+    amendments: ["2026-09-29 Step 7 developer review (ISSUE-10): the background check and OFFER RESCINDED removed (D9, d8db453); the fine print never repeats a perk and a company name never doubles a period (C2, 5c0f968); new Hired-card copy (C4, 5c0f968); docs/KILL_TESTS.md moments 1 and 3 updated for D11 and D12"]
     milestone: v0.1-greybox
   - id: STEP-07
     title: "Playtest #1, tuning and the balance sim"
     source: {file: docs/ROADMAP.md, section: "Step 7"}
     hours: 8
     requirement_ids: [REQ-PLAYTEST, REQ-EDU, REQ-BALANCE]
-    component_ids: [CMP-TESTS, CMP-DEV, CMP-DATA]
-    decision_ids: [D8]
+    # 2026-09-29: the developer's v0.1 review was built first on this step's branch (step-07-dev-review, ISSUE-10),
+    # so its components and decisions are added here.
+    component_ids: [CMP-TESTS, CMP-DEV, CMP-DATA, CMP-HUNT, CMP-INTERVIEW, CMP-ENDINGS, CMP-CONTENT, CMP-CORE, CMP-AUTOLOAD, CMP-UI, CMP-DOCS]
+    decision_ids: [D8, D9, D10, D11, D12, C2, C3, C4]
     depends_on: [STEP-06]
     acceptance_ids: [AC-S07-1, AC-S07-2, AC-S07-3, AC-S07-4]
+    amendments: ["2026-09-29 the developer's review of the v0.1 grey-box, built on branch step-07-dev-review before Playtest #1: CV editing and lying removed (D9, d8db453); plain-language choice questions, the Hired-card copy and 4 wording fixes (C2-C4, 5c0f968); coach marks close on a tap (D11, e255e6f); the VS intro waits for a tap (D12, 501def5); the real HP and stat bars (W7, 8aaae75); docs and tracking synced in the commit after 8aaae75. Phase 2 is parked (docs/ideas_parking_lot.md)"]
   - id: STEP-08
     title: "SHOULD features, in GDD 10.2 order"
     source: {file: docs/ROADMAP.md, section: "Step 8"}
@@ -609,7 +659,8 @@ tasks:
     component_ids: [CMP-EXPORT, CMP-DOCS]
     decision_ids: [P1, AD-13, C1]
     depends_on: [STEP-08, STEP-12]
-    acceptance_ids: [AC-S13-1, AC-S13-2, AC-S13-3, AC-DOD-01, AC-DOD-02, AC-DOD-03, AC-DOD-04, AC-DOD-05, AC-DOD-06, AC-DOD-07, AC-DOD-08, AC-DOD-09, AC-DOD-10, AC-DOD-11, AC-MUST-14, AC-DOD-12, AC-DOD-13, AC-DOD-14, AC-DOD-15, AC-DOD-16, AC-DOD-17, AC-DOD-18]
+    acceptance_ids: [AC-S13-1, AC-S13-2, AC-S13-3, AC-DOD-01, AC-DOD-02, AC-DOD-03, AC-DOD-04, AC-DOD-06, AC-DOD-07, AC-DOD-08, AC-DOD-09, AC-DOD-10, AC-DOD-11, AC-MUST-14, AC-DOD-12, AC-DOD-13, AC-DOD-14, AC-DOD-15, AC-DOD-16, AC-DOD-17, AC-DOD-18]
+    retired_acceptance_ids: [AC-DOD-05]  # 2026-09-29: the CV screen was removed (D9)
     note: "The release candidate goes out through TestFlight: join the paid Apple Developer Program at the start of the step (ROADMAP Step 13; ARCHITECTURE 13.1). Android and Google Play stay LATER (ARCHITECTURE 13.2)."
     milestone: v0.5-mvp
 

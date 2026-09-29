@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Version | 1.1, portrait and iPhone first (design source of truth for the MVP) |
-| Date | 2026-09-26 |
+| Version | 1.2, portrait and iPhone first (design source of truth for the MVP). 1.2 matches the v0.1 grey-box review: CV editing and lying removed (D9), coach marks close on a tap (D11), the VS intro waits for a tap (D12) |
+| Date | 2026-09-26 (v1.2: 2026-09-29) |
 | Engine | Godot 4.7.2-stable, GDScript, `gl_compatibility` renderer |
 | Platforms | iPhone first (built on the developer's MacBook; free Apple ID signing for development), Android LATER |
 | Companion file | `docs/CONTENT.md`: every player-facing string, with the ids used below |
@@ -11,7 +11,7 @@
 
 How to read this:
 - Every decision has a one-line **Why**.
-- Your (the developer's) decisions are marked **Decided (Dn)** and collected in section 12. All eight, plus the platform decision P1, were decided on 2026-09-26; `docs/DECISIONS.md` is the log.
+- Your (the developer's) decisions are marked **Decided (Dn)** and collected in section 12. D1-D8, plus the platform decision P1, were decided on 2026-09-26, and D9-D12 on 2026-09-29 after the grey-box review; `docs/DECISIONS.md` is the log.
 - Every number here is a starting value. Section 11 lists them all with the file that owns them. Section 5.12 shows what they produce in a 4,000-runs-per-background simulation.
 - **MUST / SHOULD / LATER** tags follow the cut line in section 10.
 
@@ -19,11 +19,11 @@ How to read this:
 
 ## 0. The whole game on one page
 
-- **Hook.** In influencer videos, software engineers wake at 10:47, "work" for 12 minutes and live in a cozy studio. It's 2026, the market is brutal, and you want that life anyway. You tailor (or fake) your CV, swipe through job postings, survive a fighting-game-style interview with Dana from HR, and get an offer that's never quite what the video promised.
+- **Hook.** In influencer videos, software engineers wake at 10:47, "work" for 12 minutes and live in a cozy studio. It's 2026, the market is brutal, and you want that life anyway. You tailor your (true) CV, swipe through job postings, survive a fighting-game-style interview with Dana from HR, and get an offer that's never quite what the video promised.
 - **Run.** One run is one job search: about 8-16 minutes, 2-4 interviews, a median of 3-7 in-game days to an offer, with rent due in 12-15 days.
 - **Background = difficulty + character.** The Intern (Easy), The Graduate (Medium) or The Self-Taught (Hard). The choice changes numbers at every stage of the loop (section 6).
 - **Day loop.** Played portrait, one-handed: the hub screen is your phone, running the DoomApply job app. Morning inbox -> spend energy pips (apply, tailor, study) -> sleep. Rent is due in N days.
-- **Interview.** A 2-second VS intro, then an HP duel (your Composure against Dana's Doubt) on a side-view stage across the top of the screen, with the answers under your thumb. 5 prompts: 2 workplace-ethics choices and 3 knowledge questions answered on the one-tap **Answer Meter**. Stats decide most of it; your thumb nudges it.
+- **Interview.** A 2-second VS intro that waits for your tap, then an HP duel (your Composure against Dana's Doubt) on a side-view stage across the top of the screen, with the answers under your thumb. 5 prompts: 2 workplace-ethics choices and 3 knowledge questions answered on the one-tap **Answer Meter**. Stats decide most of it; your thumb nudges it.
 - **Offer.** A contract modal: salary, work mode, commute, perks, fine print. Accept, Negotiate (once) or Decline.
 - **Endings.** Hired card with a "Dream vs Reality" score, or the Plan B ending when rent runs out ("You became a ClikClok career coach").
 - **Teaching.** Every failure shows the joke, then the cause, then one true career tip from Ducky the rubber duck.
@@ -67,7 +67,7 @@ By the end of one run a player should have met these real ideas, each through a 
 |---|---|
 | ATS systems auto-reject on **knockout questions** (degree, years, location), not on keyword percentages | Knockouts are the only auto-reject; the rejection email names the knockout |
 | Tailored applications beat spraying | Tailor & Apply has better odds per energy pip; only relevant applications fill the Recruiter Radar |
-| Reframe honestly instead of lying | Polished lines give most of a lie's benefit with zero risk; lies can be probed and degree lies can rescind the offer |
+| Tailor honestly: describe what you really did in the posting's terms | Tailor & Apply sends each CV line's honest Polished reframing (projects and TA work count as experience, numbers added): more matching tags and a pass on "1+ years" filters, with nothing invented. A degree filter yields only to a referral (5.4, D9) |
 | A referral gets a human to read your CV | Referrals skip knockouts and multiply odds |
 | Research the company | Research unlocks the insider "Why us?" answer (the strongest choice answer in the game; research before every interview raises first-interview pass rates by 10-15 points) |
 | Ghost jobs exist | Some postings never reply; research shows "Posted 412 days ago" |
@@ -234,7 +234,7 @@ Parallax layer defaults (`Parallax2D.scroll_scale.x`): sky 0.1 (clouds `autoscro
 ### 2.7 UI and typography
 - **Body font: monogram (CC0) at size 16** = a 12 px line with a 6 px advance: 45 characters edge to edge and 40 lines in the 270x480 frame (47 lines in an iPhone 15's 568 px safe height). Use it for everything except titles. The Step 2 font test measured a 6 px advance, as assumed, and a 13 px glyph height; the theme's line spacing of -1 keeps the 12 px line (DECISIONS A3, ARCHITECTURE 1.4). How it reads at 4x still needs the iPhone.
 - **Text column:** a full-width panel or button is 254 px (8 px gutter each side); with a 4 px border and 3 px padding it leaves **240 px = 40 characters**, and every budget below is checked at 40 columns. Narrower slots: action-bar primary 168 px = 25 characters; Back 80 px = 11; half-width button 124 px = 18; dock labels 6.
-- **Display font: Press Start 2P (OFL)** at 8/16/24/32 (30/15/10/7 characters per 240 px line), only for the title logo, the VS screen and big banners (K.O., OFFER!, BUSTED!). Banners wrap by word; a banner that needs more than 3 lines drops one size. Ship its OFL license text in the Credits.
+- **Display font: Press Start 2P (OFL)** at 8/16/24/32 (30/15/10/7 characters per 240 px line), only for the title logo, the VS screen and big banners (K.O., OFFER!, HIRED!). Banners wrap by word; a banner that needs more than 3 lines drops one size. Ship its OFL license text in the Credits.
 - **Font import settings** for every `.ttf`: antialiasing = **None**, hinting = None, subpixel_positioning = Disabled, mipmaps off, MSDF off. Use fonts only at their native size or whole multiples.
 - **Text always sits on solid panels**, never directly over dithered sky or parallax.
 - **Text budgets** (enforced by `tests/test_content_lint.gd`, which also word-wraps each string at 40 columns and checks the line cap):
@@ -246,7 +246,7 @@ Parallax layer defaults (`Parallax2D.scroll_scale.x`): sky 0.1 (clouds `autoscro
 | Answer button | 40 characters | 1 | 254 - 2 x (4 + 3) = 240 px = exactly 40 x 6 px: zero slack, so no icons, letters or numbers in front of answer text, autowrap off |
 | Knowledge spoken answer (green/yellow/red) | 80 characters | up to 3 | dialogue box, with your name tab |
 | Posting joke, company card joke, background one-liner | 60 characters | up to 2 | job card / background card |
-| CV line text | 60 characters | up to 2 | CV row |
+| CV line text | 60 characters | up to 2 | not shown in the MVP since the CV screen was removed (D9); the lint keeps the budget for a later CV view |
 | Tip on screen | 120 characters | up to 4 | full-width Ducky note (full version in the Notebook) |
 | Email body | 240 characters | up to 7 | inbox card (the list scrolls) |
 | Player name | 10 characters | 1 | `LineEdit.max_length`; the VS plate fits 9 at Press Start 2P 16, so longer names use size 8 |
@@ -264,7 +264,7 @@ Parallax layer defaults (`Parallax2D.scroll_scale.x`): sky 0.1 (clouds `autoscro
 
    Extra height on taller phones goes to the middle zone. The thumb band stays glued to the bottom safe edge, so buttons sit the same distance from the thumb on every iPhone.
 3. **Action bar** at the bottom of the thumb band: `[ < Back ][ PRIMARY ]`, 80 + 168 px, 6 px gap, 36 px tall. The primary is bottom-right and spans the screen center (x 94-262), so left and right thumbs both reach it; Back and secondary actions go bottom-left. A screen with one action uses a full-width 254 px button, never a lone small primary in a corner.
-4. **Hub navigation is a bottom dock, not a left rail:** 5 app slots of 47 px (6 of 39 px with Network, SHOULD), 4 px gaps, 40 px tall, each an icon plus a label of up to 6 characters. A left rail would cost 32 of 270 px and put its top icons out of reach.
+4. **Hub navigation is a bottom dock, not a left rail:** 4 app slots of 60 px (5 of 47 px with Network, SHOULD; the CV slot left with D9), 4 px gaps, 40 px tall, each an icon plus a label of up to 6 characters. A left rail would cost 32 of 270 px and put its top icons out of reach.
 5. **Gestures:** tap; swipe left/right on job cards (always mirrored by visible SKIP and APPLY) and on the S03 card (mirrored by the selector); hold only for Skip in cutscenes. No swipe-up, no long-press menus, no drag except the SHOULD drag-to-sign. Swipe surfaces stay out of the safe-area insets: `suppress_ui_gesture` only defers the home-indicator swipe, it doesn't disable it.
 6. **Tap-anywhere** stops the Answer Meter needle and advances text. A control that consumes its own tap (the interview pause) never counts as the needle tap.
 7. **250 ms input lock** whenever answer buttons appear, so a tap meant to finish the typewriter text can't pick an answer.
@@ -318,7 +318,7 @@ On an iPhone 15 the 88 px beyond the 480 frame go to the middle zone (2.8). Desk
 ### 3.1 Loop diagram
 
 ```
-META (across runs): Career Notebook of tips (SHOULD) - best Dream score per background - intro_seen - run_count
+META (across runs): Career Notebook of tips (SHOULD) - [best Dream score per background, LATER: D10] - intro_seen - run_count
  |
  RUN = one job search
  |-- Title -> [Intro cutscene: first run only, skippable] -> Background select (difficulty + name)
@@ -328,12 +328,11 @@ META (across runs): Career Notebook of tips (SHOULD) - best Dream score per back
  |              [+ 1 event card, SHOULD]  [+ Hard: 2 s commute strip, SHOULD]
  |     DAY      spend energy pips:
  |                Jobs deck: Skip / Quick Apply (1) / flip -> [Research (1)] / Tailor & Apply (2) / referral
- |                CV (free): 3 lines x Honest / Polished / Lie
  |                Study (2): KNOWLEDGE +5
  |                [Network (2), SHOULD]
  |                Interview (3, +1 travel for the Self-Taught in person) if an invite is waiting
- |                   VS intro -> 5 prompts -> K.O. | Committee wheel | Rejection
- |                     K.O. / wheel win -> OFFER modal -> Accept -> [background check] -> HIRED card (MVP ends)
+ |                   VS intro (tap) -> 5 prompts -> K.O. | Committee wheel | Rejection
+ |                     K.O. / wheel win -> OFFER modal -> Accept -> HIRED card (MVP ends)
  |                                                      -> Decline -> back to the day
  |                     Rejection -> Ducky tip + model answer -> back to the day
  |     NIGHT    Sleep -> "Rent due in N days" -1 -> summary card
@@ -351,7 +350,7 @@ META (across runs): Career Notebook of tips (SHOULD) - best Dream score per back
 |---|---|---|
 | First interview | by day 2 (minute 3-5) on every background | first-run day-2 guarantee; good startup odds after |
 | Hunt day length | at most 90 s | 6 new cards/day, 6-9 pips, one-tap actions |
-| Interview length | at most 90 s including the 2 s VS | 5 prompts, 250 ms lock, typewriter 40 chars/s with tap-to-finish |
+| Interview length | at most 90 s including the 2 s VS | 5 prompts, 250 ms lock, typewriter 40 chars/s with tap-to-finish; the VS screen then waits for a tap, so reading it is the player's time (D12) |
 | Interviews per run | 2-4 | tier odds, Doubt HP, Recruiter Radar |
 | Run length | 10-15 min, Hard at most 20 | sim: Easy about 8, Medium about 14, Hard about 16 (section 5.12, D8) |
 | Mobile session | any 3-5 min bite | autosave after every committed action |
@@ -371,12 +370,10 @@ flowchart LR
   B -->|Choose| H[Job hunt day: DoomApply phone app]
   H -->|Sleep| N[Night summary] --> M[Morning inbox] --> H
   M -->|rent 0, no invite| P[Plan B ending]
-  H -->|Go to interview| V[VS intro 2 s] --> IV[Interview]
+  H -->|Go to interview| V[VS intro 2 s, then tap] --> IV[Interview]
   IV -->|K.O. or committee win| O[Offer modal]
   IV -->|rejected| R[Result + Ducky tip] --> H
-  O -->|Accept| BC{Unconfessed degree lie?}
-  BC -->|no, or check passed| W[Hired card: Dream vs Reality]
-  BC -->|caught| RS[Offer rescinded] --> H
+  O -->|Accept| W[Hired card: Dream vs Reality]
   O -->|Decline + confirm| H
   O -->|Decline on the grace day| P
   W --> T
@@ -420,10 +417,11 @@ Transitions are a 0.2 s fade (SceneRouter) unless noted. Every screen has an on-
 | | NETWORK    [#----]                    | |
 | | + DIPLOMA: passes 'degree required'   | |
 | |   filters. TEXTBOOK ANSWER: wider     | |
-| |   zone on your first tech question.   | |
+| |   zone on your first knowledge        | |
+| |   question.                           | |
 | | - ENTRY-LEVEL PARADOX: '1+ years'     | |
-| |   filters reject you unless your      | |
-| |   Experience line is Polished.        | |
+| |   filters reject you unless you       | |
+| |   Tailor & Apply.                     | |
 | +---------------------------------------+ |   swipe the card = switch background
 | NAME [ Alex                    ] [dice]   |
 | +-----------+ +-----------+ +-----------+ |
@@ -461,7 +459,7 @@ The screen is your phone and DoomApply is the job app: the influencer hooked you
 | +---------------------------------------+ |
 | [ MegaBoard ] [HumbleBrag ] [LaunchPadd ] |   site tabs (SHOULD)
 | [=] [   SKIP   ] [       APPLY  1       ] |   action row; [=] = menu/pause
-| [Jobs ] [ CV  ] [Mail*] [Study] [Sleep]   |   dock; * = invite badge
+| [ Jobs  ]  [ Mail* ]  [ Study ]  [Sleep]  |   dock; * = invite badge
 +-------------------------------------------+
 ```
 
@@ -472,10 +470,10 @@ The screen is your phone and DoomApply is the job app: the influencer hooked you
 | 56-348 | Job card, 254 wide, anchored just above the site tabs; extra height on taller phones goes above the card |
 | 356-384 | Site tabs (SHOULD): 3 segments of 82 px; without them the card is 36 px taller |
 | 392-428 | Action row: `[=]` menu 34, SKIP 80, APPLY 128 (APPLY spans the screen center, 2.8) |
-| 436-476 | Dock: Jobs, CV, Mail, Study, [Network, SHOULD], Sleep (moon) at the right end |
+| 436-476 | Dock: Jobs, Mail, Study, [Network, SHOULD], Sleep (moon) at the right end |
 
-- **Dock:** each app opens full screen and `[ < Back ]` returns to Jobs. Jobs = DoomApply; CV = Buzzwordsmith (S05); Mail = the inbox, with a gold badge while an invite is waiting (its GO NOW lives there); Study = BigOhNo; [Network = HumbleBrag coffee chat, SHOULD]; Sleep.
-- **Jobs deck:** 6 new cards per morning (2 per tier), at most 10 on the board, oldest drop off. Card front: a 238x48 header strip cropped from the tier's interview background, logo + company + tier, job title, 3 tags marked check/cross against the CV as currently set, 1 joke line (60 chars), a knockout chip if the CV fails one, the Quick Apply odds band. Swipe right or APPLY = Quick Apply (1 pip). Swipe left or SKIP = skip (card goes to the back of the deck). Tap the card = flip.
+- **Dock:** each app opens full screen and `[ < Back ]` returns to Jobs. Jobs = DoomApply; Mail = the inbox, with a gold badge while an invite is waiting (its GO NOW lives there); Study = BigOhNo; [Network = HumbleBrag coffee chat, SHOULD]; Sleep.
+- **Jobs deck:** 6 new cards per morning (2 per tier), at most 10 on the board, oldest drop off. Card front: a 238x48 header strip cropped from the tier's interview background, logo + company + tier, job title, 3 tags marked check/cross against your honest CV (what Quick Apply sends, 5.4), 1 joke line (60 chars), a knockout chip if that CV fails one, the Quick Apply odds band. Swipe right or APPLY = Quick Apply (1 pip). Swipe left or SKIP = skip (card goes to the back of the deck). Tap the card = flip.
 - **Card back:** tier, applicants ("1,247 applicants in 2 hours"), posted N days ago, salary text, tailored odds band. In the card's lower half: [Research (1), SHOULD], whose ghost flag, red flags and real salary band expand inside the card, and the [Use referral (n left)] toggle if you have tokens. The action row becomes `[ < Back ][ TAILOR & APPLY  2 ]`.
 - `[=]` opens Pause (S13): it is the hub's on-screen Back.
 - The first 3 applications play the full Parsinator 3000 scan (1 s) over the card; after that a 0.3 s "SENT" stamp.
@@ -484,22 +482,20 @@ The screen is your phone and DoomApply is the job app: the influencer hooked you
 
 **S04 room version** (SHOULD) - top-down static illustration of your room (330x720, bottom-anchored; props differ per background). Wall and window fill the top 40%, and ghosts float there (one per ghosted application). 4 pulsing hotspots (48x48 or larger) sit in the lower 60%: phone on the desk bottom-right (opens DoomApply; the most used, so the easiest reach), laptop (Study), bed (Sleep), door bottom-left (Network). Ramen cups stack on the desk as rent runs down. The camera zooms into the phone (0.35 s) before DoomApply opens; DoomApply's `[=]` then becomes `[ < Room ]`, and the room gets the `[=]`.
 
-**S05 CV screen (Buzzwordsmith)** (MUST) - flat UI, full screen, opened from the dock
-- Header (information only, 2 rows): the tag set, the chips "Degree: yes/no" and "Counts as 1+ yrs: yes/no", and a "Lie risk" meter of 0-3 red dots.
-- **3 stacked rows** (Education, Experience, Projects), each 254 wide and about 90 tall: the label, the current line text (60 chars, 2 lines), a full-width segmented control **Honest | Polished | Lie** (3 x 82 x 34) and the tags it adds (1 line). The first row's control sits below y 72.
-- Touch: tap a segment. Changes are free and apply to future applications. Action bar `[ < Back ][ DONE ]`.
-- First open: Ducky tip `tip_quantify_impact`, in the free space above the action bar.
-- Players visit it about once per run; Tailor & Apply does the per-job work automatically.
+**S05 CV screen (Buzzwordsmith)** (removed 2026-09-29, DECISIONS D9)
+- Replaced by nothing: your CV is your background's true CV and has no screen. Quick Apply sends it as is; Tailor & Apply on the card back sends each line's honest Polished reframing (5.4). There is no separate "Polish CV" button either: no stat fits it, and Tailor & Apply already is the per-job polish.
 
 **S06 Morning inbox** (MUST) - DoomApply's Mail, full screen, a vertical list
 - The HUD sits on top as in S04. Below it, a scrolling list in this order: (1) invites: golden envelope, fanfare, confetti, the email, "Interview with {company}: today or tomorrow", and inside the card `[ Later ]` and `[ GO NOW  3 energy ]` (4 for the Self-Taught in person); (2) rejections as **one stack card** "5 rejections" [Flip all], which expands in place to one short line each, knockout rejections showing the knockout reason; (3) a quiet footer "2 applications: no reply. Probably ever." (ghosts are silent); (4) the Radar update; (5) [event card, SHOULD].
 - `[ Start day ]` is pinned full width at the bottom, outside the scroll, always visible. Later keeps the invite in Mail (gold dock badge) until it expires.
 - The first rejection ever shows the Ducky tip `tip_ats_knockouts` or `tip_rejection_numbers` as a full-width note under the stack.
 
-**S07 VS intro** (MUST) - flat UI with busts, 2 s, portrait split
-- Layout: a diagonal split across the middle (about y 210-270). Dana's half is on top (company color, company background behind), her 96 px bust top-right with her plate to its left: name, her title on 2 lines, the joke stats ("Candidates today: 11", "Coffee: 4th cup"), then her special moves full width. Your half is below (hoodie color), your bust bottom-left with your plate to its right: name, nickname ("THE THEORIST") and 3 stat bars. The tier banner sits at the bottom (Press Start 2P 16, up to 2 lines). You stay left and Dana right, as on the interview stage.
-- 0.00 s white flash. 0.05-0.35 s the busts slide in along the diagonal (Dana down from the top-right, you up from the bottom-left). 0.35 s "VS" slams onto the diagonal (hit-stop 100 ms, 4 px whole-pixel shake, haptic). 0.4-0.9 s the plates and the banner appear. 2.0 s end.
-- Skippable (tap anywhere) immediately from the second interview of a run (first viewing: after 1 s).
+**S07 VS intro** (MUST) - flat UI with busts, a 2 s clip that then waits for a tap, portrait split
+- Layout: a diagonal split across the middle (about y 210-270). Dana's half is on top (company color, company background behind), her 96 px bust top-right with her plate to its left: name, her title on 2 lines and **one** joke stat, then **one** special move full width. Your half is below (hoodie color), your bust bottom-left with your plate to its right: name, nickname ("THE THEORIST") and 3 stat bars (the S03 StatBar). The tier banner sits at the bottom (Press Start 2P 16, up to 2 lines). You stay left and Dana right, as on the interview stage.
+- Dana's stat and move take turns by `times_met_dana`, with no dice: the first interview of a run shows "Candidates today: 11" and "Special move: The Five-Year Plan", the second "Coffee: 4th cup" and "Special move: The Salary Expectation Trap", the third "Patience: [###--]" and "Special move: The Awkward Silence", then it starts over (`vs_dana_stat_1..3`, `vs_dana_move_1..3`).
+- 0.00 s white flash. 0.05-0.35 s the busts slide in along the diagonal (Dana down from the top-right, you up from the bottom-left). 0.35 s "VS" slams onto the diagonal (hit-stop 100 ms, 4 px whole-pixel shake, haptic). 0.4-0.9 s the plates and the banner appear. 2.0 s the last frame holds and "Tap to continue" (`ui_tap_to_continue`) blinks under the banner (0.5 s on, 0.5 s off) on its own small panel.
+- **Tap anywhere, or Back** (Decided D12): before the slam it does nothing; during the rest of the clip it jumps to the last frame; on the last frame it starts the interview (Dana's greeting). It never moves on by itself, and a resumed interview plays it again and waits.
+- *Why:* the developer found the old auto-advance too fast for the amount of text (grey-box review, 2026-09-29). Waiting for a tap lets each player read at their own pace, and one stat plus one move halves the reading.
 
 **S08 Interview** (MUST) - side-view stage band
 
@@ -532,13 +528,13 @@ The screen is your phone and DoomApply is the job app: the influencer hooked you
 | 0-28 | Bars band, information only: COMPOSURE (left) and DOUBT (right), 122x8 each, ROUND n/5 between the labels |
 | 28-188 | Stage band: company background, you left and Dana right (96 px busts), desk. It grows with extra height (248 px on an iPhone 15). Damage numbers, sweat drops, K.O. and the committee wheel play here. |
 | 188-264 | Dialogue box, 254x76: a name tab (DANA, or your name in your hoodie color) and 4 lines; pause `[II]` at its top-right (34x34 hit area) |
-| 268-480 | Answer area: the meter row (y 280-320), then the thumb band (2.8) with answers, the tap pad, probe buttons or the Ducky card |
+| 268-480 | Answer area: the meter row (y 280-320), then the thumb band (2.8) with answers, the tap pad or the Ducky card |
 
-- Top: fighting-game bars (drain with a trailing white "ghost" bar over 0.4 s; damage numbers pop over the stage).
+- Top: fighting-game bars (damage numbers pop over the stage). On a hit the colored fill jumps to the new value and a white "ghost" over the lost part shrinks to it over 0.4 s, in whole pixels; a rise just jumps. The ghost stops while the game is paused, and the bars start full with no ghost (HpBar, built in the Step 7 review).
 - Choice prompt: Dana's line types out in the dialogue box; 3 shuffled answers appear stacked at y 348-468 behind the 250 ms lock; tap one; Dana reacts (expression + reaction line); bars move.
 - Knowledge prompt: Dana asks (100 chars). The **Answer Meter** (5.8.4) appears in the meter row, its zone width visible before the needle starts. The "Tap anywhere!" pad fills y 348-468 under the resting thumb, so the thumb never covers the needle; any tap on the screen counts except `[II]`, which consumes its own tap. "TIRED: needle is faster" shows under the bar when Tired. Your character then speaks the green, yellow or red answer in the dialogue box; on red, Ducky's "Real answer: ..." appears as a full-width note in the thumb band.
 - **`answer_meter_width_px` stays 200.** Timing is tuned in bar-widths, so the pixel width changes looks, not balance. At 200 px it keeps the landscape plan's physical size (267 pt, 68% of an iPhone 15's width), the smallest NAILED IT zone stays 24 px wide and PERFECT about 10 px, the needle moves 2.0-2.9 px per frame, and the bar sits 35 px from each edge of the 270 frame, away from the gripping hand. Try 240 in Playtest #1 if the zone reads small.
-- Lie probe (if triggered): Dana asks in the dialogue box; two half-width buttons (124x44) at the bottom of the thumb band: [Come clean] left, [Bluff] right with its odds band on a second line.
+- Lie probe (removed 2026-09-29, DECISIONS D9): Dana never asks about your CV, because every CV line is true; prompt 2 is always a knowledge question (5.8.5).
 - Remote startup interviews (SHOULD): the stage band becomes a video call on your phone (Dana's feed fills the band, your small self-view in a corner).
 - App loses focus: the tree pauses; on return "Ready? Tap to continue".
 
@@ -579,11 +575,11 @@ The screen is your phone and DoomApply is the job app: the influencer hooked you
 
 - Contents: the paper (254 wide, about 250 tall) slides up from the bottom over the dimmed stage; Dana stays visible above it. One field per line after a 12-character label column (values wrap at 28 columns): role and company, **yearly salary**, at startups an "Equity: 0.0001%" line under it (section 7's joke equity; built in Step 6 as an agent default), work mode, commute preview (e.g. "4 days x 95 min each way = 12.7 h a week", 2 lines), 2 perks, 1 fine-print joke (up to 4 lines; `[?]` shows all 3, SHOULD), "Please decide before you sleep." One Ducky tip sits under the paper (8.3).
 - Buttons: [**Negotiate**, full width above the action bar, once, SHOULD], then `[ Decline ][ ACCEPT ]` (80 + 168). Decline holds the action bar's bottom-left, so the on-screen Back (4.4), `[ < Back ]` (it opens Pause; Back never declines), has its own row above the action bar, where Negotiate would go. Decline opens a confirm dialog; on the grace day it says the run ends. SHOULD: ACCEPT becomes drag-to-sign along the 200 px line, left to right.
-- Out: Accept -> background check (degree lies, 5.9.4) -> Hired card. Decline -> Dana's line -> DoomApply (same day), or Plan B on the grace day (5.10).
+- Out: Accept -> Hired card (5.9.4). Decline -> Dana's line -> DoomApply (same day), or Plan B on the grace day (5.10).
 
 **S11 Hired card** (MUST) - side-view illustration card, in two beats
 - Beat 1: the "HIRED!" stamp (Press Start 2P 32) slams onto a 254x140 illustration; below it company, role and salary (3 lines) and the Hired line for that tier (up to 3 lines). Tap anywhere to continue.
-- Beat 2: the **Dream vs Reality** panel slides up over the illustration: its 5 rows (section 5.9.5; label left, points right with one decimal, one line each, tallying one by one), the score and grade, "The video scored 100. The video was sponsored.", `tip_written_offer`, "TO BE CONTINUED - Phase 2: The Working Life" (`end_tbc`).
+- Beat 2: the **Dream vs Reality** panel slides up over the illustration: the header "YOUR JOB vs REMY'S VIDEO" (`end_dream_header`), its 5 rows (section 5.9.5; label left with Remy's number in brackets, e.g. "Salary (Remy: $150k)", points right with one decimal, one line each, tallying one by one), the score and grade, "100 is the life in Remy's video. Nobody gets 100. Not even Remy." (`end_dream_footer`, Decided C4), `tip_written_offer`, "TO BE CONTINUED - Phase 2: The Working Life" (`end_tbc`).
 - Buttons: `[ < Title ][ NEW RUN ]`, in beat 2. Leaving it deletes the run save.
 - *Why two beats:* everything at once needs about 500 px, more than the 480 frame, and the pause lets the joke land before the score.
 
@@ -597,20 +593,23 @@ The screen is your phone and DoomApply is the job app: the influencer hooked you
 - Notebook: a vertical list of collected tips, one row each; tap a row for the full tip; `[ < Back ]`.
 
 ### 4.3 Scripted first run (FTUE)
-Only on the first run. Coach marks are full-width Ducky sticky notes (40 columns, up to 4 lines) placed in the middle zone with an arrow toward one control. They never cover that control, the thumb band's buttons or the text they talk about (on the Jobs screen they sit over the card's header strip), they disappear when you do the action, and they never block input.
+Only on the first run. Coach marks are full-width Ducky sticky notes (40 columns, up to 4 lines) placed in the middle zone with an arrow toward one control. They never cover that control, the thumb band's buttons or the text they talk about (on the Jobs screen they sit over the card's header strip), and they take no input except their own tap.
+
+**Closing a coach mark** (Decided D11, 2026-09-29): a mark disappears when you do the action it asks for, or when you **tap the note** (a small "x" in its top-right corner shows it can be closed). A tap counts on release, like a button: press and release both on the note, with no drag past the 6 px scroll deadzone. It never reaches the card under the note, and in Mail a drag that starts on the note still scrolls the list. A closed mark stays closed for the rest of the run (saved at once, so Quit to title can't bring it back), and closing one never brings the next early: each still waits for its own moment. The interview's `coach_meter` note can't be tapped closed, because the Answer Meter takes taps anywhere.
+*Why:* the developer found the notes blocking the view of the job card until Apply or Sleep (grey-box review, 2026-09-29).
 
 | When | Ducky says (CONTENT.md section 10.2) | Highlight |
 |---|---|---|
-| Day 1, deck opens | "Swipe right or tap APPLY to send your CV. Costs 1 energy." | APPLY in the action row, plus a swipe-right arrow on the card |
-| After the 1st application | "Tap a card to flip it. Tailor & Apply sends a better CV." | the card |
-| Energy at 2 or less, or 4 applications | "Tired? Tap the moon to sleep. Replies come in the morning." | Sleep (the moon at the dock's right end) |
+| Day 1, deck opens | "Swipe right or tap APPLY to send your CV. Costs 1 energy." (`coach_apply`) | APPLY in the action row, plus a swipe-right arrow on the card |
+| After the 1st application | "Tap a card to flip it. Tailor & Apply sends a better CV." (`coach_flip`) | the card |
+| Energy at 2 or less, or 4 applications | "Out of energy? Tap the moon to sleep. Replies come in the morning." (`coach_sleep`) | Sleep (the moon at the dock's right end) |
 | Day 2 morning | the day-2 guarantee delivers an invite (section 5.7) | the invite's GO NOW |
-| Before the first interview | "Research the company first. It unlocks a secret answer." (Research is SHOULD; without it: "Rest up: tired thumbs are slow thumbs.") | Research on the card back |
-| First knowledge question | a practice question "Warm-up - doesn't count": "Tap anywhere when the needle is in NAILED IT." | the Answer Meter and the tap pad |
-| First rejection | tip + "Tips go in your Career Notebook." | Notebook (Pause, via `[=]`) |
+| An invite is waiting, until the first interview | "An interview! Research the company first: it unlocks a secret answer." (`coach_invite`; Research is SHOULD, so until it ships: "An interview! Rest up: tired thumbs are slow thumbs.", `coach_invite_no_research`) | the invite's GO NOW (Research on the card back once it ships) |
+| First knowledge question | a practice question, "WARM-UP - DOESN'T COUNT" (`vs_warmup`): "Tap anywhere when the needle is in NAILED IT. A wider zone means you know this." (`coach_meter`) | the Answer Meter and the tap pad |
+| First rejection (with the Notebook, SHOULD) | tip + "Rejections happen to everyone. Each one leaves a tip in your Notebook." (`coach_first_reject`) | Notebook (Pause, via `[=]`) |
 
 ### 4.4 Back button, pause and interruptions
-- **On-screen Back everywhere.** iOS has no Back button, so every screen shows its own: the bottom-left `[ < Back ]` of the action bar, `[=]` on the hub, `[II]` in the interview. These, Android Back (LATER, `NOTIFICATION_WM_GO_BACK_REQUEST`) and desktop Esc all call `Device.handle_back()`, which asks the current scene's `handle_back() -> bool` first: close a modal, flip a card back, return from an app to Jobs, skip the cutscene, open Pause. If nothing handled it, the Title shows "Quit?" (Android and desktop only). Scenes must not handle the notification themselves.
+- **On-screen Back everywhere.** iOS has no Back button, so every screen shows its own: the bottom-left `[ < Back ]` of the action bar, `[=]` on the hub, `[II]` in the interview. These, Android Back (LATER, `NOTIFICATION_WM_GO_BACK_REQUEST`) and desktop Esc all call `Device.handle_back()`, which asks the current scene's `handle_back() -> bool` first: close a modal, flip a card back, return from an app to Jobs, skip the cutscene, act as a tap on the VS intro (S07), open Pause. If nothing handled it, the Title shows "Quit?" (Android and desktop only). Scenes must not handle the notification themselves.
 - **No edge-swipe back gesture:** iOS gives games none, and a custom one would fight the job-card swipe.
 - **Interruptions:** save on `NOTIFICATION_APPLICATION_PAUSED` and `NOTIFICATION_APPLICATION_FOCUS_OUT`. On iOS, going home or to the app switcher sends PAUSED (then about 5 s before iOS may kill the app); Control Center, Notification Center and call banners send only FOCUS_OUT / FOCUS_IN. During an interview, also pause the tree: the needle must not auto-miss while Control Center is open.
 
@@ -630,7 +629,7 @@ Numbers you tune in the Inspector live in `.tres` Resources; text lives in JSON 
 | `data/content/backgrounds.json`, `tiers.json` | JSON | display text for backgrounds and tiers |
 | `data/content/companies.json` | JSON | 9 companies |
 | `data/content/postings.json` | JSON | 20 posting templates (+ the Unicorn, SHOULD) |
-| `data/content/cv_lines.json` | JSON | 27 CV lines |
+| `data/content/cv_lines.json` | JSON | 18 CV lines (3 lines x Honest / Polished per background) |
 | `data/content/questions_choice.json` | JSON | ethics/choice questions |
 | `data/content/questions_knowledge.json` | JSON | knowledge questions |
 | `data/content/barks.json` | JSON | Dana, VS announcer, Ducky coach lines |
@@ -638,14 +637,14 @@ Numbers you tune in the Inspector live in `.tres` Resources; text lives in JSON 
 | `data/content/tips.json` | JSON | career tips |
 | `data/content/endings.json`, `events.json`, `cutscene.json`, `names.json`, `news.json` | JSON | the rest |
 
-Stable ids: backgrounds `intern`, `graduate`, `self_taught`; tiers `startup`, `mid`, `big`; stats `knw`, `exp`, `net`; CV lines `edu`, `exp`, `proj` with variants `honest`, `polished`, `lie`; keywords `python, javascript, java, sql, git, cloud, testing, apis, mobile, data, agile, ai`; knowledge topics `algorithms, data_structures, databases, web, tools, concurrency, system_design, security, behavioral`. Content ids use the prefixes `co_ job_ cv_ eq_ kq_ tip_ mail_ fp_ perk_ bark_ vs_ end_ evt_ intro_ news_`.
+Stable ids: backgrounds `intern`, `graduate`, `self_taught`; tiers `startup`, `mid`, `big`; stats `knw`, `exp`, `net`; CV lines `edu`, `exp`, `proj` with variants `honest`, `polished` (`lie` was removed by D9); keywords `python, javascript, java, sql, git, cloud, testing, apis, mobile, data, agile, ai`; knowledge topics `algorithms, data_structures, databases, web, tools, concurrency, system_design, security, behavioral`. Content ids use the prefixes `co_ job_ cv_ eq_ kq_ tip_ mail_ fp_ perk_ bark_ vs_ end_ evt_ intro_ news_`.
 
 ### 5.1 Stats
 
 | Stat | Id | Range | Shown as | Drives |
 |---|---|---|---|---|
-| KNOWLEDGE (the brief's "intelligence") | `knw` | 0-100, cap 80 | 5-segment bar (value / 20, rounded) | 70% of tech answers, 30% of behavioral answers, bluff odds |
-| EXPERIENCE | `exp` | 0-100, cap 80 | 5-segment bar | 70% of behavioral answers, 30% of tech answers, bluff odds |
+| KNOWLEDGE (the brief's "intelligence") | `knw` | 0-100, cap 80 | 5-segment bar (value / 20, rounded) | 70% of tech answers, 30% of behavioral answers |
+| EXPERIENCE | `exp` | 0-100, cap 80 | 5-segment bar | 70% of behavioral answers, 30% of tech answers |
 | NETWORK | `net` | 0-100, cap 80 | 5-segment bar | invite odds (x(1 + NET/100)), committee wheel, negotiation |
 | Energy | - | pips per day | pips | every action |
 | Rent runway | - | days | "Rent due in N days" | fail state |
@@ -664,7 +663,7 @@ The difficulty screen is the character creator: the background is who you are. F
 | Commute (minutes each way) | 20 (coffee shop) | 45 (campus library, alumni pass) | 95 (home Wi-Fi is one bar; the library is two buses away) |
 | Rent runway | 15 days | 12 days | 12 days |
 | Perk | **Warm Intros:** 2 referral tokens; high NETWORK | **Diploma:** passes degree knockouts. **Textbook Answer:** wider zone on the first knowledge question | **Breadth:** 6 honest tags. **Scrappy Builder:** startups x1.3 invites, +5 EXPERIENCE in startup interviews |
-| Flaw | **Big-Tech Aura:** startup invites x0.8; algorithm questions are its weak spot | **Entry-Level Paradox:** "1+ years" knockouts fail unless the Experience line is Polished; practical questions are its weak spot | **The Long Way:** 6 energy, no degree, 2 random knowledge gaps, teamwork answers x0.6, arrives Tired to in-person interviews |
+| Flaw | **Big-Tech Aura:** startup invites x0.8; algorithm questions are its weak spot | **Entry-Level Paradox:** "1+ years" knockouts fail unless you Tailor & Apply (its Polished Experience line counts); practical questions are its weak spot | **The Long Way:** 6 energy, no degree, 2 random knowledge gaps, teamwork answers x0.6, arrives Tired to in-person interviews |
 
 *Why these three shapes:* Easy wins on people (network, referrals), Medium on paper (degree, theory), Hard on breadth and grit. Each has a different best path: Intern -> mid-size via referrals, Graduate -> big-corp pipeline or mid-size, Self-Taught -> startups.
 
@@ -677,31 +676,33 @@ The difficulty screen is the character creator: the background is who you are. F
 
 | Action | Pips | Effect | MVP tag |
 |---|---|---|---|
-| Quick Apply (swipe right / APPLY) | 1 | sends the CV as set, x0.6 odds | MUST |
-| Tailor & Apply (card back) | 2 | Honest lines are sent as Polished; x1.5 odds | MUST |
+| Quick Apply (swipe right / APPLY) | 1 | sends your honest CV, x0.6 odds | MUST |
+| Tailor & Apply (card back) | 2 | sends every CV line as its honest Polished reframing, for this application only; x1.5 odds | MUST |
 | Use referral (toggle on card back) | 0 (uses a token) | x2.5 odds, skips knockouts | MUST (Intern's 2 tokens) |
 | Research (card back) | 1 | reveals ghost flag, red flags, real salary band; unlocks insider "Why us?" | SHOULD |
 | Study (BigOhNo) | 2 | KNOWLEDGE +5 (cap 80) | MUST |
 | Network (HumbleBrag coffee chat) | 2 | NETWORK +5; referral token with P = 0.35 + NET/200; the Self-Taught's first Network sets teamwork x1.0 | SHOULD |
 | Interview | 3 (+1 travel for the Self-Taught when in person) | at most 1 per day | MUST |
-| Edit CV / Sleep | 0 | | MUST |
+| Sleep | 0 | ends the day (the CV has no edit action since D9, 5.4) | MUST |
 
 **Tired:** if the pips left after paying for an interview are 2 or fewer, you are Tired: needle speed x1.15 and Dana says so. The Self-Taught is always Tired at in-person (Big, Mid) interviews: 6 - 3 - 1 = 2. Startup interviews are video calls: no travel.
 
-### 5.4 CV and lying
-**Decided (D4):** this medium-depth model.
+### 5.4 CV
+**Decided (D9, 2026-09-29; supersedes D4):** your CV is your background's true CV. There is no CV screen, no CV editing and no lying.
 
-The CV has 3 lines: **Education, Experience, Projects**. Each is set to **Honest, Polished or Lie**. Each variant carries a tag list and gates (CONTENT.md section 6):
+The CV has 3 lines: **Education, Experience, Projects**. Each exists in two versions, both true (CONTENT.md section 6):
 
-| Variant | Tags | Gates | Risk |
+| Version | Tags | Gates | Sent by |
 |---|---|---|---|
-| Honest | the background's true tags | Education honest decides the degree; Experience honest passes the years knockout only for the Intern | none |
-| Polished (honest reframing: projects and TA work count as experience, numbers added) | +1 tag | Experience Polished passes the "1+ years" knockout | **none**; it's true |
-| Lie | +1 more tag (so +2 over Honest) | a fake degree passes degree knockouts; fake jobs pass years knockouts | lie probe in interviews (5.8.5); a degree claim risks a background check after Accept (5.9.4) |
+| Honest | the background's true tags | Education decides the degree; Experience passes the years knockout only for the Intern | Quick Apply |
+| Polished (honest reframing: projects and TA work count as experience, numbers added) | +1 tag per line | Experience passes the "1+ years" knockout for every background; Education never adds a degree the background doesn't have | Tailor & Apply, for that one application |
 
-- The tag set sent = the union of the 3 lines' tags. Honest sets: Intern 5 tags, Graduate 4, Self-Taught 6. Setting all 3 lines to Polished adds 3 tags; Lie adds 2-3 more. Polished gives about 60-80% of a Lie's benefit (the Lie's extra tag plus the degree gate) with zero risk. *Why:* the numbers teach "reframe, don't fabricate" without moralizing.
-- Tailor & Apply sends every Honest line as its Polished version for that application (never downgrades a Lie).
-- CV edits are free and affect only future applications.
+- The tag set sent = the union of the 3 lines' tags. Honest sets: Intern 5 tags, Graduate 4, Self-Taught 6. Polished adds 3 (Intern 8, Graduate 7, Self-Taught 9).
+- The job cards check their tags against the honest CV, the one Quick Apply sends; the card back's Tailored odds use the Polished one.
+- Knockouts: Tailor & Apply passes a "1+ years" filter (the Graduate's and the Self-Taught's way in). Nothing on the CV passes a degree filter for the Self-Taught; only a referral skips it (5.6).
+- `test_content_lint` keeps it true: exactly 6 lines per background (3 x Honest, Polished), no lie-only fields, and a Polished Education line never changes the degree.
+- *Why:* the developer's call after the grey-box review (2026-09-29): remove the CV editing and the lying. A single "Polish CV" button that costs energy and boosts a stat was checked and abandoned, because no stat fits (KNOWLEDGE, EXPERIENCE and NETWORK already mean something else) and Tailor & Apply already is the per-job polish. The honest-tailoring lesson (1.4) now rests on Tailor & Apply's better odds alone.
+- Old saves still load: the removed run fields (`cv_levels`, `lies_carried`, `confessed`, `rescinded`) are ignored and dropped by the next save, and an old application's `lies` or an old interview checkpoint's `probe_line` is never read (that interview asks its knowledge prompt 2).
 
 ### 5.5 Companies and tiers
 Three tiers with deliberately different fantasies (full matrix in section 7):
@@ -728,7 +729,7 @@ Each generated card rolls: `posted_days_ago` (Big 1-30, Mid 1-14, Startup 0-5; g
 
 ```
 tags_sent   = union of the 3 CV lines' tags as sent
-              (Quick Apply: as set on the CV screen; Tailor & Apply: Honest lines sent as Polished)
+              (Quick Apply: every line Honest; Tailor & Apply: every line Polished, 5.4)
 M           = |posting.tags  intersect  tags_sent| / 3            -> 0, 1/3, 2/3 or 1
 knockout    = (posting.degree_required and not cv_shows_degree)
            or (posting.min_years > 0 and not cv_passes_years)     -> ignored when a referral is used
@@ -755,7 +756,7 @@ Odds bands on cards (Quick odds on the front, Tailored odds on the back; ghost r
 
 **Worked examples.**
 1. *Graduate, Mid-size "Backend Developer" (tags Java, SQL, APIs; 1+ years).*
-   - Quick Apply with an all-Honest CV (Java, Python, SQL, Git): the Honest Experience line (TA work) fails the years knockout -> auto-rejected next morning: "Knockout: 1+ years experience."
+   - Quick Apply sends the honest CV (Java, Python, SQL, Git): the Honest Experience line (TA work) fails the years knockout -> auto-rejected next morning: "Knockout: 1+ years experience."
    - Tailor & Apply: the Experience line goes out Polished ("Capstone team of 4 + TA for 120 students"), which passes the knockout; tags now include APIs, so M = 3/3.
      P = 0.065 x 1.5 x 1.5 x 1.15 x 1.0 = **16.8%** ([####-] Decent). Reply in 2 mornings.
 2. *Self-Taught, Startup "Mobile Dev (Also Barista)" (Mobile, JavaScript, Git).* Honest tags already match 3/3.
@@ -779,7 +780,7 @@ Per pip, Tailor beats Quick at the same match (Graduate, Mid, M = 2/3: 6.5% vs 5
 ### 5.7 Responses, ghosting and the Recruiter Radar
 Outcomes are rolled **on the reveal morning** (not at send time) with the run's seeded RNG, in send order:
 
-1. Knockout failed -> auto-rejection **the next morning** ("3:07 AM"), whatever the tier. The email names the knockout. Not counted by the Radar (your CV's fault, fixable).
+1. Knockout failed -> auto-rejection **the next morning** ("3:07 AM"), whatever the tier. The email names the knockout. Not counted by the Radar (fixable: Tailor & Apply passes a years knockout, a referral skips any).
 2. Ghost posting -> nothing, ever. Counts for the Radar if relevant.
 3. Recruiter Radar full (`pity_count >= bg.pity_n`) and relevant -> **invite** ("A human actually read it!").
 4. Otherwise roll P_invite -> invite, or a non-invite that is silent with probability `tier.silent_share` (Big 50%, Mid 30%, Startup 40%) or a rejection email otherwise.
@@ -790,19 +791,19 @@ Reveal morning = send day + `tier.reply_delay` (Startup 1, Mid 2, Big 3). Silent
 
 **First-run day-2 guarantee:** on the first run only, if at least 3 applications were sent on day 1 and no invite is revealed on the morning of day 2, the best eligible day-1 application (highest P, not ghost, not knocked out, not to a blacklisted company) becomes an invite revealed that morning. If none is eligible, the highest-odds startup on the board (never a ghost job) sends a "saw your profile!" invite. Resets pity_count.
 
-**Invites** are valid on the day they arrive and the next day; at most 1 interview per day. Expired invites become "The role was filled internally. It always was." Declined offers, BUSTED companies and rescinded offers (5.9.4) are blacklisted for the run: their cards leave the board at once, and their waiting invites and pending applications quietly go nowhere (agent default, ARCHITECTURE 7.1).
+**Invites** are valid on the day they arrive and the next day; at most 1 interview per day. Expired invites become "The role was filled internally. It always was." A company whose offer you declined (5.9.4) is blacklisted for the run (since D9, Decline is the only trigger): its cards leave the board at once, and its waiting invites and pending applications quietly go nowhere (agent default, ARCHITECTURE 7.1).
 
 ### 5.8 Interview
 
 #### 5.8.1 Fighting-game framing
-- VS intro (2 s), round counter, two HP bars: **your Composure** (left) and **Dana's Doubt** (right). You win by K.O.: Doubt to 0.
+- VS intro (2 s, then a tap: S07), round counter, two HP bars: **your Composure** (left) and **Dana's Doubt** (right). You win by K.O.: Doubt to 0.
 - Dana is one character with one bust, 3 tier outfits (blazer + 3 lanyards / cardigan / company hoodie), 4 expressions, and titles by tier. From the second interview of a run she remembers you ("Didn't I interview you at {last_company}? ...Yeah. Laid off. Rehired. Hi."). Her lines are in CONTENT.md section 8.
 - Remote startup interviews use the same stage inside a pixel video-call frame (SHOULD; MVP can use the same stage).
 
 #### 5.8.2 Structure: 5 prompts
 `[choice, knowledge, knowledge, knowledge, choice]`
 - If you Researched this company (SHOULD), prompt 1 is always "Why do you want to work here?" with the company's insider answer.
-- A lie probe (5.8.5) replaces knowledge prompt 2.
+- No prompt is ever replaced by a lie probe (removed by D9, 5.8.5): knowledge prompt 2 is always asked.
 - The first interview of the first run adds a practice knowledge question before prompt 2 ("Warm-up - doesn't count").
 - No question repeats within a run (except the Research opener). Choice and knowledge questions are drawn from pools filtered by tier: every tier has at least 11 choice and 19 knowledge questions, enough for 5 interviews.
 - Starting values: Doubt = `tier.doubt_hp` (Startup 118, Mid 128, Big 132). Composure = `bg.composure_max` (100 / 100 / 90).
@@ -857,19 +858,8 @@ Implementation notes: the Answer Meter Control (`AnswerMeter`, ARCHITECTURE 17.1
 
 The needle will feel samey by interview 4; the tier personalities (fast / steady / pivot) and no-repeat pools are the MVP answer. Variety mini-games come after playtest #1.
 
-#### 5.8.5 Lie probe
-Trigger, rolled once when you take the invite: a CV line sent as **Lie** in the application that invite answers counts if its tags overlap the posting (an Education degree claim always counts). In CV order, each counting line rolls `tier.lie_probe_chance` (Startup 0.30, Mid 0.45, Big 0.60) until one hits. At most one probe per interview; it replaces knowledge prompt 2. A first-run "saw your profile!" invite (5.7) answers no application, so it never probes. Dana asks the line's probe question (CONTENT.md section 6). Two buttons with visible odds:
-
-```
-Come clean: Composure -10, Doubt -5 ("Thank you for being honest. Genuinely rare."),
-            the line is marked confessed for this company (no background check), tip_say_i_dont_know
-Bluff:      P = clamp(0.50 + (KNW - 50)/200 + (EXP - 20)/200 - tier.bluff_detect - weight, 0.10, 0.80)
-            tier.bluff_detect: Startup 0, Mid 0.05, Big 0.15;  weight: 0.20 degree claim, else 0.10
-            win:  Doubt -15 ("...Okay. I'll allow it.")
-            lose: BUSTED! Composure -30, Doubt +20, company blacklisted this run, tip_honesty_checks
-```
-
-Example: Intern bluffing an Experience lie at a Mid-size company: 0.50 + 0 + 0.10 - 0.05 - 0.10 = **45%**. Expected Doubt change of bluffing = 0.45 x (-15) + 0.55 x (+20) = **+4.3** (worse than coming clean's -5, and it risks 30 Composure). Coming clean is the better play on average; bluffing is the gamble. The game never says "don't lie"; the numbers do.
+#### 5.8.5 Lie probe (removed 2026-09-29, DECISIONS D9)
+Replaced by nothing: every CV line is true (5.4), so Dana has nothing to probe and there is no Come clean, Bluff or BUSTED. Knowledge prompt 2 is always asked.
 
 #### 5.8.6 Outcomes
 
@@ -917,12 +907,12 @@ failure: "This is our best and final." No change. Never rescinded in the MVP.
 
 Intern 77.5%, Graduate 62.5%, Self-Taught 57.5% (+15 with a pending invite, cap 85%). Tip: negotiating politely "rarely backfires".
 
-#### 5.9.4 Accept, background check, Decline
-- **Accept:** if a degree-claim Lie was sent to this company and not confessed, roll `tier.background_check` (Startup 0, Mid 0.30, Big 0.70). Caught -> "OFFER RESCINDED" ("'Very Famous University' has no record of you. Or of itself.") -> company blacklisted -> back to the hunt, same day. Otherwise -> Hired card. (The background-check screen is SHOULD; if lying ships without it, degree lies are only probed.)
+#### 5.9.4 Accept, Decline
+- **Accept:** the offer becomes your job -> Hired card. No dice. (The degree background check and "OFFER RESCINDED" were removed 2026-09-29, DECISIONS D9: with a true CV there is nothing to check.)
 - **Decline:** confirm dialog -> Dana: "No worries! (Our ATS will remember this.)" -> company blacklisted -> back to the hunt, same day, rent keeps ticking.
 
 #### 5.9.5 Dream vs Reality score (on the Hired card)
-Compares the offer with the influencer's promise ($150k, fully remote, 3-step commute, no red flags). Gives Decline a real reason: chasing a better score.
+Compares the offer with the influencer's promise ($150k, fully remote, 3-step commute, no red flags). Gives Decline a real reason: chasing a better score. On the card the header reads "YOUR JOB vs REMY'S VIDEO" and each row names Remy's number: "Salary (Remy: $150k)", "Days at home (Remy: 5 of 5)", "Commute (Remy: 3 steps)", "Red flags (Remy: none)", "Rent days to spare" (`end_dream_*`, Decided C4: every row says what it is compared with).
 
 ```
 salary_pts  = 40 * min(1, salary / 150000)
@@ -930,7 +920,7 @@ remote_pts  = 25 * (5 - tier.office_days) / 5              # Big 4 days -> 5, Mi
 commute_pts = 15 * max(0, 1 - weekly_commute_h / 10)       # weekly_commute_h = office_days * 2 * bg.commute_minutes / 60
 flags_pts   = max(0, 10 - 5 * company.red_flags.size())
 runway_pts  = 10 * rent_days_left / bg.runway_days
-score = round(sum)   -> <40 "Reality" | 40-59 "Doable" | 60-79 "Pretty good" | 80+ "Suspiciously close to the video"
+score = round(sum)   -> <40 "All reality, no dream" | 40-59 "Doable" | 60-79 "Pretty good" | 80+ "Suspiciously close to the video"
 ```
 
 Examples:
@@ -938,7 +928,7 @@ Examples:
 - Intern at OmniGlobal, $126k, day 5: 33.6 + 5 + 11.0 + 0 + 7.3 = **57, "Doable"**.
 - Self-Taught at Beigeware, $72k, day 8: 19.2 + 15 + 5.5 + 5 + 4.2 = **49, "Doable"**.
 
-Nobody realistically reaches 100. The card says so: "The video scored 100. The video was sponsored."
+Nobody realistically reaches 100. The card says so: "100 is the life in Remy's video. Nobody gets 100. Not even Remy." (`end_dream_footer`, Decided C4, 2026-09-29: the developer found the old footer, "The video scored 100. The video was sponsored.", neither clear nor funny.)
 
 ### 5.10 Fail state: Plan B
 **Decided (D5):** one funny ending, never a punishment.
@@ -949,13 +939,13 @@ Nobody realistically reaches 100. The card says so: "The video scored 100. The v
 
 ### 5.11 Save and resume
 - One slot, JSON at `user://save_v1.json`, written to a temp file then renamed. 64-bit RNG seed/state are stored as strings. Never load `.tres`/`.res` from `user://`.
-- **Save after every committed action** (apply, skip, research, study, CV change on leaving the CV screen, sleep, start day, starting an interview, the interview result, offer decision) and on `APPLICATION_PAUSED` / `FOCUS_OUT`.
+- **Save after every committed action** (apply, skip, research, study, sleep, start day, tapping a coach mark closed, starting an interview, the interview result, offer decision) and on `APPLICATION_PAUSED` / `FOCUS_OUT`.
 - An interrupted interview resumes **at its start with the same seed and the same questions**, so quitting can't re-roll it. That is why nothing is saved per prompt: Doubt and Composure live only in the interview scene (ARCHITECTURE 8).
 - Flow rules (tech-verified fixes): don't save when entering TITLE, BACKGROUND_SELECT or GAME_OVER; delete the save on entering GAME_OVER and on leaving PHASE2_STUB; Retry creates a fresh RunState; Continue falls back to a new game if the saved phase can't legally follow TITLE.
 - Settings (volumes, haptics, Relaxed Timing, text speed, `intro_seen`, `run_count`) live in `user://settings.cfg` (ConfigFile), separate from the run.
 
 ### 5.12 Balance targets and simulation results
-Simulated with the defaults in section 11: 4,000 runs per background. The "average player" bot keeps a Polished CV, tailors when at least 2 tags match, uses referrals on Mid/Big, researches before 30% of interviews, studies once after each lost interview, taps with about 75 ms timing error, picks good/neutral/bad ethics answers 85/10/5%, and accepts the first offer. First run (day-2 guarantee on).
+Simulated with the defaults in section 11: 4,000 runs per background. **These numbers predate D9** (2026-09-29), and the Step 6 agent playtest already ran harder than them (ISSUE-09): Step 7 re-simulates everything in `tests/test_balance.gd` before tuning. The "average player" bot kept a Polished CV for Quick Apply too (since D9 Quick Apply sends the honest CV, which lowers Quick odds and lets the Graduate and the Self-Taught fail "1+ years" filters on a Quick Apply), tailors when at least 2 tags match, uses referrals on Mid/Big, researches before 30% of interviews, studies once after each lost interview, taps with about 75 ms timing error, picks good/neutral/bad ethics answers 85/10/5%, and accepts the first offer. First run (day-2 guarantee on).
 
 | Result | Easy (Intern) | Medium (Graduate) | Hard (Self-Taught) |
 |---|---|---|---|
@@ -977,7 +967,7 @@ Sensitivity checks from the same simulation:
 - **Poor vs skilled tapper:** first-interview pass Easy 25% vs 45%, Medium 13% vs 29%, Hard 8% vs 20%. The thumb matters, but less than the background.
 - **Relaxed Timing (input fixed at 0.9):** slightly below an average tapper (31 / 18 / 12%), so it helps players who struggle without beating players who don't.
 - **Later runs (no day-2 guarantee):** median offer day about +1, offers 100 / 91 / 81%.
-- **Honest vs Polished CV setting:** small difference, because Tailor already sends Polished lines. The CV screen matters for Lies and for Quick Apply.
+- **Honest vs Polished CV setting:** small difference, because Tailor already sends Polished lines. (The setting itself was removed with the CV screen, D9: Quick Apply is now always Honest, so the new sim should come out a little harder than this table.)
 
 Comparison with the proposed targets (offers 95/85/70%, median day 6/8/9): Easy is faster and Medium/Hard more forgiving than proposed, because the proposed Easy pace needs a first-interview pass rate near 25%, which makes Easy feel punishing. **D8** covers this (decided: the current defaults for Playtest #1, section 12). Tuning knobs, in order of effect:
 1. `doubt_hp` for all tiers: +6 HP -> first-interview pass about -10 pp, median offer day +1 to +2 (D8 option b).
@@ -989,8 +979,9 @@ Port the simulation to GDScript (`tests/test_balance.gd`) once the loop exists, 
 
 ### 5.13 Randomness rules
 - One `RandomNumberGenerator` per run in GameState, seeded at Background select; never call the global `randf()`/`randi()` in gameplay code; pass the RNG into pure functions (`Odds`).
-- Rolls that use it: posting generation, ghost flags, reveal outcomes, silent-vs-email, gap topics, question selection and order, answer shuffling, luck U(-12, +12), zone center and pivot timing, probe, bluff, wheel, negotiation, background check.
-- Show luck: odds bands on cards, the zone width before the needle, the wheel wedge, the bluff odds band.
+- Rolls that use it: posting generation, ghost flags, reveal outcomes, silent-vs-email, gap topics, question selection and order, answer shuffling, luck U(-12, +12), zone center and pivot timing, wheel, negotiation. (The probe, bluff and background-check rolls left with D9.)
+- Show luck: odds bands on cards, the zone width before the needle, the wheel wedge.
+- Some things take turns instead of rolling, so they cost no dice: Dana's VS stat and move follow `times_met_dana` (S07).
 
 ---
 
@@ -1005,8 +996,8 @@ Port the simulation to GDScript (`tests/test_balance.gd`) once the loop exists, 
 | Rent runway | 15 days | 12 days | 12 days |
 | Hard-mode commute strip (SHOULD) | none | none | 2 s bus ride each morning: "-4 energy" |
 | Honest CV tags | 5: Python, SQL, Testing, Agile, Git | 4: Java, Python, SQL, Git | 6: JavaScript, APIs, Python, SQL, Git, Mobile |
-| Degree knockout | passes | passes | fails unless Education = Lie (or referral) |
-| Years knockout | passes with Honest | needs Polished (Tailor does it) | needs Polished (Tailor does it) |
+| Degree knockout | passes | passes | fails; only a referral skips it |
+| Years knockout | passes with the honest CV | needs Tailor & Apply (Polished Experience) | needs Tailor & Apply (Polished Experience) |
 | Invite multiplier Big / Mid / Startup | 1.0 / 1.0 / 0.8 | 1.2 / 1.0 / 1.0 | 1.0 / 1.0 / 1.3 |
 | NETWORK factor on invites | x1.45 | x1.15 | x1.05 |
 | Referral tokens | 2 | 0 (Network, SHOULD) | 0 (Network, SHOULD) |
@@ -1017,7 +1008,6 @@ Port the simulation to GDScript (`tests/test_balance.gd`) once the loop exists, 
 | Weak topics (-15) | `weak_for: intern` (algorithms, some concurrency/security) | `weak_for: graduate` (tools, web, practical) | `weak_for: self_taught` (theory, teamwork) + 2 rolled gap topics |
 | Interview perk | exclusive answer "At my internship..." | Textbook Answer: +0.04 zone on the first knowledge question | Scrappy: +5 EXP at startups |
 | Teamwork ethics answers | x1.25 | x1.0 | x0.6 (x1.0 after the first Network, SHOULD) |
-| Bluff odds (Mid, normal lie) | 45% | 35% | 32.5% |
 | Committee wheel NETWORK bonus | +22.5 pp | +7.5 pp | +2.5 pp |
 | Dana's opener | "Three internships. Why didn't they keep you? ...Budget freeze. Right. Same." | "A fresh grad. The ATS wants 3 years. I want to hear what you built." | "Our ATS hates 'no degree'. I don't. Show me what you shipped." |
 | Offer salary | x1.10 | x1.00 | x0.90 |
@@ -1051,9 +1041,6 @@ Simulated outcome differences are in section 5.12.
 | Doubt HP / difficulty | 118 / 40 | 128 / 42 | 132 / 44 |
 | Needle | 0.60 bar/s, zone jumps once ("PIVOT!") | 0.60, steady | 0.75, fast |
 | Question pool emphasis | generalist, web, AI hype, hustle ethics | practical: databases, Git, testing, collaboration | algorithms, system design, process/compliance ethics |
-| Lie probe chance | 30% | 45% | 60% |
-| Bluff detection | 0 | -5 pp | -15 pp |
-| Background check (degree lie) | 0% ("we don't check anything") | 30% | 70% |
 | Salary band | $50-70k + "0.0001% equity" | $65-90k | $95-125k |
 | Work mode / office days | fully remote / 0 | hybrid / 2 | return to office / 4 |
 | PTO line | "Unlimited*" (*average taken: 4) | 20 days | 15 days |
@@ -1070,9 +1057,9 @@ Simulated outcome differences are in section 5.12.
 ### 8.1 Rules
 1. **Joke -> consequence -> tip.** The tip is always last and always true.
 2. **One tip per screen**, at most 120 characters on screen; the Notebook keeps the full version (SHOULD).
-3. **Tips appear only at natural pauses**: morning inbox, result screen, offer fine print, CV screen first open, night summary. Never during the needle or a choice.
+3. **Tips appear only at natural pauses**: morning inbox, result screen, offer fine print, Study, night summary. Never during the needle or a choice.
 4. **Tips match the cause** (table below). The same tip isn't shown twice in a row.
-5. **Mechanics teach first.** The best lessons need no text: tailoring works, research wins interviews, Polished beats Lie, referrals get a human to read your CV.
+5. **Mechanics teach first.** The best lessons need no text: tailoring works, honest reframing passes filters, research wins interviews, referrals get a human to read your CV.
 6. **Messenger: Ducky**, a rubber debugging duck, shown as a full-width sticky note (40 columns, up to 4 lines, 2.7), never a blocking popup.
 7. **Accuracy review:** you (the developer) sign off every tip before release. No statistics. Where a claim depends on jurisdiction, say so ("enforceability varies by country and state; ask a lawyer").
 
@@ -1088,8 +1075,8 @@ Simulated outcome differences are in section 5.12.
 | Moment | Tip |
 |---|---|
 | Knockout rejection | `tip_ats_knockouts` |
-| CV screen first open | `tip_quantify_impact` |
-| Choosing Polished on Experience (Graduate/Self-Taught) | `tip_projects_count` |
+| The night after a Tailor & Apply, when your honest CV fails "1+ years" (the Graduate, the Self-Taught) | `tip_projects_count` |
+| A later night after a Tailor & Apply (the first one for the Intern) | `tip_quantify_impact` |
 | 8 Quick Applies without an invite | `tip_tailor_over_spray` |
 | First referral used | `tip_referrals` |
 | Research reveals a ghost job | `tip_ghost_jobs` |
@@ -1100,14 +1087,14 @@ Simulated outcome differences are in section 5.12.
 | Red behavioral answer | `tip_star_stories` |
 | Self-Taught teamwork answer | `tip_teamwork_without_job` |
 | Bad closer answer | `tip_ask_questions` |
-| Come clean | `tip_say_i_dont_know` |
-| BUSTED or rescinded | `tip_honesty_checks` |
 | Specific ethics questions | each question's own tip (e.g. `tip_secrets`, `tip_ai_tools`, `tip_small_changes`) |
 | Offer opens | `tip_negotiate` (Negotiate shipped) or `tip_total_comp` |
 | Startup offer | `tip_equity_lottery` |
 | Fine print opened | `tip_fine_print` |
 | Hired card | `tip_written_offer` |
 | Study action (first time) | `tip_fundamentals` |
+
+Removed with lying (D9): `tip_say_i_dont_know` (Come clean) and `tip_honesty_checks` (BUSTED, rescinded). `tip_keywords_honest` stays in `tips.json` but has no trigger in the MVP (it was the CV screen's).
 
 ### 8.4 The knowledge-question teaching loop
 Every knowledge question has a model answer (green), a hedged answer (yellow), a confidently-wrong answer (red) and Ducky's "Real answer" line. After a rejection, the result screen shows the model answer for your worst question. Every answered question goes into the Notebook (SHOULD), which doubles as a real study sheet.
@@ -1125,22 +1112,21 @@ Every knowledge question has a model answer (green), a hedged answer (yellow), a
 | Rejection stack | REJECTED stamp with squash and stretch, 2 px shake, thud |
 | Invite | golden envelope glow, fanfare, confetti falling the full screen height; the Mail dock badge bounces |
 | Energy / rent | pips pop when spent; rent number flips like an odometer |
-| VS | busts slide along the diagonal; 100 ms hit-stop, 1-frame white flash, 4 px shake |
-| Damage | bars drain with a trailing white bar (0.4 s); damage numbers pop over the stage band, never over the dialogue or answers; Dana flinches or looks impressed; sweat drops on you below 40 Composure |
+| VS | busts slide along the diagonal; 100 ms hit-stop, 1-frame white flash, 4 px shake; the held last frame blinks "Tap to continue" once a second |
+| Damage | bars drain with a trailing white bar (0.4 s, eased in, whole pixels; built as HpBar); damage numbers pop over the stage band, never over the dialogue or answers; Dana flinches or looks impressed; sweat drops on you below 40 Composure |
 | Answer Meter | PERFECT chime; zone flashes "PIVOT!" when it jumps (startups) |
 | K.O. | 0.5 s slow motion, "K.O.!" morphs into "OFFER!", sting |
-| BUSTED | cracked-glass overlay, record scratch, Dana's glasses glint |
 | Offer | paper slides up from the bottom; HIRED stamp; pixel fireworks |
 
 Rules: shakes and tweens snap to whole pixels; **shake only the stage and backgrounds, never the thumb band** (a button moving under a thumb causes mis-taps); never more than 3 flashes per second; Reduced Motion (SHOULD) removes shake, flash and card tilt.
 
 ### 9.2 Audio
-- **MUST, about 10 SFX** (make them with jsfxr; generated sounds are yours): tap, apply whoosh, reject stamp, invite fanfare, hit, K.O. sting, VS slam, BUSTED record scratch, typewriter blip, error buzz. 16-bit WAV.
+- **MUST, about 10 SFX** (make them with jsfxr; generated sounds are yours): tap, apply whoosh, reject stamp, invite fanfare, hit, K.O. sting, VS slam, typewriter blip, error buzz. 16-bit WAV. (BUSTED's record scratch left with D9.)
 - **SHOULD, 2 music loops** (OGG, loop enabled): lo-fi hunt loop (minor-key variant at 3 rent days left) and chiptune interview loop. Buses Master / Music / SFX; music about -8 dB under SFX.
 - Per-scene `AudioStreamPlayer`s until an Audio autoload is needed (LATER).
 
 ### 9.3 Haptics (SHOULD)
-`Input.vibrate_handheld(duration_ms, amplitude)` via `Device.haptic(ms)`: tap 10 ms, job card crossing the swipe threshold 10 ms (a one-thumb swipe "clicks" before release), PERFECT 20 ms, VS slam 40 ms, K.O. 60 ms, BUSTED two 30 ms pulses. Settings toggle.
+`Input.vibrate_handheld(duration_ms, amplitude)` via `Device.haptic(ms)`: tap 10 ms, job card crossing the swipe threshold 10 ms (a one-thumb swipe "clicks" before release), PERFECT 20 ms, VS slam 40 ms, K.O. 60 ms. Settings toggle.
 - **iOS (verified in the 4.7.2 source):** on iOS 13+ with haptic hardware, Godot plays one Core Haptics event lasting `duration_ms`; an amplitude of 0-1 sets its intensity and -1 (the default) uses the system default. Without Core Haptics it plays the fixed system vibration and ignores the duration. No permission prompt (no entitlement expected; unverified). Whether 10 ms is felt, and whether haptics survive a background/resume, are unverified: check both on the iPhone in week 1. If taps feel harsh, pass 0.3-0.5 for tap-level events (`Device.haptic` needs an amplitude parameter for that).
 - **Android (LATER):** enable `permissions/vibrate` in the export preset.
 
@@ -1158,17 +1144,17 @@ Relaxed Timing (Answer Meter input fixed at 0.9), Reduced Motion (also stops car
 4. Title: static art, Tap to start, Continue.
 5. Background select = customization: one background card (3 stat bars, pips, runway, perk, flaw) + a 3-button selector + name dice.
 6. Phone-app job hunt (DoomApply + bottom dock): swipe deck (6/day, max 10), card front (logo, title, 3 match tags, joke, odds band), Quick Apply (1), card flip -> Tailor & Apply (2), Study (2), the Intern's 2 referrals, Sleep, energy and rent always visible, Recruiter Radar.
-7. CV screen: 3 lines x Honest / Polished / Lie.
+7. CV screen (removed 2026-09-29, DECISIONS D9): your CV is your background's true CV; Tailor & Apply sends its Polished lines (5.4).
 8. Morning inbox batch reveal: invites first, rejections as one stack, ghosts silent; Radar + first-run day-2 guarantee.
 9. 6 companies (2 per tier), 3 interview backgrounds (1 per tier); tiers differ in odds, reply speed, Doubt HP, needle, question pool, salary and work mode.
-10. VS intro (2 s, skippable after the first view) with a player bust per background and one Dana bust with 3 outfit swaps.
-11. Interview: Doubt/Composure bars, 5 prompts, Answer Meter, lie probe (Come clean / Bluff), K.O. / committee wheel / rejection, always a tip + model answer.
+10. VS intro (a 2 s clip, then it waits for a tap: D12) with a player bust per background and one Dana bust with 3 outfit swaps.
+11. Interview: Doubt/Composure bars, 5 prompts, Answer Meter, K.O. / committee wheel / rejection, always a tip + model answer. (The lie probe left with D9.)
 12. Offer modal: role, yearly salary, work mode, commute preview, 2 perks, 1 fine-print joke; Accept; Decline with confirm.
 13. Endings: Hired card with Dream vs Reality; Plan B with one-tap Retry; grace day.
 14. Ducky tip card after failures.
 15. Autosave on every action and on pause; an on-screen Back on every screen (Android Back LATER); pause during interview on focus loss.
 16. Intro: 6 still panels with pans/tilts and captions, skippable; text slides first, art last.
-17. Content: at least 15 knowledge Qs, 10 ethics Qs, 20 posting templates, 27 CV strings, 10 rejection lines, 15 tips (CONTENT.md has more).
+17. Content: at least 15 knowledge Qs, 10 ethics Qs, 20 posting templates, 18 CV strings, 10 rejection lines, 15 tips (CONTENT.md has more).
 18. About 10 SFX.
 
 ### 10.2 SHOULD (in this order once MUST works)
@@ -1177,7 +1163,7 @@ Relaxed Timing (Answer Meter input fixed at 0.9), Reduced Motion (also stops car
 3. Network action (referrals, Self-Taught lone-wolf fix); 3 site tabs that filter the same deck, one modifier each (MegaBoard: all tiers, ghost-job rate +5 pp; HumbleBrag: Big and Mid only, invite odds x1.1; LaunchPadd: startups only).
 4. Static top-down room hub with 4 hotspots in the lower 60%, ghosts and ramen cups.
 5. Hard-mode morning commute strip (2 s bus parallax, "-4 energy").
-6. Drag-to-sign; background check screen for degree lies.
+6. Drag-to-sign. (The background-check screen for degree lies left with lying, D9.)
 7. Parallax on Title and interview backgrounds; 2-4-frame idle animations.
 8. 6-10 morning event cards; the Unicorn remote ghost posting (the thesis gag).
 9. Career Notebook; Settings (audio, haptics, reduced motion, Relaxed Timing, text speed, replay intro).
@@ -1185,7 +1171,7 @@ Relaxed Timing (Answer Meter input fixed at 0.9), Reduced Motion (also stops car
 11. Dana's per-company one-liners and the "laid off too" running gag; video-call frame for startup interviews; per-company background prop swaps.
 
 ### 10.3 LATER
-The Work loop (Phase 2) with walking top-down characters and an office map; cosmetic customization; take-home CRUNCH mash mini-game; Keyword Grab / Buzzword Catch; BigOhNo multiple-choice quiz; meetups, doomscroll, specialize, career fair, side projects; cash, burn, fares and gig shifts; emotional damage, reps and prep bonuses; the 8 extra interviewers; stacked offers, live exploding timers, full haggling, rescinds; scam and unpaid-intern traps (as rent-cost events); imposter-debt events (Phase 2); Android build; Play closed testing (reportedly 12 testers x 14 days for new personal accounts; verify); App Store release (TestFlight starts with the release candidate, 2.10); iPad-native layout (any window size, 2.10); achievements, cloud save, localization.
+The Work loop (Phase 2) with walking top-down characters and an office map; cosmetic customization; take-home CRUNCH mash mini-game; Keyword Grab / Buzzword Catch; BigOhNo multiple-choice quiz; meetups, doomscroll, specialize, career fair, side projects; cash, burn, fares and gig shifts; emotional damage, reps and prep bonuses; the 8 extra interviewers; stacked offers, live exploding timers, full haggling, rescinds; scam and unpaid-intern traps (as rent-cost events); best Dream score per background (D10); Android build; Play closed testing (reportedly 12 testers x 14 days for new personal accounts; verify); App Store release (TestFlight starts with the release candidate, 2.10); iPad-native layout (any window size, 2.10); achievements, cloud save, localization.
 
 ### 10.4 Phase 2 hooks: state the MVP must already store
 `RunState` (saved) must hold, even if the MVP never reads some of it:
@@ -1194,14 +1180,15 @@ The Work loop (Phase 2) with walking top-down characters and an office map; cosm
 |---|---|
 | `background_id`, `player_name`, `knw`, `exp`, `net`, `lone_wolf`, `gap_topics` | the same character goes to work |
 | `commute_pips`, `commute_minutes` (copied from BackgroundData) | work-day energy on office days |
-| `cv_levels` {edu, exp, proj} and `lies_carried` (Lie line ids never busted or confessed) | imposter-debt tasks in week 1 |
 | `employment`: `company_id`, `tier`, `job_title`, `salary`, `work_mode`, `office_days`, `perks`, `red_flags`, `equity_text`, `negotiated` | the job you took |
 | `day`, `rent_days_left`, `dream_score` | carry-over and ending comparisons |
 | `interviews_taken`, `times_met_dana`, `dana_last_company` | Dana cameos, "laid off too" gag |
 | `blacklist` (company ids), `applied` (template+company pairs) | "you declined us" events |
 | `rng_seed`, `rng_state` (strings), `phase` | deterministic resume |
 
-Meta (settings file): `intro_seen`, `run_count`, `tips_unlocked`, best Dream score per background.
+Meta (settings file): `intro_seen`, `run_count`, `tips_unlocked`; best Dream score per background is LATER (D10).
+
+(Removed 2026-09-29, D9: `cv_levels` and `lies_carried`, which were stored for Phase 2 imposter-debt tasks. Phase 2's content is not decided yet; the ideas are parked in `docs/ideas_parking_lot.md`.)
 
 Code hooks: a generic Day Cycle where HUNT is one mode; `GameFlow.Phase` leaves room for `WORK`; `TierData` already holds `meeting_load`, `layoff_risk`, `growth_mult` (unused); a "laid off -> JOB_HUNT" entry point.
 
@@ -1210,15 +1197,15 @@ Code hooks: a generic Day Cycle where HUNT is one mode; `GameFlow.Phase` leaves 
 2. **iPhone debug build** (MacBook + Xcode, 2.10).
 3. Stub flow through every screen, grey boxes and text only (about 1 day). You can tap from Title to the Hired card.
 4. **Interview grey-box** (the riskiest fun): bars, choice buttons, Answer Meter, outcomes. Formula tests alongside.
-5. Hunt grey-box: deck, CV, inbox, Radar, sleep.
+5. Hunt grey-box: deck, inbox, Radar, sleep.
 6. Offer, endings, save/resume, on-screen Back.
 7. **Playtest #1** (3-5 people, you stay silent). Tune data, not code. Port the Python sim to GDScript here.
 8. SHOULD items, then art (hero art first, intro last).
 
 ### 10.6 Tests (godot-ai `test_run`, files in `res://tests/`, `@tool`, extend `McpTestSuite`)
-The minimum set is below; ARCHITECTURE 12.2 lists every suite as built (19 at the end of Step 5).
+The minimum set is below; ARCHITECTURE 12.2 lists every suite as built (20 suites and 217 tests after the Step 7 review, 2026-09-29).
 - `test_odds.gd`: P_invite worked examples (16.8%, 12.3%, 30.7%, 19.0%), band thresholds, knockout logic.
-- `test_interview.gd`: S/h/Q/damage for the 5.8.7 example with a fixed luck value; wheel formula; bluff formula; Tired.
+- `test_interview.gd`: S/h/Q/damage for the 5.8.7 example with a fixed luck value; wheel formula; Tired.
 - `test_offer.gd`: salary, negotiation cap, Dream score examples (68, 57, 49).
 - `test_flow.gd`: legal transitions, Continue fallback, Retry resets the run.
 - `test_save.gd`: RunState round trip with a 64-bit RNG state (no writes to `user://`).
@@ -1331,23 +1318,11 @@ Owner: **B** = `BalanceConfig` (one file); **BG** = `BackgroundData` (value per 
 | `committee_band` | 0.15 | B |
 | `committee_base` / `close_bonus` / `net_div` / `cap` | 0.40 / 0.20 / 200 / 0.85 | B |
 | `input_lock_ms` | 250 | B |
-| `vs_duration_s` / `vs_min_view_s` | 2.0 / 1.0 | B |
+| `vs_duration_s` (the clip; the VS screen then waits for a tap, D12; `vs_min_view_s` was removed) | 2.0 | B |
 | `typewriter_cps` | 40 | B |
 
-### 11.5 Lying
-
-| Constant | Default | Owner |
-|---|---|---|
-| `lie_probe_chance` | 0.30 / 0.45 / 0.60 | T |
-| `max_probes_per_interview` | 1 | B |
-| `bluff_base` / `bluff_knw_div` / `bluff_exp_ref` / `bluff_exp_div` | 0.50 / 200 / 20 / 200 | B |
-| `bluff_detect` | 0 / 0.05 / 0.15 | T |
-| `bluff_weight_lie` / `bluff_weight_degree` | 0.10 / 0.20 | B |
-| `bluff_min` / `bluff_max` | 0.10 / 0.80 | B |
-| `bluff_win_doubt` | -15 | B |
-| `busted_doubt` / `busted_comp` | +20 / 30 | B |
-| `come_clean_doubt` / `come_clean_comp` | -5 / 10 | B |
-| `background_check` | 0 / 0.30 / 0.70 | T |
+### 11.5 Lying (removed 2026-09-29, DECISIONS D9)
+Replaced by nothing: its 14 `BalanceConfig` fields (`max_probes_per_interview`, the `bluff_*` odds, `busted_*`, `come_clean_*`) and 3 `TierData` fields (`lie_probe_chance`, `bluff_detect`, `background_check`) were deleted with the lie probe and the background check.
 
 ### 11.6 Offer and endings
 
@@ -1370,7 +1345,7 @@ Owner: **B** = `BalanceConfig` (one file); **BG** = `BackgroundData` (value per 
 ---
 
 ## 12. Decisions
-All eight, plus the platform decision P1, were decided on 2026-09-26; `docs/DECISIONS.md` is the log. To change one, add a superseding row there first, then update this section and the section it points to.
+D1-D8, plus the platform decision P1, were decided on 2026-09-26, and D9-D12 on 2026-09-29 after the developer reviewed the v0.1 grey-box; `docs/DECISIONS.md` is the log (it also holds the C, W and A rows). To change one, add a superseding row there first, then update this section and the section it points to.
 
 **D1 - Orientation.** Decided: **portrait only** (`orientation = 1`). The options were landscape (sensor), portrait, or mixed per scene; the first draft recommended landscape for the horizontal art reference, and the developer chose portrait. See 2.1.
 
@@ -1378,7 +1353,7 @@ All eight, plus the platform decision P1, were decided on 2026-09-26; `docs/DECI
 
 **D3 - Knowledge-question mechanic.** Decided (the default): **the one-tap Answer Meter.** Rejected: quick-tap mashing (returns LATER as the take-home "CRUNCH!"), multiple choice (LATER as the BigOhNo quiz), Keyword Grab. See 5.8.4.
 
-**D4 - Lying depth.** Decided (the default): **3 CV lines x Honest/Polished/Lie, a Come clean/Bluff probe, a background check only for degree lies.** Rejected: one "embellish" toggle; per-skill claim chips. See 5.4.
+**D4 - Lying depth.** Decided (the default): **3 CV lines x Honest/Polished/Lie, a Come clean/Bluff probe, a background check only for degree lies.** Rejected: one "embellish" toggle; per-skill claim chips. **Superseded by D9 (2026-09-29).**
 
 **D5 - Fail state.** Decided (the default): **one funny Plan B ending when rent runs out, a grace day for a pending invite, one-tap Retry.** Rejected: no fail state; several game-overs (LATER as rent-cost events). See 5.10.
 
@@ -1387,5 +1362,13 @@ All eight, plus the platform decision P1, were decided on 2026-09-26; `docs/DECI
 **D7 - Negotiation.** Decided (the default): **one-tap Negotiate, once, never rescinded**, the first SHOULD after Research. Rejected: Accept/Decline only; full haggling (LATER). See 5.9.3.
 
 **D8 - How brutal are interviews.** Decided (the default): **(a) Doubt HP 118 / 128 / 132 for Playtest #1** (first-interview pass 37 / 22 / 15%, offers 100 / 95 / 87%, runs about 8 / 14 / 16 min). Afterwards move toward (b) +6 HP, harsher (offers 100 / 88 / 75%, runs about 11 / 16 / 20 min), or (c) -8 HP, gentler (offers 100 / 99 / 95%, runs about 6 / 10 / 12 min), depending on whether testers say "too easy" or "too random". See 5.12.
+
+**D9 - CV editing and lying.** Decided (the developer, 2026-09-29; supersedes D4): **removed.** Your CV is your background's true CV: Quick Apply sends it as is, Tailor & Apply sends each line's honest Polished reframing. Gone: the CV screen, Lie lines, the lie probe (Come clean / Bluff / BUSTED), the degree background check and OFFER RESCINDED. A separate "Polish CV" button was checked and abandoned: no stat fits it, and Tailor & Apply already is the per-job polish. See 5.4.
+
+**D10 - Best Dream score per background.** Decided (the developer, 2026-09-29): **LATER.** See 10.3.
+
+**D11 - Coach marks.** Decided (the developer's request, 2026-09-29: the note "should go away being clicked on", not only on Apply or Sleep): **a first-run coach mark also closes on a tap on the note**, for the rest of the run; doing the action still closes it. The details (tap on release, the "x" hint, no fall-through to the next mark) are agent defaults in `docs/DECISIONS.md`. See 4.3.
+
+**D12 - VS intro.** Decided (the developer's request, 2026-09-29: add a button, slow it down or show less): **the VS screen waits for a tap and shows less text** (one joke stat, one special move, taking turns). The details are agent defaults in `docs/DECISIONS.md`. See S07.
 
 **P1 - Platform.** Decided: **iPhone first**, built and deployed from the developer's MacBook (Xcode, free Personal Team signing); Android LATER, because there is no Android phone to test on. See 2.10.

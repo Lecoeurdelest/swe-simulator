@@ -12,9 +12,9 @@ The game is a satirical 2D pixel-art **portrait** mobile game: **iPhone first**,
 | Every string and content id | `docs/CONTENT.md` |
 | Engine facts, code rules, code skeletons (wins on engine facts) | `docs/ARCHITECTURE.md` |
 | The step plan and each step's Done-when | `docs/ROADMAP.md` |
-| Design decision answers | `docs/DECISIONS.md` (D1-D8, P1 and C1, decided 2026-09-26) |
+| Design decision answers | `docs/DECISIONS.md` (D1-D12, P1-P2, C1-C4, W1-W7 and the agent defaults A1 onward; D1-D8 decided 2026-09-26, D9-D12 on 2026-09-29) |
 | Where each task stands | `docs/task/README.md` (generated from `.project/state.json`) |
-| What's waiting for the developer (merges, reviews, sign-offs, You-do, iPhone checks) | `docs/REVIEW_QUEUE.md` |
+| What's waiting for the developer (merges, reviews, sign-offs, iPhone checks) | `docs/REVIEW_QUEUE.md` |
 | Context for the current step | `.project/bundles/STEP-NN.md` |
 | Global invariants | `.agent/rules/invariants.md` |
 | Structured index of all the above | `project.yaml` |
@@ -27,7 +27,7 @@ If two docs disagree: the GDD wins on rules and numbers, ARCHITECTURE wins on en
 2. Kickoff: restate the step's goal and its Done-when from `docs/ROADMAP.md`.
 3. Design huddle: bring 2-3 options per open question, each with a recommended default. The developer decides; add one line to `docs/DECISIONS.md`. Never change a design decision silently. While the developer is away (DECISIONS W4), take the recommended default, log it as "agent default, please review", and list it in the step summary; scope, tone and tip accuracy wait for the developer.
 4. Build in small increments. After each one: run the game, take a `editor_screenshot source="game"`, read `logs_read`, run `test_run`.
-5. Leave the step's "You do" task to the developer. If the game needs its output to run, build a plain placeholder and keep the task queued (W3). Never quiz the developer on explanations (W6).
+5. The "You do" learning exercises are suspended (W7, supersedes W3): Claude builds those features too, and queues no new ones. What only the developer can do stays theirs: installs, signing, iPhone checks, and sign-offs on scope, tone and tips. Never quiz the developer on explanations (W6).
 6. Verify, then commit on the step's branch (`step-NN-<slug>`, branched from the previous step's branch) and push without asking (W1), e.g. `feat(interview): add doubt/composure bars`. The developer merges on GitHub in step order.
 7. Wrap up: list the next tasks and any new cut-list items.
 
@@ -69,7 +69,7 @@ If two docs disagree: the GDD wins on rules and numbers, ARCHITECTURE wins on en
 - Task ids are ROADMAP steps: `STEP-00` .. `STEP-13`. Never renumber.
 - Execution state lives in `.project/state.json`; `docs/task/README.md` is rendered from it with `[]`, `[!]`, `[x]`.
 - A step becomes `done` only when every Done-when criterion passes: automated ones with a current `test_run` artifact in `.project/evidence/STEP-NN/<run>/`, manual and device ones with the developer's recorded confirmation. The ROADMAP checkboxes are the developer's to tick.
-- Before starting a step, check its `depends_on` in `project.yaml` are done, or have only developer-owned criteria left (device, You-do, manual review: DECISIONS W2), then read its bundle.
+- Before starting a step, check its `depends_on` in `project.yaml` are done, or have only developer-owned criteria left (device, manual review: DECISIONS W2; You-do exercises are suspended, W7), then read its bundle.
 - When a doc changes, mark affected criteria stale (`needs_revalidation`) rather than keeping old evidence.
 - Validate after editing the model or the index:
 

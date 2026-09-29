@@ -1,0 +1,10 @@
+# Tracking agent, 2026-09-29: fresh headless run on step-07-dev-review at 8aaae75 plus the uncommitted docs/tracking sync (docs only; no code or test file changed).
+# Runner: every res://tests/test_*.gd through godot-ai's McpTestRunner (the test_run pass rule), Godot 4.7.2 headless, a fresh process on a scratch copy of the repo (no editor).
+## Full run (all suites)
+RESULT passed=217 failed=0 total=217 suites=20 ms=1017
+[godot_ai game_helper] registered mcp capture (debugger active=false, logger=true)
+Content: 3 backgrounds, 3 tiers, 16/16 JSON files
+## content_lint alone (suite=content_lint)
+RESULT passed=33 failed=0 total=33 suites=1 ms=26
+[godot_ai game_helper] registered mcp capture (debugger active=false, logger=true)
+Content: 3 backgrounds, 3 tiers, 16/16 JSON files

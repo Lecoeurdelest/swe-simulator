@@ -1,91 +1,98 @@
 # Review queue: what's waiting for you
 
-Written at the end of Claude's autonomous PC run (ROADMAP Steps 2-6), 2026-09-27. The whole loop is playable in grey boxes on the PC: title, intro, background select, the DoomApply job hunt, the interview, the offer, and the Hired and Plan B endings. **225 tests pass** (21 suites), and three full agent-played runs reached the Hired card. Tick items off here or delete this file when you're done.
+Written at the end of the Step 7 review run, 2026-09-29. Your v0.1 review is built on the branch `step-07-dev-review`: CV editing and lying are gone (D9), Ducky's coach marks close on a tap (D11), the VS screen waits for your tap and shows less text (D12), the choice questions and the Hired card are in plainer words (C3, C4), and the real HP and stat bars replaced the placeholders (W7). **217 tests pass** (20 suites). Nothing was built for Phase 2. Tick items off here or delete this file when you're done.
 
 ## 1. Merge the work (5 minutes)
 
-The branches are stacked: each step starts where the previous one ended. `step-06-offer-endings` therefore contains everything.
+`step-07-dev-review` sits on top of `main` (your Step 6 merge) with 6 commits: the CV and lying removal, the copy fixes, the coach marks, the VS intro, the bars, then the docs and tracking sync.
 
-- **Simplest:** open one pull request `step-06-offer-endings` -> `main` and merge it with **"Create a merge commit"** (not squash): <https://github.com/Lecoeurdelest/swe-simulator/compare/main...step-06-offer-endings>
-- To review step by step, use the compare links:
-  - [Step 2](https://github.com/Lecoeurdelest/swe-simulator/compare/main...step-02-device-check)
-  - [Step 3](https://github.com/Lecoeurdelest/swe-simulator/compare/step-02-device-check...step-03-stub-flow)
-  - [Step 4](https://github.com/Lecoeurdelest/swe-simulator/compare/step-03-stub-flow...step-04-interview-greybox)
-  - [Step 5](https://github.com/Lecoeurdelest/swe-simulator/compare/step-04-interview-greybox...step-05-hunt-greybox)
-  - [Step 6](https://github.com/Lecoeurdelest/swe-simulator/compare/step-05-hunt-greybox...step-06-offer-endings)
-- Afterwards: `git switch main && git pull` on each machine. You can delete the step branches on GitHub.
-- **Restart the Godot editor once.** It clears the stale "Identifier not found: GameState/Content/..." editor errors (autoloads were added through godot-ai). The game and tests aren't affected.
+- If the branch isn't on GitHub yet, push it first: `git push -u origin step-07-dev-review`.
+- Open one pull request `step-07-dev-review` -> `main` and merge it with **"Create a merge commit"** (not squash): <https://github.com/Lecoeurdelest/swe-simulator/compare/main...step-07-dev-review>
+- Afterwards: `git switch main && git pull` on each machine. You can delete the branch on GitHub.
+- Heads-up: the verification runs left a test run in this PC's save, so CONTINUE opens a mid-tier interview. Start a New game for a clean run.
 
-## 2. Decisions to review (`docs/DECISIONS.md`, A1-A20)
+## 2. Decisions to review (`docs/DECISIONS.md`)
 
-Everything tagged "agent default, please review" followed the documented recommendation (W4). Skim A1-A20. To change one, add a new row.
+Your answers from the review are written down as decisions; check that they say what you meant. The agent defaults followed the recommended option (W4); skim them, and add a new row to change one.
+
+| ID | In short |
+|---|---|
+| D9 | CV editing and lying removed (supersedes D4). No "Polish CV" button: no stat fits, and Tailor & Apply already is the per-job polish. |
+| D10 | Best Dream score per background is LATER. |
+| D11 | Coach marks close on a tap (a small "x" shows it). |
+| D12 | The VS intro waits for a tap; Dana shows one joke stat and one special move. |
+| C2 | Section 3 copy approved, and its 4 wording issues fixed. |
+| C3 | The 14 choice questions rewritten in plain language. |
+| C4 | New Hired-card header, row labels, lowest grade and footer. |
+| W7 | "You do" exercises suspended; Claude builds those features (supersedes W3). |
+| A21-A24 | CV removal details: the CV tips moved to the night screen after a Tailor & Apply; a 4-slot dock; the Graduate's flaw text; old saves still load; the lint keeps CV lines true. |
+| A25-A29 | Copy details: one tip's second line; the Hired-card wording; 6 tips reworded; the period rule for names ending in "."; a perk-themed fine print (pizza parties) is still allowed. |
+| A30-A35 | Coach marks: a tap counts on release; Mail's invite note closes too; closed notes are saved; closing one doesn't bring the next one early; "x" is a placeholder; the note now sits over the card's header strip. |
+| A36-A39 | VS intro: the prompt blinks once a second; the stat and the move take turns; Back acts like a tap; `vs_min_view_s` removed. |
+| A40-A46 | Bars: the white ghost eases in over 0.4 s; any value above 0 shows at least 1 px; stat blocks are amber on ink; both are `@tool`; your VS plate uses the stat bars. |
+
+A1-A20 from the first run are still there if you haven't skimmed them. A10, A11 and the lying parts of A9, A12, A13 and A20 are void under D9.
 
 **Questions only you can answer:**
 
 | # | Question | Current behaviour |
 |---|---|---|
-| A10 | After BUSTED, should a later K.O. or wheel win still make an offer? | Yes: the interview continues and a win still offers; the company is blacklisted for future cards. |
-| Q1 | Should Dana re-probe a lie you already confessed at this company if you send it again? | Yes (the rules allow it). |
-| Q2 | "Best Dream score per background" (GDD 3.1 meta) isn't built. MUST, SHOULD or LATER? | Not built. |
-| Q3 | Balance (ISSUE-09): the agent playtest ran harder than GDD 5.12 (1 K.O. and 4 committee wheels in 21 interviews; Medium and Hard first runs hit Plan B). | Unchanged until Playtest #1 (Step 7). |
-| Q4 | Is the Dream vs Reality footer ("The video scored 100. The video was sponsored.") funny or smug? (Step 6 huddle) | Shown as written. |
+| A42 | Should the Composure bar be mirrored, so both HP bars grow from the screen centre like a fighting game? | Both fill left to right. |
+| Q3 | Balance (ISSUE-09): the agent playtest ran harder than GDD 5.12. D9 adds to it: Quick Apply now sends your honest CV, so the Graduate and the Self-Taught fail "1+ years" filters unless they Tailor & Apply. | Unchanged until Playtest #1 and the balance re-sim (Step 7). |
 | Q5 | Should a swipe also commit on a quick flick? (A14) | Distance only, 67.5 px. Decide after feeling it on the iPhone. |
+| Q6 | On the offer paper at 270x480, Ducky's tip note was seen covering the Fine print line. Should it close on a tap like the coach marks (D11), or should the paper get more room? | Not changed yet. |
 
 ## 3. Copy to sign off (`docs/CONTENT.md`)
 
-**New text with no source, so please approve or reword:**
-- `ui_quit` "Quit"
-- `ui_decline_confirm_grace` "Decline this offer? Rent is due today, so this ends the run."
-- `ui_tap_to_continue` "Tap to continue"
-- `offer_label_equity` "Equity:"
-- `offer_equity` "0.0001%"
+**Choice questions (section 7, C3):** all 14 are rewritten so someone outside tech gets them. The right answer should still be jokingly obvious, and the wrong ones should be the joke. Read them in CONTENT.md section 7.
 
-**Grammatical variants of existing lines:**
-- `ui_rent_due_today` "Rent due today"
-- `card_posted_one` "Posted 1 day ago"
-- `card_posted_today` "Posted today"
-- `ui_ghost_footer_one` "1 application: no reply. Probably ever."
+**Hired card (section 14, C4):**
+- `end_dream_header` "YOUR JOB vs REMY'S VIDEO"
+- Rows: "Salary (Remy: $150k)", "Days at home (Remy: 5 of 5)", "Commute (Remy: 3 steps)", "Red flags (Remy: none)", "Rent days to spare"
+- `end_dream_grade_1` "All reality, no dream" (grades 2-4 unchanged)
+- `end_dream_footer` "100 is the life in Remy's video. Nobody gets 100. Not even Remy."
 
-**Labels copied from GDD mockups or the CONTENT 13.1 template (a quick skim is enough):**
-- Logo and background select: `ui_logo_1..3`, `ui_background_header`, `ui_energy_per_day`, `ui_rent_runway`, `ui_name`, the INTERN / GRADUATE / SELF-TAUGHT selector labels, `ui_stat_knw/exp/net`.
-- Interview: `ui_composure`, `ui_doubt`, `ui_round`, `ui_back_to_hunt`, `bark_dana_other_candidates`, `vs_versus`.
-- Job hunt: `ui_radar_short`, `ui_odds_quick`, `ui_odds_tailored`, `ui_deck_empty`, `ui_yes/no`, `ui_cv_edu/exp/proj`, `ui_invite_line`.
-- Offer: `offer_title`, `offer_salary`, `offer_dear`, `offer_role`, `offer_label_*`, `offer_deadline`.
+**VS screen (section 8.3, D12):** one move per interview, in turn, instead of the list of three:
+- `vs_dana_move_1` "Special move: The Five-Year Plan"
+- `vs_dana_move_2` "Special move: The Salary Expectation Trap"
+- `vs_dana_move_3` "Special move: The Awkward Silence"
 
-**Wording issues found while building:**
-- The Graduate's perk says "wider zone on your first *tech* question", but the rule (GDD 5.8.4) applies to the first *knowledge* question, which can be behavioral.
-- Dana greeting a Big corp whose name ends in a period prints "Welcome to Engagement Farms Inc.. You have 45 minutes." (a double period).
-- A startup contract can show "Unlimited PTO*" as both a perk and the fine print.
-- GDD 4.3 says "Tired? Tap the moon..." while `coach_sleep` says "Out of energy? ...". The JSON text is used.
+**Coach marks:** no new text. The close hint is a plain "x" until the art pass (A34).
 
-## 4. Your "You do" exercises (learning tasks Claude never does)
+**Tips (section 11), reworded in plain words. Tip accuracy is yours to check (W4):**
+- `tip_small_changes` "Release small, tested updates early in the week. Friday releases are how weekends die."
+- `tip_blameless` "Good teams review mistakes without blame: what happened, how it was fixed, and what stops a repeat."
+- `tip_secrets` "A leaked password is no longer secret. Report it so it gets changed; deleting the message isn't enough."
+- `tip_teamwork_without_job` "No team yet? Public coding projects, coding contests and freelance clients give you feedback and team stories."
+- `tip_star_stories` "Prepare 5 stories as Situation, Task, Action, Result: conflict, failure, teamwork, a win, learning fast."
+- `tip_ask_questions` "Always ask a question at the end: what success looks like in 90 days, how the team works, real hours."
 
-The game runs with plain placeholders until you replace them. Each placeholder file says so in its header.
-- [ ] **Step 4:** build `ui/components/hp_bar.tscn` with the 0.4 s "ghost" bar. Keep `class_name HpBar` and `max_value` / `value` / `fill_color`.
-- [ ] **Step 4:** change `doubt_hp` in `data/tiers/mid.tres` in the Inspector, replay an interview (run `features/interview/interview.tscn` as the current scene), and feel the difference. Update `tests/test_data_files.gd` if you keep the change.
-- [ ] **Step 5:** build the 5-segment `ui/components/stat_bar.tscn`. Keep `class_name StatBar` and `value` (0-100).
-- [ ] **Step 5:** write 5 posting jokes of your own (60 characters max) in `data/content/postings.json`. `test_content_lint` tells you if one is too long.
-- [ ] **Step 6:** choose the fine-print jokes you like best (`emails.json` `fp_*`).
-- The Step 3 "Background Select layout" exercise is superseded (A16). The real screen is built; study its containers.
+## 4. Your "You do" exercises
+
+Suspended (W7): Claude built `hp_bar` (the 0.4 s white ghost bar) and `stat_bar` (5 segments), and the other exercises were dropped. Installs, signing, the iPhone checks and your sign-offs stay yours.
 
 ## 5. iPhone checklist (when the Mac and iPhone are ready)
 
 1. **ROADMAP Step 2, the setup** (tasks 1-7, 9-10): Xcode, Godot 4.7.2 + iOS templates on the Mac, Team ID, the iOS preset, Developer Mode, Run. Write down the install date (7-day expiry).
 2. **Title > Device check:** record AC-S02-8..19. Test drag-vs-tap with both "Rows STOP" and "Rows PASS", and check whether the 10 ms haptic can be felt. Claude then writes the results into ARCHITECTURE 18.1.
-3. **Steps 3-6 on the phone:**
+3. **Steps 3-7 on the phone:**
    - One-thumb click-through; is the text readable at arm's length? (A3's 12 px line pitch)
    - Do the three company types feel different in interviews?
    - Can you see your odds before the needle moves, and does your thumb never cover it?
-   - Swipe feel (A14)
+   - Swipe feel (A14, Q5)
    - Does an invite arrive by day 2 in 3-5 minutes?
+   - **Coach marks** (a fresh install is a first run): tap a Ducky note. Does it close, with the card under it staying put? In Mail, does a drag that starts on the invite note still scroll? (ARCHITECTURE 18.1 #17)
+   - **VS intro:** the clip ends on a held frame with a blinking "Tap to continue". Is it easy to read now, and does a tap feel right?
+   - **HP bars:** does the white ghost's 0.4 s drain feel good, and do the empty stat-bar blocks read on the dark panels? (18.1 #18)
    - The laugh test
    - 3 full runs with no crash
-   - The 5 kills in `docs/KILL_TESTS.md`
+   - The 5 kills in `docs/KILL_TESTS.md` (moments 1 and 3 changed: tap a Ducky note closed; the VS screen waits for your tap)
    - The intro skip
 4. **Then tag the grey-box on `main`:** `git tag v0.1-greybox` and `git push origin v0.1-greybox` (AC-S06-4).
 
 ## 6. What's next after that
 
-- **Step 7, Playtest #1** (needs people): 3-5 testers, you stay silent. Port the GDD 5.12 simulation to `tests/test_balance.gd`, then tune numbers (D8, ISSUE-09).
+- **Step 7, Playtest #1** (needs people): 3-5 testers on your iPhone, and you stay silent (ROADMAP 7). Claude builds the Run Report screen and ports the GDD 5.12 simulation to `tests/test_balance.gd`. The sim has to be re-run after D9, because Quick Apply now sends the honest CV. Then the numbers get tuned (D8, ISSUE-09).
+- **Phase 2 is parked** until you choose its mechanic. Your ideas (small random events, a few minor career improvements, no cosmetics for now) are in `docs/ideas_parking_lot.md`. Nothing is built for it.
 - **Step 8, SHOULD features in GDD 10.2 order:** Research first, which is also the GDD's strongest balance lever, then Negotiate, and so on.
-- Every step's status is in `docs/task/README.md`. Evidence for everything Claude verified is in `.project/evidence/`.
+- Every step's status is in `docs/task/README.md`. Evidence for everything Claude verified is in `.project/evidence/`; this review's is in `.project/evidence/STEP-07/2026-09-29-review/`.

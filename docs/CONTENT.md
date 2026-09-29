@@ -2,7 +2,7 @@
 
 Companion to `docs/GDD.md`. Every player-facing string for the MVP, with the stable ids the GDD's data model uses (GDD section 5.0). Each section names the JSON file it becomes.
 
-Status: v1.0, 2026-09-26. Everything here is a first draft for playtesting. You (the developer) own the jokes and sign off every career tip before release.
+Status: v1.1, 2026-09-29 (v1.0: 2026-09-26). v1.1 follows the developer's review of the v0.1 grey-box: the CV screen and lying are gone (DECISIONS D9), the choice questions are in plain language for non-tech players (C3), the Hired card is clearer (C4), and the copy the review queue listed is approved, with its 4 wording fixes (C2). Everything here is still a first draft for playtesting. You (the developer) own the jokes and sign off every career tip before release.
 
 ---
 
@@ -10,7 +10,7 @@ Status: v1.0, 2026-09-26. Everything here is a first draft for playtesting. You 
 
 - **ASCII only** in player-facing strings: no curly quotes, accents, emoji or special dashes. The pixel font may not have them, and `tests/test_content_lint.gd` rejects them.
 - **Ids are snake_case and stable.** Don't rename an id once code refers to it; change the text instead.
-- **Placeholders:** `{player_name}`, `{company}`, `{job_title}`, `{salary}`, `{work_mode}`, `{commute_min}`, `{office_days}`, `{hours}`, `{last_company}`, `{knockout}`, `{insider}`, `{days}`, `{n}`, `{day}`, `{topic_1}`, `{topic_2}`, `{r}` (rejections), `{g}` (ghosted), `{i}` (interviews), `{yes_no}` ("yes" or "no"), `{total}` (prompts in this interview). Text in `[SQUARE_BRACKETS]` is deliberately left unfilled: that's the joke.
+- **Placeholders:** `{player_name}`, `{company}`, `{job_title}`, `{salary}`, `{work_mode}`, `{commute_min}`, `{office_days}`, `{hours}`, `{last_company}`, `{knockout}`, `{insider}`, `{days}`, `{n}`, `{day}`, `{topic_1}`, `{topic_2}`, `{r}` (rejections), `{g}` (ghosted), `{i}` (interviews), `{yes_no}` ("yes" or "no"; no string uses it since the CV screen left, D9), `{total}` (prompts in this interview). Text in `[SQUARE_BRACKETS]` is deliberately left unfilled: that's the joke.
 - **Text budgets** (GDD 2.7, enforced by the lint test, which also word-wraps every string at the 40-column portrait text width and checks the line cap):
 
 | Field | Max chars (lines at 40 columns) |
@@ -24,7 +24,7 @@ Status: v1.0, 2026-09-26. Everything here is a first draft for playtesting. You 
 | Email body | 240 (7) |
 | Player name | 10 (1) |
 
-- **MVP amounts:** 9 companies (6 flagged `mvp`), 20 posting templates (+1 SHOULD), 27 CV lines, 13 choice questions (+ the Research opener), 22 knowledge questions, 32 tips, 10 rejection lines.
+- **MVP amounts:** 9 companies (6 flagged `mvp`), 20 posting templates (+1 SHOULD), 18 CV lines, 13 choice questions (+ the Research opener), 22 knowledge questions, 30 tips, 10 rejection lines.
 - **Refreshable jokes:** topical 2026 AI-hype lines live in `news.json` and `events.json` so they can be updated without code changes.
 
 ---
@@ -43,7 +43,6 @@ Status: v1.0, 2026-09-26. Everything here is a first draft for playtesting. You 
 | `site_brag` | HumbleBrag | site tab 2 and the Network action (SHOULD). "Thrilled to announce: everything." |
 | `site_launch` | LaunchPadd | site tab 3, startups (SHOULD). "Equity instead of money since forever." |
 | `app_reviews` | Cubicle Whispers | the Research lookup. "Anonymous reviews. Your manager knows it was you." |
-| `app_cv` | Buzzwordsmith | the CV screen. "Now with 40% more synergy." |
 | `app_study` | BigOhNo | the Study action. "Invert a binary tree. You will never do this at work." |
 | `app_ai` | Guessomatic | the AI assistant everyone pretends not to use |
 | `ats_robot` | Parsinator 3000 | the applicant-tracking robot |
@@ -51,7 +50,8 @@ Status: v1.0, 2026-09-26. Everything here is a first draft for playtesting. You 
 | `interviewer` | Dana | one interviewer, three tier outfits |
 | `uni_intern` | Byteburg State University | the Intern's real school |
 | `uni_graduate` | Metro City University | the Graduate's real school |
-| `uni_fake` | Very Famous University | the school in every degree lie |
+
+Removed 2026-09-29 with the CV screen and lying (D9): Buzzwordsmith, the CV app, and Very Famous University, the school in every degree lie.
 
 Before any public release, run a trademark and app-store search on every name above and on every company in section 4.
 
@@ -103,8 +103,8 @@ google, alphabet, microsoft, macrohard, apple, amazon, amazoom, meta, facebook, 
 **`graduate`** - THE GRADUATE - MEDIUM
 - `selector`: "GRADUATE"
 - `one_liner`: "One diploma, one student loan, zero callbacks."
-- `perk`: "DIPLOMA: passes 'degree required' filters. TEXTBOOK ANSWER: wider zone on your first tech question."
-- `flaw`: "ENTRY-LEVEL PARADOX: '1+ years' filters reject you unless your Experience line is Polished."
+- `perk`: "DIPLOMA: passes 'degree required' filters. TEXTBOOK ANSWER: wider zone on your first knowledge question."
+- `flaw`: "ENTRY-LEVEL PARADOX: '1+ years' filters reject you unless you Tailor & Apply."
 - `vs_nickname`: "THE THEORIST"
 - `dana_opener`: "A fresh grad. The ATS wants 3 years. I want to hear what you built."
 - `commute_line`: "Campus library, alumni pass. 45 minutes."
@@ -294,63 +294,54 @@ Research reveal: "Posted 2,555 days ago. Reposted every week since 2019." It is 
 | `hirebot_found` | "Keywords found: {n}/3" |
 | `stamp_sent` | "SENT" |
 
-`card_posted_one` and `card_posted_today` are grammatical variants of `card_posted` for 1 and 0 days (startups can post 0 days ago), added 2026-09-27 for Step 6 (developer, please sign off).
+`card_posted_one` and `card_posted_today` are grammatical variants of `card_posted` for 1 and 0 days (startups can post 0 days ago), added 2026-09-27 for Step 6 and approved by the developer on 2026-09-29 (DECISIONS C2).
 
 ---
 
 ## 6. CV lines -> `data/content/cv_lines.json`
-Fields: `id, background, line (edu | exp | proj), variant (honest | polished | lie), text (<=60), tags, degree (edu only: shows a degree), passes_years (exp only), degree_claim (lie that claims a degree -> background check risk), probe (lie only, <=100)`. Polished = honest reframing (true). Lie = false.
+Fields: `id, background, line (edu | exp | proj), variant (honest | polished), text (<=60), tags, degree (edu only: shows a degree), passes_years (exp only)`. Both variants are true: Polished is an honest reframing of the same facts.
 
-Header chips on the CV screen: "Degree: yes" / "Degree: no", "Counts as 1+ yrs: yes" / "no", "Lie risk" (one red dot per Lie line). Coach line on first open: see section 10.2.
+Since 2026-09-29 (DECISIONS D9) there is no Lie variant and no CV screen. Quick Apply sends the Honest lines; Tailor & Apply sends the Polished ones for that one application (GDD 5.4). The lint checks exactly 6 lines per background, no lie-only fields (`degree_claim`, `probe`, `probe_at`), and that a Polished Education line never changes the degree. The line texts aren't shown in the MVP; their tags and gates decide the odds and the knockouts.
 
 ### The Intern (honest tags: python, sql, testing, agile, git)
 
-| id | text | tags | gates | probe (lie only) |
-|---|---|---|---|---|
-| `cv_intern_edu_honest` | B.Sc. Computer Science, Byteburg State (GPA 3.3) | python | degree | |
-| `cv_intern_edu_polished` | B.Sc. CS + Data minor (two electives count) | python, data | degree | |
-| `cv_intern_edu_lie` | M.Sc. AI, Very Famous University, top of class | python, data, ai | degree, degree_claim | "Very Famous University! Who supervised your master's thesis, and on what?" |
-| `cv_intern_exp_honest` | 3 internships: fixed 14 bugs, coverage 41% to 58% | sql, testing, agile | passes_years | |
-| `cv_intern_exp_polished` | SWE Intern x3: built 3 internal APIs, on-call once | sql, testing, agile, apis | passes_years | |
-| `cv_intern_exp_lie` | Tech Lead, cloud platform team (2 years) | sql, testing, agile, apis, cloud | passes_years | "As tech lead, how did you run performance reviews for your team?" |
-| `cv_intern_proj_honest` | Standup-reminder bot, used by 30 coworkers | git | | |
-| `cv_intern_proj_polished` | Team bot on the cloud: 30 daily users, 0 outages | git, cloud | | |
-| `cv_intern_proj_lie` | Built an app with 1 million users | git, cloud, mobile | | "Scaling to a million users: what broke first, and how did you fix it?" |
+| id | text | tags | gates |
+|---|---|---|---|
+| `cv_intern_edu_honest` | B.Sc. Computer Science, Byteburg State (GPA 3.3) | python | degree |
+| `cv_intern_edu_polished` | B.Sc. CS + Data minor (two electives count) | python, data | degree |
+| `cv_intern_exp_honest` | 3 internships: fixed 14 bugs, coverage 41% to 58% | sql, testing, agile | passes_years |
+| `cv_intern_exp_polished` | SWE Intern x3: built 3 internal APIs, on-call once | sql, testing, agile, apis | passes_years |
+| `cv_intern_proj_honest` | Standup-reminder bot, used by 30 coworkers | git | |
+| `cv_intern_proj_polished` | Team bot on the cloud: 30 daily users, 0 outages | git, cloud | |
 
 ### The Graduate (honest tags: java, python, sql, git)
 
-| id | text | tags | gates | probe (lie only) |
-|---|---|---|---|---|
-| `cv_graduate_edu_honest` | B.Sc. Information Tech, Metro City University | java | degree | |
-| `cv_graduate_edu_polished` | B.Sc. IT; courses: Databases, ML, Cloud | java, data | degree | |
-| `cv_graduate_edu_lie` | B.Sc. in 2 years while working full-time | java, data, cloud | degree | "Two years AND a full-time job? Walk me through a typical Tuesday." |
-| `cv_graduate_exp_honest` | Teaching Assistant, Intro to Programming (2 terms) | python | | |
-| `cv_graduate_exp_polished` | Capstone team of 4 + TA for 120 students | python, agile | passes_years | |
-| `cv_graduate_exp_lie` | Software Engineer at a delivery app (1.5 years) | python, agile, testing | passes_years | "A delivery app! How did your team handle the Great Fries Outage?" (It never happened. It's a trap.) |
-| `cv_graduate_proj_honest` | Capstone: room-booking app (my part: backend + DB) | sql, git | | |
-| `cv_graduate_proj_polished` | Built the REST API + database for a team app | sql, git, apis | | |
-| `cv_graduate_proj_lie` | Published a paper on distributed consensus | sql, git, apis, ai | | "Your paper: explain the leader-election step in one sentence." |
+| id | text | tags | gates |
+|---|---|---|---|
+| `cv_graduate_edu_honest` | B.Sc. Information Tech, Metro City University | java | degree |
+| `cv_graduate_edu_polished` | B.Sc. IT; courses: Databases, ML, Cloud | java, data | degree |
+| `cv_graduate_exp_honest` | Teaching Assistant, Intro to Programming (2 terms) | python | |
+| `cv_graduate_exp_polished` | Capstone team of 4 + TA for 120 students | python, agile | passes_years |
+| `cv_graduate_proj_honest` | Capstone: room-booking app (my part: backend + DB) | sql, git | |
+| `cv_graduate_proj_polished` | Built the REST API + database for a team app | sql, git, apis | |
 
 ### The Self-Taught (honest tags: javascript, apis, python, sql, git, mobile)
 
-| id | text | tags | gates | probe (lie only) |
-|---|---|---|---|---|
-| `cv_self_taught_edu_honest` | High school diploma + 400 hrs of online courses | (none) | | |
-| `cv_self_taught_edu_polished` | Self-directed CS curriculum (11 certificates) | data | | |
-| `cv_self_taught_edu_lie` | B.Sc. Computer Science, Very Famous University | data, java | degree, degree_claim | "Very Famous University! What was your final-year project about?" |
-| `cv_self_taught_exp_honest` | Freelance: sites for a bakery, a tattoo shop, my uncle | javascript, apis | | |
-| `cv_self_taught_exp_polished` | Freelance dev, 3 clients, 2 yrs (+ a bakery chatbot) | javascript, apis, ai | passes_years | |
-| `cv_self_taught_exp_lie` | Senior Engineer, Stealth Mode Inc. (3 years) | javascript, apis, ai, agile | passes_years | "Who approved your pull requests there?" At `co_stealth`: "Three years? We're 8 months old. I'd know. I'm everyone here." |
-| `cv_self_taught_proj_honest` | 3 small apps deployed: budget, recipes, bus times | python, sql, git, mobile | | |
-| `cv_self_taught_proj_polished` | Shipped 3 apps, live, with READMEs and tests | python, sql, git, mobile, cloud | | |
-| `cv_self_taught_proj_lie` | Author of an open-source library, 10k stars | python, sql, git, mobile, cloud, testing | | "10k stars! What was the hardest issue a contributor ever opened?" |
-
-The Graduate's Education lie is not a degree claim (the degree is real; the timeline is the lie), so it is probed but never background-checked.
+| id | text | tags | gates |
+|---|---|---|---|
+| `cv_self_taught_edu_honest` | High school diploma + 400 hrs of online courses | (none) | |
+| `cv_self_taught_edu_polished` | Self-directed CS curriculum (11 certificates) | data | |
+| `cv_self_taught_exp_honest` | Freelance: sites for a bakery, a tattoo shop, my uncle | javascript, apis | |
+| `cv_self_taught_exp_polished` | Freelance dev, 3 clients, 2 yrs (+ a bakery chatbot) | javascript, apis, ai | passes_years |
+| `cv_self_taught_proj_honest` | 3 small apps deployed: budget, recipes, bus times | python, sql, git, mobile | |
+| `cv_self_taught_proj_polished` | Shipped 3 apps, live, with READMEs and tests | python, sql, git, mobile, cloud | |
 
 ---
 
 ## 7. Choice (ethics) questions -> `data/content/questions_choice.json`
 Format per entry: header `id | teamwork | tiers | tip`, the prompt, then one line per answer: `+` good, `~` neutral, `-` bad, `*` background-exclusive answer (replaces the neutral button for that background). Each answer line is `kind | text (<=40) | Dana's reaction (<=120)`. Buttons are shuffled at runtime. Effects are in GDD 5.8.3.
+
+Since 2026-09-29 (DECISIONS C3) every prompt, answer and reaction is in plain language, so a player who has never worked in tech can see which answer is right: no deploy, rollback, postmortem, config, pull request, rotate, anonymize or audit logs. The right answer stays jokingly obvious and the wrong one is the joke. Ids, kinds, tiers, tips and `opener_only` are unchanged.
 
 ```
 eq_why_us | teamwork: no | tiers: all | tip: tip_research_company
@@ -363,16 +354,16 @@ Q: So. Why do you want to work here?
 
 ```
 eq_friday_deploy | teamwork: no | tiers: all | tip: tip_small_changes
-Q: Friday, 4:55 PM. Your change is untested. What do you do?
-+ good | Test it, get a review, ship Monday. | Correct. Weekends are for sleeping, not rollbacks.
-~ neutral | Ask the team channel what to do. | Safe. The channel replies 'LGTM' (looks good to me) to everything.
-- bad | Deploy and turn off my phone. | Bold. You just described our last three incidents.
+Q: Friday, 4:55 PM. Your app update is done, but nobody has tested it yet. What do you do?
++ good | Test it, then release it on Monday. | Correct. Weekends are for sleeping, not for fixing Friday's surprises.
+~ neutral | Ask the team chat what to do. | Safe-ish. The team chat says 'Looks good!' to everything. It said it to a blank page once.
+- bad | Release it now. Turn off my phone. | Bold. That's exactly how our last three weekends got cancelled.
 ```
 
 ```
 eq_credit_theft | teamwork: yes | tiers: all | tip: tip_give_credit
-Q: Your teammate fixed the bug. In the meeting, your manager thanks YOU.
-+ good | Say it was Jordan's fix, not mine. | Correct. Steal credit once and nobody reviews your code again.
+Q: Your teammate Jordan fixed the big bug. In the meeting, your manager thanks YOU.
++ good | Say it was Jordan's fix, not mine. | Correct. Steal credit once and your whole team starts keeping receipts.
 ~ neutral | Say nothing, thank Jordan later. | Half credit. Jordan noticed. Jordan remembers.
 - bad | 'Thanks, it was really hard.' | Jordan is in this meeting. Jordan is looking at you.
 * intern | good | At my internship we shared credit. | You mention the internship a lot. Correct answer, though.
@@ -380,66 +371,66 @@ Q: Your teammate fixed the bug. In the meeting, your manager thanks YOU.
 
 ```
 eq_outage_blame | teamwork: yes | tiers: all | tip: tip_blameless
-Q: Your change took checkout down for 10 minutes. The postmortem is tomorrow.
-+ good | Own it: cause, fix, and prevention. | Perfect. Postmortems fix systems, not people.
-~ neutral | Say it was 'a config issue'. | True. And who changed the config? (You. It was you.)
+Q: Your update broke the site's Pay button for 10 minutes. Tomorrow the team reviews what went wrong.
++ good | Own it, explain it, prevent it. | Perfect. That meeting is for fixing the process, not the person. The process is in trouble.
+~ neutral | Say it was 'a settings issue'. | True. And who changed the settings? (You. It was you.)
 - bad | Blame the intern. | We don't have an intern. We have you.
 ```
 
 ```
 eq_ai_takehome | teamwork: no | tiers: all | tip: tip_ai_tools
-Q: Did you use an AI assistant on your take-home?
-+ good | Yes. I reviewed and tested every line. | Great. We allow tools. We don't allow mysteries.
-~ neutral | A little. Mostly for vibes. | Vibes don't pass code review. Close, though.
-- bad | Never. What's an AI? | Your screen share shows Guessomatic. Open. Right now.
+Q: Honest question: did you use an AI assistant on our at-home coding test?
++ good | Yes, and I can explain every line. | Great. We allow tools. We don't allow mysteries.
+~ neutral | A little. Mostly for vibes. | 'Vibes' won't help when I ask what line 12 does. Close, though.
+- bad | Never. What's an AI? | The screen you're sharing shows Guessomatic, the AI app. Open. Right now.
 ```
 
 ```
 eq_leaked_password | teamwork: no | tiers: all | tip: tip_secrets
-Q: The production database password is posted in a public team channel.
-+ good | Tell security so it gets rotated. | Exactly. A leaked secret is a burned secret.
-~ neutral | Delete the message and move on. | Deleted is not rotated. The bots already saw it.
+Q: Someone posted the password to all our customer data in the company-wide group chat.
++ good | Tell security so they change it. | Exactly. Once a password leaks, it isn't a password anymore. It's trivia.
+~ neutral | Delete the message and move on. | Deleting it doesn't change it. Hacker bots copied it in seconds.
 - bad | Screenshot it. Might be handy. | Please stay seated. Legal is walking over.
 ```
 
 ```
 eq_celebrity_orders | teamwork: no | tiers: all | tip: tip_privacy
 Q: A coworker dares you to look up a celebrity customer's order history.
-+ good | No. No business reason, no access. | Correct. Also: every query is logged.
-~ neutral | Only if we anonymize it first. | Nice try. It's still a person's data.
-- bad | Sure, in incognito mode. | Incognito hides it from your browser. Not from our audit logs.
++ good | No. No business reason, no access. | Correct. Also, every look-up is recorded. Every single one.
+~ neutral | Only if we hide the name first. | Nice try. Hiding the name doesn't make it your business.
+- bad | Sure, in incognito mode. | Private mode hides it from your browser history. Not from our security team.
 ```
 
 ```
 eq_meeting_overload | teamwork: no | tiers: big, mid | tip: tip_focus_time
 Q: Six hours of meetings today. Your deadline is tomorrow.
 + good | Skip the optional ones, ask for notes. | Healthy boundaries! Rare here, but healthy.
-~ neutral | Attend all, camera off, code quietly. | Relatable. Our nod-detection AI flagged you anyway.
+~ neutral | Attend all, camera off, work quietly. | Relatable. Our nod-detection AI flagged you anyway.
 - bad | Book a meeting about fewer meetings. | Accepted. It's recurring now. Weekly.
 ```
 
 ```
 eq_impossible_deadline | teamwork: yes | tiers: all | tip: tip_scope
-Q: Your product manager wants a 3-month feature by Friday.
-+ good | Offer a smaller v1 and flag the risks. | Scope, risks, in writing. Someone's been burned before.
-~ neutral | Say yes and hope. | Hope is not a sprint plan.
-- bad | Ship a 'Coming Soon' button. | ...That is literally our roadmap.
-* graduate | good | Per my PM course: cut scope, flag risk. | Textbook. Literally. But right.
+Q: Your boss wants a 3-month project done by Friday. It's Wednesday.
++ good | Offer a smaller version and flag risks. | A smaller plan and the risks, in writing. Someone's been burned before.
+~ neutral | Say yes and hope. | Hope is not a plan. We know. We tried it last quarter.
+- bad | Put up a 'Coming Soon' sign. | ...That's literally our five-year plan.
+* graduate | good | My course says: do less, warn early. | Textbook. Literally. But right.
 ```
 
 ```
 eq_harsh_review | teamwork: yes | tiers: all | tip: tip_teamwork_without_job
-Q: A senior dev comments 'this is garbage' on your pull request.
-+ good | Ask what to fix; raise tone privately. | Mature. And yes, raise it. 'Garbage' isn't feedback.
+Q: A senior coworker checks your work and leaves one comment: 'this is garbage'.
++ good | Ask what to fix; discuss tone privately. | Mature. And yes, raise it. 'Garbage' isn't feedback.
 ~ neutral | Fix it silently and seethe. | Fixed code, unfixed feelings. Half marks.
-- bad | Reply 'no u'. | A classic. Not a career move.
-* self_taught | neutral | My only reviewer so far is Guessomatic. | Honest. Open-source code reviews would change that. Try it.
+- bad | Reply: 'I know you are, but what am I?' | A playground classic. Not a career move.
+* self_taught | neutral | So far, only an AI app reviews my work. | Honest. Help out on free, public coding projects: real humans review your work there.
 ```
 
 ```
 eq_weakness | teamwork: no | tiers: all | tip: tip_star_stories
 Q: What's your greatest weakness?
-+ good | I over-polish, so now I timebox. | A real answer! I'm writing that down in pen.
++ good | I overdo details, so I set time limits. | A real answer! I'm writing that down in pen.
 ~ neutral | I'm a perfectionist who works too hard. | That's the 3,000th time I've heard that. Second today.
 - bad | Garlic. And sunlight. | ...Okay. We do have a night shift.
 ```
@@ -457,7 +448,7 @@ eq_rto | teamwork: no | tiers: big | tip: tip_total_comp
 Q: Five days in the office, starting Monday. Thoughts?
 + good | I'd ask why, then plan around it. | A mature answer. I'm almost suspicious.
 ~ neutral | Is it negotiable? | Everything is negotiable. Except this.
-- bad | Badge in, grab coffee, leave. | 'Coffee badging.' The badge readers have feelings now.
+- bad | Swipe in, grab a free coffee, go home. | Ah, 'coffee badging'. It's so common it has a name. Our door scanners keep score.
 ```
 
 ```
@@ -503,10 +494,6 @@ Background-specific openers are in section 3 (`dana_opener`); company one-liners
 | `bark_dana_bad_2` | Hm. Confident. Not correct, but confident. |
 | `bark_dana_bad_3` | Let's... move on. |
 | `bark_dana_pivot` | Quick update: we pivoted. Keep going. |
-| `bark_dana_probe_intro` | Quick question about your CV. |
-| `bark_dana_come_clean` | Thank you for being honest. Genuinely rare. Noted, kindly. |
-| `bark_dana_bluff_win` | ...Okay. I'll allow it. |
-| `bark_dana_busted` | I checked. During your answer. We're done with that line. |
 | `bark_dana_ko` | That's a yes from me. Don't tell the committee I said that. |
 | `bark_dana_committee` | It's close. The Hiring Committee decides. It's three people and a spreadsheet. |
 | `bark_dana_committee_win` | The spreadsheet likes you. Congratulations. |
@@ -517,6 +504,8 @@ Background-specific openers are in section 3 (`dana_opener`); company one-liners
 | `bark_dana_decline` | No worries! (Our ATS will remember this.) |
 | `bark_dana_nego_win` | I asked. They said yes. Don't get used to it. |
 | `bark_dana_nego_lose` | This is our best and final. I did try. |
+
+Dana's four lie-probe lines (the probe intro, Come clean, a won bluff, BUSTED) were removed with lying on 2026-09-29 (DECISIONS D9).
 
 ### 8.3 VS screen and announcer
 
@@ -532,14 +521,17 @@ Background-specific openers are in section 3 (`dana_opener`); company one-liners
 | `vs_committee` | TIME OVER! THE COMMITTEE DECIDES... |
 | `vs_reject` | ...WE'LL KEEP YOUR CV ON FILE. |
 | `vs_perfect` | PERFECT! (Reply in 3-5 business weeks) |
-| `vs_busted` | BUSTED! |
 | `vs_warmup` | WARM-UP - DOESN'T COUNT |
 | `vs_pivot` | PIVOT! |
 | `vs_dana_stat_1` | Candidates today: 11 |
 | `vs_dana_stat_2` | Coffee: 4th cup |
 | `vs_dana_stat_3` | Patience: [###--] |
-| `vs_dana_moves` | Special moves: The Five-Year Plan, The Salary Expectation Trap, The Awkward Silence |
+| `vs_dana_move_1` | Special move: The Five-Year Plan |
+| `vs_dana_move_2` | Special move: The Salary Expectation Trap |
+| `vs_dana_move_3` | Special move: The Awkward Silence |
 | `vs_versus` | VS |
+
+Since 2026-09-29 (DECISIONS D12) Dana's VS plate shows one joke stat and one special move, taking turns by how often you've met her this run: the first interview shows `vs_dana_stat_1` and `vs_dana_move_1`, the second the `_2` pair, the third the `_3` pair, then it starts over (GDD S07). The one-line `vs_dana_move_1..3` replace the old three-move line. The held last frame shows `ui_tap_to_continue` (section 10.1).
 
 Banners at Press Start 2P 16 fit 15 characters a line, up to 3 lines (GDD 2.7). The portrait VS screen shows the two names on separate plates, so `vs_title` appears only where one line fits; there, use size 8.
 
@@ -799,7 +791,6 @@ On screen, `ducky` lines are prefixed with `ducky_real_answer` ("Real answer:").
 | `ui_done` | Done |
 | `ui_sleep` | Sleep |
 | `ui_tab_jobs` | Jobs |
-| `ui_tab_cv` | CV |
 | `ui_tab_mail` | Mail |
 | `ui_tab_study` | Study |
 | `ui_tab_network` (SHOULD) | Coffee |
@@ -814,8 +805,6 @@ On screen, `ducky` lines are prefixed with `ducky_real_answer` ("Real answer:").
 | `ui_ghost_footer` | {n} applications: no reply. Probably ever. |
 | `ui_ghost_footer_one` | 1 application: no reply. Probably ever. |
 | `ui_start_day` | Start day |
-| `ui_come_clean` | Come clean |
-| `ui_bluff` | Bluff |
 | `ui_accept` | ACCEPT |
 | `ui_decline` | Decline |
 | `ui_negotiate` | Negotiate |
@@ -834,12 +823,6 @@ On screen, `ducky` lines are prefixed with `ducky_real_answer` ("Real answer:").
 | `ui_odds_3` | Possible |
 | `ui_odds_4` | Decent |
 | `ui_odds_5` | Good |
-| `ui_cv_degree` | Degree: {yes_no} |
-| `ui_cv_years` | Counts as 1+ yrs: {yes_no} |
-| `ui_cv_risk` | Lie risk |
-| `ui_honest` | Honest |
-| `ui_polished` | Polished |
-| `ui_lie` | Lie |
 | `ui_tired` | TIRED: needle is faster |
 | `ui_study_title` | BigOhNo: Knowledge +5 (2 energy) |
 | `ui_study_joke_1` | Invert a binary tree. You will never do this at work. |
@@ -863,12 +846,11 @@ On screen, `ducky` lines are prefixed with `ducky_real_answer` ("Real answer:").
 | `ui_deck_empty` | {n} new cards per morning. |
 | `ui_yes` | yes |
 | `ui_no` | no |
-| `ui_cv_edu` | Education |
-| `ui_cv_exp` | Experience |
-| `ui_cv_proj` | Projects |
 | `ui_invite_line` | Interview with {company}: today or tomorrow |
 
-The hub's bottom dock (GDD 4.2 S04) uses `ui_tab_*` plus `ui_sleep`; dock labels are at most 6 characters. `ui_quit_confirm` appears on Android (LATER) and desktop only: iOS apps never quit themselves (GDD 4.4); `ui_quit` is its confirm button (added 2026-09-27 with no source text: developer, please sign off). `ui_logo_1`-`ui_logo_3` are the title logo's three lines (GDD S01). Added 2026-09-27 for the Step 4 interview, with text from the GDD mockups: `ui_composure`, `ui_doubt` and `ui_round` are the S08 bars band ("ROUND 2/5"; `{total}` is the number of prompts), `ui_back_to_hunt` and `bark_dana_other_candidates` are S09 (and GDD 5.8.6), `ui_stat_*` are the S03 stat bar labels (also on the S07 VS plate), and `vs_versus` is the S07 "VS" (ARCHITECTURE 11.5). Added 2026-09-27 for the Step 5 Background select, with text from the GDD S03 mockup: `ui_energy_per_day` (the card's energy pips row), `ui_rent_runway` and `ui_name` (the name row). Added 2026-09-27 for the Step 5 hub (DoomApply, part 1), with text from the GDD: `ui_radar_short` is the S04 HUD's "Radar [###---]" (the long `ui_radar` doesn't fit the HUD row), `ui_odds_quick` the card front's "Quick apply [##---] Unlikely" (S04 mockup), `ui_odds_tailored` the card back's tailored odds label (GDD 5.6 "Tailored"), and `ui_deck_empty` the empty-deck line (S04 "6 new cards per morning"; `{n}` is `board_new_per_day`). Agent default, please review. Added 2026-09-27 for the Step 5 hub (part 2), with text from the GDD: `ui_yes` / `ui_no` fill `{yes_no}` in `ui_cv_degree` and `ui_cv_years` (S05 "Degree: yes/no"), `ui_cv_edu` / `ui_cv_exp` / `ui_cv_proj` are the CV row labels (S05 and 5.4 "Education, Experience, Projects"), and `ui_invite_line` is the invite card's line (S06 "Interview with {company}: today or tomorrow"). Agent default, please review. Added 2026-09-27 for the Step 6 offer, with no source text (developer, please sign off): `ui_decline_confirm_grace` replaces `ui_decline_confirm` on the grace day, when Decline ends the run (GDD 5.10), because "Rent keeps ticking" would be false there. Added 2026-09-27 for the Step 6 Hired card, with no source text (developer, please sign off): `ui_tap_to_continue` is the hint under beat 1 (GDD S11 "Tap anywhere to continue"). Added 2026-09-27 for the Step 6 endings, a grammatical variant of `ui_rent_due` (developer, please sign off): `ui_rent_due_today` replaces "Rent due in 0 days" in the HUD and the night summary on the grace day and the Plan B morning. Added 2026-09-27 for Step 6, a grammatical variant of `ui_ghost_footer` (developer, please sign off): `ui_ghost_footer_one` replaces "1 applications: no reply" in Mail's footer.
+The hub's bottom dock (GDD 4.2 S04) uses `ui_tab_*` plus `ui_sleep`; dock labels are at most 6 characters. `ui_quit_confirm` appears on Android (LATER) and desktop only: iOS apps never quit themselves (GDD 4.4); `ui_quit` is its confirm button (added 2026-09-27 with no source text). `ui_logo_1`-`ui_logo_3` are the title logo's three lines (GDD S01). Added 2026-09-27 for the Step 4 interview, with text from the GDD mockups: `ui_composure`, `ui_doubt` and `ui_round` are the S08 bars band ("ROUND 2/5"; `{total}` is the number of prompts), `ui_back_to_hunt` and `bark_dana_other_candidates` are S09 (and GDD 5.8.6), `ui_stat_*` are the S03 stat bar labels (also on the S07 VS plate), and `vs_versus` is the S07 "VS" (ARCHITECTURE 11.5). Added 2026-09-27 for the Step 5 Background select, with text from the GDD S03 mockup: `ui_energy_per_day` (the card's energy pips row), `ui_rent_runway` and `ui_name` (the name row). Added 2026-09-27 for the Step 5 hub (DoomApply, part 1), with text from the GDD: `ui_radar_short` is the S04 HUD's "Radar [###---]" (the long `ui_radar` doesn't fit the HUD row), `ui_odds_quick` the card front's "Quick apply [##---] Unlikely" (S04 mockup), `ui_odds_tailored` the card back's tailored odds label (GDD 5.6 "Tailored"), and `ui_deck_empty` the empty-deck line (S04 "6 new cards per morning"; `{n}` is `board_new_per_day`). Added 2026-09-27 for the Step 5 hub (part 2), with text from the GDD: `ui_invite_line` is the invite card's line (S06 "Interview with {company}: today or tomorrow"); `ui_yes` / `ui_no` filled `{yes_no}` on the CV screen's chips, so nothing shows them since it left (D9). Added 2026-09-27 for the Step 6 offer, with no source text: `ui_decline_confirm_grace` replaces `ui_decline_confirm` on the grace day, when Decline ends the run (GDD 5.10), because "Rent keeps ticking" would be false there. Added 2026-09-27 for the Step 6 Hired card, with no source text: `ui_tap_to_continue` is the hint under beat 1 (GDD S11 "Tap anywhere to continue"); since 2026-09-29 the VS intro's held last frame shows it too (GDD S07, D12). Added 2026-09-27 for the Step 6 endings, a grammatical variant of `ui_rent_due`: `ui_rent_due_today` replaces "Rent due in 0 days" in the HUD and the night summary on the grace day and the Plan B morning. Added 2026-09-27 for Step 6, a grammatical variant of `ui_ghost_footer`: `ui_ghost_footer_one` replaces "1 applications: no reply" in Mail's footer.
+
+**Approved (DECISIONS C2, 2026-09-29):** the developer approved all the copy the review queue listed ("go with it"): every line above that was added with no source text, the grammatical variants and the labels copied from the GDD mockups. The CV screen's labels (the CV dock tab, the degree and "1+ yrs" chips, Lie risk, Honest / Polished / Lie, and the row labels), and the Come clean and Bluff buttons, were removed with it (D9).
 
 A primary button shows its label in capitals (`UiText.primary()` upper-cases it, as the GDD 4.2 mockups do: `[ CONTINUE ]`, `[ NEW RUN ]`), and a Back-style button puts "< " in front (`UiText.back()`). Write the text here in its normal case. (Agent default, please review.)
 
@@ -884,7 +866,8 @@ A primary button shows its label in capitals (`UiText.primary()` upper-cases it,
 | `coach_meter` | Tap anywhere when the needle is in NAILED IT. A wider zone means you know this. |
 | `coach_first_reject` | Rejections happen to everyone. Each one leaves a tip in your Notebook. |
 | `coach_radar` | The Recruiter Radar fills with relevant applications. Full means a human reads one. |
-| `coach_cv` | Polished is honest spin. Lie is... a lie. Dana checks. |
+
+A tap on a hunt coach note closes it for the rest of the run (GDD 4.3, DECISIONS D11); doing the action still closes it too. The "x" in the note's corner that shows this is a plain placeholder, not a content string, until the art pass. Mail's invite mark is closed as one mark (id `coach_invite`) whichever line it shows: `coach_invite_no_research` until Research ships (SHOULD), then `coach_invite`. `coach_meter` (the interview) can't be tapped closed. `coach_first_reject` and `coach_radar` aren't shown yet. The CV screen's coach line was removed with it (D9).
 
 ---
 
@@ -894,9 +877,9 @@ Fields: `id, short (<=120, on screen), more (Notebook extra), triggers`. GDD 8.3
 | id | short | more | triggers |
 |---|---|---|---|
 | `tip_ats_knockouts` | ATS software rarely auto-rejects on keywords. Knockout questions (degree, years, location) do. | Answer knockout questions truthfully and apply where you meet them, or get a referral so a human reads your CV. | knockout rejection |
-| `tip_keywords_honest` | Use the posting's real terms for skills you actually have. Recruiters search for them. | Don't paste the whole posting into your CV; mirror the terms that honestly describe your work. | CV screen, low match |
-| `tip_quantify_impact` | Use numbers: 'raised test coverage from 41% to 58%' beats 'worked on testing'. | Action verb + what you did + a measurable result. Put your strongest line first. | CV first open |
-| `tip_projects_count` | Projects, TA work and freelance count as experience. Describe them honestly and concretely. | Say what you built, for whom, and what happened. 'Capstone team of 4, shipped' is honest and strong. | Polished Experience |
+| `tip_keywords_honest` | Use the posting's real terms for skills you actually have. Recruiters search for them. | Don't paste the whole posting into your CV; mirror the terms that honestly describe your work. | none in the MVP (was the CV screen) |
+| `tip_quantify_impact` | Use numbers: 'raised test coverage from 41% to 58%' beats 'worked on testing'. | Action verb + what you did + a measurable result. Put your strongest line first. | night after a Tailor & Apply |
+| `tip_projects_count` | Projects, TA work and freelance count as experience. Describe them honestly and concretely. | Say what you built, for whom, and what happened. 'Capstone team of 4, shipped' is honest and strong. | night after a Tailor & Apply, when the honest CV fails 1+ years |
 | `tip_tailor_over_spray` | A tailored application to a job you really fit is much more likely to get a reply than a one-click one. | Tailor your summary and top bullets to each posting you really match. | 8 Quick Applies without an invite |
 | `tip_referrals` | A referral gets a human to read your CV. Ask people who actually know your work. | Make it easy for them: send a two-line blurb and the job link. | first referral |
 | `tip_informational_chats` | Network with curiosity: ask engineers for 15 minutes of advice, not for a job. | Referrals often follow real conversations. It works best before you need it. | Network (SHOULD) |
@@ -906,17 +889,15 @@ Fields: `id, short (<=120, on screen), more (Notebook extra), triggers`. GDD 8.3
 | `tip_rest` | Rest before interviews. Tired answers go worse. Schedule the search like a job. | A job search is a marathon. Plan breaks on purpose. | Tired, `eq_grind_culture` |
 | `tip_think_aloud` | In technical interviews, think out loud. Interviewers grade your reasoning, not just the answer. | If you're stuck, say what you'd try first and why. | red knowledge answer |
 | `tip_clarify_first` | Ask clarifying questions before designing: users, scale, constraints. | Jumping straight to a solution is a common junior mistake. Interviewers like the questions. | `kq_url_shortener` |
-| `tip_star_stories` | Prepare 5 STAR stories: conflict, failure, teamwork, a win, learning fast. | Situation, Task, Action, Result, plus what you learned. Reuse them across questions. | red behavioral answer, `eq_weakness` |
-| `tip_teamwork_without_job` | No team yet? Open source, hackathons and freelance clients give you reviews and team stories. | Code review from strangers is a fast way to learn how teams work. | Self-Taught teamwork answer |
-| `tip_ask_questions` | Always ask a question at the end: success in 90 days, code review, on-call. | It shows interest, and the answers tell you whether you want the job. | `eq_any_questions` |
-| `tip_say_i_dont_know` | 'I don't know, but here's how I'd find out' beats a bluff. | Interviewers respect honesty and a clear way of solving problems. | Come clean |
-| `tip_honesty_checks` | Don't lie on a CV. Interviewers dig in, and degrees and dates get verified. | Offers can be withdrawn, even after you start. Honest reframing gets you most of the benefit. | BUSTED, rescinded |
+| `tip_star_stories` | Prepare 5 stories as Situation, Task, Action, Result: conflict, failure, teamwork, a win, learning fast. | End each one with what you learned. The same stories answer many questions. | red behavioral answer, `eq_weakness` |
+| `tip_teamwork_without_job` | No team yet? Public coding projects, coding contests and freelance clients give you feedback and team stories. | Feedback on your code from strangers is a fast way to learn how teams work. | Self-Taught teamwork answer |
+| `tip_ask_questions` | Always ask a question at the end: what success looks like in 90 days, how the team works, real hours. | It shows interest, and the answers tell you whether you want the job. | `eq_any_questions` |
 | `tip_fundamentals` | Frameworks change fast. Fundamentals transfer: data structures, databases, networking, testing. | Learn one stack well, but keep the basics sharp. They show up in every interview. | first Study, several knowledge Qs |
 | `tip_ai_tools` | Use AI tools where allowed, but understand and test every line. You'll be asked to explain it. | Say what you used and how you checked it. | `eq_ai_takehome` |
-| `tip_secrets` | A leaked password or key is compromised. Report it so it gets rotated; deleting the message isn't enough. | Never paste secrets into chat, tickets or code. | `eq_leaked_password` |
-| `tip_small_changes` | Ship small, tested changes early in the week. Friday deploys are how weekends die. | Small changes are easier to review and easier to roll back. | `eq_friday_deploy` |
+| `tip_secrets` | A leaked password is no longer secret. Report it so it gets changed; deleting the message isn't enough. | Never paste passwords into chats, emails or code. | `eq_leaked_password` |
+| `tip_small_changes` | Release small, tested updates early in the week. Friday releases are how weekends die. | Small updates are easier to check and easier to undo. | `eq_friday_deploy` |
 | `tip_give_credit` | Credit teammates publicly. It builds trust, and people remember who shares. | It also makes your own wins more believable. | `eq_credit_theft` |
-| `tip_blameless` | Good teams run blameless postmortems: what happened, how it was fixed, what prevents it. | Owning your part calmly is a strength, not a confession. | `eq_outage_blame` |
+| `tip_blameless` | Good teams review mistakes without blame: what happened, how it was fixed, and what stops a repeat. | Owning your part calmly is a strength, not a confession. | `eq_outage_blame` |
 | `tip_privacy` | Customer data is off-limits without a business reason. Access is logged. | Snooping is a fast way to lose a job and to hurt real people. | `eq_celebrity_orders` |
 | `tip_focus_time` | Protect focus time: decline meetings you aren't needed in and ask for notes. | Say what you're working on and when you'll be free. | `eq_meeting_overload` |
 | `tip_scope` | When a deadline is impossible, offer a smaller first version and write down the risks. | Flag slips early. Surprises are worse than bad news. | `eq_impossible_deadline`, `kq_estimate` |
@@ -925,6 +906,8 @@ Fields: `id, short (<=120, on screen), more (Notebook extra), triggers`. GDD 8.3
 | `tip_equity_lottery` | Treat startup equity like a lottery ticket. Ask the percentage and the vesting schedule. | A 1-year cliff means you get nothing if you leave or are laid off before 12 months. Also ask the strike price and how long you'd have to buy vested options after leaving. | startup offer |
 | `tip_fine_print` | Read non-compete, IP and probation clauses. Enforceability varies by country and state. Unsure? Ask a lawyer. | Ask HR what a clause covers and get the answer in writing before you sign. Whether it's enforceable is a question for an employment lawyer or legal aid. | fine print opened |
 | `tip_written_offer` | Don't stop other applications until you have a signed, written offer. | Check that it lists the start date, pay and work mode. | Hired card |
+
+Changed 2026-09-29: the tips for the plain-language choice questions (`tip_small_changes`, `tip_blameless`, `tip_secrets`, `tip_teamwork_without_job`, `tip_star_stories`, `tip_ask_questions`) lost their jargon (DECISIONS C3); tip accuracy is still yours to sign off. The two lying tips ("I don't know" beats a bluff; don't lie on a CV) were removed with lying (D9). `tip_keywords_honest` has no trigger in the MVP (it was the CV screen's), and `tip_quantify_impact` and `tip_projects_count` now come the night after a Tailor & Apply (GDD 8.3).
 
 ---
 
@@ -971,7 +954,8 @@ Fields: `id, short (<=120, on screen), more (Notebook extra), triggers`. GDD 8.3
 | `notif_profile_view` | HumbleBrag: a recruiter viewed your profile! See who with Premium Gold+. (It was a bot.) |
 | `notif_typing` | The recruiter is typing... |
 | `notif_typing_stop` | The recruiter stopped typing. |
-| `mail_rescinded` | Our background check found that 'Very Famous University' has no record of you. Or of itself. The offer is withdrawn. |
+
+The OFFER RESCINDED mail was removed with the background check (D9).
 
 ---
 
@@ -996,7 +980,7 @@ Please decide before you sleep.
 
 One field per line after a 12-character label column; values wrap at 28 columns, fine print up to 4 lines (GDD 4.2 S10).
 
-The template's first line is `offer_title`; the salary value (without its "Salary:" label) is `offer_salary`, where `{salary}` is the whole-dollar amount with its "$" and thousands commas ("$71,000"). The Hired card reuses `offer_salary`. The other template lines got ids when Step 6 built the paper (2026-09-27): `offer_dear`, `offer_role`, the field labels `offer_label_*` and `offer_deadline`, copied from the template above. Two are new and need your sign-off: `offer_label_equity` and `offer_equity`, the startup's joke equity (GDD 5.9.2 and 7: "$50-70k + 0.0001% equity") shown as its own field under the salary (agent default, please review). `{hours}` is the weekly commute (`office_days` x 2 x `commute_min` / 60) with one decimal ("12.7").
+The template's first line is `offer_title`; the salary value (without its "Salary:" label) is `offer_salary`, where `{salary}` is the whole-dollar amount with its "$" and thousands commas ("$71,000"). The Hired card reuses `offer_salary`. The other template lines got ids when Step 6 built the paper (2026-09-27): `offer_dear`, `offer_role`, the field labels `offer_label_*` and `offer_deadline`, copied from the template above. Two were new, and the developer approved them on 2026-09-29 (DECISIONS C2): `offer_label_equity` and `offer_equity`, the startup's joke equity (GDD 5.9.2 and 7: "$50-70k + 0.0001% equity") shown as its own field under the salary. `{hours}` is the weekly commute (`office_days` x 2 x `commute_min` / 60) with one decimal ("12.7").
 
 | id | Text |
 |---|---|
@@ -1051,6 +1035,8 @@ The template's first line is `offer_title`; the salary value (without its "Salar
 | `fp_runway` | startup | Your role is secure for the full runway (7 months, give or take a Tuesday). |
 | `fp_family` | startup, big | The Company reserves the right to call itself 'a family'. |
 
+The fine print never repeats a perk on the same paper: an `fp_<x>` is left out when `perk_<x>` was one of the 2 perks dealt (`RunState.fine_print_pool`, 2026-09-29). Today the only such pair is `perk_unlimited_pto` / `fp_unlimited_pto`, so a startup never lists "Unlimited PTO*" twice. A joke pairing on a different id, such as `perk_pizza` with `fp_perks`, is still allowed.
+
 ---
 
 ## 14. Endings -> `data/content/endings.json`
@@ -1061,27 +1047,28 @@ The template's first line is `offer_title`; the salary value (without its "Salar
 | `end_hired_startup` | Founding Engineer energy. Runway: 7 months. Chair: bring your own. |
 | `end_hired_mid` | There's a sweater on your chair. The fax machine blinks at you. It knows. |
 | `end_hired_big` | Your badge is printing. Your laptop ships in 6-8 weeks. Your first reorg is being planned. |
-| `end_dream_header` | DREAM vs REALITY |
-| `end_dream_row_salary` | Salary vs the video's $150k |
-| `end_dream_row_remote` | Remote days |
-| `end_dream_row_commute` | Commute |
-| `end_dream_row_flags` | Red flags |
-| `end_dream_row_rent` | Rent left |
-| `end_dream_grade_1` | Reality |
+| `end_dream_header` | YOUR JOB vs REMY'S VIDEO |
+| `end_dream_row_salary` | Salary (Remy: $150k) |
+| `end_dream_row_remote` | Days at home (Remy: 5 of 5) |
+| `end_dream_row_commute` | Commute (Remy: 3 steps) |
+| `end_dream_row_flags` | Red flags (Remy: none) |
+| `end_dream_row_rent` | Rent days to spare |
+| `end_dream_grade_1` | All reality, no dream |
 | `end_dream_grade_2` | Doable |
 | `end_dream_grade_3` | Pretty good |
 | `end_dream_grade_4` | Suspiciously close to the video |
-| `end_dream_footer` | The video scored 100. The video was sponsored. |
+| `end_dream_footer` | 100 is the life in Remy's video. Nobody gets 100. Not even Remy. |
 | `end_tbc` | TO BE CONTINUED - Phase 2: The Working Life |
 | `end_plan_b_title` | PLAN B |
 | `end_plan_b` | Rent's due. You became a ClikClok career coach. Your course 'How I Almost Got Into Tech' has 40,000 students. |
 | `end_plan_b_final` | Somewhere, a 17-year-old is watching your video. At night. Under a blanket. |
 | `end_decline` | You declined. Bold. The market respects confidence. The market does not care. |
-| `end_rescinded` | Offer rescinded. Back to the job boards. |
 | `end_stats` | Days: {day} - Applications: {n} - Interviews: {i} - Rejections: {r} |
 | `end_remy_dm` (SHOULD) | @RemoteRemy liked your post 'I got a job!' New DM: 'Guest spot in my course? Pay: exposure.' |
 
 Background lines for Plan B are in section 3 (`plan_b_line`). The Stealth Mode Hired card adds its `hired_extra` from section 4.
+
+Changed 2026-09-29 (DECISIONS C4): the Dream vs Reality header, row labels, lowest grade and footer. Every row now names Remy's number, and the footer explains the 100 (the old one, "The video scored 100. The video was sponsored.", was neither clear nor funny to the developer). The rescinded-offer ending line was removed with the background check (D9).
 
 ---
 

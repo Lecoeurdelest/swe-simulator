@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Version | 1.1, 2026-09-26 (portrait, iPhone first) |
+| Version | 1.2, 2026-09-29 (portrait, iPhone first). 1.2 follows the grey-box review: CV editing and lying cut (D9), the "You do" exercises suspended (W7) |
 | For | You, a first-time game developer, building with Claude Code and godot-ai |
 | Target | A **portrait** game for **your iPhone**, developed on the Windows PC and built on the MacBook. Android is LATER (`docs/DECISIONS.md` D1, P1) |
 | What the game is | `docs/GDD.md` (design) and `docs/CONTENT.md` (every string) |
@@ -16,7 +16,7 @@ This is the step-by-step plan from an empty project to a mobile MVP. Every step 
 | **Best practice** | the game-dev habit the step teaches |
 | **Tasks** | the work |
 | **Claude and godot-ai do** | the parts Claude builds |
-| **You do (to learn)** | small, deliberate tasks so you understand your own game |
+| **You do (to learn)** | small, deliberate tasks so you understand your own game. **Suspended since 2026-09-29 (`docs/DECISIONS.md` W7):** Claude builds those features too. What only you can do stays yours: installs, signing, anything on the iPhone, and your sign-offs |
 | **Design huddle** | the design decisions we brainstorm in that step |
 | **Done when** | checkboxes you can tick yourself |
 | **Hours** | your hours, not Claude's |
@@ -53,7 +53,7 @@ Studios move through the same phases whatever the size of the game. Here's how e
 8. **Cut scope early.** Everything is tagged MUST, SHOULD or LATER. A new idea replaces something; it never just adds.
 9. **The vertical slice sets the bar.** Make one screen beautiful, then match everything else to it.
 10. **Timebox, with the 2x rule.** If a task takes twice its estimate, stop, then cut it or simplify it.
-11. **Keep a decision log.** Each decision is one line with a reason, in `docs/DECISIONS.md` (it already holds D1-D8 and P1). It stops you from re-arguing the same thing in week 6.
+11. **Keep a decision log.** Each decision is one line with a reason, in `docs/DECISIONS.md` (it holds D1-D12, P1-P2, C1-C4, W1-W7 and the agent defaults A1 onward). It stops you from re-arguing the same thing in week 6.
 
 ---
 
@@ -79,12 +79,12 @@ Studios move through the same phases whatever the size of the game. Here's how e
   - **Swipe right or APPLY** = Quick Apply (1 energy). **Flip** gives Tailor & Apply (2 energy).
   - Study (2 energy); the Intern's 2 referrals; Sleep.
   - Energy, rent and the Recruiter Radar are always visible.
-- [ ] **CV screen:** 3 lines, each Honest / Polished / Lie.
+- **CV screen:** cut on 2026-09-29 (D9). Your CV is your background's true CV; Tailor & Apply sends its honest Polished lines.
 - [ ] **Morning inbox:** invites first, rejections as one stack, ghosts stay silent. The first run guarantees an invite on day 2.
 - [ ] **Companies:** 6 companies (2 per tier) and 3 interview backgrounds. The tiers differ in odds, reply speed, Doubt HP, needle speed, question pool, salary and work mode.
-- [ ] **VS intro:** 2 s, skippable after the first view, with a bust for each background and Dana in 3 outfits.
+- [ ] **VS intro:** a 2 s clip that then waits for a tap (D12), with a bust for each background and Dana in 3 outfits.
 - [ ] **Interview:**
-  - Composure and Doubt bars; 5 prompts; the Answer Meter; the lie probe (Come clean / Bluff).
+  - Composure and Doubt bars; 5 prompts; the Answer Meter. (The lie probe was cut: D9.)
   - Endings: K.O., the committee wheel, or rejection.
   - There is **always a tip plus the model answer** after a loss.
 - [ ] **Offer modal:** role, **yearly** salary, work mode, commute preview, 2 perks and 1 fine-print joke. Accept, or Decline with a confirm.
@@ -93,7 +93,7 @@ Studios move through the same phases whatever the size of the game. Here's how e
   - Autosave on every action and whenever the app loses focus. Killing the app never loses more than the current screen.
   - Every screen has an on-screen Back, because iOS has no Back button (Android Back is LATER).
   - Every control used more than once a day sits in the bottom 40%, within one thumb's reach.
-- [ ] **Content minimums:** 15 knowledge questions, 10 ethics questions, 20 posting templates, 27 CV strings, 10 rejection lines, 15 tips (CONTENT.md has more), plus about 10 sound effects.
+- [ ] **Content minimums:** 15 knowledge questions, 10 ethics questions, 20 posting templates, 18 CV strings, 10 rejection lines, 15 tips (CONTENT.md has more), plus about 10 sound effects.
 - [ ] **Technical:**
   - All tests are green: flow, save, odds, interview, offer, content lint and balance.
   - 60 fps on the oldest iPhone you can borrow; no crash in 10 runs in a row.
@@ -393,7 +393,7 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 
 **Claude and godot-ai do:** everything except downloading fonts. Then Claude clicks through the whole flow with `game_manage` input and takes screenshots.
 
-**You do (to learn):** build the **Background Select stub layout yourself** with Containers: inside the SafeArea, a 254 px wide VBoxContainer holding one PanelContainer card (it expands), an HBoxContainer of 3 selector buttons, and the `[ < Title ][ CHOOSE ]` action bar (80 + 168) at the bottom. Containers are the single most important Godot UI skill for this game.
+**You do (to learn)** (superseded by the real screen in Step 5, A16; suspended, W7): build the **Background Select stub layout yourself** with Containers: inside the SafeArea, a 254 px wide VBoxContainer holding one PanelContainer card (it expands), an HBoxContainer of 3 selector buttons, and the `[ < Title ][ CHOOSE ]` action bar (80 + 168) at the bottom. Containers are the single most important Godot UI skill for this game.
 
 **Design huddle**
 - D5 (the fail state): now that Plan B is a real screen, is "one funny ending plus Retry" right?
@@ -428,7 +428,7 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
    - On the first interview of the first run, add the warm-up question.
    - Store the ids in the checkpoint and mark them seen.
    - Put the picking in a pure helper and add a test.
-3. **`versus_intro.tscn`** (Claude): grey shapes on an AnimationPlayer, 2 s, skippable after 1 s the first time (ARCHITECTURE 11.5).
+3. **`versus_intro.tscn`** (Claude): grey shapes on an AnimationPlayer, 2 s, skippable after 1 s the first time (ARCHITECTURE 11.5). Since 2026-09-29 (D12) it holds its last frame and waits for a tap, and Dana's plate shows one joke stat and one move.
 4. **`interview.tscn`** (Claude), per ARCHITECTURE 11.6 and GDD S08:
    - the stage band on top, with a tier background color and magenta 96 px bust placeholders;
    - the bars band, and a dialogue box with the typewriter, tap-to-finish and the `[II]` pause;
@@ -436,14 +436,14 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
    - the **Answer Meter** (ARCHITECTURE 17.11) in the meter row with zone labels, the tap pad under it, and the tap rule (`[II]` keeps its own taps);
    - the endings: K.O., committee wheel, rejection plus the Ducky card;
    - the ready overlay when the tree is paused, and the pause menu.
-5. **Lie-probe UI** (Claude): Come clean / Bluff, using `Odds.bluff_p`. The real trigger needs the CV, so it arrives in Step 5; until then a debug toggle forces a probe.
+5. **Lie-probe UI** (Claude): Come clean / Bluff, using `Odds.bluff_p`. (Built, then cut on 2026-09-29: D9.)
 6. **Debug tools** (Claude): an outcome panel, plus `debug_quick_start` with a fake checkpoint, so `project_run mode="custom"` opens the interview directly.
 
 **Claude and godot-ai do:** all of the above. Then Claude plays 10 interviews through `game_manage` and `game_eval`, and reports the Doubt and Composure traces.
 
 **You do (to learn)**
-- Build **`hp_bar.tscn`** yourself: a ProgressBar, plus a second "ghost" bar that tweens down to the new value over 0.4 s.
-- Change `doubt_hp` in `data/tiers/mid.tres` in the Inspector, replay, and feel the difference.
+- Build **`hp_bar.tscn`** yourself: a ProgressBar, plus a second "ghost" bar that tweens down to the new value over 0.4 s. (Built by Claude on 2026-09-29: the exercises are suspended, W7.)
+- Change `doubt_hp` in `data/tiers/mid.tres` in the Inspector, replay, and feel the difference. (Dropped: the exercises are suspended, W7.)
 
 **Design huddle**
 - **D3:** does the Answer Meter feel good? Check needle speed, zone width, and the PIVOT at startups.
@@ -452,7 +452,7 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 **Done when**
 - [ ] On the iPhone, interviews at the three tiers feel different: startup PIVOT, Big's fast needle.
 - [ ] You can see your odds (the zone width) before the needle moves, your thumb never covers the needle, and Dana's reactions explain what happened.
-- [ ] You've seen every outcome at least once: K.O., wheel win, wheel loss, Composure 0, BUSTED (via debug), and a rejection with a tip plus the model answer.
+- [ ] You've seen every outcome at least once: K.O., wheel win, wheel loss, Composure 0, and a rejection with a tip plus the model answer. (BUSTED was cut: D9.)
 - [ ] Killing the app mid-interview (swipe it away in the app switcher), then Continue, replays the **same questions**.
 - [ ] `test_run` is green, including `test_content_lint`.
 
@@ -471,13 +471,13 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 
 **Tasks**
 1. **Content** (Claude): `postings`, `cv_lines`, `emails`, `tips` and `names` JSON. Extend the lint:
-   - 9 CV lines per background, with the honest flags matching the `.tres`;
+   - 9 CV lines per background (6 since D9: Honest and Polished only), with the honest flags matching the `.tres`;
    - the posting knockout counts;
    - the pool sizes.
 2. **Rules on `RunState` and `Odds`** (Claude), each with a test:
    - **Board:** deal 6 cards per day (2 per tier), keep at most 10; applied template+company pairs never come back; unapplied ones can return as "Reposted".
-   - **Tags sent:** built from `cv_levels`. Tailor sends Honest lines as Polished.
-   - **Applying:** Quick, Tailor or referral; knockouts; relevance; P_invite; lies sent.
+   - **Tags sent:** Quick Apply sends the Honest lines, Tailor & Apply the Polished ones (the `cv_levels` setting was cut: D9).
+   - **Applying:** Quick, Tailor or referral; knockouts; relevance; P_invite. (Recording the lies sent was cut: D9.)
    - **The morning reveal**, rolled **in send order on the reveal morning**:
      - a knockout rejects the next morning;
      - ghost postings stay silent;
@@ -490,22 +490,22 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
    - **Plan B:** the check, plus the grace day.
 3. **Background select, for real** (Claude), per ARCHITECTURE 11.3: one card built from data (stat bars, pips, runway, perk, flaw and the Self-Taught's gaps), the 3-button selector, the card swipe, and the name dice.
 4. **`job_hunt.tscn`** (Claude), per ARCHITECTURE 11.4 and GDD S04-S06: your phone running DoomApply:
-   - the HUD, the app header and the bottom dock (Jobs, CV, Mail, Study, Sleep);
+   - the HUD, the app header and the bottom dock (Jobs, Mail, Study, Sleep; the CV tab was cut: D9);
    - the deck with swipe and the `[=] SKIP APPLY` action row, and the card back;
-   - the CV screen (Buzzwordsmith);
+   - the CV screen (Buzzwordsmith) (built, then cut on 2026-09-29: D9);
    - Mail (the morning inbox) with "Flip all", the lock-screen night summary, Study;
-   - Ducky coach notes on the first run (GDD 4.3).
-5. **The real lie-probe trigger** (Claude), in `start_interview`, per GDD 5.8.5.
+   - Ducky coach notes on the first run (GDD 4.3). Since 2026-09-29 (D11) a tap on the note closes it too.
+5. **The real lie-probe trigger** (Claude), in `start_interview`, per GDD 5.8.5. (Built, then cut on 2026-09-29: D9.)
 
 **Claude and godot-ai do:** all of the above. Then Claude simulates 30 taps on Apply and confirms an invite arrives by day 2.
 
 **You do (to learn)**
-- Write 5 posting jokes of your own (60 characters or less) into `postings.json`. The lint tells you if one is too long.
-- Build the 5-segment **`stat_bar`** component yourself.
+- Write 5 posting jokes of your own (60 characters or less) into `postings.json`. The lint tells you if one is too long. (Dropped: the exercises are suspended, W7.)
+- Build the 5-segment **`stat_bar`** component yourself. (Built by Claude on 2026-09-29: the exercises are suspended, W7.)
 - Judge the one-thumb swipe feel on the iPhone.
 
 **Design huddle**
-- **D4** (lying depth), now that the CV screen exists.
+- **D4** (lying depth), now that the CV screen exists. (Answered 2026-09-29: D9 cut the CV screen and lying.)
 - **D6** (customization is the background plus the name dice).
 - Is 6 cards a day the right pace?
 
@@ -544,12 +544,12 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 **Claude and godot-ai do:** all of the above, keeping the round-trip tests green.
 
 **You do (to learn)**
-- Choose the fine-print jokes you like best.
-- **Kill the app on your iPhone at 5 moments** (swipe it away in the app switcher: mid-hunt, right after Sleep, mid-interview, on the offer, on the Hired card) and check Continue each time. [`docs/KILL_TESTS.md`](KILL_TESTS.md) has the steps, what each Continue should show, and a row for your results.
+- Choose the fine-print jokes you like best. (Dropped: the exercises are suspended, W7.)
+- **Kill the app on your iPhone at 5 moments** (swipe it away in the app switcher: mid-hunt, right after Sleep, mid-interview, on the offer, on the Hired card) and check Continue each time. It's an iPhone check, so it stays yours under W7. [`docs/KILL_TESTS.md`](KILL_TESTS.md) has the steps, what each Continue should show, and a row for your results.
 
 **Design huddle**
 - **D7:** should Negotiate be the second SHOULD?
-- Is the Dream vs Reality footer funny or smug?
+- Is the Dream vs Reality footer funny or smug? (Answered 2026-09-29: neither clear nor funny, so it was rewritten: C4.)
 
 **Done when**
 - [ ] 3 full runs on the iPhone (Easy, Medium, Hard) with no crash.
@@ -577,7 +577,7 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
    - run length;
    - whether the intro was skipped, and at which panel;
    - tips seen.
-3. **Balance simulation** (Claude): port the GDD 5.12 bot into `tests/test_balance.gd` (ARCHITECTURE 12.4). Use 3 methods of about 1,000 runs each, and assert the bands.
+3. **Balance simulation** (Claude): port the GDD 5.12 bot into `tests/test_balance.gd` (ARCHITECTURE 12.4). Use 3 methods of about 1,000 runs each, and assert the bands. Since D9 the bot's Quick Apply sends the honest CV, so expect it to run a little harder than the GDD 5.12 table (ISSUE-09).
 4. **Tuning** (Claude and you): tune the `.tres` files only, rerun the sim, and **decide D8**.
 
 **Done when**
@@ -604,7 +604,7 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 3. **Network** plus the 3 site tabs.
 4. The static top-down **room hub** with 4 hotspots.
 5. The Hard-mode **commute strip**.
-6. **Drag-to-sign**, plus the background-check screen for degree lies.
+6. **Drag-to-sign**. (The background-check screen for degree lies was cut with lying: D9.)
 7. Parallax and idle animations. These overlap with Step 9, so do them there.
 8. Morning event cards, plus the Unicorn posting.
 9. The **Career Notebook**, plus **Settings**: Relaxed Timing, reduced motion, text speed, haptics and replay intro. Relaxed Timing is a single bool; pull it forward if a tester struggled with the needle.
@@ -785,7 +785,7 @@ Keep sources in `art_src/` (Godot ignores that folder) and export PNGs into the 
 ## 6. Audio pipeline
 
 - **Sound effects (MUST, about 10, GDD 9.2):**
-  - the effects: tap, apply whoosh, reject stamp, invite fanfare, hit, K.O. sting, VS slam, BUSTED record scratch, typewriter blip, error buzz;
+  - the effects: tap, apply whoosh, reject stamp, invite fanfare, hit, K.O. sting, VS slam, typewriter blip, error buzz (BUSTED's record scratch was cut with D9);
   - make them with **jsfxr** (sfxr.me), **ChipTone** or **Bfxr**; sounds you generate are yours;
   - export as 16-bit WAV into `audio/sfx/` or the feature's `sfx/` folder.
 - **Music (SHOULD, 2 loops):**
@@ -819,7 +819,7 @@ Keep sources in `art_src/` (Godot ignores that folder) and export PNGs into the 
 - whether they read the text or skip it (the biggest risk in a text-heavy game);
 - where they laugh (mark the jokes that land);
 - whether they can say *why* they lost an interview;
-- whether they understand the risk of lying;
+- whether they notice that tailored applications get more replies;
 - whether they skip the intro, and at which panel.
 
 **Afterwards, ask 4 questions**
@@ -846,7 +846,7 @@ Keep sources in `art_src/` (Godot ignores that folder) and export PNGs into the 
 | 5 | **The interview feels random or unfair** | Medium / High | The zone width shows the odds; stats weigh 3x the thumb; the wheel shows its wedge; a tip and the model answer after every loss | Testers say "it's just luck" |
 | 6 | **The hunt feels like a tedious clicker** | Medium / High | Energy caps each day; 6 cards a day; a joke on every card; the day-2 invite guarantee | Playtest #1 median time to the first interview is over 5 minutes |
 | 7 | **The satire misfires** (punching down, real brands) | Medium / High | GDD 1.3 rules; parody names only (the lint enforces it); Dana is the competent one; diverse testers read every joke; a trademark search before release | Testers wince instead of laugh |
-| 8 | **Code you don't understand** | Medium / High | A "you do" task in every step; you read every script Claude writes; tests for the rules; small commits | You can't explain what a script does |
+| 8 | **Code you don't understand** | Medium / High | Claude explains the why of every change in its step summary; you read every script Claude writes; tests for the rules; small commits. (The "you do" exercises are suspended: W7) | You can't explain what a script does |
 | 9 | **Device-only surprises** (scroll taps, the Dynamic Island, one-thumb reach, haptics, performance) | Medium / Medium | The Step 2 device check; the iPhone build weekly; the unverified list in ARCHITECTURE 18.1 | A bug that "only happens on my phone" |
 | 10 | **The Mac isn't at hand** (every iPhone build needs the MacBook) | Medium / High | Develop on the PC, build on the Mac at least weekly; push after every session; set up Godot, godot-ai and Claude on the Mac in Step 2 so work can continue there | No build on the phone for two weeks |
 | 11 | **7-day signing:** Personal Team builds stop launching 7 days after install | Certain / Low | Write down the install date; re-run from Xcode before every playtest; paid program from Step 13 | "The app won't open" |
@@ -890,9 +890,9 @@ Keep sources in `art_src/` (Godot ignores that folder) and export PNGs into the 
    - Claude adds one line to `DECISIONS.md`.
    - Claude never changes a design decision silently.
 4. **Build (Claude, with godot-ai):** in small increments. After each one Claude runs the game, takes a screenshot, reads the logs and runs the tests (ARCHITECTURE 16).
-5. **Your turn (15-30 min):** the step's "You do" task, done with your own hands.
+5. **Your turn:** play what Claude built and say how it feels. (The "You do" exercises are suspended since 2026-09-29, `DECISIONS.md` W7: Claude builds those features too. Installs, signing, iPhone checks and sign-offs stay yours.)
 6. **Verify:** tests are green, you play it in the editor, and you play it on the iPhone at least weekly.
-7. **Commit and push:** you commit, using a message Claude suggests (for example `feat(interview): add doubt/composure bars`), and push before you stop.
+7. **Commit and push:** Claude commits on the step's branch and pushes (`DECISIONS.md` W1), for example `feat(interview): add doubt/composure bars`. You review and merge on GitHub, in step order.
 8. **Wrap-up:** Claude lists the next tasks and any new cut-list items. You note what felt good and what felt bad.
 
 ### Ground rules
@@ -919,7 +919,7 @@ These aren't blocking. They're good conversations for later steps:
 - Dana's running gags. Which cameo lines land best?
 - The tone of the Plan B ending: warm or bitter?
 - Which 5 career tips matter most to you personally? They should be the ones players see first.
-- **Phase 2 pitch:** what does the first work day look like, and which MVP state does it use? For example, `employment`, `lies_carried` and `commute_pips`.
+- **Phase 2 pitch:** what does the first work day look like, and which MVP state does it use? For example, `employment` and `commute_pips`. Your first ideas (small random events, a few minor career improvements, no cosmetics for now) are parked in `docs/ideas_parking_lot.md`; nothing is built until you decide.
 - **A post-MVP mini-game:** the take-home "CRUNCH!" mash, or a Buzzword Catch.
 
 ---
@@ -933,7 +933,7 @@ These aren't blocking. They're good conversations for later steps:
 3. Career Notebook. Keep the Relaxed Timing toggle; it's one bool.
 4. Morning events and the Unicorn posting.
 5. Parallax and idle animations; use static images.
-6. Drag-to-sign and the background-check screen. Degree lies are then only probed.
+6. Drag-to-sign. (The background-check screen already left with lying: D9.)
 7. The commute strip; show the text "-4 energy" instead.
 8. The top-down room hub; the DoomApply phone hub is enough.
 9. Network and the site tabs.

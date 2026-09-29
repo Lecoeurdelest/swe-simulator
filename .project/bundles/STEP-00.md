@@ -21,7 +21,7 @@ Git works, the engine version is pinned, and every open design decision D1-D8 ha
 |---|---|
 | D1 | Portrait only (`orientation = 1`) |
 | D2 | 270x480 base, viewport + expand + integer, plus the `Device` scale guard |
-| D3-D8 | The recommended defaults (Answer Meter; 3 CV lines x Honest/Polished/Lie; Plan B + grace day + Retry; background + name dice; one-tap Negotiate; Doubt HP 118/128/132 until Playtest #1) |
+| D3-D8 | The recommended defaults (Answer Meter; 3 CV lines x Honest/Polished/Lie; Plan B + grace day + Retry; background + name dice; one-tap Negotiate; Doubt HP 118/128/132 until Playtest #1). D4 was superseded on 2026-09-29 by D9: no CV editing and no lying |
 | P1 | iPhone first, built on the MacBook; Android LATER |
 | C1 | 12 parody names renamed after a trademark web check; content ids unchanged |
 
@@ -38,7 +38,7 @@ Git works, the engine version is pinned, and every open design decision D1-D8 ha
 ## Developer does
 
 - Pin Godot on the Windows PC: in Steam, set Godot Engine to update only when launched (the option name is unverified: Properties > Updates; ARCHITECTURE 18.1 #11). The Mac uses the godotengine.org 4.7.2 zip, which never updates itself.
-- The reading (about 2 h), and the You-do: reread `docs/DECISIONS.md` and say each decision back in your own words.
+- The reading (about 2 h), and the You-do: reread `docs/DECISIONS.md` and say each decision back in your own words (You-do exercises are suspended since 2026-09-29, DECISIONS W7).
 
 ## Out of scope
 
