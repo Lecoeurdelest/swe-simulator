@@ -115,7 +115,7 @@ theme_override_constants/separation = 2
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"HeaderLabel"
-text = "DREAM vs REALITY"
+text = "YOUR JOB vs REMY'S VIDEO"
 
 [node name="Rows" type="VBoxContainer" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows" unique_id=1924967106]
 unique_name_in_owner = true
@@ -130,11 +130,11 @@ mouse_filter = 2
 [node name="Name" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows/Row0" unique_id=1726474084]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Salary vs the video's $150k"
+text = "Salary (Remy: $150k)"
 
 [node name="Points" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows/Row0" unique_id=1532407953]
 layout_mode = 2
-text = "22.4"
+text = "22.4/40"
 horizontal_alignment = 2
 
 [node name="Row1" type="HBoxContainer" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows" unique_id=133530201]
@@ -144,11 +144,11 @@ mouse_filter = 2
 [node name="Name" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows/Row1" unique_id=523397893]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Remote days"
+text = "Days at home (Remy: 5 of 5)"
 
 [node name="Points" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows/Row1" unique_id=1276151709]
 layout_mode = 2
-text = "15.0"
+text = "15.0/25"
 horizontal_alignment = 2
 
 [node name="Row2" type="HBoxContainer" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows" unique_id=316851088]
@@ -158,11 +158,11 @@ mouse_filter = 2
 [node name="Name" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows/Row2" unique_id=481512416]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Commute"
+text = "Commute (Remy: 3 steps)"
 
 [node name="Points" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows/Row2" unique_id=1890916251]
 layout_mode = 2
-text = "10.5"
+text = "10.5/15"
 horizontal_alignment = 2
 
 [node name="Row3" type="HBoxContainer" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows" unique_id=1327028419]
@@ -172,11 +172,11 @@ mouse_filter = 2
 [node name="Name" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows/Row3" unique_id=2055352015]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Red flags"
+text = "Red flags (Remy: none)"
 
 [node name="Points" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows/Row3" unique_id=1393816041]
 layout_mode = 2
-text = "5.0"
+text = "5.0/10"
 horizontal_alignment = 2
 
 [node name="Row4" type="HBoxContainer" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows" unique_id=1452008136]
@@ -186,11 +186,11 @@ mouse_filter = 2
 [node name="Name" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows/Row4" unique_id=1515354599]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Rent left"
+text = "Rent days to spare"
 
 [node name="Points" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows/Rows/Row4" unique_id=1126008788]
 layout_mode = 2
-text = "10.0"
+text = "10.0/10"
 horizontal_alignment = 2
 
 [node name="ScoreRow" type="HBoxContainer" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows" unique_id=690750096]
@@ -216,7 +216,7 @@ horizontal_alignment = 2
 [node name="Footer" type="Label" parent="SafeArea/Beat2/Sheet/DreamPanel/DreamRows" unique_id=487152093]
 unique_name_in_owner = true
 layout_mode = 2
-text = "The video scored 100. The video was sponsored."
+text = "100 is the life in Remy's video. Nobody gets 100. Not even Remy."
 autowrap_mode = 3
 
 [node name="TipNote" parent="SafeArea/Beat2/Sheet" unique_id=124355423 instance=ExtResource("4_duck")]

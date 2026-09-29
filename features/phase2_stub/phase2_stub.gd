@@ -125,14 +125,18 @@ func _arm_card() -> void:
 # ---------- beat 2: Dream vs Reality ----------
 
 ## Every row, the score line and what follows it are filled now and stay invisible (modulate, so the
-## layout never jumps) until the tally reaches them.
+## layout never jumps) until the tally reaches them. Each row shows its points out of the row's maximum
+## ("18.9/40"): the five maximums add up to the 100 the footer talks about.
 func _fill_dream_panel(run: RunState) -> void:
 	_parts = GameState.dream_breakdown()
+	var cfg := Content.balance
+	var maxes: Array[float] = [cfg.dream_w_salary, cfg.dream_w_remote, cfg.dream_w_commute, cfg.dream_w_flags,
+		cfg.dream_w_runway]  # Odds.DREAM_ROWS order
 	_dream_header.text = Content.text("endings", "end_dream_header")
 	for i: int in Odds.DREAM_ROWS.size():
 		var row := _rows.get_child(i)
 		(row.get_node("Name") as Label).text = Content.text("endings", "end_dream_row_" + Odds.DREAM_ROWS[i])
-		(row.get_node("Points") as Label).text = "%.1f" % _parts[i] if i < _parts.size() else ""
+		(row.get_node("Points") as Label).text = "%.1f/%d" % [_parts[i], roundi(maxes[i])] if i < _parts.size() else ""
 		(row as CanvasItem).modulate.a = 0.0
 	_score.text = "0"
 	_grade.text = Content.text("endings", "end_dream_grade_%d" % Odds.dream_grade(run.dream_score))

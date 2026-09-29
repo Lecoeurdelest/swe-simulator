@@ -206,7 +206,7 @@ text = "DANA"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-text = "Friday, 4:55 PM. Your change is untested. What do you do?"
+text = "Friday, 4:55 PM. Your app update is done, but nobody has tested it yet. What do you do?"
 autowrap_mode = 3
 
 [node name="PauseButton" type="Button" parent="SafeArea/Column/DialogueBox" unique_id=1014167094]
@@ -252,7 +252,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(254, 36)
 layout_mode = 2
 focus_mode = 0
-text = "Test it, get a review, ship Monday."
+text = "Test it, then release it on Monday."
 alignment = 0
 clip_text = true
 
@@ -261,7 +261,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(254, 36)
 layout_mode = 2
 focus_mode = 0
-text = "Ask the team channel what to do."
+text = "Ask the team chat what to do."
 alignment = 0
 clip_text = true
 
@@ -270,7 +270,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(254, 36)
 layout_mode = 2
 focus_mode = 0
-text = "Deploy and turn off my phone."
+text = "Release it now. Turn off my phone."
 alignment = 0
 clip_text = true
 
