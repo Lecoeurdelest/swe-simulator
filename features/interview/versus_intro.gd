@@ -56,6 +56,7 @@ var _bottom_color := FALLBACK_COLOR
 @onready var _vs_label: Label = %VSLabel
 @onready var _banner: Label = %Banner
 @onready var _tap_hint: Control = %TapHintPanel   # on its own panel, so it reads on any hoodie color
+@onready var _flash: ColorRect = $Flash
 
 
 func _ready() -> void:
@@ -107,6 +108,14 @@ func play(company_id: String, tier: String) -> void:
 	_anim.speed_scale = clip_length / cfg.vs_duration_s if cfg.vs_duration_s > 0.0 else 1.0
 	_anim.play(CLIP)
 	_anim.seek(0.0, true)  # apply the 0.00 s keys now, so the first frame never shows the end state
+	if SceneRouter.busy:  # as the offer paper: the clip starts once the scene fade is over
+		_anim.pause()
+		_flash.hide()  # the white flash belongs to the clip's start, not to the fade
+		await SceneRouter.transition_finished
+		if not _playing:
+			return
+		_anim.seek(0.0, true)
+		_anim.play()
 
 
 func is_playing() -> bool:

@@ -1,10 +1,10 @@
 class_name CoachMark
 extends VBoxContainer
 ## A first-run Ducky coach mark (GDD 4.3): the full-width Ducky note, then a drawn arrow pointing down
-## at one control (and, for the first card, a swipe-right arrow). A tap on the note closes the mark at
-## once (its "x" says so) and emits `closed`, so the hub can keep it closed for the run; nothing else
-## in it takes input (the arrow strip is mouse_filter IGNORE). The arrow follows its target's x while
-## the layout moves. The art pass redraws the arrows; the positions stay.
+## at one control (and, for the first card, a swipe-right arrow). A tap on the note (a closable
+## DuckyNote: its "x" says so) closes the mark at once and emits `closed`, so the hub can keep it closed
+## for the run; nothing else in it takes input (the arrow strip is mouse_filter IGNORE). The arrow
+## follows its target's x while the layout moves. The art pass redraws the arrows; the positions stay.
 
 signal closed(coach_id: String)
 
@@ -18,10 +18,6 @@ var _coach_id := ""
 var _target: Control
 var _swipe := false
 var _arrow_x := -1.0
-var _pressed := false  # a press on the note that hasn't moved past the deadzone: its release closes
-var _press_at := Vector2.ZERO
-var _in_scroll := false
-var _deadzone: float = float(ProjectSettings.get_setting("gui/common/default_scroll_deadzone", 6))
 
 @onready var _note: DuckyNote = %Note
 @onready var _arrows: Control = %Arrows
@@ -29,22 +25,20 @@ var _deadzone: float = float(ProjectSettings.get_setting("gui/common/default_scr
 
 func _ready() -> void:
 	_arrows.draw.connect(_draw_arrows)
-	_note.gui_input.connect(_on_note_input)
-	_in_scroll = _scroll_ancestor()
+	_note.close_tapped.connect(_close)
 	set_process(false)
 
 
-## Shows coach_id's text (already translated) with the arrow under the target's centre; swipe adds the
+## Shows mark id's tip (already translated) with the arrow under the target's centre; swipe adds the
 ## swipe-right arrow. The same mark again changes nothing.
-func point(coach_id: String, text: String, target: Control, swipe: bool = false) -> void:
-	if visible and _coach_id == coach_id and _note.tip_text == text and _target == target and _swipe == swipe:
+func point(id: String, tip: String, target: Control, swipe: bool = false) -> void:
+	if visible and _coach_id == id and _note.tip_text == tip and _target == target and _swipe == swipe:
 		return
-	_coach_id = coach_id
-	_note.tip_text = text
+	_coach_id = id
+	_note.tip_text = tip
 	_target = target
 	_swipe = swipe
 	_arrow_x = -1.0
-	_pressed = false
 	show()
 	set_process(true)
 	_arrows.queue_redraw()
@@ -54,16 +48,11 @@ func clear() -> void:
 	hide()
 	_coach_id = ""
 	_target = null
-	_pressed = false
 	set_process(false)
 
 
 func text() -> String:
 	return _note.tip_text if visible else ""
-
-
-func coach_id() -> String:
-	return _coach_id if visible else ""
 
 
 func _process(_delta: float) -> void:
@@ -75,43 +64,12 @@ func _process(_delta: float) -> void:
 		_arrows.queue_redraw()
 
 
-## A tap is a press and a release on the note without a drag past the scroll deadzone, like a Button.
-## Over the deck the note takes the whole tap, so the card under it never sees it. In Mail's list the
-## events pass on to the ScrollContainer, so a drag that starts on the note still scrolls.
-func _on_note_input(event: InputEvent) -> void:
-	var mb := event as InputEventMouseButton  # touches arrive as emulated mouse events
-	var motion := event as InputEventMouseMotion
-	if mb != null and mb.button_index == MOUSE_BUTTON_LEFT:
-		if mb.pressed:
-			_pressed = true
-			_press_at = mb.global_position  # a scrolling list moves the note with the finger
-		elif _pressed:
-			_pressed = false
-			if Rect2(Vector2.ZERO, _note.size).has_point(mb.position):
-				_close()
-	elif motion != null and _pressed and motion.global_position.distance_to(_press_at) > _deadzone:
-		_pressed = false
-	else:
-		return
-	if not _in_scroll:
-		_note.accept_event()
-
-
 ## Hidden at once; `closed` waits for the end of the frame, because the hub rebuilds Mail's list (this
 ## mark included) when the run changes.
 func _close() -> void:
 	var id := _coach_id
 	clear()
 	closed.emit.call_deferred(id)
-
-
-func _scroll_ancestor() -> bool:
-	var node := get_parent()
-	while node != null:
-		if node is ScrollContainer:
-			return true
-		node = node.get_parent()
-	return false
 
 
 func _draw_arrows() -> void:
