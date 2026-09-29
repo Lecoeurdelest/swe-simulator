@@ -92,22 +92,6 @@ extends Resource
 @export var vs_min_view_s: float = 1.0
 @export var typewriter_cps: float = 40.0
 
-@export_group("Lying (11.5)")
-@export var max_probes_per_interview: int = 1
-@export var bluff_base: float = 0.50
-@export var bluff_knw_div: float = 200.0
-@export var bluff_exp_ref: float = 20.0
-@export var bluff_exp_div: float = 200.0
-@export var bluff_weight_lie: float = 0.10
-@export var bluff_weight_degree: float = 0.20
-@export var bluff_min: float = 0.10
-@export var bluff_max: float = 0.80
-@export var bluff_win_doubt: float = -15.0
-@export var busted_doubt: float = 20.0
-@export var busted_comp: float = 30.0
-@export var come_clean_doubt: float = -5.0
-@export var come_clean_comp: float = 10.0
-
 @export_group("Offer and endings (11.6)")
 @export var band_base: float = 0.25
 @export var band_perf_weight: float = 0.50

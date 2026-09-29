@@ -153,7 +153,7 @@ func debug_quick_start(bg_id: String, phase: GameFlow.Phase, run_seed: int = 202
 
 ## Debug only (the hub's DEBUG row keeps an interview one tap away): a waiting invite from the tier's
 ## first MVP company that isn't blacklisted, for the tier's first open posting, as if it arrived this
-## morning. No application backs it, so it never probes. No dice. {} when the tier has no company left.
+## morning. No application backs it. No dice. {} when the tier has no company left.
 func debug_fake_invite(tier_id: String) -> Dictionary:
 	var company_id := _first_entry_id("companies", func(id: String, e: Dictionary) -> bool:
 		return str(e.get("tier", "")) == tier_id and bool(e.get("mvp", false)) and not run.blacklist.has(id))
@@ -204,13 +204,14 @@ func _gap_pool() -> Array:
 
 # ---------- job hunt verbs (each committed action ends with _commit()) ----------
 
-## Swipe right or APPLY: Quick Apply with the CV as set (1 pip). False when refused: the card is
+## Swipe right or APPLY: Quick Apply with your honest CV (1 pip). False when refused: the card is
 ## gone, its company is blacklisted, or there isn't enough energy.
 func quick_apply(card_uid: int) -> bool:
 	return _apply(card_uid, false, false)
 
 
-## Card back TAILOR & APPLY (2 pips), optionally spending a referral token.
+## Card back TAILOR & APPLY (2 pips): every CV line goes out Polished for this application; optionally
+## spending a referral token.
 func tailor_apply(card_uid: int, use_referral: bool) -> bool:
 	return _apply(card_uid, true, use_referral)
 
@@ -228,19 +229,6 @@ func skip_card(card_uid: int) -> bool:
 		return false
 	_commit()
 	return true
-
-
-## A CV screen segment tap (GDD S05): free and instant. It is saved when the screen closes (commit_cv).
-func set_cv_level(line: String, level: String) -> bool:
-	if not run.set_cv_level(line, level):
-		return false
-	run_changed.emit()
-	return true
-
-
-## Leaving the CV screen (DONE or Back): the CV change is one committed action (ARCHITECTURE 8).
-func commit_cv() -> void:
-	_commit()
 
 
 func study() -> bool:
@@ -268,7 +256,7 @@ func start_day() -> void:
 		_commit()
 
 
-## What a board card shows (GDD S04): its 3 tags checked against the CV as set, and the odds of each
+## What a board card shows (GDD S04): its 3 tags checked against your honest CV, and the odds of each
 ## way to apply (RunState.card_odds). {} if the card's data is missing. Changes nothing.
 func card_odds(card: Dictionary) -> Dictionary:
 	return run.card_odds(Content.balance, _tiers(), _bg(), _hunt_content(), card)
@@ -303,8 +291,8 @@ func _bg() -> BackgroundData:
 # ---------- interview ----------
 
 ## Mail "GO NOW": today's slot and the energy are checked, the invite leaves Mail, the energy is paid,
-## then the interview is frozen: its seed, its questions (GDD 5.13) and the lie-probe roll (GDD 5.8.5),
-## all on the run RNG in that order, so a resume replays it exactly. Nothing changes when refused.
+## then the interview is frozen: its seed, then its questions (GDD 5.13), on the run RNG in that
+## order, so a resume replays it exactly. Nothing changes when refused.
 func start_interview(invite: Dictionary) -> void:
 	var cfg := Content.balance
 	var tier_data := Content.tier(str(invite.get("tier", "")))
@@ -326,7 +314,6 @@ func start_interview(invite: Dictionary) -> void:
 		"seed": interview_seed, "tired": Odds.is_tired(cfg, run.energy),
 		"question_ids": plan["question_ids"],  # prompt order (cfg.prompt_pattern)
 		"warmup_id": plan["warmup_id"],        # "" unless the first interview of the first run
-		"probe_line": run.roll_probe(cfg, tier_data, _hunt_content(), int(taken["app_uid"]), rng),
 	}
 	InterviewPlan.mark_seen(run.seen_question_ids, plan["question_ids"] + [plan["warmup_id"]])
 	change_phase(GameFlow.Phase.INTERVIEW)  # saves the checkpoint
@@ -348,18 +335,14 @@ func can_take_interview(invite: Dictionary) -> bool:
 	return cost >= 0 and run.interviews_today < Content.balance.max_interviews_per_day and run.energy >= cost
 
 
-## won = K.O. or committee win. busted = the lie probe ended in BUSTED (company blacklisted).
-## came_clean = you came clean on the probe (Step 4: that line counts as confessed for this company).
-## A win builds the whole offer from the checkpoint (RunState.make_offer) before it is cleared.
-func finish_interview(won: bool, composure_left: float, busted: bool = false, came_clean: bool = false) -> void:
+## won = K.O. or committee win. A win builds the whole offer from the checkpoint (RunState.make_offer)
+## before it is cleared.
+func finish_interview(won: bool, composure_left: float) -> void:
 	var iv := run.interview
 	var company_id: String = iv.get("company_id", "")
 	run.interviews_taken += 1
 	run.times_met_dana += 1
 	run.dana_last_company = company_id
-	if busted:
-		run.blacklist_company(company_id)
-	run.settle_probe(company_id, str(iv.get("probe_line", "")), came_clean, busted)
 	if won:
 		run.make_offer(Content.balance, Content.tier(str(iv["tier"])), _bg(), _hunt_content(), composure_left)
 	run.interview = {}
@@ -370,11 +353,9 @@ func finish_interview(won: bool, composure_left: float, busted: bool = false, ca
 
 ## Decline (after the confirm dialog): the company is blacklisted and the hunt goes on the same day,
 ## except on the grace day (rent at 0), when declining is Plan B (GDD 5.10, RunState.decline_ends_run).
-## Accept: an unconfessed degree-claim Lie sent to this company rolls tier.background_check on the
-## run RNG (GDD 5.9.4). Caught: the offer is rescinded (run.rescinded holds mail_rescinded), the
-## company blacklisted, back to the hunt the same day. Otherwise the Hired card.
-## Accept writes no save: PHASE2_STUB is never saved, so a kill on the Hired card resumes at the
-## offer with the RNG state from before the check (GDD 5.11), and accepting again rolls the same dice.
+## Accept: the offer becomes the job (run.hire) and the Hired card shows. Accept writes no save:
+## PHASE2_STUB is never saved, so a kill on the Hired card resumes at the offer (GDD 5.11), and
+## accepting again hires with the same contract. No dice.
 func answer_offer(accept: bool) -> void:
 	var company_id: String = run.offer.get("company_id", "")
 	if not accept:
@@ -385,11 +366,6 @@ func answer_offer(accept: bool) -> void:
 			end_run_plan_b()
 		else:
 			change_phase(GameFlow.Phase.JOB_HUNT)
-		return
-	var tier_data := Content.tier(str(run.offer.get("tier", "")))
-	if tier_data != null and run.background_check_caught(tier_data, _hunt_content(), company_id, rng):
-		run.rescind_offer()
-		change_phase(GameFlow.Phase.JOB_HUNT)
 		return
 	run.hire(Content.balance, _bg(), Content.entries("companies").get(company_id, {}).get("red_flags", []))
 	change_phase(GameFlow.Phase.PHASE2_STUB)

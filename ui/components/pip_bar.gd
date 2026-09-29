@@ -2,7 +2,7 @@ class_name PipBar
 extends Control
 ## A row of energy pips (GDD 2.6: 6x8 each, 2 px apart): `filled` bright from the left, `locked`
 ## greyed at the right end, empty ones between. S03 greys the commute pips; the hub HUD shows the
-## energy left of the day; the CV screen shows the Lie risk. Display only. Flat grey-box colors: the art pass swaps in the pip sprite.
+## energy left of the day. Display only. Flat grey-box colors: the art pass swaps in the pip sprite.
 
 const PIP := Vector2(6, 8)
 const GAP := 2
@@ -22,11 +22,6 @@ const LOCKED_COLOR := Color(0.22745098, 0.26666668, 0.4)
 @export var locked: int = 0:
 	set(count):
 		locked = count
-		queue_redraw()
-## The CV screen's Lie-risk dots are red (GDD S05); energy stays amber.
-@export var filled_color: Color = FILLED_COLOR:
-	set(color):
-		filled_color = color
 		queue_redraw()
 
 
@@ -51,6 +46,6 @@ func _draw() -> void:
 		if i >= total - locked:
 			draw_rect(rect, LOCKED_COLOR)
 		elif i < filled:
-			draw_rect(rect, filled_color)
+			draw_rect(rect, FILLED_COLOR)
 		else:
 			draw_rect(rect.grow(-0.5), EMPTY_COLOR, false, 1.0)  # a 1 px outline on whole pixels

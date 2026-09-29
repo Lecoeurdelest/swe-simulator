@@ -99,7 +99,7 @@ func test_hire_records_the_job_and_its_score() -> void:
 	var run := RunState.new()
 	run.set_background(cfg, bgs["self_taught"])
 	run.interview = {"invite_uid": 5, "company_id": "co_beigeware", "template_id": "job_mid_backend",
-		"tier": "mid", "seed": "42", "question_ids": [], "warmup_id": "", "probe_line": "", "tired": false}
+		"tier": "mid", "seed": "42", "question_ids": [], "warmup_id": "", "tired": false}
 	run.make_offer(cfg, tiers["mid"], bgs["self_taught"], content, 30.0)
 	run.rent_days_left = 5
 	var offer := run.offer.duplicate(true)

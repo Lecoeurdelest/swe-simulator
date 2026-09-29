@@ -7,8 +7,6 @@
 [ext_resource type="Script" uid="uid://mupxpf77wo4u" path="res://ui/components/pip_bar.gd" id="5_pips"]
 [ext_resource type="PackedScene" uid="uid://wp1ei375tcln" path="res://features/job_hunt/job_card.tscn" id="6_card"]
 [ext_resource type="Script" uid="uid://by4a0w26f4x1h" path="res://features/job_hunt/dock_button.gd" id="7_dock"]
-[ext_resource type="Script" uid="uid://meqtckdlckun" path="res://features/job_hunt/cv_screen.gd" id="8_cv"]
-[ext_resource type="PackedScene" path="res://features/job_hunt/cv_row.tscn" id="9_row"]
 [ext_resource type="PackedScene" uid="uid://cv7u0us1tep67" path="res://ui/components/ducky_note.tscn" id="10_duck"]
 [ext_resource type="Script" uid="uid://bftmd5slkwwme" path="res://features/job_hunt/mail_screen.gd" id="11_mail"]
 [ext_resource type="PackedScene" path="res://features/job_hunt/coach_mark.tscn" id="12_coach"]
@@ -242,92 +240,6 @@ autowrap_mode = 3
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="CvPanel" type="VBoxContainer" parent="SafeArea/Column/Body" unique_id=195502986]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 4
-script = ExtResource("8_cv")
-
-[node name="CvHeader" type="VBoxContainer" parent="SafeArea/Column/Body/CvPanel"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 2
-
-[node name="CvTopRow" type="HBoxContainer" parent="SafeArea/Column/Body/CvPanel/CvHeader"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 4
-
-[node name="TagSet" type="Label" parent="SafeArea/Column/Body/CvPanel/CvHeader/CvTopRow"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Java, Python, SQL, Git"
-autowrap_mode = 3
-
-[node name="RiskLabel" type="Label" parent="SafeArea/Column/Body/CvPanel/CvHeader/CvTopRow"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 0
-text = "Lie risk"
-
-[node name="RiskDots" type="Control" parent="SafeArea/Column/Body/CvPanel/CvHeader/CvTopRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 12)
-layout_mode = 2
-size_flags_vertical = 0
-mouse_filter = 2
-script = ExtResource("5_pips")
-
-[node name="CvChips" type="HBoxContainer" parent="SafeArea/Column/Body/CvPanel/CvHeader"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 12
-
-[node name="DegreeChip" type="Label" parent="SafeArea/Column/Body/CvPanel/CvHeader/CvChips"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Degree: yes"
-
-[node name="YearsChip" type="Label" parent="SafeArea/Column/Body/CvPanel/CvHeader/CvChips"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Counts as 1+ yrs: no"
-
-[node name="CvScroll" type="ScrollContainer" parent="SafeArea/Column/Body/CvPanel"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 3
-horizontal_scroll_mode = 0
-vertical_scroll_mode = 3
-
-[node name="CvList" type="VBoxContainer" parent="SafeArea/Column/Body/CvPanel/CvScroll"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-mouse_filter = 2
-theme_override_constants/separation = 10
-alignment = 2
-
-[node name="EduRow" parent="SafeArea/Column/Body/CvPanel/CvScroll/CvList" instance=ExtResource("9_row")]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="ExpRow" parent="SafeArea/Column/Body/CvPanel/CvScroll/CvList" instance=ExtResource("9_row")]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="ProjRow" parent="SafeArea/Column/Body/CvPanel/CvScroll/CvList" instance=ExtResource("9_row")]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="CvTip" parent="SafeArea/Column/Body/CvPanel/CvScroll/CvList" instance=ExtResource("10_duck")]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-
 [node name="MailPanel" type="VBoxContainer" parent="SafeArea/Column/Body" unique_id=534837471]
 unique_name_in_owner = true
 visible = false
@@ -502,16 +414,6 @@ focus_mode = 0
 theme_type_variation = &"PrimaryButton"
 text = "STUDY  2"
 
-[node name="CvDoneButton" type="Button" parent="SafeArea/Column/ThumbBand/AppActions"]
-unique_name_in_owner = true
-visible = false
-custom_minimum_size = Vector2(168, 36)
-layout_mode = 2
-size_flags_horizontal = 3
-focus_mode = 0
-theme_type_variation = &"PrimaryButton"
-text = "DONE"
-
 [node name="MorningActions" type="HBoxContainer" parent="SafeArea/Column/ThumbBand" unique_id=883843016]
 unique_name_in_owner = true
 visible = false
@@ -537,7 +439,7 @@ alignment = 1
 
 [node name="JobsDock" type="Button" parent="SafeArea/Column/ThumbBand/Dock" unique_id=260678966]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(47, 40)
+custom_minimum_size = Vector2(60, 40)
 layout_mode = 2
 focus_mode = 0
 theme_type_variation = &"DockButton"
@@ -545,19 +447,9 @@ toggle_mode = true
 text = "Jobs"
 script = ExtResource("7_dock")
 
-[node name="CvDock" type="Button" parent="SafeArea/Column/ThumbBand/Dock" unique_id=1622875319]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(47, 40)
-layout_mode = 2
-focus_mode = 0
-theme_type_variation = &"DockButton"
-toggle_mode = true
-text = "CV"
-script = ExtResource("7_dock")
-
 [node name="MailDock" type="Button" parent="SafeArea/Column/ThumbBand/Dock" unique_id=395254279]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(47, 40)
+custom_minimum_size = Vector2(60, 40)
 layout_mode = 2
 focus_mode = 0
 theme_type_variation = &"DockButton"
@@ -567,7 +459,7 @@ script = ExtResource("7_dock")
 
 [node name="StudyDock" type="Button" parent="SafeArea/Column/ThumbBand/Dock" unique_id=1516902301]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(47, 40)
+custom_minimum_size = Vector2(60, 40)
 layout_mode = 2
 focus_mode = 0
 theme_type_variation = &"DockButton"
@@ -577,7 +469,7 @@ script = ExtResource("7_dock")
 
 [node name="SleepDock" type="Button" parent="SafeArea/Column/ThumbBand/Dock" unique_id=920141217]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(47, 40)
+custom_minimum_size = Vector2(60, 40)
 layout_mode = 2
 focus_mode = 0
 theme_type_variation = &"DockButton"

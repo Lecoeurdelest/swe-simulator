@@ -51,7 +51,7 @@ func _app(run: RunState, tier_id: String, p: float, relevant: bool = true, knock
 		"reveal_day": Odds.reply_day(cfg, tiers[tier_id], run.day, knockout),
 		"p": p, "hits": 2 if relevant else 1, "relevant": relevant, "knockout": knockout,
 		"knockout_reason": {"id": "knock_degree", "args": {}} if knockout else {},
-		"is_ghost": ghost, "referral": false, "tailored": true, "lies": [], "status": "pending",
+		"is_ghost": ghost, "referral": false, "tailored": true, "status": "pending",
 	}
 	run.applications.append(app)
 	return app

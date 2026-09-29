@@ -204,7 +204,7 @@ func test_blacklisted_companies_leave_the_board_and_tiers_never_run_dry() -> voi
 	for _morning: int in 10:
 		run.deal_board(cfg, tiers, content, rng)
 		for card: Dictionary in run.board:
-			assert_ne(card["company_id"], "co_beigeware", "declined / BUSTED companies stop appearing")
+			assert_ne(card["company_id"], "co_beigeware", "declined companies stop appearing")
 	# Both MVP startups blacklisted: the tier falls back to its other company (and its pinned template).
 	run.blacklist.append_array(["co_synergai", "co_quantumleaf"])
 	var saw_stealth_template := false

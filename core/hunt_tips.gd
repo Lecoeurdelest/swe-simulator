@@ -2,7 +2,7 @@
 class_name HuntTips
 extends RefCounted
 ## Which Ducky tip the job hunt shows, and when (GDD 8.3). A tip waits for a natural pause (8.1 rule 3):
-## the night summary, the morning inbox, the CV screen, Study, and the offer that ends the hunt.
+## the night summary, the morning inbox, Study, and the offer that ends the hunt.
 ## Pure: it only reads the run.
 ## GameState.mark_tip_shown() records a once-per-run tip in run.tips_shown.
 
@@ -12,14 +12,11 @@ const REJECTION_TIP_EVERY := 10  # GDD 8.3: "first rejection email / every 10th 
 const INVITED_STATUSES: PackedStringArray = ["invited", "interview", "expired"]
 
 
-## Mail's one tip (GDD S06, 8.1 rule 2, 8.3): an offer rescinded today -> tip_honesty_checks
-## ("BUSTED or rescinded"); else, under the rejection stack, the run's first knockout rejection ->
-## tip_ats_knockouts; else its first rejection, or every 10th -> tip_rejection_numbers; "" for none.
-## The run is read after the Sleep that built the report (its rejections are counted), so one report
-## gives the same tip in the morning and in Mail later that day, until a rescind takes the slot.
+## Mail's one tip (GDD S06, 8.1 rule 2, 8.3), under the rejection stack: the run's first knockout
+## rejection -> tip_ats_knockouts; else its first rejection, or every 10th -> tip_rejection_numbers;
+## "" for none. The run is read after the Sleep that built the report (its rejections are counted),
+## so one report gives the same tip in the morning and in Mail later that day.
 static func inbox(run: RunState, report: Dictionary) -> String:
-	if not run.rescinded.is_empty():
-		return "tip_honesty_checks"
 	var rejections: Array = report.get("rejections", [])
 	if rejections.is_empty():
 		return ""
@@ -38,8 +35,10 @@ static func inbox(run: RunState, report: Dictionary) -> String:
 
 
 ## Tonight's tip on the lock screen, each once per run: the first referral used -> tip_referrals;
-## 8 Quick Applies without an invite -> tip_tailor_over_spray. "" for none.
-static func night(run: RunState) -> String:
+## 8 Quick Applies without an invite -> tip_tailor_over_spray; after a Tailor & Apply (every line sent
+## as its honest Polished reframing) -> tip_projects_count when bg's honest CV fails "1+ years"
+## (years_pass_honest: the Graduate, the Self-Taught), then tip_quantify_impact. "" for none.
+static func night(run: RunState, bg: BackgroundData = null) -> String:
 	if not run.tips_shown.has("tip_referrals"):
 		for app: Dictionary in run.applications:
 			if bool(app.get("referral", false)):
@@ -51,24 +50,11 @@ static func night(run: RunState) -> String:
 				quick += 1
 		if quick >= SPRAY_QUICK_APPLIES:
 			return "tip_tailor_over_spray"
-	return ""
-
-
-## The CV screen's first open this run -> tip_quantify_impact (GDD S05).
-static func cv_opened(run: RunState) -> String:
-	return "" if run.tips_shown.has("tip_quantify_impact") else "tip_quantify_impact"
-
-
-## A CV segment tap: Polished on Experience -> tip_projects_count, once per run (GDD 8.3), for a
-## background whose honest Experience line fails the years knockout and whose Polished one passes it
-## (the Graduate and the Self-Taught). The lines decide, never the background id (INV-09).
-static func cv_level_chosen(run: RunState, cv_lines: Dictionary, line: String, level: String) -> String:
-	if line != "exp" or level != "polished" or run.tips_shown.has("tip_projects_count"):
-		return ""
-	var honest := run.cv_line(cv_lines, "exp", "honest")
-	var polished := run.cv_line(cv_lines, "exp", "polished")
-	if not bool(honest.get("passes_years", false)) and bool(polished.get("passes_years", false)):
-		return "tip_projects_count"
+	if _any_tailored(run):
+		if bg != null and not bg.years_pass_honest and not run.tips_shown.has("tip_projects_count"):
+			return "tip_projects_count"
+		if not run.tips_shown.has("tip_quantify_impact"):
+			return "tip_quantify_impact"
 	return ""
 
 
@@ -108,3 +94,10 @@ static func _knockout_rejections(run: RunState) -> int:
 		if str(app.get("status", "")) == "rejected" and bool(app.get("knockout", false)):
 			count += 1
 	return count
+
+
+static func _any_tailored(run: RunState) -> bool:
+	for app: Dictionary in run.applications:
+		if bool(app.get("tailored", false)):
+			return true
+	return false

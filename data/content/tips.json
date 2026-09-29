@@ -7,17 +7,17 @@
   "tip_keywords_honest": {
     "short": "Use the posting's real terms for skills you actually have. Recruiters search for them.",
     "more": "Don't paste the whole posting into your CV; mirror the terms that honestly describe your work.",
-    "triggers": "CV screen, low match"
+    "triggers": "none in the MVP (was the CV screen)"
   },
   "tip_quantify_impact": {
     "short": "Use numbers: 'raised test coverage from 41% to 58%' beats 'worked on testing'.",
     "more": "Action verb + what you did + a measurable result. Put your strongest line first.",
-    "triggers": "CV first open"
+    "triggers": "night after a Tailor & Apply"
   },
   "tip_projects_count": {
     "short": "Projects, TA work and freelance count as experience. Describe them honestly and concretely.",
     "more": "Say what you built, for whom, and what happened. 'Capstone team of 4, shipped' is honest and strong.",
-    "triggers": "Polished Experience"
+    "triggers": "night after a Tailor & Apply, when the honest CV fails 1+ years"
   },
   "tip_tailor_over_spray": {
     "short": "A tailored application to a job you really fit is much more likely to get a reply than a one-click one.",
@@ -78,16 +78,6 @@
     "short": "Always ask a question at the end: success in 90 days, code review, on-call.",
     "more": "It shows interest, and the answers tell you whether you want the job.",
     "triggers": "eq_any_questions"
-  },
-  "tip_say_i_dont_know": {
-    "short": "'I don't know, but here's how I'd find out' beats a bluff.",
-    "more": "Interviewers respect honesty and a clear way of solving problems.",
-    "triggers": "Come clean"
-  },
-  "tip_honesty_checks": {
-    "short": "Don't lie on a CV. Interviewers dig in, and degrees and dates get verified.",
-    "more": "Offers can be withdrawn, even after you start. Honest reframing gets you most of the benefit.",
-    "triggers": "BUSTED, rescinded"
   },
   "tip_fundamentals": {
     "short": "Frameworks change fast. Fundamentals transfer: data structures, databases, networking, testing.",

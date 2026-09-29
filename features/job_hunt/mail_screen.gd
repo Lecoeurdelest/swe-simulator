@@ -1,12 +1,11 @@
 class_name MailScreen
 extends VBoxContainer
 ## DoomApply's Mail (GDD S06, ARCHITECTURE 11.4): one scrolling list, in this order: the grace-day line,
-## the first-run coach mark, the waiting invites ([ Later ][ GO NOW ] inside each card), a rescinded
-## offer (with the tip under it), the expiry notices, the rejections as one stack card with [Flip all]
-## (the tip under it otherwise), the quiet no-reply footer and the Radar update. It shows the morning
-## report, or later that day run.day_mail; the invites are always the live run.invites. [ Start day ] is
-## the hub's pinned action row, outside the list. Buttons in the list PASS their input on, so a drag
-## scrolls (Step 2 result).
+## the first-run coach mark, the waiting invites ([ Later ][ GO NOW ] inside each card), the expiry
+## notices, the rejections as one stack card with [Flip all] (the tip under it), the quiet no-reply
+## footer and the Radar update. It shows the morning report, or later that day run.day_mail; the
+## invites are always the live run.invites. [ Start day ] is the hub's pinned action row, outside the
+## list. Buttons in the list PASS their input on, so a drag scrolls (Step 2 result).
 
 signal go_now(invite: Dictionary)
 
@@ -38,7 +37,7 @@ func _ready() -> void:
 ## run.day_mail later that day. coach = show the first-run invite coach mark (GDD 4.3).
 func show_mail(report: Dictionary, morning: bool, coach: bool) -> void:
 	var run := GameState.run
-	var key := hash([report, run.invites, run.rescinded, run.energy, run.interviews_today, run.day, morning, coach])
+	var key := hash([report, run.invites, run.energy, run.interviews_today, run.day, morning, coach])
 	if key == _built_key and _list.get_child_count() > 0:
 		return
 	_built_key = key
@@ -54,17 +53,12 @@ func show_mail(report: Dictionary, morning: bool, coach: bool) -> void:
 	if _coach != null and not _invite_cards.is_empty():
 		_coach.point(Content.text("barks", "coach_invite_no_research"), _invite_cards[0].go_button())
 		_coach.visible = not _invite_cards[0].is_folded()  # it points at GO NOW: gone while Later folds it
-	var tip := HuntTips.inbox(run, report)
-	if not run.rescinded.is_empty():
-		_add(_mail_card("", _from(run.rescinded, false), Content.text("emails", "mail_rescinded")))
-		_add_tip(tip)  # its tip right under it: joke, then tip (GDD 8.1 rule 1)
 	for notice: Variant in report.get("expired", []):
 		var mail_id := str((notice as Dictionary).get("mail_id", "mail_invite_expired"))
 		_add(_mail_card(Content.field("emails", mail_id, "subject"), _from(notice, true),
 			Content.field("emails", mail_id, "body")))
 	_add_rejections(report)
-	if run.rescinded.is_empty():
-		_add_tip(tip)
+	_add_tip(HuntTips.inbox(run, report))
 	var no_reply := int(report.get("no_reply", 0))
 	if no_reply == 1:
 		_add(_label(Content.text("barks", "ui_ghost_footer_one"), DIM_COLOR))

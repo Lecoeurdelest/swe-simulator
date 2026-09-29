@@ -12,7 +12,6 @@ const VERSION := 1
 ## Job hunt ids (GDD 5.0). The board deals round-robin in TIER_IDS order.
 const TIER_IDS: PackedStringArray = ["startup", "mid", "big"]
 const CV_LINES: PackedStringArray = ["edu", "exp", "proj"]
-const CV_LEVELS: PackedStringArray = ["honest", "polished", "lie"]
 const GUARANTEE_DAY := 2              # the first-run guarantee: day-1 applications, the morning of day 2
 const REJECT_MAIL_PREFIX := "mail_reject_"   # emails.json: the plain rejection lines
 const OFFER_PERKS := 2                # GDD 5.9, S10: every offer lists 2 perks and 1 fine-print joke
@@ -33,9 +32,6 @@ var lone_wolf: bool = false           # Self-Taught until the first Network (SHO
 var gap_topics: Array[String] = []
 var commute_pips: int = 0
 var commute_minutes: int = 0
-var cv_levels: Dictionary[String, String] = {"edu": "honest", "exp": "honest", "proj": "honest"}
-var lies_carried: Array[String] = []  # Lie cv-line ids that were sent and never busted or confessed
-var confessed: Array[String] = []     # "company_id|cv_line_id": no background check for that pair
 
 # --- day loop ---
 var day: int = 1
@@ -48,7 +44,7 @@ var interviews_today: int = 0
 var next_uid: int = 1
 var board: Array[Dictionary] = []         # the deck, top card first: {uid, template_id, company_id, tier, posted_days_ago, applicants, is_ghost, reposted}
 # applications, in send order: {uid (= the card's), template_id, company_id, tier, day_sent, reveal_day, p, hits,
-#   relevant, knockout, knockout_reason {id, args}, is_ghost, referral, tailored, lies, status}
+#   relevant, knockout, knockout_reason {id, args}, is_ghost, referral, tailored, status}
 #   status: pending -> invited | rejected | silent (-> ghosted); invited -> interview | expired
 var applications: Array[Dictionary] = []
 var applied: Array[String] = []           # "template_id|company_id": never dealt again this run
@@ -59,12 +55,12 @@ var invites: Array[Dictionary] = []
 var morning_report: Dictionary = {}       # built by Sleep; the hunt scene shows it, "Start day" clears it
 var day_mail: Dictionary = {}             # the morning report after "Start day": Mail keeps showing it until the next Sleep
 var tips_shown: Array[String] = []        # tip ids a once-per-run trigger already showed (HuntTips, GDD 8.3)
-var blacklist: Array[String] = []         # company ids: declined, BUSTED or rescinded
+var blacklist: Array[String] = []         # company ids whose offer you declined
 var researched: Array[String] = []        # company ids (SHOULD)
 var seen_question_ids: Array[String] = []
 
 # --- interview checkpoint: a resume replays exactly this interview (GDD 5.11) ---
-var interview: Dictionary = {}        # {invite_uid, company_id, template_id, tier, seed, question_ids, probe_line, warmup_id, tired}
+var interview: Dictionary = {}        # {invite_uid, company_id, template_id, tier, seed, question_ids, warmup_id, tired}
 var interviews_taken: int = 0
 var times_met_dana: int = 0
 var dana_last_company: String = ""
@@ -73,7 +69,6 @@ var dana_last_company: String = ""
 # the offer on the table (make_offer): {company_id, template_id, tier, job_title, salary, work_mode, office_days,
 #   commute {id, args}, perks [ids], fine_print, equity_text, negotiated}; texts are emails.json ids, job_title the posting's title
 var offer: Dictionary = {}
-var rescinded: Dictionary = {}        # the offer a background check withdrew: {company_id, template_id, tier, mail_id}; the next Sleep clears it
 var employment: Dictionary = {}       # the accepted offer + red_flags (hire(); Phase 2 reads this)
 var dream_score: int = -1
 var total_applications: int = 0
@@ -98,19 +93,6 @@ func new_uid() -> int:
 	return next_uid - 1
 
 
-## The lie probe's lasting effects (GDD 5.8.5), applied with the interview result so nothing is saved
-## mid-interview: Come clean marks the line confessed for this company (no background check there,
-## 5.9.4), and a confessed or BUSTED line is no longer a lie you carry (Phase 2 hook).
-func settle_probe(company_id: String, cv_line_id: String, came_clean: bool, busted: bool) -> void:
-	if cv_line_id == "":
-		return
-	var pair := company_id + "|" + cv_line_id
-	if came_clean and not confessed.has(pair):
-		confessed.append(pair)
-	if came_clean or busted:
-		lies_carried.erase(cv_line_id)
-
-
 ## A new run's starting numbers from its background (GDD 5.2). GameState adds the name, the seed,
 ## the gap topics and first_run, then deals the day-1 board.
 func set_background(cfg: BalanceConfig, bg: BackgroundData) -> void:
@@ -122,15 +104,6 @@ func set_background(cfg: BalanceConfig, bg: BackgroundData) -> void:
 	rent_days_left = bg.runway_days
 	referral_tokens = bg.referral_tokens
 	lone_wolf = bg.teamwork_mult < bg.teamwork_mult_after_network
-
-
-## The CV screen (GDD 5.4): one line set to Honest, Polished or Lie. Free; it only changes the
-## applications sent after it. False (and no change) for an unknown line or level.
-func set_cv_level(line: String, level: String) -> bool:
-	if not CV_LINES.has(line) or not CV_LEVELS.has(level):
-		return false
-	cv_levels[line] = level
-	return true
 
 
 # ---------- job hunt (GDD 5.6-5.10). Every rule takes its data as arguments: ----------
@@ -171,10 +144,9 @@ func deal_board(cfg: BalanceConfig, tiers: Dictionary, content: Dictionary, rng:
 	return dealt_count
 
 
-## Declined offer, BUSTED or rescinded (GDD 5.7): the company is blacklisted for the run. Its cards
-## leave the board at once (not only at the next morning's deal), its waiting invites are withdrawn
-## without a mail (their applications end "expired"), and its pending applications reveal as
-## silent (_reveal_outcomes).
+## A declined offer (GDD 5.7): the company is blacklisted for the run. Its cards leave the board at
+## once (not only at the next morning's deal), its waiting invites are withdrawn without a mail (their
+## applications end "expired"), and its pending applications reveal as silent (_reveal_outcomes).
 func blacklist_company(company_id: String) -> void:
 	if not blacklist.has(company_id):
 		blacklist.append(company_id)
@@ -199,19 +171,16 @@ func skip_card(card_uid: int) -> bool:
 	return true
 
 
-## The CV lines actually sent (GDD 5.4): as set on the CV screen, or, when tailored, every Honest
-## line goes out Polished (a Lie stays a Lie). Returns {line_ids, tags (the union), degree,
-## passes_years, lies (the Lie line ids)}.
+## The CV lines actually sent (GDD 5.4): your background's true CV. Quick Apply sends every line
+## Honest; Tailor & Apply sends every line as its Polished version (honest reframing) for that one
+## application. Returns {line_ids, tags (the union), degree, passes_years}.
 func cv_sent(cv_lines: Dictionary, tailored: bool) -> Dictionary:
+	var level := "polished" if tailored else "honest"
 	var line_ids: Array[String] = []
 	var tags: Array[String] = []
-	var lies: Array[String] = []
 	var degree := false
 	var passes_years := false
 	for line: String in CV_LINES:
-		var level: String = cv_levels.get(line, "honest")
-		if tailored and level == "honest":
-			level = "polished"
 		var id := _cv_line_id(cv_lines, line, level)
 		if id.is_empty():
 			continue
@@ -222,14 +191,12 @@ func cv_sent(cv_lines: Dictionary, tailored: bool) -> Dictionary:
 				tags.append(str(tag))
 		degree = degree or bool(entry.get("degree", false))
 		passes_years = passes_years or bool(entry.get("passes_years", false))
-		if level == "lie":
-			lies.append(id)
-	return {"line_ids": line_ids, "tags": tags, "degree": degree, "passes_years": passes_years, "lies": lies}
+	return {"line_ids": line_ids, "tags": tags, "degree": degree, "passes_years": passes_years}
 
 
-## What a card shows (GDD S04): its 3 tags checked against the CV as set ({tag, hit}), and for each
+## What a card shows (GDD S04): its 3 tags checked against your honest CV ({tag, hit}), and for each
 ## way to apply ("quick", "tailored", "referral" = tailored + a token) {p, band, hits, relevant,
-## knockout, lies}. knockout is the red chip: {id, args} into postings.json ("card_knockout" wraps
+## knockout}. knockout is the red chip: {id, args} into postings.json ("card_knockout" wraps
 ## it), or {} for none. Ghost risk is never included. {} if the card's data is missing.
 func card_odds(cfg: BalanceConfig, tiers: Dictionary, bg: BackgroundData, content: Dictionary, card: Dictionary) -> Dictionary:
 	var tier := _tier(tiers, str(card.get("tier", "")))
@@ -237,10 +204,10 @@ func card_odds(cfg: BalanceConfig, tiers: Dictionary, bg: BackgroundData, conten
 	if tier == null or posting.is_empty():
 		return {}
 	var cv := _file(content, "cv_lines")
-	var as_set: Array = cv_sent(cv, false)["tags"]
+	var honest: Array = cv_sent(cv, false)["tags"]
 	var tag_rows: Array[Dictionary] = []
 	for tag: Variant in posting.get("tags", []):
-		tag_rows.append({"tag": str(tag), "hit": as_set.has(str(tag))})
+		tag_rows.append({"tag": str(tag), "hit": honest.has(str(tag))})
 	return {
 		"tags": tag_rows,
 		"quick": _quote(cfg, tier, bg, posting, cv, false, false),
@@ -275,16 +242,12 @@ func apply_card(cfg: BalanceConfig, tiers: Dictionary, bg: BackgroundData, conte
 		"reveal_day": Odds.reply_day(cfg, tier, day, not knockout.is_empty()),
 		"p": _frozen_p(quote["p"]), "hits": quote["hits"], "relevant": quote["relevant"],
 		"knockout": not knockout.is_empty(), "knockout_reason": knockout,
-		"is_ghost": card["is_ghost"], "referral": referral, "tailored": tailored,
-		"lies": quote["lies"], "status": "pending",
+		"is_ghost": card["is_ghost"], "referral": referral, "tailored": tailored, "status": "pending",
 	}
 	applications.append(app)
 	applied.append(pair_key(str(card["template_id"]), str(card["company_id"])))
 	board.remove_at(i)
 	total_applications += 1
-	for lie: String in quote["lies"]:
-		if not lies_carried.has(lie):
-			lies_carried.append(lie)
 	return app
 
 
@@ -309,7 +272,6 @@ func sleep(cfg: BalanceConfig, tiers: Dictionary = {}, bg: BackgroundData = null
 	rent_days_left = maxi(rent_days_left - 1, 0)
 	energy = cfg.energy_max - commute_pips
 	interviews_today = 0
-	rescinded = {}
 	day_mail = {}
 	for card: Dictionary in board:
 		card["posted_days_ago"] = int(card["posted_days_ago"]) + 1
@@ -340,58 +302,6 @@ func take_invite(invite_uid: int) -> Dictionary:
 				app["status"] = "interview"
 			return invite
 	return {}
-
-
-## GDD 5.8.5, rolled by GameState.start_interview on the run RNG before the checkpoint is frozen:
-## the Lie CV line Dana probes in this interview, or "". The Lie lines sent in that application
-## count, in CV order, when one shares a tag with the posting or is a degree claim; each counting
-## line rolls tier.lie_probe_chance until one hits. One probe at most: the checkpoint holds a single
-## probe_line (cfg.max_probes_per_interview = 0 turns probes off). No application (a "saw your
-## profile" invite) means no lies sent, so no probe.
-func roll_probe(cfg: BalanceConfig, tier: TierData, content: Dictionary, app_uid: int, rng: RandomNumberGenerator) -> String:
-	var app := _application(app_uid)
-	if app.is_empty() or cfg.max_probes_per_interview <= 0:
-		return ""
-	var cv := _file(content, "cv_lines")
-	var posting_tags: Array = _posting(content, str(app["template_id"])).get("tags", [])
-	for id: Variant in app.get("lies", []):
-		var line: Variant = cv.get(str(id))
-		if not (line is Dictionary):
-			continue
-		var counts := bool((line as Dictionary).get("degree_claim", false))
-		for tag: Variant in (line as Dictionary).get("tags", []):
-			counts = counts or posting_tags.has(tag)
-		if counts and Odds.roll(rng, tier.lie_probe_chance):
-			return str(id)
-	return ""
-
-
-## GDD 5.9.4, on Accept: true when the background check catches you. Only a degree-claim Lie sent
-## to this company (in any application) and never confessed there rolls tier.background_check, once,
-## on the run RNG; otherwise no dice and false.
-func background_check_caught(tier: TierData, content: Dictionary, company_id: String, rng: RandomNumberGenerator) -> bool:
-	var cv := _file(content, "cv_lines")
-	for app: Dictionary in applications:
-		if str(app["company_id"]) != company_id:
-			continue
-		for id: Variant in app.get("lies", []):
-			var line: Variant = cv.get(str(id))
-			if line is Dictionary and bool((line as Dictionary).get("degree_claim", false)) \
-					and not confessed.has(company_id + "|" + str(id)):
-				return Odds.roll(rng, tier.background_check)
-	return false
-
-
-## Caught by the background check (GDD 5.9.4): the offer is withdrawn and its company blacklisted.
-## `rescinded` keeps the "OFFER RESCINDED" mail for the hunt scene until the next Sleep.
-func rescind_offer() -> void:
-	var company_id := str(offer.get("company_id", ""))
-	rescinded = {
-		"company_id": company_id, "template_id": offer.get("template_id", ""), "tier": offer.get("tier", ""),
-		"mail_id": "mail_rescinded",
-	}
-	offer = {}
-	blacklist_company(company_id)
 
 
 ## GDD 5.9, S10: the whole offer, built by GameState.finish_interview from the interview checkpoint
@@ -438,7 +348,7 @@ static func offer_commute(office_days: int, commute_minutes: int) -> Dictionary:
 		"args": {"office_days": office_days, "commute_min": commute_minutes, "hours": "%.1f" % hours}}
 
 
-## GDD 5.9.4-5.9.5, an Accept that passed the background check: the offer becomes the job, with its
+## GDD 5.9.4-5.9.5, Accept: the offer becomes the job, with its
 ## company's red flags (GDD 10.4; company_red_flags is that company's companies.json list), and is
 ## scored Dream vs Reality with the rent days left today. The offer stays as it was.
 func hire(cfg: BalanceConfig, bg: BackgroundData, company_red_flags: Array) -> void:
@@ -749,7 +659,6 @@ func _quote(cfg: BalanceConfig, tier: TierData, bg: BackgroundData, posting: Dic
 		"p": p, "band": Odds.odds_band(cfg, p), "hits": hits, "relevant": Odds.is_relevant(cfg, hits),
 		"knockout": Odds.knockout_reason(bool(posting.get("degree", false)), int(posting.get("min_years", 0)),
 			bool(sent["degree"]), bool(sent["passes_years"]), referral),
-		"lies": sent["lies"],
 	}
 
 
@@ -759,14 +668,8 @@ static func _frozen_p(p: float) -> float:
 	return ("%.9f" % p).to_float()
 
 
-## This background's cv_lines.json entry for a line at a level (the CV screen shows its text and
-## tags), or {} if the content has none.
-func cv_line(cv_lines: Dictionary, line: String, level: String) -> Dictionary:
-	var id := _cv_line_id(cv_lines, line, level)
-	return cv_lines[id] if not id.is_empty() else {}
-
-
-## The cv_lines.json id for this background's line at a level (the fields decide, not the id's spelling).
+## The cv_lines.json id for this background's line at a level, "honest" or "polished" (the fields
+## decide, not the id's spelling).
 func _cv_line_id(cv_lines: Dictionary, line: String, level: String) -> String:
 	for key: Variant in cv_lines:
 		var entry: Variant = cv_lines[key]

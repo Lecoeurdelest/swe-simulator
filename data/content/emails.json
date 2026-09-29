@@ -45,7 +45,6 @@
   "notif_profile_view": "HumbleBrag: a recruiter viewed your profile! See who with Premium Gold+. (It was a bot.)",
   "notif_typing": "The recruiter is typing...",
   "notif_typing_stop": "The recruiter stopped typing.",
-  "mail_rescinded": "Our background check found that 'Very Famous University' has no record of you. Or of itself. The offer is withdrawn.",
   "offer_title": "OFFER OF EMPLOYMENT - {company}",
   "offer_dear": "Dear {player_name},",
   "offer_role": "We are thrilled (legally required wording) to offer you the role of {job_title}.",

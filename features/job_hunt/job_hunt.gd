@@ -1,12 +1,12 @@
 extends Control
 ## The job hunt hub (GDD S04-S06, ARCHITECTURE 11.4): the screen is your phone running DoomApply. From
 ## the top: the HUD (information only), the app header, the body (one app at a time: Jobs = the deck,
-## CV = Buzzwordsmith, Mail = the inbox, Study = BigOhNo), the action row and the dock. Sleep locks the
-## phone (the night summary); after it, Mail holds the morning inbox until Start day. On the first run
-## Ducky's coach marks sit over the card's header strip (GDD 4.3). Rules live in RunState and HuntTips:
-## this scene shows `run` and calls GameState verbs.
+## Mail = the inbox, Study = BigOhNo), the action row and the dock. Sleep locks the phone (the night
+## summary); after it, Mail holds the morning inbox until Start day. On the first run Ducky's coach
+## marks sit over the card's header strip (GDD 4.3). Rules live in RunState and HuntTips: this scene
+## shows `run` and calls GameState verbs.
 
-enum App { JOBS, CV, MAIL, STUDY }
+enum App { JOBS, MAIL, STUDY }
 
 const SLEEP_CONFIRM_PIPS := 2  # GDD S04: Sleep asks first while 2 or more pips are left
 const COACH_SLEEP_PIPS := 2    # GDD 4.3: the Sleep coach mark at 2 energy or less...
@@ -40,7 +40,6 @@ var _study_count := 0       # rotates BigOhNo's jokes (cosmetic)
 @onready var _card: JobCard = %Card
 @onready var _empty_deck: PanelContainer = %EmptyDeck
 @onready var _empty_text: Label = %EmptyText
-@onready var _cv: CvScreen = %CvPanel
 @onready var _mail: MailScreen = %MailPanel
 @onready var _study_text: Label = %StudyText
 @onready var _study_tip: DuckyNote = %StudyTip
@@ -59,7 +58,6 @@ var _study_count := 0       # rotates BigOhNo's jokes (cosmetic)
 @onready var _app_actions: HBoxContainer = %AppActions
 @onready var _app_back_button: Button = %AppBackButton
 @onready var _study_button: Button = %StudyButton
-@onready var _cv_done_button: Button = %CvDoneButton
 @onready var _morning_actions: HBoxContainer = %MorningActions
 @onready var _start_day_button: Button = %StartDayButton
 @onready var _sleep_dock: DockButton = %SleepDock
@@ -73,10 +71,10 @@ var _study_count := 0       # rotates BigOhNo's jokes (cosmetic)
 @onready var _debug_panel: VBoxContainer = %DebugPanel
 ## Each app's dock slot and body panel, in dock order.
 @onready var _docks: Dictionary[App, DockButton] = {
-	App.JOBS: %JobsDock, App.CV: %CvDock, App.MAIL: %MailDock, App.STUDY: %StudyDock,
+	App.JOBS: %JobsDock, App.MAIL: %MailDock, App.STUDY: %StudyDock,
 }
 @onready var _panels: Dictionary[App, Control] = {
-	App.JOBS: %JobsPanel, App.CV: %CvPanel, App.MAIL: %MailPanel, App.STUDY: %StudyPanel,
+	App.JOBS: %JobsPanel, App.MAIL: %MailPanel, App.STUDY: %StudyPanel,
 }
 
 
@@ -97,10 +95,8 @@ func _ready() -> void:
 	_tailor_button.text = UiText.cost(UiText.primary(Content.text("barks", "ui_tailor")), cfg.cost_tailor_apply)
 	_app_back_button.text = UiText.back(Content.text("barks", "ui_back"))
 	_study_button.text = UiText.cost(UiText.primary(Content.text("barks", "ui_tab_study")), cfg.cost_study)
-	_cv_done_button.text = UiText.primary(Content.text("barks", "ui_done"))
 	_start_day_button.text = UiText.primary(Content.text("barks", "ui_start_day"))
 	_docks[App.JOBS].text = Content.text("barks", "ui_tab_jobs")
-	_docks[App.CV].text = Content.text("barks", "ui_tab_cv")
 	_docks[App.MAIL].text = Content.text("barks", "ui_tab_mail")
 	_docks[App.STUDY].text = Content.text("barks", "ui_tab_study")
 	_sleep_dock.text = Content.text("barks", "ui_sleep")
@@ -114,7 +110,6 @@ func _ready() -> void:
 	_apply_button.pressed.connect(_send.bind(false))
 	_tailor_button.pressed.connect(_send.bind(true))
 	_study_button.pressed.connect(_on_study)
-	_cv_done_button.pressed.connect(_open_app.bind(App.JOBS))
 	_start_day_button.pressed.connect(_on_start_day)
 	_card.swiped.connect(_on_card_swiped)
 	_card.tapped.connect(_on_card_tapped)
@@ -123,13 +118,11 @@ func _ready() -> void:
 	_mail.go_now.connect(_on_go_now)
 	_night.dismissed.connect(_refresh)
 	_sleep_confirm.confirmed.connect(_sleep)
-	_pause.quit_to_title_pressed.connect(_on_quit_to_title)
+	_pause.quit_to_title_pressed.connect(GameState.quit_to_title)
 	GameState.run_changed.connect(_refresh)
 	_setup_debug()
 	if _morning_pending():
 		_open_night()  # a Continue between Sleep and Start day replays the night, then the same morning
-	elif not GameState.run.rescinded.is_empty():
-		_app = App.MAIL  # Accept just ended in OFFER RESCINDED (GDD 5.9.4): show its mail and tip first
 	_refresh()
 
 
@@ -178,8 +171,6 @@ func _refresh() -> void:
 		_panels[each].visible = each == app
 		_docks[each].set_pressed_no_signal(each == app)
 	match app:
-		App.CV:
-			_cv.refresh()
 		App.MAIL:
 			_mail.show_mail(_mail_report(), _morning_pending(), _coach_invite())
 		App.STUDY:
@@ -208,7 +199,6 @@ func _refresh_actions() -> void:
 	_study_button.visible = app == App.STUDY
 	# At the cap Study would only burn pips (GDD 5.1: KNOWLEDGE caps at stat_cap).
 	_study_button.disabled = run.energy < cfg.cost_study or run.stat("knw") >= cfg.stat_cap
-	_cv_done_button.visible = app == App.CV
 	for each: App in _docks:
 		_docks[each].disabled = morning and each != App.MAIL
 	_sleep_dock.disabled = morning
@@ -259,14 +249,12 @@ func _rent_text(days: int) -> String:
 
 func _app_title(app: App) -> String:
 	match app:
-		App.CV:
-			return Content.text("naming", "app_cv")
 		App.STUDY:
 			return Content.text("naming", "app_study")
 	return Content.text("naming", "app_jobs")  # Jobs and DoomApply's Mail
 
 
-## Leaving the CV screen commits the CV change (ARCHITECTURE 8); opening it or Study starts them fresh.
+## Opening Study starts it fresh (no joke, no tip).
 func _open_app(app: App) -> void:
 	if _busy:
 		_refresh()  # a dock tap mid-animation only puts the dock's highlight back
@@ -274,11 +262,7 @@ func _open_app(app: App) -> void:
 	if app != App.JOBS and _card.is_back():
 		_card.flip(false)
 	var from := _app
-	if from == App.CV and app != App.CV:
-		GameState.commit_cv()
 	_app = app
-	if app == App.CV and from != App.CV:
-		_cv.opened()
 	if app == App.STUDY and from != App.STUDY:
 		_study_joke.hide()
 		_study_tip.hide()
@@ -457,7 +441,8 @@ func _sleep() -> void:
 
 
 ## The lock screen's one notification card (GDD S04) from the morning report's night numbers, with at
-## most one tip (HuntTips.night: the first referral, or 8 Quick Applies without an invite).
+## most one tip (HuntTips.night: the first referral, 8 Quick Applies without an invite, or a
+## Tailor & Apply).
 func _open_night() -> void:
 	var run := GameState.run
 	var night: Dictionary = run.morning_report.get("night", {})
@@ -465,7 +450,7 @@ func _open_night() -> void:
 		Content.text("barks", "ui_night_summary", {"n": int(night.get("applied", 0)),
 			"r": int(night.get("rejected", 0)), "g": int(night.get("ghosted", 0))}),
 		_rent_text(int(night.get("rent_days_left", run.rent_days_left)))]
-	var tip := HuntTips.night(run)
+	var tip := HuntTips.night(run, Content.background(run.background_id))
 	var tip_text := ""
 	if not tip.is_empty():
 		tip_text = Content.field("tips", tip, "short")
@@ -490,13 +475,6 @@ func _on_go_now(invite: Dictionary) -> void:
 		if GameState.run.phase != GameFlow.Phase.JOB_HUNT:
 			return
 	GameState.start_interview(invite)
-
-
-## Pause "Quit to title" from the CV screen still commits the CV change (ARCHITECTURE 8).
-func _on_quit_to_title() -> void:
-	if _app == App.CV:
-		GameState.commit_cv()
-	GameState.quit_to_title()
 
 
 # ---------- debug (debug builds only) ----------

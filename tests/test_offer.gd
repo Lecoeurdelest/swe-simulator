@@ -40,7 +40,7 @@ func _won(bg_id: String, tier_id: String, interview_seed: String) -> RunState:
 	run.set_background(cfg, bgs[bg_id])
 	run.interview = {
 		"invite_uid": 5, "company_id": COMPANY[tier_id], "template_id": POSTING[tier_id], "tier": tier_id,
-		"seed": interview_seed, "question_ids": [], "warmup_id": "", "probe_line": "", "tired": false,
+		"seed": interview_seed, "question_ids": [], "warmup_id": "", "tired": false,
 	}
 	return run
 
@@ -232,14 +232,11 @@ func test_decline_ends_the_run_only_at_zero_rent() -> void:
 
 
 ## GDD 5.11: a kill on the Hired card resumes at the offer (its save was written on entering OFFER,
-## PHASE2_STUB is never saved). Accepting again replays the background check on the same RNG state:
-## the same result, the same RNG state after it, and the same contract. Nothing re-rolls.
-func test_accept_after_a_hired_kill_rolls_the_same_dice() -> void:
-	var outcomes: Dictionary = {}
+## PHASE2_STUB is never saved). Accepting again hires with the same contract and the same Dream
+## score, and Accept rolls no dice (D9: no background check), so the run RNG never moves.
+func test_accept_after_a_hired_kill_hires_the_same_job() -> void:
 	for seed_value: int in range(1, 41):
 		var run := _won("intern", "big", str(seed_value * 31))
-		run.applications.append({"uid": 9, "template_id": POSTING["big"], "company_id": COMPANY["big"],
-			"tier": "big", "lies": ["cv_intern_edu_lie"], "status": "interview"})
 		run.make_offer(cfg, tiers["big"], bgs["intern"], content, 70.0)
 		run.interview = {}
 		run.phase = GameFlow.Phase.OFFER
@@ -249,15 +246,12 @@ func test_accept_after_a_hired_kill_rolls_the_same_dice() -> void:
 		run.rng_seed = str(seed_value)
 		run.rng_state = str(rng.state)  # what GameState.save() writes on entering OFFER
 		var saved := JSON.stringify(run.to_dict())
-		var first := run.background_check_caught(tiers["big"], content, COMPANY["big"], rng)
+		var flags: Array = content["companies"][COMPANY["big"]]["red_flags"]
+		run.hire(cfg, bgs["intern"], flags)
 		var back := RunState.from_dict(JSON.parse_string(saved))
-		var replay := RandomNumberGenerator.new()
-		replay.seed = back.rng_seed.to_int()   # Continue: seed first, then state
-		replay.state = back.rng_state.to_int()
 		assert_eq(back.phase, GameFlow.Phase.OFFER, "Continue resumes at the offer")
 		assert_eq(back.offer, run.offer, "the same contract")
-		assert_eq(back.background_check_caught(tiers["big"], content, COMPANY["big"], replay), first,
-			"seed %d: the same background check" % seed_value)
-		assert_eq(replay.state, rng.state, "seed %d: the run RNG ends in the same state" % seed_value)
-		outcomes[first] = true
-	assert_eq(outcomes.size(), 2, "both outcomes happen across the seeds (Big: 70%)")
+		back.hire(cfg, bgs["intern"], flags)
+		assert_eq(back.employment, run.employment, "seed %d: the same job" % seed_value)
+		assert_eq(back.dream_score, run.dream_score, "seed %d: the same Dream score" % seed_value)
+		assert_eq(back.rng_state, str(rng.state), "seed %d: Accept rolls no dice" % seed_value)

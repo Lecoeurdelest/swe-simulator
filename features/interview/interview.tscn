@@ -297,28 +297,6 @@ layout_mode = 2
 text = "TIRED: needle is faster"
 horizontal_alignment = 1
 
-[node name="ProbeRow" type="HBoxContainer" parent="SafeArea/Column/AnswerArea/ThumbSlot" unique_id=1145946370]
-unique_name_in_owner = true
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 6
-
-[node name="ComeCleanButton" type="Button" parent="SafeArea/Column/AnswerArea/ThumbSlot/ProbeRow" unique_id=554933934]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(124, 44)
-layout_mode = 2
-focus_mode = 0
-theme_type_variation = &"ProbeButton"
-text = "Come clean"
-
-[node name="BluffButton" type="Button" parent="SafeArea/Column/AnswerArea/ThumbSlot/ProbeRow" unique_id=1097649146]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(124, 44)
-layout_mode = 2
-focus_mode = 0
-theme_type_variation = &"ProbeButton"
-text = "Bluff"
-
 [node name="DuckyCard" type="VBoxContainer" parent="SafeArea/Column/AnswerArea/ThumbSlot" unique_id=1195574348]
 unique_name_in_owner = true
 layout_mode = 2
@@ -471,20 +449,6 @@ custom_minimum_size = Vector2(84, 34)
 layout_mode = 2
 focus_mode = 0
 text = "Composure 0"
-
-[node name="ForceBusted" type="Button" parent="DebugLayer/SafeArea/Column/DebugGrid" unique_id=1563757144]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(84, 34)
-layout_mode = 2
-focus_mode = 0
-text = "BUSTED"
-
-[node name="ProbeToggle" type="Button" parent="DebugLayer/SafeArea/Column/DebugGrid" unique_id=329405081]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(84, 34)
-layout_mode = 2
-focus_mode = 0
-text = "Probe: off"
 
 [node name="ReadyOverlay" type="Control" parent="." unique_id=521351083]
 unique_name_in_owner = true

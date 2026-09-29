@@ -1,41 +1,35 @@
 extends Control
-## The interview (GDD S07-S09, ARCHITECTURE 11.6): the VS intro, 5 prompts on the real formulas (one may
-## be the lie probe), then a K.O., the committee wheel or a rejection with Ducky's card. One coroutine,
-## _run(), drives it all.
+## The interview (GDD S07-S09, ARCHITECTURE 11.6): the VS intro, 5 prompts on the real formulas, then a
+## K.O., the committee wheel or a rejection with Ducky's card. One coroutine, _run(), drives it all.
 ## Doubt and Composure live here, not in the save (ARCHITECTURE 8): a resume restarts this interview from
 ## the checkpoint with the same seed, so the same questions and the same luck replay. The dice are rolled
-## in a fixed order whatever you tap (InterviewPlan.meter_rng, the bluff rolled before you choose).
+## in a fixed order whatever you tap (InterviewPlan.meter_rng).
 ## The tap rule: the AnswerMeter sits below SafeArea and every container and panel in SafeArea ignores the
 ## mouse, so a tap that misses a real control reaches the meter; [II] keeps its own tap. Taps that reach
 ## this root finish or advance the dialogue.
-## Debug builds print IVSTART / IVTRACE / IVPROBE / IVWHEEL / IVFORCE / IVRESULT lines and show the
-## DBG panel (forced outcomes and a forced lie probe) in the stage band.
+## Debug builds print IVSTART / IVTRACE / IVWHEEL / IVFORCE / IVRESULT lines and show the DBG panel
+## (forced outcomes) in the stage band.
 
 signal _line_shown
 signal _advanced
 signal _answer_picked(index: int)
-signal _probe_picked(bluffed: bool)
 signal _hunt_chosen
 signal _parked  # never emitted: a flow replaced by a forced debug outcome waits here for good (_wait)
 
 ## Debug quick start (ARCHITECTURE 11.6): project_run mode="custom" on this scene plays this background at
-## this tier. User args override them: --iv-bg=intern --iv-tier=big --iv-probe=edu (edu | exp | proj)
+## this tier. User args override them: --iv-bg=intern --iv-tier=big
 const DEBUG_BG := "graduate"
 const DEBUG_TIER := "mid"
 ## Debug-only panel labels, English on purpose (not player text, so not in CONTENT.md).
 const DEBUG_TOGGLE := "DBG"
-const DEBUG_PROBE := "Probe: %s"
-const DEBUG_PROBE_OFF := "off"
 const PAUSE_ICON := "II"            # stands in for the pause icon until the art pass
 const METER_BAR_TOP := 15.0         # the bar's y in the 40 px meter row: Vague above it, the rest below
 const METER_LABEL_GAP := 4.0
 const PIVOT_FLASH_S := 0.6
 const KO_HOLD_S := 0.5              # GDD S09: "K.O.!" holds 0.5 s, then becomes "OFFER!"
 const KO_HAPTIC_MS := 60            # GDD 9.3
-const BUSTED_HAPTIC_MS := 30        # GDD 9.3: BUSTED is two 30 ms pulses
-const BUSTED_PULSE_GAP_S := 0.12
 const WHEEL_SPIN_S := 2.0           # GDD S09: the wheel spins 2 s
-const BANNER_BIG := 32              # Press Start 2P sizes (GDD 2.7): K.O.!, OFFER! and BUSTED!
+const BANNER_BIG := 32              # Press Start 2P sizes (GDD 2.7): K.O.! and OFFER!
 const BANNER_SMALL := 16            # the committee and rejection banners, up to 3 lines
 const ZONE_COLOR := Color(0.0, 0.894, 0.212)    # the meter's own colors, so each label matches its zone
 const VAGUE_COLOR := Color(1.0, 0.639, 0.0)
@@ -57,8 +51,6 @@ var _worst_q := INF
 var _worst_id := ""
 var _worst_red := false
 var _last_bad_tip := ""
-var _busted := false                # the probe ended in BUSTED: finish_interview blacklists the company
-var _came_clean := false            # you came clean on the probe: the line counts as confessed here
 var _ending := false                # an outcome is playing; nothing can interrupt it
 var _flow := 0                      # bumped by a forced debug outcome: the flow it replaces parks
 var _typing := false
@@ -73,7 +65,6 @@ var _pivot_flash := false
 var _meter_text: Dictionary = {}
 var _player_color := Color.WHITE
 var _hunt_buttons: Array[Button] = []
-var _probe_buttons: Array[Button] = []
 var _debug_enabled := false
 
 @onready var _stage: Control = %Stage
@@ -95,9 +86,6 @@ var _debug_enabled := false
 @onready var _tap_pad: Control = %TapPad
 @onready var _hint_label: Label = %HintLabel
 @onready var _tired_label: Label = %TiredLabel
-@onready var _probe_row: Control = %ProbeRow
-@onready var _come_clean_button: Button = %ComeCleanButton
-@onready var _bluff_button: Button = %BluffButton
 @onready var _ducky_card: Control = %DuckyCard
 @onready var _card_note: DuckyNote = %CardNote
 @onready var _back_to_hunt_button: Button = %BackToHuntButton
@@ -110,7 +98,6 @@ var _debug_enabled := false
 @onready var _debug_layer: Control = %DebugLayer
 @onready var _debug_toggle: Button = %DebugToggle
 @onready var _debug_grid: Control = %DebugGrid
-@onready var _probe_toggle: Button = %ProbeToggle
 @onready var _ready_overlay: Control = %ReadyOverlay
 @onready var _ready_label: Label = %ReadyLabel
 @onready var _pause: PauseMenu = %PauseMenu
@@ -125,7 +112,6 @@ func _ready() -> void:
 	_tier = Content.tier(str(run.interview.get("tier", "")))
 	_bg = Content.background(run.background_id)
 	_hunt_buttons.assign([_back_to_hunt_button])
-	_probe_buttons.assign([_come_clean_button, _bluff_button])
 	_set_static_text()
 	_connect_signals()
 	_setup_debug_panel()
@@ -202,8 +188,7 @@ func _run() -> void:
 	_doubt_bar.max_value = _doubt
 	_composure_bar.max_value = _composure
 	_update_bars()
-	_prompts = InterviewPlan.prompts(iv.get("question_ids", []), Content.entries("questions_choice"),
-		str(iv.get("probe_line", "")))
+	_prompts = InterviewPlan.prompts(iv.get("question_ids", []), Content.entries("questions_choice"))
 	var warmup_id := str(iv.get("warmup_id", ""))
 	_round_label.text = Content.text("barks", "ui_round", {"n": 1, "total": _prompts.size()})
 	_trace_start(iv)
@@ -213,7 +198,6 @@ func _run() -> void:
 	await _greet(iv)
 	for i: int in _prompts.size():
 		_prompt_index = i
-		_update_debug_probe()
 		if i == 1 and warmup_id != "":  # GDD 5.8.2: the warm-up comes before prompt 2
 			await _ask_warmup(warmup_id)
 		var n := i + 1
@@ -224,8 +208,6 @@ func _run() -> void:
 				await _ask_choice(n, str(prompt["id"]))
 			"knowledge":
 				await _ask_knowledge(n, str(prompt["id"]), false)
-			"probe":
-				await _ask_probe(n, str(prompt["id"]))
 		if _doubt <= 0.0:
 			await _ko()
 			return
@@ -233,7 +215,6 @@ func _run() -> void:
 			await _reject("composure_zero", "bark_dana_composure_zero")
 			return
 	_prompt_index = _prompts.size()
-	_update_debug_probe()
 	if Odds.committee_eligible(_cfg, _doubt, _tier.doubt_hp):
 		await _committee()
 	else:
@@ -368,69 +349,6 @@ func _ask_warmup(id: String) -> void:
 	await _ask_knowledge(0, id, true)
 
 
-## GDD 5.8.5 and S08: Dana asks about a Lie line on your CV. [Come clean] left, [Bluff] right with its
-## odds band on a second line (visible luck). The bluff is rolled on the interview RNG before you choose,
-## so a resume can't re-roll it and the later prompts' dice stay the same whichever button you press.
-func _ask_probe(n: int, cv_line_id: String) -> void:
-	var run: RunState = GameState.run
-	var entry: Variant = Content.entry("cv_lines", cv_line_id)
-	if not (entry is Dictionary):
-		push_warning("Interview: no CV line %s for the lie probe; skipped" % cv_line_id)
-		return
-	var cv_line: Dictionary = entry
-	var degree_claim := bool(cv_line.get("degree_claim", false))
-	var p := Odds.bluff_p(_cfg, _tier, run.stat("knw"), run.stat("exp"), degree_claim)
-	var band := Odds.bluff_band(_cfg, p)
-	var holds := Odds.roll(_rng, p)
-	_bluff_button.text = "%s\n%s" % [Content.text("barks", "ui_bluff"),
-		UiText.band(band, Content.text("barks", "ui_odds_%d" % band))]
-	await _say_dana(Content.text("barks", "bark_dana_probe_intro"))
-	_dana_speaks()
-	await _type(tr(InterviewPlan.probe_question(cv_line, str(run.interview.get("company_id", "")))))
-	var bluffed := await _choose_probe()
-	var fields := {"degree_claim": degree_claim, "p": "%.4f" % p, "band": band, "holds": holds}
-	if not bluffed:
-		_came_clean = true
-		_doubt += _cfg.come_clean_doubt
-		_composure -= _cfg.come_clean_comp
-		_update_bars()
-		fields["answer"] = "come_clean"
-		_trace(n, cv_line_id, "probe", fields)
-		await _say_dana_then_note(Content.text("barks", "bark_dana_come_clean"),
-			Content.field("tips", "tip_say_i_dont_know", "short"))  # GDD 8.3: Come clean
-		_ducky_card.hide()
-	elif holds:
-		_doubt += _cfg.bluff_win_doubt
-		_update_bars()
-		fields["answer"] = "bluff_win"
-		_trace(n, cv_line_id, "probe", fields)
-		await _say_dana(Content.text("barks", "bark_dana_bluff_win"))
-	else:
-		fields["answer"] = "busted"
-		await _bust(n, cv_line_id, fields)
-
-
-## BUSTED (GDD 5.8.5, 9.1): the joke (the banner and Dana), the cost on the bars, then the one true tip
-## (GDD 8.3). The interview goes on; finish_interview blacklists the company when it ends.
-func _bust(n: int, cv_line_id: String, fields: Dictionary) -> void:
-	_busted = true
-	_doubt += _cfg.busted_doubt
-	_composure -= _cfg.busted_comp
-	_update_bars()
-	_trace(n, cv_line_id, "probe", fields)
-	_busted_haptic()
-	_show_banner(Content.text("barks", "vs_busted"), BANNER_BIG)
-	await _say_dana_then_note(Content.text("barks", "bark_dana_busted"), Content.field("tips", "tip_honesty_checks", "short"))
-	_ko_banner.hide()
-	_ducky_card.hide()
-
-
-func _busted_haptic() -> void:
-	Device.haptic(BUSTED_HAPTIC_MS)
-	await get_tree().create_timer(BUSTED_PULSE_GAP_S, false).timeout
-	Device.haptic(BUSTED_HAPTIC_MS)
-
-
 func _ko() -> void:
 	_begin_ending()
 	_doubt = 0.0
@@ -499,7 +417,6 @@ func _rejection_card(tip_id: String) -> void:
 ## One tip that matches the cause (GDD 8.1 rule 4, 8.3). Agent default, please review: a red knowledge
 ## answer first (the tip of the question whose model answer the card shows), then the last bad choice
 ## answer's own tip, then Tired, then research (without Research, every MVP rejection is "without research").
-## The probe's own tips (Come clean, BUSTED) already showed when it resolved.
 func _rejection_tip() -> String:
 	if _worst_red:
 		return str((Content.entry("questions_knowledge", _worst_id) as Dictionary).get("tip", "tip_think_aloud"))
@@ -518,7 +435,7 @@ func _begin_ending() -> void:
 
 
 func _finish(won: bool) -> void:
-	GameState.finish_interview(won, maxf(_composure, 0.0), _busted, _came_clean)
+	GameState.finish_interview(won, maxf(_composure, 0.0))
 
 
 # ---------- dialogue box (ARCHITECTURE 10.4) ----------
@@ -536,16 +453,6 @@ func _player_speaks() -> void:
 func _say_dana(text: String) -> void:
 	_dana_speaks()
 	await _say(text)
-
-
-## Dana's line (the consequence), then Ducky's tip once the line is out, then the tap that advances:
-## the tip always comes last (GDD 8.1 rule 1, INV-18).
-func _say_dana_then_note(text: String, note: String) -> void:
-	_dana_speaks()
-	await _type(text)
-	_show_note(note)
-	_waiting_advance = true
-	await _wait(_advanced)
 
 
 ## Types the line out, then waits for the tap that advances.
@@ -583,7 +490,7 @@ func _finish_typing() -> void:
 	_line_shown.emit()
 
 
-# ---------- answers, probe buttons and locks ----------
+# ---------- answers and locks ----------
 
 func _pick(answers: Array) -> int:
 	for i: int in _answer_buttons.size():
@@ -602,21 +509,6 @@ func _on_answer_pressed(index: int) -> void:
 		return  # one answer per prompt: a double tap can't answer twice
 	_answer_column.hide()
 	_answer_picked.emit(index)
-
-
-## Returns true for Bluff, false for Come clean.
-func _choose_probe() -> bool:
-	_show_thumb(_probe_row)
-	_lock(_probe_buttons)
-	var bluffed: bool = await _wait(_probe_picked)
-	return bluffed
-
-
-func _on_probe_pressed(bluff: bool) -> void:
-	if not _probe_row.visible:
-		return
-	_probe_row.hide()
-	_probe_picked.emit(bluff)
 
 
 func _hunt_offered() -> bool:
@@ -658,8 +550,6 @@ func _lock_meter() -> void:
 func _rearm_locks() -> void:
 	if _answer_column.visible:
 		_lock(_answer_buttons)
-	elif _probe_row.visible:
-		_lock(_probe_buttons)
 	elif _hunt_offered():
 		_lock(_hunt_buttons)
 	if _meter_live:
@@ -780,8 +670,6 @@ func _set_static_text() -> void:
 	_doubt_label.text = Content.text("barks", "ui_doubt")
 	_hint_label.text = Content.text("barks", "meter_hint")
 	_tired_label.text = Content.text("barks", "ui_tired")
-	_come_clean_button.text = Content.text("barks", "ui_come_clean")
-	_bluff_button.text = Content.text("barks", "ui_bluff")
 	_back_to_hunt_button.text = Content.text("barks", "ui_back_to_hunt")
 	_ready_label.text = Content.text("barks", "ui_ready")
 	_pause_button.text = PAUSE_ICON
@@ -798,8 +686,6 @@ func _connect_signals() -> void:
 	_ready_overlay.gui_input.connect(_on_ready_overlay_input)
 	for i: int in _answer_buttons.size():
 		_answer_buttons[i].pressed.connect(_on_answer_pressed.bind(i))
-	_come_clean_button.pressed.connect(_on_probe_pressed.bind(false))
-	_bluff_button.pressed.connect(_on_probe_pressed.bind(true))
 	_back_to_hunt_button.pressed.connect(_on_back_to_hunt)
 	_meter.zone_jumped.connect(_on_zone_jumped)
 	_meter_row.draw.connect(_draw_meter_labels)
@@ -812,7 +698,7 @@ func _connect_signals() -> void:
 
 func _hide_transient() -> void:
 	_meter.hide()
-	for node: CanvasItem in [_answer_column, _tap_pad, _probe_row, _ducky_card, _coach_note, _ko_banner, _wheel, _ready_overlay]:
+	for node: CanvasItem in [_answer_column, _tap_pad, _ducky_card, _coach_note, _ko_banner, _wheel, _ready_overlay]:
 		node.hide()
 	_line.text = ""
 	_name_tab.text = ""
@@ -820,12 +706,12 @@ func _hide_transient() -> void:
 
 ## The thumb band shows one thing at a time (ARCHITECTURE 11.6 ThumbSlot); null shows none.
 func _show_thumb(node: Control) -> void:
-	for slot: CanvasItem in [_answer_column, _tap_pad, _probe_row, _ducky_card]:
+	for slot: CanvasItem in [_answer_column, _tap_pad, _ducky_card]:
 		slot.visible = slot == node
 
 
 ## A full-width Ducky note in the thumb band, without the card's button: the red answer's
-## "Real answer: ..." or the probe's tip.
+## "Real answer: ...".
 func _show_note(text: String) -> void:
 	_card_note.tip_text = text
 	_back_to_hunt_button.hide()
@@ -864,13 +750,13 @@ func _trace_start(iv: Dictionary) -> void:
 	var ids := PackedStringArray()
 	for prompt: Dictionary in _prompts:
 		ids.append(str(prompt["id"]))
-	print("IVSTART|tier=%s|bg=%s|company=%s|seed=%s|doubt=%.2f|comp=%.2f|tired=%s|warmup=%s|probe=%s|ids=%s|taken=%d" % [
+	print("IVSTART|tier=%s|bg=%s|company=%s|seed=%s|doubt=%.2f|comp=%.2f|tired=%s|warmup=%s|ids=%s|taken=%d" % [
 		_tier.id, GameState.run.background_id, iv.get("company_id", ""), iv.get("seed", ""), _doubt, _composure,
-		_tired, iv.get("warmup_id", ""), iv.get("probe_line", ""), ",".join(ids), GameState.run.interviews_taken])
+		_tired, iv.get("warmup_id", ""), ",".join(ids), GameState.run.interviews_taken])
 
 
 ## prompt=0 is the warm-up. Choice lines carry the shuffled answer order; knowledge lines S, h, the
-## zone centre c (before any pivot), I and Q; probe lines the bluff odds and the pre-rolled result.
+## zone centre c (before any pivot), I and Q.
 func _trace(n: int, id: String, kind: String, fields: Dictionary) -> void:
 	if not _debug_enabled:
 		return
@@ -882,12 +768,12 @@ func _trace(n: int, id: String, kind: String, fields: Dictionary) -> void:
 
 func _log_result(outcome: String) -> void:
 	if _debug_enabled:
-		print("IVRESULT|outcome=%s|doubt=%.2f|comp=%.2f|busted=%s|came_clean=%s|tier=%s|bg=%s" % [
-			outcome, _doubt, _composure, _busted, _came_clean, _tier.id, GameState.run.background_id])
+		print("IVRESULT|outcome=%s|doubt=%.2f|comp=%.2f|tier=%s|bg=%s" % [
+			outcome, _doubt, _composure, _tier.id, GameState.run.background_id])
 
 
 ## The DBG panel (debug builds only): a 34x34 toggle in the stage band's top-left, never in the thumb
-## band. It forces each outcome through the real ending code, and cycles a forced lie probe.
+## band. It forces each outcome through the real ending code.
 func _setup_debug_panel() -> void:
 	if not _debug_enabled:
 		_debug_layer.queue_free()
@@ -900,19 +786,16 @@ func _setup_debug_panel() -> void:
 	(%ForceWheelWin as Button).pressed.connect(_on_debug_force.bind("wheel_win"))
 	(%ForceWheelLoss as Button).pressed.connect(_on_debug_force.bind("wheel_loss"))
 	(%ForceComposureZero as Button).pressed.connect(_on_debug_force.bind("composure_zero"))
-	(%ForceBusted as Button).pressed.connect(_on_debug_force.bind("busted"))
-	_probe_toggle.pressed.connect(_on_debug_probe)
 
 
 func _show_debug_panel() -> void:
 	if _debug_enabled and not _ending:
-		_update_debug_probe()
 		_debug_layer.show()
 
 
 ## Debug only: ends the interview now through the real ending code (banners, wheel, Ducky's card and
 ## GameState.finish_interview), from whatever prompt is on screen. Wheel win/loss first bring Doubt into
-## the committee band; BUSTED plays the probe's BUSTED beat, then the usual rejection.
+## the committee band.
 func _on_debug_force(outcome: String) -> void:
 	if _ending:
 		return
@@ -931,13 +814,6 @@ func _on_debug_force(outcome: String) -> void:
 			_composure = 0.0
 			_update_bars()
 			await _reject("composure_zero", "bark_dana_composure_zero")
-		"busted":
-			var line := str(GameState.run.interview.get("probe_line", ""))
-			await _bust(_prompt_index + 1, line, {"answer": "busted", "forced": true})
-			if _composure <= 0.0:
-				await _reject("composure_zero", "bark_dana_composure_zero")
-			else:
-				await _reject("rejected", "bark_dana_other_candidates")
 
 
 func _clear_prompt() -> void:
@@ -951,46 +827,6 @@ func _clear_prompt() -> void:
 	_coach_note.hide()
 	_ko_banner.hide()
 	_set_line("")
-
-
-## Debug only: cycles the checkpoint's probe line through your background's Lie lines and off, standing
-## in for Step 5's probe roll (GDD 5.8.5). It changes this interview until knowledge prompt 2 is asked,
-## and is saved with the checkpoint, so Continue replays the probe the way it will once Step 5 rolls it.
-func _on_debug_probe() -> void:
-	if _prompt_index >= _probe_slot():
-		return
-	var lines := InterviewPlan.lie_lines(Content.entries("cv_lines"), GameState.run.background_id)
-	var next := lines.find(str(GameState.run.interview.get("probe_line", ""))) + 1
-	_set_probe_line(lines[next] if next < lines.size() else "")
-	GameState.save()
-	print("IVDEBUG|probe=%s" % GameState.run.interview["probe_line"])
-
-
-func _set_probe_line(cv_line_id: String) -> void:
-	var iv: Dictionary = GameState.run.interview
-	iv["probe_line"] = cv_line_id
-	_prompts = InterviewPlan.prompts(iv.get("question_ids", []), Content.entries("questions_choice"), cv_line_id)
-	_update_debug_probe()
-
-
-## The index of knowledge prompt 2, the probe's slot.
-func _probe_slot() -> int:
-	var iv: Dictionary = GameState.run.interview
-	var probed := InterviewPlan.prompts(iv.get("question_ids", []), Content.entries("questions_choice"), "?")
-	for i: int in probed.size():
-		if str(probed[i]["kind"]) == "probe":
-			return i
-	return -1
-
-
-func _update_debug_probe() -> void:
-	if not _debug_enabled:
-		return
-	var line := str(GameState.run.interview.get("probe_line", ""))
-	var entry: Variant = Content.entry("cv_lines", line)
-	var label := str((entry as Dictionary).get("line", line)) if entry is Dictionary else DEBUG_PROBE_OFF
-	_probe_toggle.text = DEBUG_PROBE % label
-	_probe_toggle.disabled = _prompt_index >= _probe_slot()
 
 
 ## Debug only (ARCHITECTURE 11.6): launched alone with project_run mode="custom", there is no run yet, so
@@ -1013,15 +849,11 @@ func _debug_quick_start() -> void:
 	var interview_seed := str(GameState.rng.randi())
 	var plan := InterviewPlan.pick(cfg, tier_id, Content.entries("questions_choice"),
 		Content.entries("questions_knowledge"), run.seen_question_ids, GameState.rng, InterviewPlan.warmup_due(run))
-	var probe_line := ""
-	for id: String in InterviewPlan.lie_lines(Content.entries("cv_lines"), bg_id):
-		if str((Content.entry("cv_lines", id) as Dictionary).get("line", "")) == str(args.get("iv-probe", "")):
-			probe_line = id
 	run.interview = {
 		"invite_uid": 0, "company_id": _first_of_tier(Content.entries("companies"), tier_id),
 		"template_id": _first_of_tier(Content.entries("postings"), tier_id), "tier": tier_id,
 		"seed": interview_seed, "tired": Odds.is_tired(cfg, run.energy),
-		"question_ids": plan["question_ids"], "warmup_id": plan["warmup_id"], "probe_line": probe_line,
+		"question_ids": plan["question_ids"], "warmup_id": plan["warmup_id"],
 	}
 	InterviewPlan.mark_seen(run.seen_question_ids, plan["question_ids"] + [plan["warmup_id"]])
 
