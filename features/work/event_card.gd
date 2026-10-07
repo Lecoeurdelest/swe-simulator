@@ -9,7 +9,8 @@ extends Control
 signal answered(button_id: String)
 
 const MENU_MARK := "="    # stands in for the menu icon until the art pass
-const FADE_SEC := 0.12
+const SLIDE_SEC := 0.14   # the sheet slides up into the thumb band (GDD 4.6; the camera's step-in is M5)
+const SLIDE_PX := 36.0
 
 var _fade: Tween
 var _lock: Tween
@@ -51,9 +52,12 @@ func show_card(view: Dictionary) -> void:
 		button.disabled = true
 		button.pressed.connect(_on_pressed.bind(String(spec["id"])))
 		_buttons.add_child(button)
+	_sheet.modulate.a = 0.0   # hidden until the container has laid it out, then it slides up from below
 	show()
-	_start_fade()
 	_start_lock()
+	await get_tree().process_frame
+	if visible:
+		_slide_in()
 
 
 func hide_card() -> void:
@@ -86,12 +90,14 @@ func _on_pressed(button_id: String) -> void:
 	answered.emit(button_id)
 
 
-func _start_fade() -> void:
+func _slide_in() -> void:
 	if _fade != null:
 		_fade.kill()
-	_sheet.modulate.a = 0.0
+	var final_y := _sheet.position.y   # where the container put it
+	_sheet.position.y = final_y + SLIDE_PX
+	_sheet.modulate.a = 1.0
 	_fade = create_tween()
-	_fade.tween_property(_sheet, "modulate:a", 1.0, FADE_SEC)
+	_fade.tween_property(_sheet, "position:y", final_y, SLIDE_SEC).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 
 func _start_lock() -> void:

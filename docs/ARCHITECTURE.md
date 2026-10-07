@@ -351,10 +351,10 @@ So there is one split:
 ### 4.1 Phases and transitions
 
 ```
-enum Phase { TITLE, INTRO, BACKGROUND_SELECT, JOB_HUNT, INTERVIEW, OFFER, PHASE2_STUB, GAME_OVER }
+enum Phase { TITLE, INTRO, BACKGROUND_SELECT, JOB_HUNT, INTERVIEW, OFFER, PHASE2_STUB, GAME_OVER, WORK, LAYOFF }
 ```
 
-**Append new phases at the end only**, for example `WORK` in Phase 2. Saves store the phase as an int, so reordering the enum breaks every existing save. The career run's planned phases (`WORK`, `LAYOFF`) and transitions are in section 19.4.
+**Append new phases at the end only.** Saves store the phase as an int, so reordering the enum breaks every existing save. `WORK` and `LAYOFF` are the career run's (M2): their transitions are the last rows below and in section 19.4.
 
 | From | To | Trigger (the GameState verb) |
 |---|---|---|
@@ -372,6 +372,11 @@ enum Phase { TITLE, INTRO, BACKGROUND_SELECT, JOB_HUNT, INTERVIEW, OFFER, PHASE2
 | PHASE2_STUB | TITLE / BACKGROUND_SELECT | `quit_to_title()` / `retry()` ("New run") |
 | GAME_OVER | TITLE / BACKGROUND_SELECT | `quit_to_title()` / `retry()` |
 | BACKGROUND_SELECT, JOB_HUNT, INTERVIEW, OFFER | TITLE | `quit_to_title()`: Back or Pause, then "Quit to title" |
+| TITLE | WORK / LAYOFF | `continue_game()` with a career save (the saved phase), or `start_new_game()` for run 1 once the intro has been seen (`_begin_career`) |
+| INTRO | WORK | `finish_intro()` after a new game's intro (run 1); a replayed intro goes to BACKGROUND_SELECT |
+| BACKGROUND_SELECT | WORK | `choose_background()` in the career flow (runs 2 and later) |
+| WORK | LAYOFF / GAME_OVER / TITLE | the `career_*` verbs when a layoff is next (`wants_layoff_scene`); the sim's ending; `quit_to_title()` |
+| LAYOFF | WORK / TITLE | `career_acknowledge()` (the scene's last OK); `quit_to_title()` |
 
 **The last row is four transitions added to the required list.** They are needed because:
 - GDD S13 Pause (MUST) has "Quit to Title".
@@ -656,15 +661,15 @@ The offer (GDD 5.9, S10) is `{company_id, template_id, tier, job_title, salary, 
 | Rule | Detail |
 |---|---|
 | Format | One slot: JSON at `user://save_v1.json`, app-private on Android and iOS. `SaveIO.write` writes `.tmp`, then renames it; if the rename fails, it removes the old file and renames again |
-| When it's written | **Only while the run is live** (`JOB_HUNT`, `INTERVIEW`, `OFFER`). Three triggers: after every committed action (`_commit()`); on every change into those phases; and on `NOTIFICATION_APPLICATION_PAUSED`, `APPLICATION_FOCUS_OUT` and `WM_CLOSE_REQUEST` |
+| When it's written | **Only while the run is live** (`JOB_HUNT`, `INTERVIEW`, `OFFER`, and the career run's `WORK` and `LAYOFF`). Three triggers: after every committed action (`_commit()`); on every change into those phases; and on `NOTIFICATION_APPLICATION_PAUSED`, `APPLICATION_FOCUS_OUT` and `WM_CLOSE_REQUEST` |
 | Never written on | entering TITLE, INTRO, BACKGROUND_SELECT, PHASE2_STUB or GAME_OVER |
 | Deleted when | **entering GAME_OVER**, and **leaving PHASE2_STUB** (Title or New run). `change_phase()` deletes it and counts the finished run in the same place (`run_count`, below) |
 | Accept and the Hired card | Accept writes **no** save: PHASE2_STUB is never saved, so the file on disk stays the OFFER one. Killing the app on the Hired card resumes at the offer with the same contract, and accepting again hires the same job (section 7.2) |
 | Committed actions | apply, tailor, skip, research, study, network, closing a first-run coach mark (`close_coach_mark`, Step 7 review), sleep, start day, start interview, interview result (a win saves the whole offer with the OFFER phase), an offer decision that stays in the run (Decline: saved with JOB_HUNT). The CV change and the rescind were removed on 2026-09-29 (DECISIONS D9), and negotiate on 2026-10-07 (D-27) |
 | Interview | `start_interview()` checks today's slot and the energy, takes the invite out of Mail, pays, then freezes a **checkpoint** in `run.interview`: `invite_uid`, `company_id`, `template_id`, `tier`, `seed`, `question_ids` (in prompt order), `warmup_id` (`""` except on the first interview of the first run) and `tired`. (An old save's `probe_line` is never read, section 7.1.) `change_phase(INTERVIEW)` saves it. Doubt, Composure and the prompt index live in the scene, so a resume **restarts that interview with the same seed and the same questions** (GDD 5.11). Saves during the interview rewrite the same checkpoint, which is harmless. `finish_interview()` clears it |
-| Continue | `SaveIO.read()`. Then `GameFlow.can_resume(saved.phase)` must be true, or it falls back to `start_new_game()`. Then set the seed, then the state, then `change_phase(saved)` |
+| Continue | `SaveIO.kind()` says which run the slot holds. Phase 1's: `SaveIO.read()`, then `GameFlow.can_resume(saved.phase)` must be true, or it falls back to `start_new_game()`; then set the seed, then the state, then `change_phase(saved)`. A career run's: `WorkSession.from_save` (section 19.4), paused |
 | Retry / New run | `retry()` builds a **fresh `RunState`** and remembers `preselect_background` |
-| Versioning | `RunState.VERSION = 1`. When the format changes, bump it and migrate the dictionary at the top of `from_dict` |
+| Versioning | `RunState.VERSION = 1`. When the format changes, bump it and migrate the dictionary at the top of `from_dict`. The career run's save is `version: 2` (`SaveIO.CAREER_VERSION`, `{version, phase, sim, ui}`: section 19.4) |
 | JSON gotchas | numbers come back as floats (`from_dict` turns whole ones back into ints, recursively); no Vector2 or Color; 64-bit values travel as strings |
 | Security | **Never load `.tres` or `.res` from `user://`**: a resource file can carry a script that runs on load. `JSON.to_native` defaults to `allow_objects=false` (verified 4.7.2), and we use `JSON.parse_string` anyway |
 | Settings | `user://settings.cfg` (ConfigFile), separate from the run, written only by the game. `[meta]` holds `intro_seen` (set by `finish_intro()`), `run_count` (a run counts once, when `change_phase()` deletes its save: Plan B or leaving the Hired card; `first_run` is `run_count == 0`, read through `GameState.next_run_is_first()`; the debug-only title button "Reset first run" sets it back to 0), `last_background` (Background select preselects it), and later `tips_unlocked` (SHOULD) and `best_dream_<bg>` (LATER, DECISIONS D10); neither is written yet. `[options]` holds `haptics`, `relaxed_timing`, `reduced_motion`, `text_speed` (40 / 80 / 0 = instant) and `music_db` / `sfx_db` (SHOULD) |
@@ -8220,7 +8225,8 @@ extends Control
 signal answered(button_id: String)
 
 const MENU_MARK := "="    # stands in for the menu icon until the art pass
-const FADE_SEC := 0.12
+const SLIDE_SEC := 0.14   # the sheet slides up into the thumb band (GDD 4.6; the camera's step-in is M5)
+const SLIDE_PX := 36.0
 
 var _fade: Tween
 var _lock: Tween
@@ -8262,9 +8268,12 @@ func show_card(view: Dictionary) -> void:
 		button.disabled = true
 		button.pressed.connect(_on_pressed.bind(String(spec["id"])))
 		_buttons.add_child(button)
+	_sheet.modulate.a = 0.0   # hidden until the container has laid it out, then it slides up from below
 	show()
-	_start_fade()
 	_start_lock()
+	await get_tree().process_frame
+	if visible:
+		_slide_in()
 
 
 func hide_card() -> void:
@@ -8297,12 +8306,14 @@ func _on_pressed(button_id: String) -> void:
 	answered.emit(button_id)
 
 
-func _start_fade() -> void:
+func _slide_in() -> void:
 	if _fade != null:
 		_fade.kill()
-	_sheet.modulate.a = 0.0
+	var final_y := _sheet.position.y   # where the container put it
+	_sheet.position.y = final_y + SLIDE_PX
+	_sheet.modulate.a = 1.0
 	_fade = create_tween()
-	_fade.tween_property(_sheet, "modulate:a", 1.0, FADE_SEC)
+	_fade.tween_property(_sheet, "position:y", final_y, SLIDE_SEC).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 
 func _start_lock() -> void:
@@ -8548,7 +8559,7 @@ func _advance_to(beat: int) -> void:
 
 ## 19. The career run's code (Run Spec v1; M1 built, M2-M6 planned)
 
-**M1 (STEP-14, 2026-10-08) built 19.1-19.3 and 19.6, and the sim suites of 19.10; 19.4, 19.5, 19.7 and 19.8 are still plans for M2-M5.** The plan was written during the Run Spec v1 merge (2026-10-07); where the build differs, the text below says what was built. It follows every rule of sections 1-18 and every invariant. The built classes are in section 17 (17.5 for the two Resource classes, 17.18 for the sim core). The design is GDD 5.14-5.22.
+**M1 (STEP-14, 2026-10-08) built 19.1-19.3 and 19.6, and the sim suites of 19.10; M2 (STEP-15) built 19.4 and 19.7 and their suites; 19.5 and 19.8 are still plans for M3 and M5.** The plan was written during the Run Spec v1 merge (2026-10-07); where the build differs, the text below says what was built. It follows every rule of sections 1-18 and every invariant. The built classes are in section 17 (17.5 for the two Resource classes, 17.18 for the sim core). The design is GDD 5.14-5.22.
 
 ### 19.1 The shape (Run Spec v1 section 13)
 
@@ -8637,14 +8648,15 @@ The Run Spec's E12 example as JSON, as built (GDD 5.19; its 20-day cooldown is 5
 - **As built, an event may also carry:** `requires` (on the event or on a choice: `employed`, `remote`, `rto`, `home_min`, `tip`, `clause`, `not_flag`, `deadline_or_incident_days`), `results` (E02's three ratings, with `{n}` for the raise), `final_threat` (the Studio hold's 3x weight), a `text_rent` beside E01's text, and for a telegraphed event a `telegraph` with a `rumor` or, for run 1's resizing, `run1_signs` and `run1_fire_day`. A choice's `effects` use `mo`, `burnout`, `codebase`, `skill`, `rust`, `savings`, `living_mult`, `commute_burnout`, `speed_mod {mult, days}`, `hours_lock {notch, days}`, `flags`, `work_mode` and a named `action` (`lease_accept`, `lease_move_down`, `home_upgrade`, `board_early`, `ask_priya`, `quit_job`, `recruiter_call`). `exhausted_choice` names a choice, or is `"none"` for E07's prep. `ducky.joke` and `cause` exist only for E12 until M6; every event has a `ducky.tip`, a tip id or `"none"` (O7). `coworkers.json` holds `cw_*` entries (name, role, line, level) and `_coworker_pool`.
 - `test_data_files` checks the new `.tres` against GDD 11.7, and `test_content_lint` checks every event's shape, its tips and its text budgets, and the coworkers (19.10).
 
-### 19.4 Phases, save and meta (M2)
+### 19.4 Phases, save and meta (M2, built)
 
-- **New phases are appended** to `GameFlow.Phase` (INV-10, 4.1). Proposed: `WORK` (the work state, at a job or between jobs: one clock, D-04) and `LAYOFF` (the layoff scene). The job interview and the review both use `INTERVIEW` (the request says which, 19.5), and the career run's endings use `GAME_OVER` with an ending id (the Plan B card's layout, GDD S12). `PHASE2_STUB` stays in the enum, unused once the career run's Accept beat exists (MC-08, D-34; RC-04).
-- **Transitions** (proposed; `test_flow` grows with them): TITLE -> INTRO (run 1), BACKGROUND_SELECT (runs 2 and later) or WORK (Continue); INTRO -> WORK (run 1; MC-11, D-34) or BACKGROUND_SELECT; BACKGROUND_SELECT -> WORK; WORK -> INTERVIEW, LAYOFF or GAME_OVER; INTERVIEW -> OFFER or WORK; OFFER -> WORK; LAYOFF -> WORK; GAME_OVER -> TITLE or BACKGROUND_SELECT; and the quit-to-title rows of 4.1.
-- **The save** (proposed): the same one slot (`user://save_v1.json`, temp file then rename: section 8) with `{version: 2, phase, sim}`, where `sim` is **`SimState.to_save()`** (A75), the run log and the interview checkpoint included. Not `to_dict` through plain JSON numbers: Godot's JSON parser does not read every double back exactly (`123456789.12345679` comes back one step off), and a save that differs in the last digit resumes into a different future. `test_sim_replay` proves a `to_save` round trip is bit for bit and lives the same days. What Continue does with a Phase 1 save is decided at M2's huddle (D-33 made the career run the shipped game).
-- **When it's written** (RC-35, GDD 5.11): only while the run is live (`WORK`, `INTERVIEW`, `OFFER`, `LAYOFF`: INV-06's list grows with the new phases); after every input (each is a committed action), on every event shown and every event resolved, on entering a live phase, and on `APPLICATION_PAUSED`, `FOCUS_OUT` and `WM_CLOSE_REQUEST`. It is deleted on entering `GAME_OVER`, where the run counts in `run_count`, as today.
-- **No time while closed** (D-13): the clock moves only in the `WORK` scene's `_process`, only while no card, app or modal is open, and the sim never reads the wall clock. Pausing on `APPLICATION_PAUSED` and `FOCUS_OUT` (section 9) stops it.
-- **Meta between runs**, in `settings.cfg`'s `[meta]` (section 8; proposed keys): `run_count` (exists), `handbook` (the collected tip ids), `endings_seen` (the gallery), `studio_wins` (the Self-Taught's unlock) and `last_background`. INV-11 holds: nothing but our JSON save and `settings.cfg` is read from `user://`.
+- **New phases are appended** to `GameFlow.Phase` (INV-10, 4.1): `WORK` (the work state, at a job or between jobs: one clock, D-04) and `LAYOFF` (the layoff scene). Both are live phases. The job interview and the review both use `INTERVIEW` (the request says which, 19.5; M3), and the career run's endings use `GAME_OVER` with an ending id (the Plan B card's layout, GDD S12). `PHASE2_STUB` stays in the enum, unused once the career run's Accept beat exists (MC-08, D-34; RC-04).
+- **Transitions as built** (`test_flow`): TITLE -> INTRO (run 1, the first time), WORK (run 1 once the intro has been seen, and Continue), BACKGROUND_SELECT (runs 2 and later) or LAYOFF (Continue during the scene); INTRO -> WORK (run 1) or BACKGROUND_SELECT (a replayed intro); BACKGROUND_SELECT -> WORK; WORK -> LAYOFF, GAME_OVER or TITLE; LAYOFF -> WORK or TITLE; GAME_OVER -> TITLE or BACKGROUND_SELECT; and the quit-to-title rows of 4.1. M3 adds WORK -> INTERVIEW and OFFER -> WORK with the adapter.
+- **Where New game goes** (A78): `GameState.start_new_game()` begins the career run (`career_flow`). Phase 1's hunt is reachable only through `start_hunt_game()`, the Title's debug-only "Old hunt" button, until M4 retires it (19.9). Continue resumes whichever run the slot holds.
+- **The save** (A79): the same one slot (`user://save_v1.json`, temp file then rename: section 8). `SaveIO.kind_of()` tells a career save, `{version: 2, phase, sim, ui}`, from Phase 1's (`RunState.to_dict`, version 1). `sim` is **`SimState.to_save()`** (A75), the run log included: every float as its raw 64 bits in hex, because Godot's JSON parser does not read every double back exactly (`123456789.12345679` comes back one step off) and a save that differs in the last digit resumes into a different future. `ui` is the screen's own state through the same codec: the notices not yet read, the feed, the player's name, `first_run` and the closed coach marks. The clock's speed is not saved: Continue waits, paused (KILL_TESTS 6). `test_work_session` proves a round trip is bit for bit and lives the same days.
+- **When it's written** (RC-35, GDD 5.11): only in the live phases; after every answer (each is a committed action), when a notice is dismissed, on a card, a payday, a rent, a shipped ticket or a job's end (`GameState.career_tick` decides), on entering a live phase, and on `APPLICATION_PAUSED`, `FOCUS_OUT` and `WM_CLOSE_REQUEST`. Not on every tick. It is deleted on entering `GAME_OVER`, where the run counts in `run_count` and the tips it showed join `meta.handbook`, as today.
+- **No time while closed** (D-13, INV-22): the clock moves only in the `WORK` scene's `_process`, in whole days (`WorkClock`), and only while nothing is open over it: no notice or card (`WorkSession.is_blocked`), no dock app, no Pause, no scene change. `APPLICATION_PAUSED` and `FOCUS_OUT` set the speed to Pause. The sim never reads the wall clock.
+- **Meta between runs**, in `settings.cfg`'s `[meta]` (section 8): `run_count` (exists) and `handbook` (the collected tip ids, merged when a run ends; M6 shows them). The proposed `endings_seen` and `studio_wins` wait for the milestones that use them; `last_background` exists. INV-11 holds: nothing but our JSON save and `settings.cfg` is read from `user://`.
 
 ### 19.5 The adapter (M3; R-JOB-06, GDD 5.20, 13.4)
 
@@ -8676,12 +8688,14 @@ python tools/headless/sweep.py --seeds 1000 "base=" "a=ticket_deadline_mult:1.3"
 - **Before a tuning commit** (RC-32): the harness for every bot plus the test suites, headless; the report goes to `.project/evidence/STEP-NN/<run>/`.
 - **The smoke test in `test_run`** is `tests/test_sim_smoke.gd`: 60 seeds per bot through `HarnessRunner`, asserting no crash, no refused input, known endings, determinism and the loose bands (the Coaster never wins, the Random bot rarely does).
 
-### 19.7 The work state's UI (M2)
+### 19.7 The work state's UI (M2, built)
 
-- **One scene,** `features/work/work.tscn`, the phone shell on section 10.1's skeleton. TopBand (information only): the four numbers, the Studio chip, the calendar strip and the ticket bar. Body (it takes the extra height): a grey box until M5's diorama. ThumbBand: the Hours notches (five buttons of 34x34 or more, like the S03 selector: A58), the speed control and the dock (DoomApply, Home, ClikClok, the Handbook: 4 slots of 60x40, as the hub's dock).
-- **Apps are panels** inside the scene, not scenes, as the hub's Mail and Study are (11.4). The event card is a component in the ModalLayer: its choices are 254x36 buttons behind the 250 ms lock (10.3).
-- **The clock driver:** the scene's `_process` adds up `delta x speed` and calls a `GameState` verb (proposed: `advance_days(n)`), which runs `Sim.step` and saves (19.4). Scenes only call verbs (INV-01, INV-03); the sim holds the rules.
-- Every screen keeps an on-screen Back (section 9): the work state's opens Pause. The layoff scene (`features/layoff/`) follows RC-34: taps advance its beats, Back opens Pause, and the hold-to-skip pill (11.2) shows from the second viewing.
+- **One scene,** `features/work/work.tscn`, the phone shell on section 10.1's skeleton. TopBand (information only): "Day N - what is next" and the Studio chip, the Runway chip, the Burnout bar, the Ticket bar with its days left and the Codebase's 10 LEDs, and the 60-day calendar strip. Body (it takes the extra height): a grey box with the job line and the last five feed lines, until M5's diorama. Then the first-run coach note, and the ThumbBand: the Hours label and five notches (34 px or more, like the S03 selector: A58), the dock (four 60x40 slots) and the action bar, Back at 80 px beside the speed control (Pause, 1x, 2x, 4x) in the primary's 168 px.
+- **Cards** are the `EventCard` component in the ModalLayer (10.1): a sheet at the bottom with the card's text and at most three full-width 254x36 buttons that wake after the 250 ms lock (`input_lock_ms`, 10.3), over a dimmer that blocks every tap. Its "=" opens Pause, so Back stays on screen. A card carries ids and numbers, never text (`WorkCards`): the scene looks the words up in the JSON. **Notices** (a rumor, a burnout beat, the auto-resolve line, a review's result, a tip) have one OK. The sim's queue head is an event with its choices, a review, a Mid's ticket pick or the forced leave; an interview or an offer is M2's stub (the adapter is M3). The layoff scene is its own phase (`features/layoff/`: four taps, Back opens Pause).
+- **The apps are cards for now:** the dock's four slots open "not in this build yet" and stop the clock, as a real app will (GDD 4.5).
+- **The clock driver** is the scene's `_process`: `WorkClock.advance(cfg, delta)` gives whole days (at most four a frame) and each one is `GameState.career_tick()`, which steps the sim, refreshes the screen and saves what is worth keeping. A tick that opens a card, or leaves for another phase, ends the frame's days. Answers are `GameState.career_*` verbs (INV-01, INV-03), which apply one input without a tick (`Sim.apply_inputs`) and save.
+- **The pure classes** (17.19): `WorkClock`, `WorkHud` (what the top band shows), `WorkCards` (notices, feed lines and the head card, from the sim's events and queue) and `WorkSession` (the run as the screen plays it: the sim, the clock, the notices, the feed, the coach marks and the exact save). `GameState.session` holds one. The screens' scripts are in 17.20.
+- Every screen keeps an on-screen Back (section 9): the work state's opens Pause. The layoff scene follows RC-34: taps advance its beats and Back opens Pause; the hold-to-skip pill (11.2) comes with M3.
 
 ### 19.8 The diorama (M5; GDD 2.11)
 
@@ -8700,7 +8714,7 @@ Nothing retires until the career run replaces the Phase 1 flow (MC-01, D-33: tha
 
 D-27's negotiation code did not wait for MC-01: it left in its own commit on 2026-10-08 (ROADMAP 12, Step 14 task 6): `Odds.negotiate_p`, `Odds.negotiated_salary`, BalanceConfig's `nego_*` fields, the offer's `negotiated` flag, `test_offer`'s negotiation test and the unused strings (CONTENT 16.7). Section 17 was re-synced in that commit. Each retired file's block leaves section 17 in the same commit, through the usual sync.
 
-### 19.10 Tests (M1 built: 125 tests in six suites; the adapter's is M3)
+### 19.10 Tests (M1: 126 tests in six suites; M2: 34 in four more, and 4 in suites that grew; the adapter's is M3)
 
 | Suite | Tests | Covers |
 |---|---|---|
@@ -8711,6 +8725,10 @@ D-27's negotiation code did not wait for MC-01: it left in its own commit on 202
 | `test_sim_replay.gd` | 11 | the same seed and inputs give the same run; a run replays from its log; a `to_save` round trip mid-run is bit for bit and lives the same days (O8); seeds and RNG states are strings (INV-05); the state is plain data (INV-07) |
 | `test_sim_smoke.gd` | 8 | the harness's small version (19.6): 60 seeds per bot, clean and deterministic, the Coaster never wins |
 | `test_data_files.gd`, `test_content_lint.gd` (grown) | 7, 36 | the new `.tres` equal GDD 11.7; in `work_events.json`, the ids, tiers, trigger kinds, the text budgets, ASCII, the banned brands, at most 3 choices, known requirements and effects, a tip or an explicit none for every event (O7), and every exhausted choice names one of its event's choices; the coworkers |
+| `test_work_clock.gd` | 6 | Pause runs no day; 1x is a day a second whatever the frame rate; 2x and 4x follow `WorkConfig.speeds`; a hitch never fast-forwards a month; a card throws away the half-built day; the speed position is clamped |
+| `test_work_hud.gd` | 6 | the top band's numbers: Runway in months and red under two, Burnout, the Codebase's 10 LEDs, the Ticket and its deadline, the Studio chip, the label ids and the calendar strip |
+| `test_work_cards.gd` | 11 | the notices and feed lines the sim's events leave, the head card for each queue kind, the layoff scene not being a card, an event's `{money}` and `{home}`, and the severance a layoff card carries |
+| `test_work_session.gd` | 11 | the clock waits paused; `tick()` refuses while a notice or a card is open (INV-22); answers never burn a day; a whole job plays through to the layoff on day 240 with its five signs and its review; the save round trip is exact and lives the same days (KILL_TESTS 6-8); a run played with inputs between ticks replays from its log; the review stand-in's own dice; the interview and offer stubs; the coach marks; the feed |
 | `test_adapter.gd` (M3) | - | a DuelRequest's numbers reach the interview's start values; the 0.06 floor; a Phase 1 checkpoint still works |
 
 `tests/sim_fixture.gd` (`SimFixture`) builds the context the sim suites share: the Run Spec's numbers (`WorkConfig.new()` and archetypes built by hand), so tuning the `.tres` never breaks a worked example.
