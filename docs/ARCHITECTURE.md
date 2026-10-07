@@ -1107,7 +1107,7 @@ It reads the 18 JSON files with `FileAccess` and the background `.tres` with `lo
 - Drive the **real** `RunState`, `Odds` and `InterviewPlan` rules. Load the `.tres` with `load()` and the JSON with `FileAccess` inside the test, as the Step 5 hunt suites do; never through the `Content` autoload, which doesn't exist in the editor (INV-12).
 - **Split it by background:** one test method each, **about 1,000 runs**, which keeps every test well under 20 s.
 - Assert the 5.12 bands with tolerances that suit n = 1,000. For example, Medium offers 88-98% and the Hard first-interview pass rate 10-20%.
-- Whether Step 7 still ports this Phase 1 simulation is Open (MC-01: proposed, the career run's R-BAL harness replaces it). The career run's planned test suites are in section 19.10, and its headless harness, which runs outside `test_run` (A56), in section 19.6.
+- Step 7 no longer ports this Phase 1 simulation: the career run's R-BAL harness replaces it (MC-01, D-33). The career run's planned test suites are in section 19.10, and its headless harness, which runs outside `test_run` (A56), in section 19.6.
 
 ---
 
@@ -2669,7 +2669,7 @@ extends Resource
 @export var salary_mult: float = 1.0
 
 @export_group("Career run (11.7)")
-@export var start_savings_months: float = 0.4   # months of expenses: Phase 1's runway_days / 30 (A68)
+@export var start_savings_months: float = 0.8   # months of expenses: Phase 1's runway_days / 15 (A68, doubled by D-30)
 
 
 func invite_mult(tier_id: StringName) -> float:
@@ -2832,7 +2832,7 @@ extends Resource
 @export var move_cost_months: float = 1.0
 @export var start_home: int = 0
 @export var run1_pay_days_accrued: int = 5
-@export var run1_company: String = "co_pivotly"
+@export var run1_company: String = "co_synergai"
 @export var run1_archetype: String = "startup"
 @export var run1_remote: bool = false
 
@@ -2984,7 +2984,7 @@ extends Resource
 @export var duels_per_offer: int = 1
 @export var remote_share: float = 0.10
 @export var board_weight: float = 1.0         # relative share of the board's postings
-@export var company_ids: PackedStringArray = PackedStringArray(["co_outsourcery", "co_pixelpivot", "co_beigeware", "co_bytebistro"])
+@export var company_ids: PackedStringArray = PackedStringArray(["co_pixelpivot", "co_beigeware", "co_bytebistro"])
 
 @export_group("Pay")
 @export var pay_mult: float = 0.80
@@ -5508,7 +5508,7 @@ static func start_savings(cfg: WorkConfig, bg: BackgroundData, emergency_edge: b
 
 
 ## Months of salary paid when a job ends in a layoff. options are rolled with equal odds; per_year is
-## prorated by the days of tenure. first_job_max picks the largest option instead (run 1's Pivotly: always 1).
+## prorated by the days of tenure. first_job_max picks the largest option instead (run 1's Hierarchai: always 1).
 static func severance_months(cfg: WorkConfig, arch: ArchetypeData, tenure_days: int, first_job_max: bool, rng: RandomNumberGenerator) -> float:
 	var options: PackedFloat64Array = arch.severance_options
 	var pick: float = 0.0
@@ -7076,9 +7076,9 @@ Classes, all `@tool`, `class_name` and `RefCounted`, pure like section 3's (INV-
 | File | Class or shape | Holds | GDD 11.7 owner |
 |---|---|---|---|
 | `data/types/work_config.gd` + `data/work/work_config.tres` | `WorkConfig` (a `@tool` Resource) | the career run's global constants: the clock, money, Hours, the review, the controls, floors, events, the job hunt, Scars, the Handbook, the win | W |
-| `data/types/archetype_data.gd` + `data/archetypes/<id>.tres` (3 files) | `ArchetypeData` | per archetype: `pay_mult`, `remote_share`, `review_cadence_days`, `promotion_rule`, `codebase_start`, `codebase_drift`, `ticket_speed`, `severance_months`, `utilization_mo`, `leave_level_drop`, `calibration_hp`, `duels_per_offer` and the layoff pattern. The ids wait for MC-05 | A |
+| `data/types/archetype_data.gd` + `data/archetypes/<id>.tres` (3 files) | `ArchetypeData` | per archetype: `pay_mult`, `remote_share`, `review_cadence_days`, `promotion_rule`, `codebase_start`, `codebase_drift`, `ticket_speed`, `severance_months`, `utilization_mo`, `leave_level_drop`, `calibration_hp`, `duels_per_offer` and the layoff pattern. The ids are `startup`, `agency` and `megacorp` (MC-05, A68, D-34) | A |
 | `data/content/work_events.json` | one object per event, keyed `evt_eNN_*` (A54) | E01-E26: tier, archetypes, levels, trigger, telegraph, pause, focus, the card text, choices with their effects, the exhausted choice, Ducky's joke, cause and tip, the diorama cue | E |
-| `data/content/coworkers.json` | `cw_*` entries plus `coworker_pool` | Pivotly's four coworkers and the name pool (CONTENT 16.1) | - |
+| `data/content/coworkers.json` | `cw_*` entries plus `coworker_pool` | Hierarchai's four coworkers and the name pool (CONTENT 16.1) | - |
 | `tips.json`, `barks.json`, `endings.json`, `naming.json` (existing) | their shapes in 6.3 | the career run's tips, UI lines, endings and names (CONTENT 16) | - |
 
 - Sections 6.1-6.3 hold: numbers in `.tres`, text in JSON keyed by id, loaded data never modified (INV-08), script defaults equal to the GDD 11.7 defaults, file name = the `id` field.
@@ -7120,9 +7120,9 @@ The Run Spec's E12 example as JSON, as built (GDD 5.19; its 20-day cooldown is 5
 
 ### 19.4 Phases, save and meta (M2)
 
-- **New phases are appended** to `GameFlow.Phase` (INV-10, 4.1). Proposed: `WORK` (the work state, at a job or between jobs: one clock, D-04) and `LAYOFF` (the layoff scene). The job interview and the review both use `INTERVIEW` (the request says which, 19.5), and the career run's endings use `GAME_OVER` with an ending id (the Plan B card's layout, GDD S12). `PHASE2_STUB` stays in the enum, unused once MC-08 is answered (RC-04).
-- **Transitions** (proposed; `test_flow` grows with them): TITLE -> INTRO (run 1), BACKGROUND_SELECT (runs 2 and later) or WORK (Continue); INTRO -> WORK (run 1, MC-11) or BACKGROUND_SELECT; BACKGROUND_SELECT -> WORK; WORK -> INTERVIEW, LAYOFF or GAME_OVER; INTERVIEW -> OFFER or WORK; OFFER -> WORK; LAYOFF -> WORK; GAME_OVER -> TITLE or BACKGROUND_SELECT; and the quit-to-title rows of 4.1.
-- **The save** (proposed): the same one slot (`user://save_v1.json`, temp file then rename: section 8) with `{version: 2, phase, sim}`, where `sim` is **`SimState.to_save()`** (A75), the run log and the interview checkpoint included. Not `to_dict` through plain JSON numbers: Godot's JSON parser does not read every double back exactly (`123456789.12345679` comes back one step off), and a save that differs in the last digit resumes into a different future. `test_sim_replay` proves a `to_save` round trip is bit for bit and lives the same days. What Continue does with a Phase 1 save waits for MC-01.
+- **New phases are appended** to `GameFlow.Phase` (INV-10, 4.1). Proposed: `WORK` (the work state, at a job or between jobs: one clock, D-04) and `LAYOFF` (the layoff scene). The job interview and the review both use `INTERVIEW` (the request says which, 19.5), and the career run's endings use `GAME_OVER` with an ending id (the Plan B card's layout, GDD S12). `PHASE2_STUB` stays in the enum, unused once the career run's Accept beat exists (MC-08, D-34; RC-04).
+- **Transitions** (proposed; `test_flow` grows with them): TITLE -> INTRO (run 1), BACKGROUND_SELECT (runs 2 and later) or WORK (Continue); INTRO -> WORK (run 1; MC-11, D-34) or BACKGROUND_SELECT; BACKGROUND_SELECT -> WORK; WORK -> INTERVIEW, LAYOFF or GAME_OVER; INTERVIEW -> OFFER or WORK; OFFER -> WORK; LAYOFF -> WORK; GAME_OVER -> TITLE or BACKGROUND_SELECT; and the quit-to-title rows of 4.1.
+- **The save** (proposed): the same one slot (`user://save_v1.json`, temp file then rename: section 8) with `{version: 2, phase, sim}`, where `sim` is **`SimState.to_save()`** (A75), the run log and the interview checkpoint included. Not `to_dict` through plain JSON numbers: Godot's JSON parser does not read every double back exactly (`123456789.12345679` comes back one step off), and a save that differs in the last digit resumes into a different future. `test_sim_replay` proves a `to_save` round trip is bit for bit and lives the same days. What Continue does with a Phase 1 save is decided at M2's huddle (D-33 made the career run the shipped game).
 - **When it's written** (RC-35, GDD 5.11): only while the run is live (`WORK`, `INTERVIEW`, `OFFER`, `LAYOFF`: INV-06's list grows with the new phases); after every input (each is a committed action), on every event shown and every event resolved, on entering a live phase, and on `APPLICATION_PAUSED`, `FOCUS_OUT` and `WM_CLOSE_REQUEST`. It is deleted on entering `GAME_OVER`, where the run counts in `run_count`, as today.
 - **No time while closed** (D-13): the clock moves only in the `WORK` scene's `_process`, only while no card, app or modal is open, and the sim never reads the wall clock. Pausing on `APPLICATION_PAUSED` and `FOCUS_OUT` (section 9) stops it.
 - **Meta between runs**, in `settings.cfg`'s `[meta]` (section 8; proposed keys): `run_count` (exists), `handbook` (the collected tip ids), `endings_seen` (the gallery), `studio_wins` (the Self-Taught's unlock) and `last_background`. INV-11 holds: nothing but our JSON save and `settings.cfg` is read from `user://`.
@@ -7134,8 +7134,8 @@ Today `interview.gd` reads its three numbers itself (GDD 13.4): `_composure` fro
 - **DuelRequest -> the interview checkpoint.** `GameState` turns a DuelRequest into the checkpoint the interview already resumes from (section 8), adding `composure` (base x (1 - Burnout/200)), `doubt_hp` (base x (1 + 0.08 (floor - 1))), `zone_mult` ((1 + Skill/200) x (1 - Rust/200)), `rounds` and `unlocked_options`. `interview.gd` reads them from the checkpoint when they are there and from the `.tres` files when they aren't, so a Phase 1 checkpoint still plays as today.
 - **The meter:** `half_width = maxf(cfg.zone_half_base, Odds.zone_half(cfg, s, bonus) * zone_mult)`, so the 0.06 floor clamps Rust (RC-25). S is unchanged, and so are knowledge P and the committee wheel, which keep reading the background's KNOWLEDGE, EXPERIENCE and NETWORK (D-26).
 - **Rounds:** `cfg.prompt_pattern` is one fixed 5-prompt pattern today, so a request's `rounds` (5, or 3 for a review) needs the pattern to come from the request. The review's pattern and prompts are an M3 spec gap (GDD 5.16).
-- **DuelResult** comes from `GameState.finish_interview(won, composure_left)`: `{passed, composure_left, dream_reality_delta}`, the last waiting for MC-09.
-- **OfferRequest -> the paper.** A career offer builder fills the same paper as `run.offer` (7.1) from the posting: company, role, salary (GDD 5.15, shown as MC-10 decides), work mode, the clauses where the fine print goes (the clause list is an M3 spec gap) and the hidden clause, revealed. `GameState.answer_offer(accept)` then yields `{decision, final_salary, clauses}`, with `final_salary` = the offered salary (no negotiation: D-27).
+- **DuelResult** comes from `GameState.finish_interview(won, composure_left)`: `{passed, composure_left, dream_reality_delta}`, the last following MC-09 (settled, D-34).
+- **OfferRequest -> the paper.** A career offer builder fills the same paper as `run.offer` (7.1) from the posting: company, role, salary (GDD 5.15, shown as the yearly figure: MC-10, D-34), work mode, the clauses where the fine print goes (the clause list is an M3 spec gap) and the hidden clause, revealed. `GameState.answer_offer(accept)` then yields `{decision, final_salary, clauses}`, with `final_salary` = the offered salary (no negotiation: D-27).
 - The fields are plain-data Dictionaries in snake_case (A55, INV-07). `test_adapter` checks that a request's numbers reach the interview's start values (19.10).
 
 ### 19.6 The run log and the harness (M1, built; GDD 5.22, R-BAL, A56)
@@ -7150,7 +7150,7 @@ bash tools/headless/run_bots.sh seeds=10000 out=.project/evidence/STEP-14/<run> 
 python tools/headless/sweep.py --seeds 1000 "base=" "a=ticket_deadline_mult:1.3"  # compare configurations without editing a .tres
 ```
 
-  The harness arguments are `bot`, `seeds`, `first`, `run` (1 starts employed at Pivotly, 2 and later between jobs), `bg`, `handbook` (`none` or `full`), `out`, `set` (overrides: `field:value`, `arch.startup.pay_mult:0.9`, `bg.start_savings_months:1`, `evt.<id>.<path>:value`; the experiment never touches the repo), `trace=N` (one run's state every N days) and `dump=1` (one CSV line per run).
+  The harness arguments are `bot`, `seeds`, `first`, `run` (1 starts employed at Hierarchai, 2 and later between jobs), `bg`, `handbook` (`none` or `full`), `out`, `set` (overrides: `field:value`, `arch.startup.pay_mult:0.9`, `bg.start_savings_months:1`, `evt.<id>.<path>:value`; the experiment never touches the repo), `trace=N` (one run's state every N days) and `dump=1` (one CSV line per run).
 - **Bots** are classes in `tests/harness/bots/` with `inputs(state, ctx) -> Array`: `BotBase` answers whatever the clock waits on through hooks, `BotCareer` adds the job-hunting competence (the best posting by callback odds x the interview's pass probability x its worth, studying to keep a Resume Gap off, comparing an offer with the job you hold), and the Planner, Coaster, Grinder, Lifestyle and Random bots set the policies (A76). Each rolls on its own RNG seeded from the run seed, so a bot's dice never shift the sim's (the trick of `InterviewPlan.meter_rng`, 7.2).
 - **Duels without a thumb:** `DuelModel` resolves an interview with the duel's own formulas (`Odds.knowledge_p`, `stat_score`, `zone_half`, `input_quality`, `answer_q`, the committee wheel), the real question pools and a modeled tap error of 75 ms, as GDD 5.12's bot did; it can also estimate a posting's pass probability, which the bots use. A review is `WorkOdds.review_standin_left` until M3 designs its prompts (GDD 5.16, A67).
 - **The speed** (M1's exit): the Planner takes about 40 ms a run (about 7 minutes for 10,000 seeds in one process) and the others 3-10 ms, measured in the evidence run (`.project/evidence/STEP-14/`).
@@ -7174,9 +7174,9 @@ python tools/headless/sweep.py --seeds 1000 "base=" "a=ticket_deadline_mult:1.3"
 
 ### 19.9 What retires
 
-Nothing retires before MC-01 says the career run replaces the Phase 1 flow. Then:
+Nothing retires until the career run replaces the Phase 1 flow (MC-01, D-33: that is what `v0.5-mvp` ships, after M4). Then:
 - the hub's day loop, `features/job_hunt/` (the deck, Mail, the night screen, the Study panel as it is), with `RunState`'s day-loop fields and rules (the board, applications, Sleep and the morning reveal, the Radar, the day-2 guarantee), their `Odds` formulas and `HuntTips`' hunt tips;
-- `features/phase2_stub/` (the Hired card as an ending), once MC-08 is answered; the enum value stays (INV-10);
+- `features/phase2_stub/` (the Hired card as an ending), once the career run's Accept beat exists (MC-08, D-34); the enum value stays (INV-10);
 - TierData's unused `meeting_load`, `layoff_risk` and `growth_mult` (RC-05).
 
 D-27's negotiation code did not wait for MC-01: it left in its own commit on 2026-10-08 (ROADMAP 12, Step 14 task 6): `Odds.negotiate_p`, `Odds.negotiated_salary`, BalanceConfig's `nego_*` fields, the offer's `negotiated` flag, `test_offer`'s negotiation test and the unused strings (CONTENT 16.7). Section 17 was re-synced in that commit. Each retired file's block leaves section 17 in the same commit, through the usual sync.

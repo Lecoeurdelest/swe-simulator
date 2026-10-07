@@ -27,7 +27,7 @@ static func startup() -> ArchetypeData:
 	a.id = &"startup"
 	a.duel_tier = &"startup"
 	a.remote_share = 0.60
-	a.company_ids = PackedStringArray(["co_pivotly", "co_synergai"])
+	a.company_ids = PackedStringArray(["co_synergai", "co_quantumleaf"])
 	a.pay_mult = 0.85
 	a.severance_options = PackedFloat64Array([0.0, 0.5, 1.0])
 	a.leave_level_drop = 0
@@ -47,7 +47,7 @@ static func startup() -> ArchetypeData:
 static func agency() -> ArchetypeData:
 	var a := ArchetypeData.new()
 	a.id = &"agency"
-	a.company_ids = PackedStringArray(["co_outsourcery", "co_pixelpivot"])
+	a.company_ids = PackedStringArray(["co_pixelpivot", "co_beigeware"])
 	return a
 
 
@@ -57,7 +57,7 @@ static func megacorp() -> ArchetypeData:
 	a.duel_tier = &"big"
 	a.duels_per_offer = 2
 	a.remote_share = 0.25
-	a.company_ids = PackedStringArray(["co_monolith", "co_omniglobal"])
+	a.company_ids = PackedStringArray(["co_omniglobal", "co_nimbus"])
 	a.pay_mult = 1.25
 	a.severance_options = PackedFloat64Array([0.0])
 	a.severance_per_year = 2.0

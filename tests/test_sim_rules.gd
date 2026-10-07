@@ -124,12 +124,12 @@ func test_floor_multipliers() -> void:  # 6.1's table
 	_near(WorkOdds.duel_doubt(cfg, 132.0, 5), 174.24, 0.001, "Doubt HP, Big corp, floor 5")
 
 
-func test_start_savings_and_runway() -> void:  # DECISIONS A68: months of the Shared room's bills (0.9 + 1.2 = 2.1 k$)
+func test_start_savings_and_runway() -> void:  # DECISIONS A68, D-30: months of the Shared room's bills (0.9 + 1.2 = 2.1 k$)
 	var intern := load("res://data/backgrounds/intern.tres") as BackgroundData
 	var grad := load("res://data/backgrounds/graduate.tres") as BackgroundData
-	_near(WorkOdds.start_savings(cfg, intern, false), 1.05, 0.0001, "the Intern: 0.5 months")
-	_near(WorkOdds.start_savings(cfg, grad, false), 0.84, 0.0001, "the Graduate: 0.4 months")
-	_near(WorkOdds.start_savings(cfg, grad, true), 0.84 + 2.1, 0.0001, "the Emergency fund edge adds a month")
+	_near(WorkOdds.start_savings(cfg, intern, false), 2.1, 0.0001, "the Intern: 1 month")
+	_near(WorkOdds.start_savings(cfg, grad, false), 1.68, 0.0001, "the Graduate: 0.8 months")
+	_near(WorkOdds.start_savings(cfg, grad, true), 1.68 + 2.1, 0.0001, "the Emergency fund edge adds a month")
 	_near(WorkOdds.runway_months(4.2, 0.9, 1.2), 2.0, 0.0001, "4.2 k$ against 2.1 k$ a month")
 
 
@@ -204,33 +204,48 @@ func test_run_one_starts_as_the_spec_says() -> void:  # R-STAT-02 / DECISIONS A6
 	assert_eq(s.day, 0, "day 0 is the start")
 	assert_true(s.employed, "run 1 starts employed (D-02)")
 	assert_eq(s.job_archetype, "startup", "at the Startup")
-	assert_eq(s.job_company, "co_pivotly", "Pivotly")
+	assert_eq(s.job_company, "co_synergai", "Hierarchai")
 	assert_false(s.job_remote, "onsite (A72)")
 	assert_eq([s.skill, s.mo, s.burnout, s.rust], [0.0, 0.0, 0.0, 0.0], "Skill, MO, Burnout and Rust start at 0")
-	assert_eq(s.coworkers.size(), 4, "Pivotly's four authored coworkers")
+	assert_eq(s.coworkers.size(), 4, "Hierarchai's four authored coworkers")
 	for cw: Dictionary in s.coworkers:
 		assert_eq(float(cw["rapport"]), 50.0, "%s starts at Rapport 50" % cw["id"])
-	_near(s.savings, 1.05, 0.0001, "the Intern's starting savings")
+	_near(s.savings, 2.1, 0.0001, "the Intern's starting savings: one month (D-30)")
 	_near(s.job_salary, 2.55, 0.0001, "a Startup Junior")
 	assert_eq([s.home, s.hours, s.level], [0, 3, 0], "Shared room, notch 3, Junior")
 	assert_eq(s.next_review, 180, "the first review is day 180")
 
 
-func test_rent_on_day_one_and_pay_on_day_25() -> void:  # R-ECO; the merge report's caution: below zero for 24 days, back on day 25
+func test_rent_on_day_one_and_pay_on_day_25() -> void:  # R-ECO; D-30: the Intern's month of savings pays day 1's bills exactly
 	var c := SimFixture.ctx(true)
 	var s := SimFixture.fresh(c)
 	var events: Array = Sim.step(s, [], c)
 	assert_eq(s.day, 1)
-	_near(s.savings, 1.05 - 2.1, 0.0001, "rent 0.9 and living costs 1.2 are due on day 1")
+	_near(s.savings, 0.0, 0.0001, "rent 0.9 and living costs 1.2 are due on day 1 and use the whole month of savings")
 	assert_eq(SimFixture.count(events, "rent"), 1)
+	SimFixture.run_days(s, c, 23)
+	assert_eq(s.day, 24)
+	assert_eq(s.below_zero_days, 0, "exactly zero is not below zero")
+	events = Sim.step(s, [], c)
+	assert_eq(s.day, 25)
+	assert_eq(SimFixture.count(events, "payday"), 1)
+	_near(s.savings, 2.55, 0.0001, "day 25 pays a full month (run 1 starts with 5 days accrued)")
+
+
+func test_a_thin_purse_is_below_zero_until_payday() -> void:  # R-ECO; the merge report's caution (MC-04) with the old half month
+	var c := SimFixture.ctx(true)
+	var s := SimFixture.fresh(c)
+	s.savings = 1.05
+	Sim.step(s, [], c)
+	_near(s.savings, 1.05 - 2.1, 0.0001, "day 1's bills overdraw a thin purse")
 	SimFixture.run_days(s, c, 23)
 	assert_eq(s.day, 24)
 	assert_eq(s.below_zero_days, 24, "below zero for 24 days in a row")
 	_near(s.savings, -1.05, 0.0001, "no salary yet")
-	events = Sim.step(s, [], c)
+	var events: Array = Sim.step(s, [], c)
 	assert_eq(s.day, 25)
 	assert_eq(SimFixture.count(events, "payday"), 1)
-	_near(s.savings, -1.05 + 2.55, 0.0001, "day 25 pays a full month (run 1 starts with 5 days accrued)")
+	_near(s.savings, -1.05 + 2.55, 0.0001, "day 25 pays a full month")
 	assert_eq(s.below_zero_days, 0, "the count resets")
 
 
