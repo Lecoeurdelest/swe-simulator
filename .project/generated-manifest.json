@@ -3,22 +3,22 @@
   "generator": ".project/render.py",
   "template_version": "task-index/1",
   "inputs": {
-    "docs/GDD.md": "9d0d7a33759bb6075371ac0ef46a9d322ab98c51c2125eecd4af337f529015cc",
+    "docs/GDD.md": "b7727fa5179851f3e7e7a66d67e8ffbec3a915f41542b61e2071827d63540375",
     "docs/CONTENT.md": "6623f05a36a1f7aaac905ee881ad6261a99e1cec5264ac01ae493b71f34f687d",
     "docs/ARCHITECTURE.md": "59c6c5dd4b19a4baceff17ed4449cd919324a8f4a411f0b9deb01b7b4d7e50f1",
     "docs/ROADMAP.md": "2e22435d5182d33ac132b54e922d5e01c37d9899a2c93030da02bd4848a094d7",
-    "docs/DECISIONS.md": "e032ce8dcf18209abd8f4c2973d1b7fb2c467e71490fd92a3b11feec585e4832",
-    "project.yaml": "523201aa4a82e48e3e8279d6254b53bb5174b21e9b5357d52fde1c22ecc68a0e",
-    ".project/state.json": "f2e2ed5fd80780d010d9b2c07c7ab1dc5d9c5e8821e653e7804e77e7e84e3de3"
+    "docs/DECISIONS.md": "8c71d5f5a892718990dc7aaaa7f03d5fd50bf03d3af0da83b1bffc51ba84d583",
+    "project.yaml": "11a0e6e9f8f90b8705a55cdd639fd1c1049096668b1e37e90d7943352280f275",
+    ".project/state.json": "054a95a7c618675065043ca5de9a08896c6f2c7f4fa175dbb26a1cd2d825a67f"
   },
   "outputs": {
     "docs/task/README.md": {
       "owner": "generated",
-      "sha256": "ef9e955b48d19bfa8fb2748d8f6f7f3c2a8589c754b100e93a0ccd5c8e060915"
+      "sha256": "cb66c05ba8a6de0f6aaa055646c391c338915f5b1a7a3b60a0bbbc224814b8be"
     },
     "project.yaml": {
       "owner": "generated-by-agent from docs/*.md; regenerate on doc change",
-      "sha256": "523201aa4a82e48e3e8279d6254b53bb5174b21e9b5357d52fde1c22ecc68a0e"
+      "sha256": "11a0e6e9f8f90b8705a55cdd639fd1c1049096668b1e37e90d7943352280f275"
     }
   },
   "hand_owned": [

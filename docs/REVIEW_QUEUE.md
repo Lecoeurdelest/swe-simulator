@@ -1,6 +1,6 @@
 # Review queue: what's waiting for you
 
-**2026-10-07: the Run Spec v1 merge is in progress** on branch `run-spec-v1-merge`. `docs/merge-report.md` says what's done, what's left and which questions are still yours. Decided so far: M1 starts now (W9), Phase 1's stats only feed the duel (D-26), and Negotiate is removed (D-27). The sections below are from 2026-09-29; the merge rewrites this file when it's finished.
+**2026-10-07: the Run Spec v1 merge is in progress** on branch `run-spec-v1-merge`. `docs/merge-report.md` says what's done, what's left and which questions are still yours. Decided so far: M1 starts now (W9), Phase 1's stats only feed the duel (D-26), and all negotiation is removed: the offer's Negotiate (D-27) and the lease renewal's (D-28). The sections below are from 2026-09-29; the merge rewrites this file when it's finished.
 
 Written at the end of the Step 7 review run, 2026-09-29. Your v0.1 review is built on the branch `step-07-dev-review`: CV editing and lying are gone (D9), Ducky's coach marks close on a tap (D11), the VS screen waits for your tap and shows less text (D12), the choice questions and the Hired card are in plainer words (C3, C4), and the real HP and stat bars replaced the placeholders (W7). A review fix pass followed: leftovers of the CV removal, Ducky's offer tip (Q6), the VS fade, the Hired-card points, a few tips, and a debug button that replays the first run (A47-A51). **217 tests pass** (20 suites). Nothing was built for Phase 2. Tick items off here or delete this file when you're done.
 

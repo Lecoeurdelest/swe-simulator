@@ -11,7 +11,8 @@
 # The prior wording is in git at 8aaae75.
 # 2026-10-07: Run Spec v1 merge in progress (branch run-spec-v1-merge; docs/merge-report.md). So far only the
 # developer's three decisions of that day are indexed here: W9 (M1 starts now; a convention below), D-26 (Phase 1's
-# stats only feed the duel) and D-27 (Negotiate removed: D7 superseded, SHOULD-02 and AC-S08-2 retired, not deleted).
+# stats only feed the duel), D-27 (Negotiate removed: D7 superseded, SHOULD-02 and AC-S08-2 retired, not deleted)
+# and D-28 (E04's lease negotiation removed too).
 # The Run Spec's requirements, decisions and the STEP-14..19 tasks are added when the merge is finished.
 schema_version: 1
 
@@ -199,6 +200,7 @@ decisions:
   # docs/DECISIONS.md, decided by the developer on 2026-10-07 during the Run Spec v1 merge (the D- series, A60).
   - {id: D-26, title: "Phase 1 stats in the career run", status: accepted, answer: "KNOWLEDGE, EXPERIENCE and NETWORK stay at the background's starting values and only feed the duel (knowledge P, the committee wheel); Study, callbacks and offers do not touch them (for now)", decided: "2026-10-07", source: "GDD 5.1, 12; docs/DECISIONS.md; docs/merge-report.md MC-02"}
   - {id: D-27, title: "Offer negotiation removed", status: accepted, supersedes: D7, answer: "no Negotiate anywhere: neither Phase 1's one-tap Negotiate (SHOULD, never built) nor the Run Spec's R-JOB-04 version; the contract modal is Accept or Decline; the Handbook keeps 4 Edge tips; the existing negotiation code leaves with the next code change", decided: "2026-10-07", source: "GDD 5.9.3, 10.2, 12; docs/DECISIONS.md"}
+  - {id: D-28, title: "Lease negotiation removed", status: accepted, answer: "E04 (lease renewal) is accept the +10% rent or move down a tier; its negotiate choice and the Landlords negotiate too tip go; E04 has no Ducky tip for now; no negotiation is left in the game", decided: "2026-10-07", source: "GDD 12; docs/DECISIONS.md; docs/merge-report.md MC-21"}
 
 invariants:
   # Global rules every task must keep. Full text and sources: .agent/rules/invariants.md

@@ -1626,3 +1626,5 @@ D1-D8, plus the platform decision P1, were decided on 2026-09-26, and D9-D12 on 
 **D-26 - Phase 1's stats in the career run.** Decided (the developer, "follow the recommendations for now"): **KNOWLEDGE, EXPERIENCE and NETWORK stay at the background's starting values, and only the duel uses them** (knowledge P and the committee wheel). Study, callbacks and offers don't touch them. See 5.1.
 
 **D-27 - Negotiation.** Decided (the developer, superseding D7): **offer negotiation is removed**, both Phase 1's one-tap Negotiate and the Run Spec's (R-JOB-04). The contract modal is Accept or Decline, and the Handbook keeps 4 Edge tips. See 5.9.3.
+
+**D-28 - Lease negotiation.** Decided (the developer, MC-21): **E04's lease negotiation is removed too**, with its "Landlords negotiate too" tip. A lease renewal is accept the +10% or move down a tier; no negotiation is left in the game. See 5.19 (E04).
