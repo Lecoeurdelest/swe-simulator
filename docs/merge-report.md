@@ -1,66 +1,125 @@
 # Run Spec v1 merge report
 
-**Status: IN PROGRESS.** Branch `run-spec-v1-merge` (pushed). Don't merge it yet: the GDD points at sections that are still to be written (see "What's left"). Last updated 2026-10-07, after your answers to MC-01, MC-02 and MC-21 and the Negotiate removal; second session: "What's left" items 1-7 are done.
+**Status: DONE (the documentation merge), 2026-10-07.** Branch `run-spec-v1-merge` is pushed and ready for a pull request: https://github.com/Lecoeurdelest/swe-simulator/pull/new/run-spec-v1-merge. The Run Spec is folded into the existing docs and their sections, keeping its ids; every conflict is either resolved by your precedence rules or decisions (RC-01..RC-35) or waiting for you with a proposed resolution (MC-nn); every rule the spec leaves undefined is listed as a spec gap with a proposed default. **No code, scene, `.tres`, JSON or asset file changed.** What's still yours is listed at the end ("Your open questions") and in `docs/REVIEW_QUEUE.md` section 0.
 
-Sources: `docs/run-spec-v1.md` (the spec, archived read-only; original sha256 `f64ea13ca5c739cef5ab4a68ae6cad3aefcac03f9856308fb95e2fbd3b5106af`), `docs/swe-simulator-handoff.md` and `docs/swe-simulator-godot-access.md` (both moved from the repo root, A59). `phase2_draft_options.md` wasn't available and wasn't used. No code or asset was changed.
+Sources: `docs/run-spec-v1.md` (the spec, archived read-only; its body is byte-identical to the original, sha256 `f64ea13ca5c739cef5ab4a68ae6cad3aefcac03f9856308fb95e2fbd3b5106af`), `docs/swe-simulator-handoff.md` and `docs/swe-simulator-godot-access.md` (both moved from the repo root, A59). `phase2_draft_options.md` wasn't available and wasn't used. Precedence: DECISIONS W8.
 
-## Start here (next session)
+## Start here (the next session)
 
-1. `git switch run-spec-v1-merge && git pull`. Godot isn't needed until M1 starts.
-2. Read the original brief's rules, which still hold: **documentation only** until the merge is done; fold the spec into the existing docs (no appended file); keep the spec's ids (D-, P-, R-, E-, Q-); never resolve a conflict silently. The precedence rules are DECISIONS W8.
-3. Apply the decisions already taken (next section) to everything still to be written.
-4. Work through "What's left" in order, committing and pushing on this branch after each item (W1; plain commit messages, no attribution trailer).
-5. When the merge is done: finish this report (final file-by-file table), run `python .project/render.py` and the 3 validators (expected warnings: only "STEP-00: decision D4 is not accepted" and "STEP-00: decision D7 is not accepted"), commit, push, and tell the developer the branch is ready for a pull request.
-6. **Then M1 starts** (W9): STEP-14 on branch `step-14-sim-core` from this branch (A61), following its bundle `.project/bundles/STEP-14.md` (written in item 7 below).
+1. `git switch run-spec-v1-merge && git pull` (or `git switch main && git pull` once you've merged the pull request).
+2. **M1 (STEP-14), the career run's sim core, is next** (W9): branch `step-14-sim-core` from this branch, or from `main` after the merge (A61), and follow `.project/bundles/STEP-14.md`. M1 runs headless (the commands are in `.agent/AGENTS.md`).
+3. M1's huddle settles the M1 spec gaps below and MC-04, MC-05, MC-22 and MC-23. If you're away, Claude takes the proposed defaults and logs them as agent defaults (W4); scope, tone and tips wait for you.
+4. D-27's negotiation code goes with M1, the next code change (ROADMAP 12, Step 14 task 6).
 
-## Decisions taken on 2026-10-07 (apply them everywhere)
+## The decisions of 2026-10-07, and where they were applied
 
-| Id | Decision | Already applied to | Still to apply in |
-|---|---|---|---|
-| W9 | **M1 (STEP-14, the sim core) starts now**, ahead of Phase 1's open Steps 7-13: the one exception to W2's gate. The rest of MC-01 stays open (below). | DECISIONS; GDD 12; ROADMAP 3 (note); REVIEW_QUEUE (note); project.yaml convention; state.json (STEP-07 detail, ISSUE-11) | ROADMAP 12 (M1 = STEP-14 as the next step); project.yaml STEP-14..19 (STEP-14 `depends_on: []`, ready to start); the STEP-14 bundle; GDD 10.7 |
-| D-26 | **Phase 1's KNOWLEDGE, EXPERIENCE and NETWORK stay at the background's starting values and only the duel uses them** (knowledge P, the committee wheel), for now. Study, callbacks and offers don't touch them; EXPERIENCE doesn't grow at work. (Was MC-02.) | DECISIONS; GDD 5.1 (status line, table, growth note), 12; project.yaml | GDD 5.16 (note under the hidden stats), 5.20 (R-JOB-03: "base" values), 13.4; ARCHITECTURE 19.5 (the adapter reads the background's stats unchanged) |
-| D-27 | **Offer negotiation is removed** (supersedes D7): no one-tap Negotiate and no R-JOB-04 negotiation. The contract modal is Accept or Decline. | DECISIONS; GDD 0 (status line), 1.4, S10, 5.1, 5.9.3, 5.13, 6, 7, 8.2, 8.3, 10.2-10.4, 10.6, 11.6, 12; ROADMAP Steps 6 and 8, cadence, cut list; CONTENT 8.2, 10.1, 11, 13.1; ARCHITECTURE 7.1, 8, 11.7, 12.2; REVIEW_QUEUE; project.yaml (D7 superseded; SHOULD-02 and AC-S08-2 retired; STEP-06 and STEP-08 point at D-27); state.json | GDD 5.20: R-JOB-04 is "Accept or Decline" (no negotiation chance, no +8%); R-JOB-06's OfferResult is `{decision: accept or decline, final_salary, clauses[]}`; GDD 5.21: the Handbook has **4 Edge tips** (drop "Negotiate every offer"; the spec's "about 15% of total power" shrinks accordingly); GDD 11.7 has no `nego_*` rows; CONTENT 16 has no Negotiate edge; project.yaml's R-JOB-04, R-JOB-06 and R-HB-01 criteria say the same. Code to remove later (not in the merge): `Odds.negotiate_p`, `Odds.negotiated_salary`, BalanceConfig `nego_*`, the offer's `negotiated` flag, `test_offer`'s negotiation test, and the unused strings (`tip_negotiate`, `bark_dana_nego_win/lose`, `ui_negotiate`, `offer_equity_doubled`, `offer_signon`) |
-| D-28 | **E04's lease negotiation is removed too** (was MC-21): a lease renewal is accept the +10% rent or move down a tier. Its "Negotiate (tip): 30% chance of +5% instead" choice and its Option tip "Landlords negotiate too; ask before you sign" go; E04 has no Ducky tip for now (an explicit none). With D-27, no negotiation is left. | DECISIONS; GDD 12; REVIEW_QUEUE (note); project.yaml; state.json (ISSUE-11) | GDD 5.15 keeps "Rent: +10% at each yearly lease renewal (E04)"; GDD 5.19's E04 row is "Accept +10% / Move down a tier" with tip "-"; GDD 5.21's Option examples drop "Landlords negotiate too (E04)" (keep "Get it in writing (E08 push back)"), and the Handbook's v1 count is **23 tips** (the spec's 24 were one per event with a tip); GDD 8.6 and CONTENT 16.3 have no E04 tip (a new rent tip can come at M6, with your sign-off); project.yaml's R-EVT-05 and R-HB-01 criteria say the same |
-| A60 | New design decisions continue the D- series (D-26 onward), not D13. | DECISIONS | AGENTS.md's decision ranges |
-| A61 | STEP-14's branch `step-14-sim-core` starts from `run-spec-v1-merge` (from `main` if the merge PR is merged first). | DECISIONS | ROADMAP 12, the STEP-14 bundle |
+| Id | Decision | Applied in |
+|---|---|---|
+| W8 | The Run Spec is merged with precedence rules: the original docs win on pixel-art style, engine and language, code conventions, shipped UI conventions and existing characters; the Run Spec wins on game design and supersedes earlier work-loop notes | every doc; GDD's reading guide; `.agent/AGENTS.md`; `project.yaml`'s authority order |
+| W9 | **M1 (STEP-14, the sim core) starts now**, ahead of Phase 1's open Steps 7-13: the one exception to W2's gate. The rest of MC-01 stays open | DECISIONS; GDD 10.5, 10.7, 12; ROADMAP 3, 12; REVIEW_QUEUE; `project.yaml` (convention, STEP-14 `depends_on: []`); `state.json` (STEP-14 ready); the STEP-14 bundle |
+| D-26 | **Phase 1's KNOWLEDGE, EXPERIENCE and NETWORK stay at the background's starting values, and only the duel uses them** (was MC-02) | GDD 5.1, 5.8, 5.16, 5.20 ("base" values), 12, 13.4; ARCHITECTURE 19.5; `project.yaml` |
+| D-27 | **Offer negotiation is removed** (supersedes D7): the contract modal is Accept or Decline | GDD 0, 1.4, S10, 5.1, 5.9, 5.13, 5.20 (R-JOB-04, the OfferResult), 5.21 (4 Edge tips), 6, 7, 8, 10, 11.6, 11.7 (no `nego_*` rows), 12; CONTENT 8.2, 10.1, 11, 13.1, 16.7; ARCHITECTURE 7.1, 8, 11.7, 12.2, 19.5, 19.9; ROADMAP Steps 6, 8 and 14 (the code cleanup); `project.yaml` (D7 superseded; SHOULD-02 and AC-S08-2 retired) |
+| D-28 | **E04's lease negotiation is removed too** (was MC-21): accept the +10% or move down a tier; E04 has no tip | GDD 5.15, 5.19 (E04's row), 5.21 (23 tips, no E04 Option example), 8.6, 11.7, 12; CONTENT 16.3-16.4; the parking lot (a rent tip at M6); `project.yaml` |
+| A60 | New design decisions continue the D- series (D-29 is next) | DECISIONS; `.agent/AGENTS.md` |
+| A61 | STEP-14's branch `step-14-sim-core` starts from `run-spec-v1-merge` (from `main` if the merge is merged first) | ROADMAP 12; the STEP-14 bundle; `project.yaml` |
 
-## Done
+## What changed, file by file (both sessions)
 
-| File | Change |
+| File | Changes |
 |---|---|
-| `docs/run-spec-v1.md` | the spec, copied in with a 3-line "archived, read-only" header (the body is byte-identical) |
-| `docs/DECISIONS.md` | an id-series legend; D-01..D-25; P-01..P-08 (accepted 2026-10-07 by your instruction); Q-01..Q-07 (Q-01/Q-02 answered from the repo, Q-03..Q-07 at the spec's defaults); W8 (the merge and its precedence rules; supersedes P3's "mechanic not chosen"); A52-A59 (merge defaults, please review); W9, D-26, D-27, D-28, A60, A61 (2026-10-07 answers) |
-| `docs/GDD.md` | v2.0 header and reading guide; section 0 rewritten for the career run, Phase 1's one-pager kept; 1.1-1.4; 2.4-2.6; new 2.11 (office diorama, R-DIO-01..05); 3.1 (career loop diagram, Phase 1's kept), 3.2 (D-06 targets); new 3.3 (run structure, exits, endings) and 3.4 (The Studio, R-WIN-01..08); 4.1, S04, S11, S12 status lines; new 4.5 (career-run flow) and 4.6 (career-run screens); the D-26 and D-27 edits; section 12's "Decisions after the merge" |
-| `docs/ROADMAP.md`, `docs/CONTENT.md`, `docs/ARCHITECTURE.md`, `docs/REVIEW_QUEUE.md` | only the D-27 edits and the W9 notes listed above |
-| `project.yaml`, `.project/state.json`, `docs/task/README.md`, `.project/generated-manifest.json` | the D-26, D-27 and W9 changes; ISSUE-11 (this merge, open); re-rendered; the 3 validators pass |
+| `docs/run-spec-v1.md` | new: the spec, archived read-only (a header above the byte-identical body); untouched since |
+| `docs/swe-simulator-handoff.md`, `docs/swe-simulator-godot-access.md` | moved from the repo root, unchanged (A59) |
+| `docs/DECISIONS.md` | the id-series legend; D-01..D-25; P-01..P-08 (accepted); Q-01..Q-07; W8; A52-A59; W9; D-26; D-27 (supersedes D7); D-28; A60; A61 |
+| `docs/GDD.md` (2.0) | First session: the header and reading guide; section 0 for the career run (Phase 1's one-pager kept); 1.1-1.4; 2.4-2.6; new 2.11 (the diorama); 3.1-3.2; new 3.3 (run structure, exits, endings) and 3.4 (The Studio); status lines on 4.1, S04, S11, S12; new 4.5-4.6; 5.1; "Decisions after the merge" in 12. Second session: the section 5 map; status lines on 5.0, 5.2-5.13, 6, 7, 10.1-10.5, S03, S10 and 4.3; new 5.14 (the clock), 5.15 (money), 5.16 (work stats and the review), 5.17 (controls), 5.18 (archetypes, floor depth, Pivotly's coworkers), 5.19 (events, E01-E26, the resizing chain, the layoff scene), 5.20 (the job hunt and the adapter), 5.21 (Scars and the Handbook), 5.22 (the harness, telemetry); new 6.1, 7.1, 8.5, 8.6, 9.5, 10.7, 11.7; the D-01..D-25 / P-01..P-08 summary in 12; new 13 (O1-O9, A-01..A-05 checked, Q-01..Q-07, the duel's real stat names, the risk and open-conflict pointers) |
+| `docs/CONTENT.md` (1.2) | First session: the D-27 notes (8.2, 10.1, 11, 13.1). Second session: new section 16 (draft strings: names, the work state's UI and Hours labels, the E01-E26 cards with `evt_eNN_*` ids and proposed exhausted choices, the 23 tips, the endings, the layoff scene and Dana's new lines, what happens to Phase 1's strings); notes in 1.1, 3, 14 and 15 |
+| `docs/ARCHITECTURE.md` (1.5) | First session: the D-27 notes (7.1, 8, 11.7, 12.2). Second session: new section 19, planned and not built (the shape, the sim core, the data files with the E12 example as JSON, phases and save, the adapter, the run log and the harness, the UI, the diorama, what retires, the planned tests); pointers in 0, 4.1, 6.3, 11.8 and 12.4. Section 17 unchanged |
+| `docs/ROADMAP.md` (1.3) | First session: D-27 in Steps 6 and 8 and the cut list; the W9 note in 3. Second session: new section 12 (STEP-14..19 = M1-M6, with branches, estimates, tasks, huddles, Done-when, pitfalls); status notes on 2, 3 and Steps 7-11; the art pipeline without commissioning (D-21); the career run's playtest gates and rows in 7; the spec's risks as rows 13-19 in 8; the decision ranges in 1; notes in 10 and 11 |
+| `docs/REVIEW_QUEUE.md` | rewritten: section 0 (the merge: the pull request, the open MC items, the decisions to skim, what only you can set, M1's spec gaps), then what still waits from the Step 7 review |
+| `docs/ideas_parking_lot.md` | the Phase 2 entry marked picked up by the Run Spec, with where each idea went; new entries: a rent tip for E04 (D-28), a CI job (RC-32) |
+| `docs/KILL_TESTS.md` | the career run's planned kill moments 6-11 (O8) |
+| `docs/merge-report.md` | this report |
+| `.agent/AGENTS.md` (= `.claude/CLAUDE.md`) | the career run in the intro and M1 as the next step; the W8 precedence and id rules; the art rule (INV-20) and the string rule (A57); the build, run and test commands from the access doc (the MCP loop with `autosave=false`, the headless commands and runner, the harness, the plan-tracking commands with `python` and `PYTHONIOENCODING=utf-8`); the decision ranges; the task ids STEP-00..19 |
+| `.agent/rules/invariants.md` | INV-20, the art rule. INV-21..23 are proposed to you, not added |
+| `project.yaml` | First session: D-26, D-27 (D7 superseded; SHOULD-02 and AC-S08-2 retired), D-28, the W9 convention. Second session: the 44 R-* requirements with criteria (the milestones' Done-when items are AC-S14..AC-S19), REQ-CAREER-FLOW and REQ-CAREER-GATES, D-01..D-25, P-01..P-08, Q-01..Q-07 and AD-14, INV-20, the career run's planned components, BASE-RUNSPEC and BASE-DOCS-RUNSPEC, the new docs as artifacts, the W8 rule in the authority order, and the tasks STEP-14..STEP-19 |
+| `.project/state.json` | ISSUE-11 (open until you merge and answer the MC items); STEP-07's and STEP-08's notes; STEP-14 `ready` with its criteria; STEP-15..19 `todo` |
+| `.project/bundles/STEP-07.md`, `.project/bundles/STEP-14.md` | STEP-07's out-of-scope note (no longer "Phase 2 is parked"); the new STEP-14 bundle |
+| `docs/task/README.md`, `.project/generated-manifest.json` | re-rendered |
 
-## What's left (in this order)
+Checked at the end: `python .project/render.py` and the three validators pass (the only warnings are the expected "STEP-00: decision D4 is not accepted." and "... D7 is not accepted."); every line added in this session is ASCII; nothing outside `docs/`, `.agent/`, `.project/` and `project.yaml` changed on the branch.
 
-1. **GDD (done, second session):**
-   - the section 5 map and a "Run Spec v1 status" line on 5.0 and 5.2-5.13 (5.1 is done);
-   - new 5.14 clock (R-CLK), 5.15 money (R-ECO, R-ECO-05), 5.16 work stats (R-STAT-01..04, R-CB-02), 5.17 controls (R-CTL-01..04), 5.18 archetypes and floor depth (P-01, P-07, R-ARC-02, Pivotly's coworkers), 5.19 events (R-EVT-01..05, the E01-E26 table in ASCII with **E04 without its negotiate choice and tip** (D-28), R-RUN-02, the layoff scene), 5.20 job hunt and adapter (R-JOB-01..06, **with D-27**), 5.21 Scars and Handbook (R-SCAR-01, R-HB-01, **4 Edge tips, 23 v1 tips, no E04 Option example**), 5.22 harness (R-BAL, R-TEL-01);
-   - a status line on 6 and new 6.1 (floor depth); a status line on 7 and new 7.1 (tiers and archetypes); 8.5 (Handbook) and 8.6 (event tips); 9.5 (career-run juice); status lines on 10.1-10.5 and new 10.7 (scope, M1-M6, W9); 11.7 (every spec number with a planned owner, **no nego rows**); at the end of 12, a summary of D-01..D-25 and P-01..P-08 above "Decisions after the merge"; new 13 (O1-O9, A-01..A-05 checked, Q-01..Q-07, 13.4 the duel's real stat names, a risks pointer, an open-conflicts pointer).
-2. **CONTENT (done, second session)** v1.2: new section 16 (draft strings: names, the Hours labels, E01-E26 cards with `evt_eNN_*` ids and tip ids, ending lines, the layoff line, the Burnout warnings), plus notes in 1.1, 3, 14 and 15.
-3. **ARCHITECTURE (done, second session)** v1.5: new section 19 (sim core, the `WorkConfig` and `ArchetypeData` data files, phases and save, the adapter with the Q-02 names and D-26, the run log, the harness, the diorama, what retires); pointers in 0, 4.1, 6.3, 11.8 and 12; section 17 stays as is (no code changed).
-4. **ROADMAP (done, second session)** v1.3: new section 12 (STEP-14..19 = M1-M6, with STEP-14 next per W9); notes on Steps 7-11; the art pipeline (D-21); the playtest gates in 7; the spec's risks as rows 13-19 in 8; the decision ranges in 1.
-5. **Done, second session:** REVIEW_QUEUE (rewrite: section 0 with the open MC items), ideas_parking_lot (the Phase 2 entry is picked up by the Run Spec), a KILL_TESTS note (O8), invariants INV-20 (the art rule) and possibly INV-21..23 (sim purity, no time while closed, one Junior control: proposed to you in REVIEW_QUEUE 0.4, not added).
-6. **`.agent/AGENTS.md` (= CLAUDE.md; done, second session):** the precedence rules (W8), the art rule (GDD 2.5, 2.11; D-21, D-25), and the build, run and test commands from `docs/swe-simulator-godot-access.md` (the MCP loop with `autosave=false`, the headless commands and runner, the plan-tracking commands with `python` and `PYTHONIOENCODING=utf-8`); update the decision ranges and the task-id note (STEP-00..19).
-7. **Done, second session:** project.yaml (the R-* requirements with criteria, the D-01..D-25 and P-01..P-08 decisions, STEP-14..19 with their milestones, a BASE-RUNSPEC baseline, the new docs as artifacts, the authority order); state.json (STEP-14..19; STEP-14 ready); bundles (update STEP-07's out-of-scope note, which still says Phase 2 is parked; write STEP-14's); render and validate.
-8. Finish this report.
+## Where each part of the spec went
+
+| Run Spec v1 section | Merged into |
+|---|---|
+| 1 Summary | GDD 0, 1.1 |
+| 2 Decision log (D-01..D-25, P-01..P-08) | DECISIONS; GDD 12 |
+| 3 Run structure | GDD 3.1, 3.3, 4.5 |
+| 4 Win condition: The Studio | GDD 3.4 |
+| 5 Clock and economy | GDD 5.14, 5.15, 11.7 |
+| 6 Stats | GDD 5.16 |
+| 7 Controls and promotion | GDD 5.17 |
+| 8 Company archetypes | GDD 5.18, 6.1, 7.1; CONTENT 16.1 |
+| 9 Events | GDD 5.19, 8.6; CONTENT 16.3; ARCHITECTURE 19.3 |
+| 10 Job hunt | GDD 5.20; ARCHITECTURE 19.5 |
+| 11 Scars and the Handbook | GDD 5.21, 8.5; CONTENT 16.4 |
+| 12 Office diorama | GDD 2.4-2.6, 2.11, 9.5; ARCHITECTURE 19.8; INV-20 |
+| 13 Realization plan | GDD 5.22, 10.7; ARCHITECTURE 19; ROADMAP 7, 12 |
+| 14 Traceability | GDD 13.1; `project.yaml` |
+| 15 Assumptions, risks, open questions | GDD 13.2-13.5; ROADMAP 8 (rows 13-19); DECISIONS Q-01..Q-07 |
 
 ## The duel's real stat names (Q-02, from a read-only look at the code)
+
+Also in GDD 13.4; the adapter's plan is ARCHITECTURE 19.5.
 
 - **Composure** (your HP): `_composure` in `features/interview/interview.gd`, starts at `BackgroundData.composure_max` (100/100/90).
 - **Doubt** (Dana's HP): `_doubt`, starts at `TierData.doubt_hp` (118/128/132).
 - **Answer Meter width:** the NAILED IT half-width h = `Odds.zone_half(cfg, S, bonus)` = 0.06 + 0.12 S/100 (+ `textbook_zone_bonus`), passed to `AnswerMeter.start(cfg, speed, half_width, zone_jumps, relaxed, rng)`. S comes from KNOWLEDGE and EXPERIENCE via `Odds.knowledge_p` and `Odds.stat_score` (unchanged in the career run: D-26).
 - Rounds: `BalanceConfig.prompt_pattern` (5). Result: `GameState.finish_interview(won, composure_left)`. Offer: `RunState.make_offer(...)` -> `run.offer`; `GameState.answer_offer(accept)`.
-- **Which can be fed in:** none of the three is a parameter today (they're read from `.tres` and the run inside `interview.gd`); only h crosses an interface (`AnswerMeter.start`). A-01 is partly wrong: the adapter needs the interview checkpoint to carry the numbers. Note: scaling h changes only the tap window, not S (75% of Q).
+- **Which can be fed in:** none of the three is a parameter today (they're read from `.tres` and the run inside `interview.gd`); only h crosses an interface (`AnswerMeter.start`). A-01 is partly wrong: the adapter needs the interview checkpoint to carry the numbers. Scaling h changes only the tap window, not S (75% of Q).
 
-## Conflicts resolved by your precedence rules or your own decisions (applied as the docs are written)
+## Conflicts resolved by your precedence rules or your own decisions (RC-01..RC-35)
 
-RC-01 the day loop, energy pips, rent countdown, grace day and Tired-from-pips: retired by D-04. RC-02 the duel and the contract modal kept behind the adapter. RC-03 CV tailoring retired (D-05; supersedes D9's Tailor part). RC-04 the Phase 1/Phase 2 framing (TO BE CONTINUED, P3) superseded; code ids like PHASE2_STUB stay. RC-05 earlier work-loop notes superseded (GDD 3.1's WORK line, 5.3, the 6/7 Phase 2 rows, 10.3, 10.4, TierData's meeting_load/layoff_risk/growth_mult, the parking lot, ROADMAP's "Phase 2 pitch"). RC-06 Plan B = savings below 0 for 30 days; the card kept (D-19). RC-07 money in k$ replaces "no cash stat". RC-08 salary from the level x archetype table, not Composure. RC-09 negotiation: first resolved to R-JOB-04's numbers, now **removed altogether by your D-27**. RC-10 pacing from D-06. RC-11 floor depth is the difficulty scalar (P-01). RC-12 run 1 fixed to The Intern (P-06). RC-13 the Phase 1 board model replaced by R-JOB-01/02. RC-14 Study per R-JOB-05. RC-15 the interview's inputs per R-JOB-03. RC-16 Phase 1's morning events replaced by the events system. RC-17 GDD 5.12's sim replaced by the R-BAL harness for the career run. RC-18 "events kept small" superseded by "events are the game". RC-19 pixel-art details follow the art docs (the zoom cuts between whole steps, the flash cap, the hoodie color). RC-20 Godot 4.7.2 and GDScript; the sim runs headless in Godot. RC-21 code conventions: JSON events with `evt_eNN_*` ids (A54), a snake_case adapter (A55), ASCII and American spelling (A57). RC-22 shipped UI conventions: the Hours slider as tappable notches (A58), the speed control in the thumb band, 5-dot odds bands, an on-screen Back. RC-23 existing characters (Dana, Remy, Ducky) kept as written. RC-24 the harness runs outside `test_run` (A56). RC-25 the meter's 0.06 half-width floor clamps Rust's narrowing (an input fact). RC-26 the run log stores inputs and outcomes, not every tick (small saves on iOS). RC-27 "reloaded without a rebuild" holds on desktop and in the harness, not on the phone build. RC-28 new phases are appended (INV-10). RC-29 **your D-21**: no commissioned art, superseding "draw or commission the hero pieces". RC-30 **your D-26**: Phase 1's stats only feed the duel (was MC-02). RC-31 **your D-28**: E04's lease negotiation removed too (was MC-21). RC-32 the Run Spec's "CI": the repo has none, so the harness and the content lint run with the headless runner before every commit that changes a tuning number or an event (tooling facts win; GDD 5.22). RC-33 a choice that ends the run (quitting or accepting another offer during job 5, D-16) asks for a confirm that says so, like Phase 1's grace-day Decline (shipped UI conventions; GDD 5.10's "one mis-tap" rule). RC-34 the layoff scene ("skippable after the first time"): its beats advance on taps with no auto-advance (D12, A19), Back opens Pause (every screen has an on-screen way back, GDD 4.4), and a hold-to-skip pill appears from the second viewing (GDD 5.19). RC-35 save triggers: the Run Spec's (every event, the app going to background) plus Phase 1's (after every committed action, here every player input; on entering a live phase; on pause, focus out and close), so a kill loses at most the days since the last one (code conventions; GDD 5.11, 5.14).
+| ID | Conflict | Resolved by | Resolution, and where |
+|---|---|---|---|
+| RC-01 | Phase 1's day loop, energy pips, rent countdown, grace day and Tired-from-pips vs the one macro clock | D-04 (design wins) | retired when the career run is built (GDD 5.3, 5.10, 5.14) |
+| RC-02 | The shipped duel and contract modal vs the new systems | W8 (the retirements are intended; the duel stays) | kept behind the adapter (R-JOB-06; GDD 5.20; ARCHITECTURE 19.5) |
+| RC-03 | Tailor & Apply (D9 kept it) vs no CV | D-05 | CV tailoring retired (GDD 5.4) |
+| RC-04 | The Phase 1/Phase 2 framing (TO BE CONTINUED, P3) | W8 | superseded; code ids like `PHASE2_STUB` stay (code conventions) |
+| RC-05 | Earlier work-loop notes (GDD 3.1's WORK line, 5.3, 6's and 7's Phase 2 rows, 10.3, 10.4, TierData's unused fields, the parking lot, ROADMAP's "Phase 2 pitch") | W8 (the spec supersedes them) | superseded, each marked where it sits |
+| RC-06 | Plan B when rent runs out vs the runway loss | D-19, design | savings below zero for 30 days; the card kept (GDD 5.10, 3.3) |
+| RC-07 | "No cash stat" (GDD 5.1) | design | money in k$ (GDD 5.15) |
+| RC-08 | Salary from Composure (GDD 5.9.2) | design | the level x archetype table and floor depth (GDD 5.15) |
+| RC-09 | Phase 1's Negotiate vs R-JOB-04's | first design, then **your D-27** | all negotiation removed |
+| RC-10 | Phase 1's pacing targets | D-06 | the career run's targets (GDD 3.2) |
+| RC-11 | Background as the difficulty vs floor depth | P-01 | floor depth is the scalar (GDD 5.18, 6.1) |
+| RC-12 | Background select on every run vs run 1 | P-06 | run 1 is The Intern (GDD 5.2) |
+| RC-13 | Phase 1's board model | R-JOB-01/02 | replaced by the DoomApply board (GDD 5.6, 5.20) |
+| RC-14 | Study as KNOWLEDGE +5 | R-JOB-05 | Skill +1, Rust -20 (GDD 5.20) |
+| RC-15 | The interview's inputs from the `.tres` | R-JOB-03 | fed from the work state (GDD 5.20) |
+| RC-16 | Phase 1's morning events | design | replaced by the events system (GDD 5.19) |
+| RC-17 | GDD 5.12's simulation | design | the R-BAL harness for the career run (GDD 5.22) |
+| RC-18 | "Events kept small" (the parking lot) | design | events are the game (GDD 5.19) |
+| RC-19 | The spec's pixel-art details (smooth zoom, flashing, the player's look) | W8 (art docs win) | zoom cuts between whole steps, the 3-flashes-per-second cap, the hoodie color (GDD 2.11) |
+| RC-20 | "Godot engine", language unstated | W8 (engine wins) | Godot 4.7.2 and GDScript; the sim runs headless in Godot (Q-01) |
+| RC-21 | YAML events, camelCase fields, the spec's typography | W8 (code conventions win) | JSON events with `evt_eNN_*` ids (A54), a snake_case adapter (A55), ASCII and American spelling (A57) |
+| RC-22 | A drag slider and the spec's layout | W8 (shipped UI conventions win) | the Hours slider as tappable notches (A58), the speed control in the thumb band, 5-dot odds bands, an on-screen Back |
+| RC-23 | The spec's cast vs existing characters | W8 (existing characters win) | Dana, Remy and Ducky kept as written (GDD 1.3, 5.18) |
+| RC-24 | The harness in `test_run` | W8 (tooling facts) | it runs headless outside `test_run` (A56) |
+| RC-25 | Rust narrowing the meter without limit | an engine and code fact | the meter's 0.06 half-width floor clamps it (GDD 5.20) |
+| RC-26 | A run log of every tick | engine facts (small saves on iOS) | inputs and outcomes only (ARCHITECTURE 19.6) |
+| RC-27 | "Reloaded without a rebuild" | engine facts | holds on desktop and in the harness, not on the phone build |
+| RC-28 | New phases | INV-10 | appended to `GameFlow.Phase` (ARCHITECTURE 19.4) |
+| RC-29 | "Draw or commission the hero pieces" | **your D-21** | no commissioned art (GDD 2.5; ROADMAP 5; INV-20) |
+| RC-30 | Phase 1's stats in the career run (was MC-02) | **your D-26** | they only feed the duel |
+| RC-31 | E04's lease negotiation (was MC-21) | **your D-28** | removed; E04 has no tip |
+| RC-32 | The spec's "CI" vs a repo with none | W8 (tooling facts) | the harness and the content lint run with the headless runner before every tuning commit (GDD 5.22) |
+| RC-33 | A run-ending choice (quit or accept another offer during job 5) vs "one mis-tap never wipes the run" | W8 (shipped UI conventions) | it asks for a confirm that says so, like the grace-day Decline (GDD 5.10; CONTENT 16.2) |
+| RC-34 | The layoff scene "skippable after the first time" vs an on-screen Back everywhere and no auto-advance | W8 (shipped UI conventions: GDD 4.4, D12, A19) | taps advance its beats, Back opens Pause, a hold-to-skip pill from the second viewing (GDD 5.19) |
+| RC-35 | Saving at every event and on backgrounding vs saving after every committed action | W8 (code conventions) | both: every event, every input, entering a live phase, pause, focus out and close (GDD 5.11, 5.14; ARCHITECTURE 19.4) |
 
 ## Open conflicts: proposed resolutions waiting for you
+
+The docs mark each one **Open (MC-nn)** where it matters. MC-02 and MC-21 are answered (D-26, D-28).
 
 | ID | Conflict | Proposed |
 |---|---|---|
@@ -73,7 +132,7 @@ RC-01 the day loop, energy pips, rent countdown, grace day and Tired-from-pips: 
 | MC-08 | What Accept shows now that the Hired card isn't an ending | keep the HIRED! stamp as a short beat; drop `end_tbc` |
 | MC-09 | The career-long Dream vs Reality formula and `dream_reality_delta` | keep the 5 rows, rebased (runway months, clauses), scored per job |
 | MC-10 | The salary scale (a Junior earns $29-45k a year vs Phase 1's $50-125k; Remy's $150k) and its display | the contract shows the yearly figure; rebase the Dream target |
-| MC-11 | The intro ends on "How did you spend those four years?" but run 1 skips Background select | a new last caption that hands over to day 0 |
+| MC-11 | The intro ends on "How did you spend those four years?" but run 1 skips Background select | a new last caption that hands over to day 0 (a draft is in CONTENT 16.6) |
 | MC-12 | Tired has no source without energy pips | retire it (Burnout already lowers Composure) |
 | MC-13 | Commute has no daily rule (only E08's +0.3) | none in M1; the Dream score only |
 | MC-14 | Work modes and office days for non-remote postings | Remote or not; Phase 1's office days per tier |
@@ -133,3 +192,14 @@ Each is marked "a spec gap" where the docs meet it. The proposed defaults are su
 | Ducky's route hint after the first loss (the mitigation of ROADMAP risk 14) has no milestone | ROADMAP 8 | M6 | write it in M6's Ducky pass |
 
 **Clarified while merging (readings, not decisions):** home recovery is r = 0.10 / 0.25 / 0.35, subtracted (the spec's table shows the minus sign); "~10 scheduled events a year" counts events with choices; the Studio hold is shown as the Filming bar; E14's "ticket -20%" is the current ticket's progress (E20 and E25 say "speed" when they mean speed); the Resume Gap's "-10% per stack" follows R-JOB-02's stack pattern, (1 - 0.10 n); the diorama's vertical scroll is content scrolling like Mail's list, not a gesture action (GDD 2.8 rule 5). (The gap about the negotiation cap went away with D-27.)
+
+## Your open questions
+
+1. **The open conflicts** (the table above), each with a proposed resolution: MC-01 (the rest), MC-03..MC-20, MC-22 and MC-23. M1 needs four first: MC-04 (starting savings, with the day-31 caution), MC-05 (the archetype ids), MC-22 (INV-09's wording) and MC-23 (E12's cooldown against O5).
+2. **Scope tags for the career run** (W4; GDD 10.7). A starting point: MUST = M1-M4 plus the Handbook (D-08's "something persists" needs it); SHOULD = M5 (the diorama, pause-and-zoom, the ending video), the events beyond the first 26, the Ducky writing pass; LATER = telemetry beyond a local run log (MC-15).
+3. **Tone sign-off** on the drafts in CONTENT 16: Pivotly's coworkers, the event cards, the burnout warnings, the endings (especially the Burnout ending's line, "You took the leave. You didn't come back."), and Dana's layoff lines.
+4. **Tip accuracy** for the 23 event tips (CONTENT 16.4): the Run Spec's own lines, made ASCII and American.
+5. **Three proposed invariants:** INV-21 (the sim core is pure and deterministic), INV-22 (no time passes while the app is closed), INV-23 (a Junior has exactly one continuous control). The wording is in `docs/REVIEW_QUEUE.md` 0.4. Add them?
+6. **The headless test runner:** commit it into the repo (for example `tools/headless/`) at the start of M1, so it stops living in a temporary folder?
+7. **M1's huddle:** which 10 events (proposed above), whether M1's exit should also need at least 1% Planner wins, and the other M1 spec gaps.
+8. **Skim** the merge's agent defaults A52-A61 and the new RC-32..RC-35.
