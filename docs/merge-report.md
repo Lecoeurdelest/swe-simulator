@@ -1,6 +1,6 @@
 # Run Spec v1 merge report
 
-**Status: IN PROGRESS.** Branch `run-spec-v1-merge` (pushed). Don't merge it yet: the GDD points at sections that are still to be written (see "What's left"). Last updated 2026-10-07, after your answers to MC-01, MC-02 and MC-21 and the Negotiate removal; second session: "What's left" items 1-6 are done.
+**Status: IN PROGRESS.** Branch `run-spec-v1-merge` (pushed). Don't merge it yet: the GDD points at sections that are still to be written (see "What's left"). Last updated 2026-10-07, after your answers to MC-01, MC-02 and MC-21 and the Negotiate removal; second session: "What's left" items 1-7 are done.
 
 Sources: `docs/run-spec-v1.md` (the spec, archived read-only; original sha256 `f64ea13ca5c739cef5ab4a68ae6cad3aefcac03f9856308fb95e2fbd3b5106af`), `docs/swe-simulator-handoff.md` and `docs/swe-simulator-godot-access.md` (both moved from the repo root, A59). `phase2_draft_options.md` wasn't available and wasn't used. No code or asset was changed.
 
@@ -45,7 +45,7 @@ Sources: `docs/run-spec-v1.md` (the spec, archived read-only; original sha256 `f
 4. **ROADMAP (done, second session)** v1.3: new section 12 (STEP-14..19 = M1-M6, with STEP-14 next per W9); notes on Steps 7-11; the art pipeline (D-21); the playtest gates in 7; the spec's risks as rows 13-19 in 8; the decision ranges in 1.
 5. **Done, second session:** REVIEW_QUEUE (rewrite: section 0 with the open MC items), ideas_parking_lot (the Phase 2 entry is picked up by the Run Spec), a KILL_TESTS note (O8), invariants INV-20 (the art rule) and possibly INV-21..23 (sim purity, no time while closed, one Junior control: proposed to you in REVIEW_QUEUE 0.4, not added).
 6. **`.agent/AGENTS.md` (= CLAUDE.md; done, second session):** the precedence rules (W8), the art rule (GDD 2.5, 2.11; D-21, D-25), and the build, run and test commands from `docs/swe-simulator-godot-access.md` (the MCP loop with `autosave=false`, the headless commands and runner, the plan-tracking commands with `python` and `PYTHONIOENCODING=utf-8`); update the decision ranges and the task-id note (STEP-00..19).
-7. project.yaml (the R-* requirements with criteria, the D-01..D-25 and P-01..P-08 decisions, STEP-14..19 with their milestones, a BASE-RUNSPEC baseline, the new docs as artifacts, the authority order); state.json (STEP-14..19; STEP-14 ready); bundles (update STEP-07's out-of-scope note, which still says Phase 2 is parked; write STEP-14's); render and validate.
+7. **Done, second session:** project.yaml (the R-* requirements with criteria, the D-01..D-25 and P-01..P-08 decisions, STEP-14..19 with their milestones, a BASE-RUNSPEC baseline, the new docs as artifacts, the authority order); state.json (STEP-14..19; STEP-14 ready); bundles (update STEP-07's out-of-scope note, which still says Phase 2 is parked; write STEP-14's); render and validate.
 8. Finish this report.
 
 ## The duel's real stat names (Q-02, from a read-only look at the code)

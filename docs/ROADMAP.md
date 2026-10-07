@@ -1035,6 +1035,7 @@ The hours are estimates written at the merge; each step's kickoff revises them, 
 3. **The tests** (Claude): `test_sim_rules`, `test_sim_review`, `test_sim_events`, `test_sim_endings`, `test_sim_replay` and `test_sim_smoke` (ARCHITECTURE 19.10), with the GDD's worked numbers.
 4. **The harness and the five bots** (Claude): `tests/harness/run_harness.gd` and `tests/harness/bots/` (ARCHITECTURE 19.6), run headless on a copy of the repo (A56; the commands are in `.agent/AGENTS.md`). Every run's report goes to `.project/evidence/STEP-14/<run>/`.
 5. **First tuning** (Claude, then you): tune `WorkConfig` and `ArchetypeData` only, until the Planner is within 5 points of its band, and write down what changed and why.
+6. **D-27's cleanup** (Claude), as its own commit, since D-27 gave it to the next code change: remove `Odds.negotiate_p`, `Odds.negotiated_salary`, BalanceConfig's `nego_*` fields, the offer's `negotiated` flag, `test_offer`'s negotiation test and the unused strings (CONTENT 16.7), then sync GDD 11.6, ARCHITECTURE 6.2, 7.1 and 17, and `test_data_files`.
 
 **Claude and godot-ai do:** all of the above. M1 needs no editor: the headless runner and `test_run` (or its headless twin) are enough.
 
@@ -1044,10 +1045,12 @@ The hours are estimates written at the merge; each step's kickoff revises them, 
 - MC-23 (E12's cooldown against O5), MC-05 (the archetype ids), MC-04 (starting savings) and MC-22 (INV-09's wording).
 - M1's exit also passes at 0% wins: add "and wins at least 1%"?
 
-**Done when**
+**Done when** (`project.yaml` gives each one an id, and lists M1's rule checks)
 - [ ] 10,000 seeds per bot run headless in minutes (the time is recorded in the evidence).
 - [ ] The Planner wins within 5 points of its 5-10% band, and the other bots' numbers are recorded.
-- [ ] The same seed and inputs replay the same run (`test_sim_replay`), and every suite passes.
+- [ ] The Coaster never wins, and its median loss comes before day 1,800 (O2).
+- [ ] The objectives' sim tests pass: Manager Opinion has no effect on layoff selection (O1); incidents at Codebase 80 are at least 3x those at 20 (O5, once MC-23 settles E12's cooldown); the win fires only with all five conditions held 90 days (O6).
+- [ ] The same seed and inputs replay the same run (`test_sim_replay`), and every suite passes, including each M1 rule check `project.yaml` lists.
 
 **Pitfalls**
 - A rule hiding in the harness or a bot instead of the sim: a bot only sends inputs.
@@ -1072,6 +1075,7 @@ The hours are estimates written at the merge; each step's kickoff revises them, 
 - [ ] Three outside players finish job 1 and can say why they were laid off.
 - [ ] Killing the game mid-run, then Continue, restores the state of the last save (O8).
 - [ ] Every control used more than once a day sits in the thumb band, and the Junior screen has exactly one continuous control (O3).
+- [ ] The rest of M2's checks in `project.yaml` pass: the HUD, the event card, the auto-resolve's card, no time while closed.
 
 **Pitfalls**
 - Drawing the diorama now: M2 has none, on purpose.
@@ -1096,6 +1100,7 @@ The hours are estimates written at the merge; each step's kickoff revises them, 
 - [ ] Run 1 plays from day 0 to the board, with the five signs before day 240.
 - [ ] A won interview from the board reaches the contract modal through the adapter, and Accept starts job 2.
 - [ ] You've signed off the tone of Pivotly's coworkers and the layoff scene.
+- [ ] The rest of M3's checks in `project.yaml` pass: the review duel, the board, the adapter's inputs, Accept or Decline.
 
 ### Step 17 (M4): all systems
 
@@ -1111,7 +1116,9 @@ The hours are estimates written at the merge; each step's kickoff revises them, 
 
 **Done when**
 - [ ] A full run is playable to every ending.
-- [ ] The Planner wins 5-10% over 10,000 seeds, and the R-BAL holds pass (GDD 5.22).
+- [ ] The Planner wins 5-10% over 10,000 seeds.
+- [ ] The other R-BAL holds pass: the median run, the ending mix, the Planner's promotion inside job 1, and the Grinder's, the Lifestyle bot's and the Random bot's targets (GDD 5.22).
+- [ ] The rest of M4's checks in `project.yaml` pass: the Home app, the Mid and Senior controls, the archetypes, all 26 events, ClikClok's checklist.
 
 ### Step 18 (M5): the pixel-art office diorama
 
@@ -1127,6 +1134,7 @@ The hours are estimates written at the merge; each step's kickoff revises them, 
 **Done when**
 - [ ] Playtesters mention the empty desk or the lamp unprompted.
 - [ ] Every new sprite matches the shipped pixel grid and palette, and nothing was commissioned (O9, INV-20).
+- [ ] The rest of M5's checks in `project.yaml` pass: the state swaps, the lanes, the zoom, the asset list.
 
 ### Step 19 (M6): the Handbook, events to about 40, the Ducky pass, tuning
 
@@ -1142,3 +1150,4 @@ The hours are estimates written at the merge; each step's kickoff revises them, 
 - [ ] The playtest gates pass (section 7).
 - [ ] You've signed off every tip (GDD 8.1).
 - [ ] The content lint passes: every event has a tip or an explicit none.
+- [ ] The rest of M6's checks in `project.yaml` pass: the Handbook, the run log's report.
