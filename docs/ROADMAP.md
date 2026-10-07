@@ -1010,7 +1010,7 @@ These aren't blocking. They're good conversations for later steps:
 
 Run Spec v1, the career run (GDD 0, 3.3-3.4, 5.14-5.22), is built in six milestones, tracked as STEP-14..STEP-19 (A53): task ids stay ROADMAP steps, nothing is renumbered, and the spec's M-ids stay in the titles. Its order: build the simulation first and headless, prove it with bots, then put the cheapest possible UI on it and playtest before drawing a single desk (GDD 10.7).
 
-**M1 (STEP-14) is the next step** (W9). It starts now, ahead of Phase 1's open Steps 7-13, because it is headless PC work that needs neither the iPhone nor the Phase 1 hunt; it is the one exception to W2's gate, which still orders Steps 7-13 among themselves. Where STEP-15..19 sit against Steps 7-13 is open (MC-01: proposed, fold Playtest #1 into the M2 gate, replace Step 7's Phase 1 balance sim with R-BAL, keep drag-to-sign for M3, park the hunt's SHOULDs, and put the art and release steps after M4). Each step runs section 10's session loop and W1: its own branch, committed and pushed after each verified increment, merged by you on GitHub in step order.
+**M1 (STEP-14) was built first** (W9; built 2026-10-08, waiting for your review: see Step 14's status). It started ahead of Phase 1's open Steps 7-13, because it is headless PC work that needs neither the iPhone nor the Phase 1 hunt; it is the one exception to W2's gate, which still orders Steps 7-13 among themselves. Where STEP-15..19 sit against Steps 7-13 is open (MC-01: proposed, fold Playtest #1 into the M2 gate, replace Step 7's Phase 1 balance sim with R-BAL, keep drag-to-sign for M3, park the hunt's SHOULDs, and put the art and release steps after M4). Each step runs section 10's session loop and W1: its own branch, committed and pushed after each verified increment, merged by you on GitHub in step order.
 
 | Step | Milestone | Branch (A53) | Depends on | Hours (estimates) |
 |---|---|---|---|---|
@@ -1025,9 +1025,9 @@ The hours are estimates written at the merge; each step's kickoff revises them, 
 
 ### Step 14 (M1): the sim core, headless
 
-- **Goal:** the whole career run's rules run headless, deterministic and fast, and five bots play it: 10,000 seeds in minutes, with the Planner within 5 points of its 5-10% band.
+- **Goal:** the whole career run's rules run headless, deterministic and fast, and five bots play it: 10,000 seeds in minutes, with the Planner within 5 points of its 5-10% band and winning at least 1% of seeds (A70).
 - **Best practice:** simulate before you build screens. Balance is a property of the rules, and a harness finds a broken number in seconds, long before a playtest would.
-- **Status:** the next step (W9), ready to start once this merge is finished.
+- **Status:** built and verified headless on branch `step-14-sim-core` (2026-10-08, W9). All six tasks are done; D-27's cleanup is its own commit. What waits for you: the huddle's agent defaults A62-A76, the first tuning (A74) and the tone and tip sign-offs listed in `docs/REVIEW_QUEUE.md` 0.6. The evidence (10,000 seeds per bot, the test totals) is in `.project/evidence/STEP-14/2026-10-08-r1/`. M2 (STEP-15) is next.
 
 **Tasks**
 1. **Data** (Claude): `WorkConfig` and `ArchetypeData`, `@tool` Resources whose script defaults equal GDD 11.7; `data/work/work_config.tres` and the three `data/archetypes/*.tres` (ids per MC-05); the huddle's 10 events in `data/content/work_events.json` (A54; texts from CONTENT 16.3). `test_data_files` and `test_content_lint` grow to cover them (ARCHITECTURE 19.10).
@@ -1036,6 +1036,7 @@ The hours are estimates written at the merge; each step's kickoff revises them, 
 4. **The harness and the five bots** (Claude): `tests/harness/run_harness.gd` and `tests/harness/bots/` (ARCHITECTURE 19.6), run headless on a copy of the repo (A56; the commands are in `.agent/AGENTS.md`). Every run's report goes to `.project/evidence/STEP-14/<run>/`.
 5. **First tuning** (Claude, then you): tune `WorkConfig` and `ArchetypeData` only, until the Planner is within 5 points of its band, and write down what changed and why.
 6. **D-27's cleanup** (Claude), as its own commit, since D-27 gave it to the next code change: remove `Odds.negotiate_p`, `Odds.negotiated_salary`, BalanceConfig's `nego_*` fields, the offer's `negotiated` flag, `test_offer`'s negotiation test and the unused strings (CONTENT 16.7), then sync GDD 11.6, ARCHITECTURE 6.2, 7.1 and 17, and `test_data_files`.
+   **Done 2026-10-08**, in its own commit (`refactor(offer): remove negotiation code (D-27)`): the code, the six strings and the docs are synced, section 17's five changed blocks included; 216 tests pass headless, one fewer than before because the negotiation test went.
 
 **Claude and godot-ai do:** all of the above. M1 needs no editor: the headless runner and `test_run` (or its headless twin) are enough.
 
@@ -1045,9 +1046,11 @@ The hours are estimates written at the merge; each step's kickoff revises them, 
 - MC-23 (E12's cooldown against O5), MC-05 (the archetype ids), MC-04 (starting savings) and MC-22 (INV-09's wording).
 - M1's exit also passes at 0% wins: add "and wins at least 1%"?
 
+**Held 2026-10-08.** The developer answered "take the proposed defaults", so Claude logged them as agent defaults A62-A72 in `docs/DECISIONS.md`: the 10 events (A62), the M1 gaps (A63-A67), MC-04 and MC-05 (A68), MC-22 and MC-23 (A69), the 1% exit (A70), the committed headless runner (A71), and the M3 and M4 rules the bots need early (A72). All are "please review".
+
 **Done when** (`project.yaml` gives each one an id, and lists M1's rule checks)
 - [ ] 10,000 seeds per bot run headless in minutes (the time is recorded in the evidence).
-- [ ] The Planner wins within 5 points of its 5-10% band, and the other bots' numbers are recorded.
+- [ ] The Planner wins within 5 points of its 5-10% band and at least 1% of seeds (100 of 10,000: A70), and the other bots' numbers are recorded.
 - [ ] The Coaster never wins, and its median loss comes before day 1,800 (O2).
 - [ ] The objectives' sim tests pass: Manager Opinion has no effect on layoff selection (O1); incidents at Codebase 80 are at least 3x those at 20 (O5, once MC-23 settles E12's cooldown); the win fires only with all five conditions held 90 days (O6).
 - [ ] The same seed and inputs replay the same run (`test_sim_replay`), and every suite passes, including each M1 rule check `project.yaml` lists.

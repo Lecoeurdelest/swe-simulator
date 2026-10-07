@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="ArchetypeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/types/archetype_data.gd" id="1_arch"]
+
+[resource]
+script = ExtResource("1_arch")
+id = &"agency"

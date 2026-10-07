@@ -1,0 +1,44 @@
+{
+  "cw_minh": {
+    "name": "Minh",
+    "role": "Junior, your desk neighbor",
+    "line": "Kind. Clicks everything.",
+    "level": "junior"
+  },
+  "cw_priya": {
+    "name": "Priya",
+    "role": "Senior engineer",
+    "line": "Hears things early.",
+    "level": "senior"
+  },
+  "cw_tom": {
+    "name": "Tom",
+    "role": "product manager",
+    "line": "\"It's a small one.\"",
+    "level": "mid"
+  },
+  "cw_kev": {
+    "name": "Kev",
+    "role": "your engineering manager",
+    "line": "Means well. Reports up.",
+    "level": "senior"
+  },
+  "_coworker_pool": [
+    "Ari",
+    "Bo",
+    "Cam",
+    "Eli",
+    "Fran",
+    "Gale",
+    "Hana",
+    "Ira",
+    "Jo",
+    "Lee",
+    "Nico",
+    "Noor",
+    "Oli",
+    "Pat",
+    "Ren",
+    "Sasha"
+  ]
+}

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="WorkConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/types/work_config.gd" id="1_work"]
+
+[resource]
+script = ExtResource("1_work")
+floor_doubt_step = 0.16
+ticket_deadline_mult = 1.5
+review_standin_damage = 0.37

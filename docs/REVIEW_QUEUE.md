@@ -18,8 +18,8 @@ Each has a proposed resolution in `docs/merge-report.md`, and the docs mark it *
 |---|---|---|
 | MC-01 (the rest) | What happens to Steps 7-13 while M1-M6 run, and which game `v0.5-mvp` ships | fold Playtest #1 into the M2 gate; the R-BAL harness replaces Step 7's Phase 1 sim (ISSUE-09 goes with it); keep drag-to-sign for M3 and park the other hunt SHOULDs; the art and release steps after M4; `v0.5-mvp` = the career run |
 | MC-03 | What a background changes in the career run | the duel's inputs, starting savings and the commute (the Dream score) only |
-| MC-04 | Starting savings (not in the spec) | the Phase 1 runway days as months of expenses (0.5 / 0.4 / 0.4). A caution: the first rent is due on day 1, so a run that starts between jobs would be below zero at once and reach Plan B around day 31 unless a first salary lands; let the harness test it before you pick |
-| MC-05 | The three archetypes vs Phase 1's three tiers | Startup = `startup`, Agency = `mid`, MegaCorp = `big`, ids unchanged |
+| MC-04 | Starting savings (not in the spec) | the Phase 1 runway days as months of expenses (0.5 / 0.4 / 0.4). A caution: the first rent is due on day 1, so a run that starts between jobs would be below zero at once and reach Plan B around day 31 unless a first salary lands; let the harness test it before you pick. **Agent default A68:** 0.5 / 0.4 / 0.4, and the first tuning brings the harness's comparison to you |
+| MC-05 | The three archetypes vs Phase 1's three tiers | Startup = `startup`, Agency = `mid`, MegaCorp = `big`, ids unchanged. **Agent default A68:** archetype ids `startup`, `agency`, `megacorp`, each with a `duel_tier` |
 | MC-06 | The placeholder company names (Pivotly, Outsourcery, Monolith) | reuse Hierarchai, Scope & Creep Digital and OmniGlobal Dynamics; otherwise a trademark check on new names (C1) |
 | MC-07 | Phase 1's hunt satire (ghost jobs, knockouts, the Radar, referrals, Research) on the new board | keep the Run Spec's board for M1-M4; consider ghost and knockout flags on postings at M6 |
 | MC-08 | What Accept shows, now that the Hired card isn't an ending | keep the HIRED! stamp as a short beat; drop `end_tbc` |
@@ -35,8 +35,8 @@ Each has a proposed resolution in `docs/merge-report.md`, and the docs mark it *
 | MC-18 | The Handbook vs the Career Notebook; which tips count | the Handbook is the Notebook grown up; every tip that fires is collected, Phase 1's as Lore |
 | MC-19 | Does Decline still blacklist the company? | keep |
 | MC-20 | Copy that names retired mechanics ("decide before you sleep", "Rent's due.") | reword at M3 |
-| MC-22 | INV-09 says difficulty is "only numbers from BackgroundData", but floor depth and the archetypes' rules are new difficulty data | widen INV-09 to all the `.tres` data, with no branch on a difficulty or archetype label |
-| MC-23 | E12's 20-day cooldown makes O5's test fail (2.3x instead of 3x) | shorten the cooldown to 5 days, or drop it |
+| MC-22 | INV-09 says difficulty is "only numbers from BackgroundData", but floor depth and the archetypes' rules are new difficulty data | widen INV-09 to all the `.tres` data, with no branch on a difficulty or archetype label. **Agent default A69: done** |
+| MC-23 | E12's 20-day cooldown makes O5's test fail (2.3x instead of 3x) | shorten the cooldown to 5 days, or drop it. **Agent default A69: 5 days** |
 
 (MC-02 and MC-21 are answered: D-26 and D-28.)
 
@@ -54,11 +54,24 @@ Each has a proposed resolution in `docs/merge-report.md`, and the docs mark it *
   - INV-21: the career run's sim core is a pure, deterministic step function with no Node, SceneTree, autoload, wall clock or file access, only the run's seeded RNG; the same seed and inputs replay the same run (ARCHITECTURE 19.1-19.2).
   - INV-22: no time passes while the app is closed: the clock moves only in the work state with no card, app or modal open, and the sim never reads the wall clock (D-13).
   - INV-23: a Junior's screen has exactly one continuous control, the Hours slider (D-14, O3).
-- **The headless test runner** lives in a temporary folder each session (the handoff's Appendix A). M1's harness leans on it (A56): shall Claude commit it into the repo (for example `tools/headless/`) at the start of M1?
+- **The headless test runner** lives in a temporary folder each session (the handoff's Appendix A). M1's harness leans on it (A56): shall Claude commit it into the repo (for example `tools/headless/`) at the start of M1? **Agent default A71: yes, at the start of M1.**
 
 ### 0.5 Spec gaps for M1's huddle
 
-The rules the Run Spec leaves undefined are listed in `docs/merge-report.md`, each with its milestone and a proposed default. M1's (STEP-14): the starting values (Skill, MO, Rapport, Burnout), the day numbering and a partial first month's salary, a promotion's salary, leases and moves, severance, ticket deadlines and sizes, the random events' odds, the exhausted choices, owning a service (E12), E04 in the Shared room, how the harness resolves duels, which 10 events M1 builds, and whether M1's exit should also need at least 1% Planner wins. If you're away, Claude takes the proposed defaults and logs them as agent defaults (W4).
+The rules the Run Spec leaves undefined are listed in `docs/merge-report.md`, each with its milestone and a proposed default. M1's (STEP-14): the starting values (Skill, MO, Rapport, Burnout), the day numbering and a partial first month's salary, a promotion's salary, leases and moves, severance, ticket deadlines and sizes, the random events' odds, the exhausted choices, owning a service (E12), E04 in the Shared room, how the harness resolves duels, which 10 events M1 builds, and whether M1's exit should also need at least 1% Planner wins. If you're away, Claude takes the proposed defaults and logs them as agent defaults (W4). **Held on 2026-10-08: A62-A72 in `docs/DECISIONS.md`, please review them.**
+
+### 0.6 STEP-14 (M1, the sim core) is built: what waits for you
+
+Branch `step-14-sim-core`: the sim core, its constants, the ten events, six new test suites (125 tests; 347 in all, 26 suites), the harness and the five bots, D-27's cleanup (its own commit) and the first tuning. The evidence is in `.project/evidence/STEP-14/2026-10-08-r1/` (its README has the commands and the tables). To skim and answer:
+
+1. **The agent defaults A62-A76** in `docs/DECISIONS.md`: the huddle's (A62-A72), the rules the build needed (A73), the first tuning (A74), the save format (A75) and the bots (A76). Each is "please review"; none changes scope, tone or a tip.
+2. **The first tuning (A74):** three numbers moved, `ticket_deadline_mult` 1.0 -> 1.5, `review_standin_damage` 0.55 -> 0.37 (both mine, from the gap-fills) and `floor_doubt_step` 0.08 -> 0.16 (the Run Spec's own, the strongest late-game dial). The Planner wins 11.08% of 10,000 seeds (the M1 bar: within 5 points of 5-10% and at least 1%). Do you accept it, or want a different set? The median run is 810 days against the GDD's 1,100-1,400, and the Planner's losses are 92% Plan B: M4 retunes with all 26 events, but say if you want M1 to chase them now.
+3. **Three findings the harness made visible**, each yours to decide:
+   - **MC-04 is real:** a run that starts between jobs (run 2 and later) ends in Plan B on day 30 in 91% of Planner runs, because the first rent and living costs (2.1 k$) fall due on day 1 and the starting savings are 0.84-1.05 k$. Measured on the Planner at run 2 (1,000 seeds; `extras/start_savings_run2.txt`): at 0.5 months (today) 91% end in Plan B on day 30 and 7% win; at 1 month the median run is day 720 and 18% win; at 2 months day 930 and 32% win; at 3 months 49% win. So a month or two removes the cliff, and then run 2's win rate needs its own retuning (M4). Options: raise `start_savings_months` (a background's difficulty number, so it is yours), a grace month before the first rent, or start run 2+ with a short job. The default is unchanged until you pick.
+   - **The Handbook doubles the Planner's win rate** (22.75% with the four Edge tips and the remote Option, against 11.08% with none), where D-18 intends "about 15% of total power". The edges are small numbers (a month of savings, +10 Evidence, one more posting, 10% less overtime Burnout, and push back on E08), so the gap comes from how much each one prevents a death. Worth a look at M6.
+   - **The harder backgrounds are nearly unwinnable:** the Planner wins 0.80% as the Graduate and 0.00% as the Self-Taught (11.08% as the Intern), because Phase 1's stats gap (D-26) carries through the duel into every hunt. MC-03 (what a background changes) now has a number to decide with.
+4. **Tone and tip sign-off (W4)** for what M1 put in the data: the eight event tips in `tips.json` (CONTENT 16.4's drafts, verbatim; their `more` lines are empty until M6) and the ten event cards (CONTENT 16.3's drafts, unchanged except E02's `{n}`). The three proposed invariants INV-21..23 (0.4) are still open: the sim follows them anyway.
+5. **What I would do next:** merge the branch (in step order, with a merge commit), then M2 (STEP-15, the grey-box UI) on top of `Sim.step` and `SimState.to_save`.
 
 ## 1. The Step 7 review (merged)
 

@@ -62,8 +62,6 @@
   "offer_label_perks": "Perks:",
   "offer_label_fine_print": "Fine print:",
   "offer_deadline": "Please decide before you sleep.",
-  "offer_equity_doubled": "Equity doubled! 0.0001% -> 0.0002%.",
-  "offer_signon": "Paid as a sign-on bonus. (Big corps love a one-time thing.)",
   "perk_pingpong": {
     "tiers": [
       "startup"

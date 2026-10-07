@@ -38,6 +38,9 @@ extends Resource
 @export_group("Offer")
 @export var salary_mult: float = 1.0
 
+@export_group("Career run (11.7)")
+@export var start_savings_months: float = 0.4   # months of expenses: Phase 1's runway_days / 30 (A68)
+
 
 func invite_mult(tier_id: StringName) -> float:
 	match tier_id:

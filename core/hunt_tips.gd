@@ -95,8 +95,7 @@ static func coach_invite(run: RunState) -> bool:
 
 
 ## The offer's one tip (GDD S10, 8.1 rule 2, 8.3): a startup offer, which carries the joke equity ->
-## tip_equity_lottery; any other -> tip_total_comp (its trigger: an offer with a commute). Negotiate
-## is SHOULD, so tip_negotiate never shows yet.
+## tip_equity_lottery; any other -> tip_total_comp (its trigger: an offer with a commute).
 static func offer(run: RunState) -> String:
 	return "tip_equity_lottery" if str(run.offer.get("equity_text", "")) != "" else "tip_total_comp"
 

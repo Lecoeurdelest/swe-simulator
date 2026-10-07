@@ -129,11 +129,6 @@
     "more": "Flag slips early. Surprises are worse than bad news.",
     "triggers": "eq_impossible_deadline, kq_estimate"
   },
-  "tip_negotiate": {
-    "short": "A polite counter with a number and a reason is normal. It rarely backfires.",
-    "more": "Know your market rate first. The usual worst case is 'this is our best offer'. Tight deadline? Asking for a few more days is normal.",
-    "triggers": "offer opens (Negotiate shipped)"
-  },
   "tip_total_comp": {
     "short": "Compare total pay: salary, bonus, equity, benefits and commute. 3 hours a day on a bus is a pay cut.",
     "more": "Ask about office days, on-call and real working hours too. Tight deadline? Asking for a few more days is normal.",
@@ -153,5 +148,45 @@
     "short": "Don't stop other applications until you have a signed, written offer.",
     "more": "Check that it lists the start date, pay and work mode.",
     "triggers": "Hired card"
+  },
+  "tip_brag_doc": {
+    "short": "Keep a brag doc; your manager forgets, documents don't.",
+    "more": "",
+    "triggers": "E02 review resolved (Edge: review Evidence +10)"
+  },
+  "tip_layoffs_cost": {
+    "short": "Layoffs select for cost, not performance; prepare anyway.",
+    "more": "",
+    "triggers": "E07 resizing prep card (Lore)"
+  },
+  "tip_remote_in_writing": {
+    "short": "Get remote in writing; verbal flexibility expires.",
+    "more": "",
+    "triggers": "E08 RTO mandate resolved (Option: E08's push back)"
+  },
+  "tip_escalate": {
+    "short": "Heroics are a staffing bug; escalate first, then help.",
+    "more": "",
+    "triggers": "E12 prod incident resolved (Lore)"
+  },
+  "tip_take_the_call": {
+    "short": "Always take the call; information is free.",
+    "more": "",
+    "triggers": "E18 recruiter DM resolved (Edge: one more posting)"
+  },
+  "tip_emergency_fund": {
+    "short": "An emergency fund is boring until it's the only thing that works.",
+    "more": "",
+    "triggers": "E20 laptop dies resolved (Edge: one more month saved)"
+  },
+  "tip_savings_rate": {
+    "short": "Raise your savings rate before your rent.",
+    "more": "",
+    "triggers": "E21 lifestyle offer resolved (Lore)"
+  },
+  "tip_overtime_loan": {
+    "short": "Overtime is a loan; know who's paying it back.",
+    "more": "",
+    "triggers": "E24 overtime ask resolved (Edge: less Burnout at notch 5)"
   }
 }

@@ -20,3 +20,4 @@ pity_n = 6
 years_pass_honest = true
 textbook_zone_bonus = 0.0
 salary_mult = 1.1
+start_savings_months = 0.5
