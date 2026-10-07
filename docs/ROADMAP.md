@@ -1029,7 +1029,7 @@ The hours are estimates written at the merge; each step's kickoff revises them, 
 
 - **Goal:** the whole career run's rules run headless, deterministic and fast, and five bots play it: 10,000 seeds in minutes, with the Planner within 5 points of its 5-10% band and winning at least 1% of seeds (A70).
 - **Best practice:** simulate before you build screens. Balance is a property of the rules, and a harness finds a broken number in seconds, long before a playtest would.
-- **Status:** built, merged and signed off. Built and verified headless on branch `step-14-sim-core` (2026-10-08, W9) and merged as PR #8 (`1e10c96`). All six tasks are done; D-27's cleanup is its own commit. The developer accepted the first tuning (D-29), the agent defaults A62-A76 (D-35) and the tone and tip sign-offs (D-37) on 2026-10-08; D-30 then doubled the starting savings (the harness showed the day-30 cliff of runs 2 and later) and MC-06 renamed the placeholder companies. The evidence (10,000 seeds per bot, the test totals) is in `.project/evidence/STEP-14/2026-10-08-r1/` (as built) and `2026-10-08-r2/` (after D-30 and MC-06). M2 (STEP-15) is next.
+- **Status:** built, merged and signed off. Built and verified headless on branch `step-14-sim-core` (2026-10-08, W9) and merged as PR #8 (`1e10c96`). All six tasks are done; D-27's cleanup is its own commit. The developer accepted the first tuning (D-29), the agent defaults A62-A76 (D-35) and the tone and tip sign-offs (D-37) on 2026-10-08; D-30 then doubled the starting savings (the harness showed the day-30 cliff of runs 2 and later) and MC-06 renamed the placeholder companies. The evidence (10,000 seeds per bot, the test totals) is in `.project/evidence/STEP-14/2026-10-08-r1/` (as built) and `2026-10-08-r2/` (after D-30 and MC-06). M2 (STEP-15) is built and waits for the playtest (Step 15).
 
 **Tasks**
 1. **Data** (Claude): `WorkConfig` and `ArchetypeData`, `@tool` Resources whose script defaults equal GDD 11.7; `data/work/work_config.tres` and the three `data/archetypes/*.tres` (ids per MC-05); the huddle's 10 events in `data/content/work_events.json` (A54; texts from CONTENT 16.3). `test_data_files` and `test_content_lint` grow to cover them (ARCHITECTURE 19.10).
@@ -1067,6 +1067,7 @@ The hours are estimates written at the merge; each step's kickoff revises them, 
 
 - **Goal:** the career run on screen with the cheapest UI: the phone shell, the calendar strip, the four numbers, the Hours slider, event cards, the speed control, save and resume, and no diorama. Three outside players finish job 1 and can say why they were laid off.
 - **Best practice:** answer the riskiest question first (is a Junior with one slider fun?), with boxes and text, before any art or content spend.
+- **Status:** built and verified on the desktop on branch `step-15-greybox-ui` (2026-10-08): tasks 1-3 are done and task 4, the playtest, is yours (`docs/PLAYTEST_M2.md`). The evidence (387 tests in 30 suites, the desktop kill tests, 15 screenshots) is in `.project/evidence/STEP-15/2026-10-08-r1/`. Built on `step-14-signoff`: merge that branch first.
 
 **Tasks**
 1. **Phases and the save** (Claude): append `WORK` and `LAYOFF` (INV-10), with the transitions and save rules of ARCHITECTURE 19.4 (RC-35) and the `GameState` verbs the screen calls.
@@ -1075,6 +1076,10 @@ The hours are estimates written at the merge; each step's kickoff revises them, 
 4. **The M2 playtest** (you): three outside players, silent, as section 7 says; ask gates 1 and 2.
 
 **Design huddle:** the career run's first-run coach marks and how often a recurring event's tip shows (both spec gaps); whether a drag along the Hours notches should also work (A58); MC-12 (Tired) and MC-15 (telemetry) are settled (D-34): Tired is retired, and a local run log plus a debug report is all the telemetry.
+
+**Held 2026-10-08.** You asked for the next steps with the recommendations, so Claude took the defaults and logged them as A78-A87 in `docs/DECISIONS.md`: the entry points and Phase 1's hunt behind a debug button (A78), the save (A79), the clock (A80), cards and the feed (A81), the stand-ins until M3 and M4 (A82), what happens after the layoff and the endings (A83), the coach marks and an event's tip (A84), the layout (A85), the debug helpers (A86) and the new strings (A87: my drafts for your tone check). All are "please review". A drag along the notches stays out until the playtest.
+
+**Built 2026-10-08.** Task 1: `WORK` and `LAYOFF` are appended, `SaveIO` tells a career save from Phase 1's, `GameState`'s `career_*` verbs drive a `WorkSession`, and `Sim.apply_inputs` answers a card without burning a day. Task 2: `features/work/` (the phone shell, the event card, the clock), `features/layoff/` (four taps), the career endings on the Plan B card, and the Title's debug-only "Old hunt". Task 3: the desktop kill tests (moments 6, 7, 8 and 11) pass, and a whole run played through `GameState`'s verbs went WORK, LAYOFF, WORK, GAME_OVER.
 
 **Done when**
 - [ ] Three outside players finish job 1 and can say why they were laid off.

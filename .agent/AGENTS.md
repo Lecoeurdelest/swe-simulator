@@ -4,7 +4,7 @@ Shared instructions for every coding agent. `.claude/CLAUDE.md` and `.code/AGENT
 
 The game is a satirical 2D pixel-art **portrait** mobile game: **iPhone first**, built on the developer's MacBook, with Android LATER (`docs/DECISIONS.md` D1, P1). It is built with Godot **4.7.2** (the exact version on every machine), GDScript and `gl_compatibility`, edited through the godot-ai MCP. The developer is a **first-time game developer** who wants to learn as well as ship: explain *why*, not just what, and bring design choices to them with a recommended default.
 
-Since 2026-10-07 the game is a **career roguelite** (Run Spec v1, merged into the docs: DECISIONS W8): one run is one career of up to five jobs on a macro clock, and the Phase 1 job hunt lives on as the DoomApply app, the Dana duel and the contract modal behind an adapter (GDD 0). The shipped game is still Phase 1's v0.1 grey-box. **M1, the career run's sim core (STEP-14), is built, merged and signed off** (2026-10-08, PR #8): it runs headless beside the game, with five bots and a harness; nothing on screen uses it yet. The developer's sign-off of 2026-10-08 answered every open conflict (D-29..D-38) and set the scope: build every MUST and SHOULD. **M2 (STEP-15, the grey-box UI) is next** (ROADMAP 12).
+Since 2026-10-07 the game is a **career roguelite** (Run Spec v1, merged into the docs: DECISIONS W8): one run is one career of up to five jobs on a macro clock, and the Phase 1 job hunt lives on as the DoomApply app, the Dana duel and the contract modal behind an adapter (GDD 0). The shipped game is still Phase 1's v0.1 grey-box. **M1, the career run's sim core (STEP-14), is built, merged and signed off** (2026-10-08, PR #8): it runs headless beside the game, with five bots and a harness; nothing on screen uses it yet. The developer's sign-off of 2026-10-08 answered every open conflict (D-29..D-38) and set the scope: build every MUST and SHOULD. **M2 (STEP-15, the grey-box UI) is built** on branch `step-15-greybox-ui` (2026-10-08) and waits for the developer's playtest (`docs/PLAYTEST_M2.md`); **M3 (STEP-16, run 1 end to end) is next** (ROADMAP 12).
 
 ## What to read
 
@@ -12,7 +12,7 @@ Since 2026-10-07 the game is a **career roguelite** (Run Spec v1, merged into th
 |---|---|
 | Rules and numbers (wins on design) | `docs/GDD.md` |
 | Every string and content id | `docs/CONTENT.md` |
-| Engine facts, code rules, code skeletons (wins on engine facts) | `docs/ARCHITECTURE.md` (section 19: the career run's code plan; the sim core is built, the screens are not) |
+| Engine facts, code rules, code skeletons (wins on engine facts) | `docs/ARCHITECTURE.md` (section 19: the career run's code plan; the sim core and the work state are built) |
 | The step plan and each step's Done-when | `docs/ROADMAP.md` (section 12: the career run's M1-M6) |
 | Design decision answers | `docs/DECISIONS.md`: D1-D12, P1-P3, C1-C4, W1-W9, the Run Spec's rows D-01..D-25, P-01..P-08 and Q-01..Q-07, the developer's later design decisions D-26 onward (A60), and the agent defaults A1 onward. D1-D8 were decided on 2026-09-26, D9-D12 on 2026-09-29, the Run Spec rows and D-26..D-28 on 2026-10-07, D-29..D-38 on 2026-10-08 |
 | The Run Spec merge: where each part went, every conflict (RC-nn and MC-nn, all answered) and every spec gap | `docs/merge-report.md` |

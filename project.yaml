@@ -1113,7 +1113,8 @@ tasks:
     decision_ids: [D-01, D-04, D-07, D-13, D-14, D-33]
     depends_on: [STEP-14]
     acceptance_ids: [AC-S15-1, AC-S15-2, AC-S15-3, AC-CLK-1, AC-STAT01-1, AC-EVT01-2, AC-EVT02-2]
-    outputs: ["features/work/", docs/KILL_TESTS.md]
+    outputs: ["features/work/", "features/layoff/", core/work_clock.gd, core/work_hud.gd, core/work_cards.gd, core/work_session.gd, "tests/test_work_*.gd", docs/KILL_TESTS.md, docs/PLAYTEST_M2.md, ".project/evidence/STEP-15/"]
+    note: "Built 2026-10-08 on branch step-15-greybox-ui (DECISIONS A78-A87). The gate (AC-S15-1) is the developer's playtest, docs/PLAYTEST_M2.md; it also carries Playtest #1 (D-33)."
     out_of_scope: ["The diorama (M5)", "Run 1's authored content (M3)"]
     milestone: "M2 (Run Spec v1)"
   - id: STEP-16

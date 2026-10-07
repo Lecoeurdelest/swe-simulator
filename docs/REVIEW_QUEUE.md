@@ -1,16 +1,24 @@
 # Review queue: what's waiting for you
 
-Rewritten on 2026-10-08, after you signed off STEP-14 (M1). The Run Spec merge, its open conflicts and M1's review (the old sections 0.1-0.6) are answered: the record is `docs/DECISIONS.md` D-29..D-38 and `docs/merge-report.md`. Sections 1-5 carry over what was still waiting from the Step 7 review (2026-09-29). Tick items off here, or delete the file when you're done.
+Rewritten on 2026-10-08, after you signed off STEP-14 (M1), and updated the same day for STEP-15 (M2). The Run Spec merge, its open conflicts and M1's review (the old sections 0.1-0.6) are answered: the record is `docs/DECISIONS.md` D-29..D-38 and `docs/merge-report.md`. Sections 1-5 carry over what was still waiting from the Step 7 review (2026-09-29). Tick items off here, or delete the file when you're done.
 
 ## 0. Waiting for you now
 
-1. **Merge `step-14-signoff`** on GitHub (a merge commit, not squash): the decision rows D-29..D-38, INV-21..23, the one-month starting savings, Phase 1's company names in place of the placeholders, the settled docs, and the rerun evidence. Then `step-15-greybox-ui` (M2), in that order.
+1. **Merge `step-14-signoff`** on GitHub (a merge commit, not squash): the decision rows D-29..D-38, INV-21..23, the one-month starting savings, Phase 1's company names in place of the placeholders, the settled docs, and the rerun evidence. Then **`step-15-greybox-ui`** (M2, built on top of it), in that order.
 2. **Tick STEP-14's "Done when" boxes** in ROADMAP 12 (Step 14). The tracking already says done; the checkboxes are yours.
-3. **M2's agent defaults** (STEP-15's huddle, A78 on in `docs/DECISIONS.md`, all "please review") once M2 starts, and the **M2 playtest**, which now also carries Playtest #1 (D-33): three outside players, silent, on the desktop build or your iPhone; ask gates 1 and 2 (ROADMAP 7). Only you can run it.
-4. **Phase 1 leftovers:** A42, Q5 and the Phase 1 copy sign-off (sections 2 and 3 below).
-5. **The iPhone checklist** (section 5), when the Mac and iPhone are ready.
+3. **Run the M2 playtest** (`docs/PLAYTEST_M2.md`), which also carries Playtest #1 (D-33): three outside players, silent, on the desktop build or your iPhone. The step cannot be done without it. Pull `step-15-greybox-ui`, run the project and press New game (Reset first run first).
+4. **M2's agent defaults A78-A87** in `docs/DECISIONS.md`, all "please review": the entry points, the save, the clock, the cards, the stand-ins, what happens after the layoff, the coach marks, the layout, the debug helpers and the new strings (A87 lists my drafts for your tone check, including the prep card's line).
+5. **Phase 1 leftovers:** A42, Q5 and the Phase 1 copy sign-off (sections 2 and 3 below).
+6. **The iPhone checklist** (section 5), when the Mac and iPhone are ready; it now also holds the career run's kill moments 6-11 (`docs/KILL_TESTS.md`).
 
-### 0.1 Answered on 2026-10-08 (for the record)
+### 0.1 Worth knowing before the playtest (what building M2 showed)
+
+- **Reasonable hours are a slow burn.** The Runway chip is red from day 1 (the Intern starts with one month of savings) and a thin runway adds 0.4 a day to Burnout, so notch 3 drifts up about 0.5 a day. A player who never touches the Hours reaches Burnout 75 near day 150 (the auto-resolve starts) and may hit the forced leave around day 200. That is what the gate's second question tests, but it is the first thing to watch; M4 retunes with the real numbers.
+- **Heroics are tempting.** E12's exhausted choice, "Fix it yourself", is +15 Burnout; my own patient autoplay at notch 3 that always took an event's first choice reached the Burnout ending on day 102.
+- **Run 2 is a dead end in M2.** It starts between jobs and there is no board until M3, so Plan B ends it about a month in. Background select still shows Phase 1's card (energy, rent runway).
+- **A recruiter's call leads nowhere yet:** the interview is skipped (M3's adapter).
+
+### 0.2 Answered on 2026-10-08 (for the record)
 
 | What | Answer | Logged as |
 |---|---|---|
@@ -75,6 +83,6 @@ Suspended (W7): Claude builds the features. Installs, signing, the iPhone checks
 
 ## 6. What's next
 
-- **M2 (STEP-15), the grey-box UI,** is next, on `step-15-greybox-ui` (ROADMAP 12; its bundle is `.project/bundles/STEP-15.md`). It puts the cheapest possible screens on `Sim.step` and `SimState.to_save`.
+- **M2 (STEP-15), the grey-box UI,** is built on `step-15-greybox-ui` (ROADMAP 12; its bundle is `.project/bundles/STEP-15.md`) and waits for your playtest. **M3 (STEP-16, run 1 end to end)** is next: the board, the review duel, the adapter, Hierarchai's coworkers.
 - **Steps 7-13 follow the career run** (D-33): Playtest #1 is the M2 gate, the art and release steps come after M4, and `v0.5-mvp` ships the career run.
 - Every step's status is in `docs/task/README.md`, and the evidence for everything Claude verified is in `.project/evidence/`.
