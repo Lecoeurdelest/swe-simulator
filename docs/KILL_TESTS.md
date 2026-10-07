@@ -23,7 +23,7 @@ Start a fresh run (New game on the title) and play it through the 5 moments in o
 
 ## The career run (Run Spec v1, planned for M2)
 
-O8 asks for this: kill the app mid-run, and the state restores identically (GDD 13.1). The career run saves at every event, after every player input and when the app goes to background (GDD 5.11, RC-35), so "identically" means the state of the last save. On the iPhone a kill comes after the pause notification, so nothing is lost; the desktop's harsher stop can lose the days since the last save, never a choice. These moments join the checklist when M2 builds the work state (ROADMAP Step 15), and M3 adds the duel and the scene:
+O8 asks for this: kill the app mid-run, and the state restores identically (GDD 13.1). The career run saves at every event, after every player input and when the app goes to background (GDD 5.11, RC-35), so "identically" means the state of the last save, and M1 proved the restore itself: a `SimState.to_save()` round trip is bit for bit and lives the same days (`test_sim_replay`; the save must be `to_save`, not plain JSON numbers, because Godot's JSON parser can read a double back one unit in the last place off: DECISIONS A75). On the iPhone a kill comes after the pause notification, so nothing is lost; the desktop's harsher stop can lose the days since the last save, never a choice. These moments join the checklist when M2 builds the work state (ROADMAP Step 15), and M3 adds the duel and the scene:
 
 | # | Kill when | Expected after CONTINUE |
 |---|---|---|

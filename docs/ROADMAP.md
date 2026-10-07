@@ -1010,7 +1010,7 @@ These aren't blocking. They're good conversations for later steps:
 
 Run Spec v1, the career run (GDD 0, 3.3-3.4, 5.14-5.22), is built in six milestones, tracked as STEP-14..STEP-19 (A53): task ids stay ROADMAP steps, nothing is renumbered, and the spec's M-ids stay in the titles. Its order: build the simulation first and headless, prove it with bots, then put the cheapest possible UI on it and playtest before drawing a single desk (GDD 10.7).
 
-**M1 (STEP-14) is the next step** (W9). It starts now, ahead of Phase 1's open Steps 7-13, because it is headless PC work that needs neither the iPhone nor the Phase 1 hunt; it is the one exception to W2's gate, which still orders Steps 7-13 among themselves. Where STEP-15..19 sit against Steps 7-13 is open (MC-01: proposed, fold Playtest #1 into the M2 gate, replace Step 7's Phase 1 balance sim with R-BAL, keep drag-to-sign for M3, park the hunt's SHOULDs, and put the art and release steps after M4). Each step runs section 10's session loop and W1: its own branch, committed and pushed after each verified increment, merged by you on GitHub in step order.
+**M1 (STEP-14) was built first** (W9; built 2026-10-08, waiting for your review: see Step 14's status). It started ahead of Phase 1's open Steps 7-13, because it is headless PC work that needs neither the iPhone nor the Phase 1 hunt; it is the one exception to W2's gate, which still orders Steps 7-13 among themselves. Where STEP-15..19 sit against Steps 7-13 is open (MC-01: proposed, fold Playtest #1 into the M2 gate, replace Step 7's Phase 1 balance sim with R-BAL, keep drag-to-sign for M3, park the hunt's SHOULDs, and put the art and release steps after M4). Each step runs section 10's session loop and W1: its own branch, committed and pushed after each verified increment, merged by you on GitHub in step order.
 
 | Step | Milestone | Branch (A53) | Depends on | Hours (estimates) |
 |---|---|---|---|---|
@@ -1027,7 +1027,7 @@ The hours are estimates written at the merge; each step's kickoff revises them, 
 
 - **Goal:** the whole career run's rules run headless, deterministic and fast, and five bots play it: 10,000 seeds in minutes, with the Planner within 5 points of its 5-10% band and winning at least 1% of seeds (A70).
 - **Best practice:** simulate before you build screens. Balance is a property of the rules, and a harness finds a broken number in seconds, long before a playtest would.
-- **Status:** the next step (W9), ready to start once this merge is finished.
+- **Status:** built and verified headless on branch `step-14-sim-core` (2026-10-08, W9). All six tasks are done; D-27's cleanup is its own commit. What waits for you: the huddle's agent defaults A62-A76, the first tuning (A74) and the tone and tip sign-offs listed in `docs/REVIEW_QUEUE.md` 0.6. The evidence (10,000 seeds per bot, the test totals) is in `.project/evidence/STEP-14/2026-10-08-r1/`. M2 (STEP-15) is next.
 
 **Tasks**
 1. **Data** (Claude): `WorkConfig` and `ArchetypeData`, `@tool` Resources whose script defaults equal GDD 11.7; `data/work/work_config.tres` and the three `data/archetypes/*.tres` (ids per MC-05); the huddle's 10 events in `data/content/work_events.json` (A54; texts from CONTENT 16.3). `test_data_files` and `test_content_lint` grow to cover them (ARCHITECTURE 19.10).

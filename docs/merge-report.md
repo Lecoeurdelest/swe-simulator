@@ -139,7 +139,7 @@ The docs mark each one **Open (MC-nn)** where it matters. MC-02 and MC-21 are an
 | MC-15 | Telemetry (R-TEL-01) vs a game that is offline and collects nothing | a local run log and a debug report only |
 | MC-16 | Paid asset packs vs "no art budget" (D-21) | free/CC0 packs only unless you OK one |
 | MC-17 | The plain-language rule (C3) for event cards and tips; tip overlaps (E15 ~ `tip_secrets`, E26 ~ `tip_blameless`) | apply C3 at the M6 writing pass; reuse the two existing tips |
-| MC-18 | The Handbook vs the Career Notebook; which tips count (23 event tips since D-28 vs Phase 1's 31) | the Handbook is the Notebook grown up; every tip that fires is collected, Phase 1's as Lore |
+| MC-18 | The Handbook vs the Career Notebook; which tips count (23 event tips since D-28 vs Phase 1's 30, after D-27 removed `tip_negotiate`) | the Handbook is the Notebook grown up; every tip that fires is collected, Phase 1's as Lore |
 | MC-19 | Decline blacklists the company (the spec is silent) | keep |
 | MC-20 | Copy that names retired mechanics ("decide before you sleep", "rent days to spare", "Rent's due.") | reword at M3 |
 | MC-22 | INV-09 says difficulty is "only numbers from `BackgroundData`", but the career run's difficulty scalar is floor depth (P-01, a `WorkConfig` number) and its archetypes have their own rules (Agency utilization, MegaCorp's two Exceeds) | widen INV-09: difficulty, floor and archetype effects are only numbers and fields in the `.tres` data (`BackgroundData`, `WorkConfig`, `ArchetypeData`), never an `if difficulty == ...` or `if archetype == ...` branch. **Settled as an agent default, A69: INV-09 and ARCHITECTURE 18.2 #11 are widened.** |

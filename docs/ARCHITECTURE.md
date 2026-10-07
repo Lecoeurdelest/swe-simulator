@@ -40,8 +40,8 @@ If this doc and the GDD disagree on a rule or a number, the GDD wins; fix this d
    - There is no event bus, and Audio is LATER.
    - The rules live in six pure `@tool` classes: `GameFlow`, `RunState`, `SaveIO`, `Odds`, plus `InterviewPlan` (Step 4) and `HuntTips` (Step 5). `UiText` (Step 4, label styling) and `CutscenePlan` (Step 6, the intro's play order) are pure helpers, not rule classes.
 6. **Where data lives:**
-   - Numbers you tune are in **7 `.tres` files**: 1 BalanceConfig, 3 BackgroundData, 3 TierData. All odds live in TierData.
-   - All text is in **16 JSON files keyed by id**. Companies are JSON only; there is no company `.tres`.
+   - Numbers you tune are in **11 `.tres` files**: 1 BalanceConfig, 3 BackgroundData, 3 TierData (all the hiring odds), and the career run's 1 WorkConfig and 3 ArchetypeData (since Step 14).
+   - All text is in **18 JSON files keyed by id** (the career run's `work_events` and `coworkers` joined the 16 in Step 14). Companies are JSON only; there is no company `.tres`.
 7. **Randomness:** there is one seeded RNG per run. Each interview gets its own RNG, seeded from a checkpoint, so a resume replays the same interview; the offer's contract is picked on another one seeded from the same checkpoint (section 7.2). 64-bit seeds and states are saved as **strings**.
 8. **One JSON save** in `user://`.
    - It is written only while a run is live (hunt, interview, offer).
@@ -247,7 +247,7 @@ res://
 │  ├─ balance/balance_config.tres
 │  ├─ backgrounds/                 intern.tres, graduate.tres, self_taught.tres
 │  ├─ tiers/                       startup.tres, mid.tres, big.tres
-│  └─ content/                     the 16 JSON files (section 6.3)
+│  └─ content/                     the 18 JSON files (section 6.3)
 ├─ features/                       every screen has <name>.tscn + <name>.gd; the extras are listed
 │  ├─ title/                       title.tscn + title.gd  (main scene)
 │  ├─ intro/                       intro.tscn (its dialogue box is inside it), cutscene_plan.gd (CutscenePlan,
@@ -1035,8 +1035,8 @@ Offer (Control, full rect)   offer.gd
 | `test_odds.gd` | `odds` | 8 | P_invite worked examples (16.8%, 12.3%, 30.7%, 19.0%), clamps, bands, knockouts, relevance, determinism | Step 1 (section 17.13) |
 | `test_interview.gd` | `interview` | 3 | the GDD 5.8.7 walkthrough with fixed luck (Doubt 105.5, 68.6, then about 13.1; wheel 68%), Tired, input bands (the bluff odds test went with D9) | Step 1 (section 17.13) |
 | `test_offer.gd` | `offer` | 13 | salary $71,000, Dream scores 68 / 57 / 49 (the negotiation test, 77.5 / 62.5% with the 85% cap, went with D-27); since Step 6 the whole offer (GDD 5.9, S10): `make_offer` fills every field as plain data, 2 different perks and 1 fine print listed for the tier, the same checkpoint builds the same contract, a startup offer is remote with equity, the contract fits the paper at every tier, the commute hours, the offer surviving a save, the offer's tip, `decline_ends_run` only at 0 rent, and Accept after a Hired-card kill hiring the same job; since the Step 7 review, the fine print never repeating a perk | Step 1, grew in Step 6 and the Step 7 review (section 17.13) |
-| `test_data_files.gd` | `data_files` | 4 | the 7 `.tres` files hold exactly the GDD section 11 defaults, and the derived values (9 / 8 / 6 energy; only the Self-Taught is a lone wolf). Changing a tuned value means updating GDD 11 and this test in the same commit | Step 3 |
-| `test_content_lint.gd` | `content_lint` | 33 | see 12.3 | Step 4, grows each step |
+| `test_data_files.gd` | `data_files` | 7 | the 11 `.tres` files hold exactly the GDD section 11 numbers (since Step 14 the career run's `WorkConfig`, with its three tuned values, and the three `ArchetypeData`, whose `duel_tier` must name a tier file), and the derived values (9 / 8 / 6 energy; only the Self-Taught is a lone wolf; a Startup Junior's 2.55 k$). Changing a tuned value means updating GDD 11 and this test in the same commit | Step 3, grown in Step 14 |
+| `test_content_lint.gd` | `content_lint` | 36 | see 12.3 (Step 14 added the career run's events and coworkers) | Step 4, grows each step |
 | `test_interview_plan.gd` | `interview_plan` | 15 | `InterviewPlan` (GDD 5.8.2): prompt order and tier filtering, no opener-only picks, no repeats across interviews, the warm-up (first interview of the first run only, an unpicked difficulty-1 question that leaves the real picks unchanged), same seed same picks, dry pools, the prompts a checkpoint plays, and a resume or an early or late tap replaying the same luck; since the Step 7 review Dana's VS plate taking turns (the probe-question test went with D9) | Step 4 |
 | `test_ui_text.gd` | `ui_text` | 14 | `UiText` (capitals, the Back arrow, costs, meters, bands, thousands, money; since Step 6 `word_wrap` wrapping where the lint counts lines, and `field`'s label column), and every literal `Content.text()` / `Content.field()` id in the scripts exists in the JSON; since the Step 7 review `fill` never doubling a period, `Content` filling through `UiText.fill` (read as text), and every `{company}` / `{last_company}` template filled with every company name. The `ProbeButton` test went with D9 | Step 4, grew in Step 6 and the Step 7 review |
 | `test_lie_probe.gd` | `lie_probe` | 0 | removed 2026-09-29 with the lie probe (DECISIONS D9); it tested the bluff odds, the degree-claim weight and `settle_probe` | Step 4 |
@@ -1058,7 +1058,7 @@ The 5 Step-1 files had 24 tests, all passing against the section-17 code (verifi
 
 ### 12.3 `test_content_lint.gd` checks
 
-It reads the 16 JSON files with `FileAccess` and the background `.tres` with `load()`. Artist-only fields (`art`, `visual`, `audio`, `note`, naming.json's `_notes`) and id or enum fields are never linted as text.
+It reads the 18 JSON files with `FileAccess` and the background `.tres` with `load()`. Since Step 14 it also checks `work_events.json` (the `evt_eNN_name` ids, the tiers, archetypes and levels, the trigger kinds, at most 3 choices, known `requires` and effects, an exhausted choice that names a choice or is "none", a tip id that exists or "none": O7) and `coworkers.json` (four authored coworkers, a 16-name pool, no name shared with the dice pool, Dana, Remy or Jordan). Artist-only fields (`art`, `visual`, `audio`, `note`, naming.json's `_notes`) and id or enum fields are never linted as text.
 
 1. **Every file parses** to a Dictionary (and none is missing).
 2. **Every referenced id exists:**
@@ -5120,6 +5120,1865 @@ static func pan_path(picture: Vector2, frame: Vector2) -> Array[Vector2]:
 	return [Vector2.ZERO, -extra]
 ```
 
+### 17.18 The career run's sim core: `core/sim_state.gd`, `sim_context.gd`, `work_odds.gd`, `event_plan.gd`, `sim.gd` (Step 14)
+
+`core/sim_state.gd`:
+
+```gdscript
+@tool
+class_name SimState
+extends RefCounted
+## The whole career as plain data (INV-07, GDD 5.14, ARCHITECTURE 19.2): numbers, strings, bools, Arrays and
+## Dictionaries, never a Resource or a Node. Sim.step changes it and nothing else does. Money is in k$ (GDD 5.15).
+## Levels are 0 junior, 1 mid, 2 senior; homes 0 shared room to 3 penthouse (WorkOdds). to_dict and from_dict walk
+## the script variables below, so a new field is saved without touching them. Seeds and the RNG state travel as
+## strings (INV-05). The save of record is to_save: Godot's JSON parser does not read every double back exactly (it can be a
+## unit in the last place off), and one stray digit is enough to flip a threshold days of game time later, so to_save writes
+## every float as its raw 64 bits in hex and from_save restores it exactly. to_dict keeps plain floats for tests and display.
+
+const VERSION := 1
+const FLOAT_TAG := "f:"
+
+# ---------- the run ----------
+var version: int = VERSION
+var rng_seed: int = 0
+var rng_state: int = 0
+var bg_id: String = "intern"
+var run_number: int = 1
+var day: int = 0
+var ended: bool = false
+var ending: String = ""
+
+# ---------- money, k$ ----------
+var savings: float = 0.0
+var pay_accrued: float = 0.0
+var below_zero_days: int = 0
+var living_cost: float = 1.2
+var living_mult: float = 1.0
+var home: int = 0
+var rent: float = 0.9
+var lease_day: int = 0
+
+# ---------- the career ----------
+var level: int = 0
+var jobs_held: int = 0
+var employed: bool = false
+var unemployed_since: int = -1
+var studies_this_spell: int = 0
+var gap_scar_given: bool = false
+var last_study_day: int = -1
+
+# ---------- the job ----------
+var job_company: String = ""
+var job_archetype: String = ""
+var job_salary: float = 0.0
+var job_start: int = 0
+var job_remote: bool = false
+var job_clauses: Array = []
+var job_flags: Array = []
+var commute_burnout: float = 0.0
+var coworkers: Array = []
+var past_coworkers: Array = []
+
+# ---------- work stats ----------
+var hours: int = 3
+var burnout: float = 0.0
+var mo: float = 0.0
+var skill: float = 0.0
+var rust: float = 0.0
+var codebase: float = 0.0
+var quality: int = 1
+
+# ---------- the ticket ----------
+var ticket_size: int = 1
+var ticket_kind: int = 0
+var ticket_progress: float = 0.0
+var ticket_start: int = 0
+var ticket_deadline: int = 0
+var tickets_shipped: int = 0
+var tickets_on_time: int = 0
+var push_back_used: bool = false
+
+# ---------- temporary effects ----------
+var speed_mod: float = 1.0
+var speed_mod_until: int = -1
+var hours_lock_until: int = -1
+var last_incident_day: int = -9999
+
+# ---------- the review ----------
+var next_review: int = -1
+var on_time_since_review: int = 0
+var below_streak: int = 0
+var rating_streak: int = 0
+var pip_end: int = -1
+
+# ---------- Scars and the forced leave ----------
+var scar_short_tenure: int = 0
+var scar_burnout_history: int = 0
+var scar_bad_reference: int = 0
+var scar_resume_gap: int = 0
+var scar_corner_cutter: int = 0
+var calm_days: int = 0
+var forced_leaves: int = 0
+var leave_end: int = -1
+
+# ---------- events ----------
+var event_last: Dictionary = {}
+var queue: Array = []
+var chains: Array = []
+var warn_armed: Array = [true, true, true]
+var layoff_known_day: int = -1
+
+# ---------- the job hunt ----------
+var board: Array = []
+var board_day: int = -9999
+var next_posting_id: int = 1
+var applications: Array = []
+var blacklist: Array = []
+
+# ---------- the win ----------
+var studio_hold: int = 0
+
+# ---------- the Handbook ----------
+var handbook: Array = []
+var tips_seen: Array = []
+var h_emergency: bool = false
+var h_brag: bool = false
+var h_take_call: bool = false
+var h_overtime: bool = false
+
+# ---------- bookkeeping ----------
+var stats: Dictionary = {}
+var log: Array = []
+
+
+## The item the clock is waiting on (an event card, a review, a duel, an offer...), or {} when time can run.
+func pending() -> Dictionary:
+	return queue[0] if not queue.is_empty() else {}
+
+
+func is_waiting() -> bool:
+	return not queue.is_empty()
+
+
+## The floor of the job you hold, or of the next one you could take: 1 to max_jobs.
+func floor_n() -> int:
+	return maxi(1, jobs_held)
+
+
+func has_tip(tip_id: String) -> bool:
+	return handbook.has(tip_id)
+
+
+## Cache the Handbook's four Edge tips as bools, so the daily formulas never search the list.
+func refresh_edges() -> void:
+	h_emergency = handbook.has("tip_emergency_fund")
+	h_brag = handbook.has("tip_brag_doc")
+	h_take_call = handbook.has("tip_take_the_call")
+	h_overtime = handbook.has("tip_overtime_loan")
+
+
+func bump(key: String, by: int = 1) -> void:
+	stats[key] = int(stats.get(key, 0)) + by
+
+
+## The exact save (O8): to_dict with every float as "f:" and 16 hex digits. Only ints stay JSON numbers, so a JSON round
+## trip cannot change a value.
+func to_save() -> Dictionary:
+	return _encode(to_dict())
+
+
+static func from_save(data: Dictionary) -> SimState:
+	return from_dict(_decode(data))
+
+
+static func _encode(v: Variant) -> Variant:
+	match typeof(v):
+		TYPE_FLOAT:
+			var bytes := PackedByteArray()
+			bytes.resize(8)
+			bytes.encode_double(0, v)
+			return FLOAT_TAG + bytes.hex_encode()
+		TYPE_ARRAY:
+			var out: Array = []
+			for item: Variant in v:
+				out.append(_encode(item))
+			return out
+		TYPE_DICTIONARY:
+			var out: Dictionary = {}
+			for key: Variant in v:
+				out[key] = _encode(v[key])
+			return out
+	return v
+
+
+static func _decode(v: Variant) -> Variant:
+	match typeof(v):
+		TYPE_STRING:
+			var text: String = v
+			if text.length() == FLOAT_TAG.length() + 16 and text.begins_with(FLOAT_TAG):
+				return text.substr(FLOAT_TAG.length()).hex_decode().decode_double(0)
+			return text
+		TYPE_FLOAT:
+			return int(v)
+		TYPE_ARRAY:
+			var out: Array = []
+			for item: Variant in v:
+				out.append(_decode(item))
+			return out
+		TYPE_DICTIONARY:
+			var out: Dictionary = {}
+			for key: Variant in v:
+				out[key] = _decode(v[key])
+			return out
+	return v
+
+
+func to_dict() -> Dictionary:
+	var out: Dictionary = {}
+	for prop: Dictionary in get_property_list():
+		if not (int(prop["usage"]) & PROPERTY_USAGE_SCRIPT_VARIABLE):
+			continue
+		var key: String = prop["name"]
+		var value: Variant = get(key)
+		if key == "rng_seed" or key == "rng_state":
+			out[key] = str(value)
+		elif value is Array or value is Dictionary:
+			out[key] = value.duplicate(true)
+		else:
+			out[key] = value
+	return out
+
+
+## Unknown keys are ignored and missing ones keep their defaults, so an old save still loads (like RunState).
+## JSON gives floats back for every number: ints and bools are restored by each field's own type.
+static func from_dict(data: Dictionary) -> SimState:
+	var s := SimState.new()
+	for prop: Dictionary in s.get_property_list():
+		if not (int(prop["usage"]) & PROPERTY_USAGE_SCRIPT_VARIABLE):
+			continue
+		var key: String = prop["name"]
+		if not data.has(key):
+			continue
+		var raw: Variant = data[key]
+		match int(prop["type"]):
+			TYPE_INT:
+				s.set(key, int(str(raw)) if raw is String else int(raw))
+			TYPE_FLOAT:
+				s.set(key, float(raw))
+			TYPE_BOOL:
+				s.set(key, bool(raw))
+			TYPE_STRING:
+				s.set(key, str(raw))
+			TYPE_ARRAY, TYPE_DICTIONARY:
+				s.set(key, (raw as Variant).duplicate(true))
+	s.refresh_edges()
+	return s
+```
+
+`core/sim_context.gd`:
+
+```gdscript
+@tool
+class_name SimContext
+extends RefCounted
+## What Sim.step reads but never changes (INV-08): the constants, the archetypes, the parsed event and coworker
+## JSON, the Phase 1 data the duel request borrows, and the run's RNG. Build one with load_default() (tests, the
+## harness: no autoloads, res:// files only) or by hand. The sim saves the RNG's seed and state in SimState and
+## restores them at the start of every step, so one context can serve many runs in turn.
+
+const WORK_CONFIG_PATH := "res://data/work/work_config.tres"
+const ARCHETYPE_DIR := "res://data/archetypes/"
+const BACKGROUND_DIR := "res://data/backgrounds/"
+const TIER_DIR := "res://data/tiers/"
+const EVENTS_PATH := "res://data/content/work_events.json"
+const COWORKERS_PATH := "res://data/content/coworkers.json"
+
+var cfg: WorkConfig
+var archetypes: Dictionary = {}          # id -> ArchetypeData
+var arch_ids: PackedStringArray = []     # sorted: the order rolls are made in
+var events: Dictionary = {}              # evt id -> entry (work_events.json)
+var coworker_defs: Dictionary = {}       # cw_* id -> entry (coworkers.json)
+var coworker_pool: PackedStringArray = []
+var bg: BackgroundData
+var tiers: Dictionary = {}               # tier id -> TierData
+var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+var log_enabled: bool = true             # the run log; the harness turns it off for speed
+
+var random_events: Array = []            # [{id, per_year, cooldown}], sorted by id
+var chain_events: Array = []             # telegraphed events that start from a roll, sorted by id
+
+
+static func load_default(bg_id: String = "intern") -> SimContext:
+	var ctx := SimContext.new()
+	ctx.cfg = load(WORK_CONFIG_PATH) as WorkConfig
+	for file: String in ResourceLoader.list_directory(ARCHETYPE_DIR):
+		if file.ends_with(".tres"):
+			var arch := load(ARCHETYPE_DIR + file) as ArchetypeData
+			ctx.archetypes[String(arch.id)] = arch
+	ctx.bg = load(BACKGROUND_DIR + bg_id + ".tres") as BackgroundData
+	for file: String in ResourceLoader.list_directory(TIER_DIR):
+		if file.ends_with(".tres"):
+			var tier := load(TIER_DIR + file) as TierData
+			ctx.tiers[String(tier.id)] = tier
+	ctx.events = _read_json(EVENTS_PATH)
+	var cw := _read_json(COWORKERS_PATH)
+	ctx.coworker_pool = PackedStringArray(cw.get("_coworker_pool", []))
+	for key: String in cw:
+		if key.begins_with("cw_"):
+			ctx.coworker_defs[key] = cw[key]
+	ctx.build()
+	return ctx
+
+
+## Sort the archetype ids and pre-sort the events that roll, so no dictionary order ever decides a roll.
+func build() -> void:
+	arch_ids = PackedStringArray(archetypes.keys())
+	arch_ids.sort()
+	random_events.clear()
+	chain_events.clear()
+	var ids: Array = events.keys()
+	ids.sort()
+	for id: String in ids:
+		if id.begins_with("_"):
+			continue
+		var evt: Dictionary = events[id]
+		var trigger: Dictionary = evt.get("trigger", {})
+		match String(trigger.get("kind", "")):
+			"random":
+				random_events.append({"id": id, "per_year": float(trigger.get("per_year", 0.0)), "cooldown": int(trigger.get("cooldown_days", 0))})
+			"chain":
+				chain_events.append({"id": id, "per_year": float(trigger.get("per_year", 0.0)), "cooldown": int(trigger.get("cooldown_days", 0))})
+
+
+func archetype(id: String) -> ArchetypeData:
+	return archetypes.get(id) as ArchetypeData
+
+
+static func _read_json(path: String) -> Dictionary:
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	return parsed if parsed is Dictionary else {}
+```
+
+`core/work_odds.gd`:
+
+```gdscript
+@tool
+class_name WorkOdds
+extends RefCounted
+## The career run's formulas (GDD 5.15-5.21) as static functions, like Odds. No state, no autoloads, no global
+## RNG: anything random takes the run's RandomNumberGenerator. Tested by test_sim_rules, test_sim_review and
+## test_sim_events. Levels, homes and ratings are indexes into these lists.
+
+const LEVELS: PackedStringArray = ["junior", "mid", "senior"]
+const HOMES: PackedStringArray = ["shared", "one_bed", "studio", "penthouse"]
+const RATINGS: PackedStringArray = ["below", "meets", "exceeds"]
+const JUNIOR := 0
+const MID := 1
+const SENIOR := 2
+const BELOW := 0
+const MEETS := 1
+const EXCEEDS := 2
+const QUALITY_CLEAN := 0
+const QUALITY_BALANCED := 1
+const QUALITY_FAST := 2
+
+
+# ---------- floors and money (GDD 5.15, 6.1) ----------
+
+## 1 + step x (floor - 1): the multiplier every floor-depth rule shares.
+static func floor_mult(step: float, floor_n: int) -> float:
+	return 1.0 + step * (floor_n - 1)
+
+
+## An offer's salary in k$ a month: the level's base x the archetype's multiplier x the floor's raise x the Scars.
+static func offer_salary(cfg: WorkConfig, arch: ArchetypeData, level: int, floor_n: int, gap_stacks: int) -> float:
+	return cfg.salary_base_k[level] * arch.pay_mult * floor_mult(cfg.floor_salary_step, floor_n) * (1.0 - cfg.resume_gap_offer_cut * gap_stacks)
+
+
+## Savings over one month of rent and living costs, in months (the chip turns red under runway_red_months).
+static func runway_months(savings: float, rent: float, living: float) -> float:
+	return savings / (rent + living)
+
+
+## Starting savings in k$: the background's months of expenses in the Shared room, plus the Emergency fund edge.
+static func start_savings(cfg: WorkConfig, bg: BackgroundData, emergency_edge: bool) -> float:
+	var months := bg.start_savings_months + (cfg.edge_emergency_months if emergency_edge else 0.0)
+	return months * (cfg.home_rent_k[cfg.start_home] + cfg.living_cost_k)
+
+
+## Months of salary paid when a job ends in a layoff. options are rolled with equal odds; per_year is
+## prorated by the days of tenure. first_job_max picks the largest option instead (run 1's Pivotly: always 1).
+static func severance_months(cfg: WorkConfig, arch: ArchetypeData, tenure_days: int, first_job_max: bool, rng: RandomNumberGenerator) -> float:
+	var options: PackedFloat64Array = arch.severance_options
+	var pick: float = 0.0
+	if not options.is_empty():
+		if first_job_max:
+			pick = options[0]
+			for o: float in options:
+				pick = maxf(pick, o)
+		else:
+			pick = options[rng.randi_range(0, options.size() - 1)]
+	return pick + arch.severance_per_year * float(tenure_days) / float(cfg.days_per_year)
+
+
+# ---------- the daily formulas (GDD 5.16, 5.17) ----------
+
+## Ticket progress per day in percent of a ticket: (100 / size) x Hours x Skill x Codebase x process x a
+## Senior's calendar tax and quality bar x any speed change from an event.
+static func ticket_rate(cfg: WorkConfig, size: int, notch: int, skill: float, codebase: float, arch: ArchetypeData, level: int, quality: int, speed_mod: float) -> float:
+	var rate := 100.0 / cfg.ticket_size_days[size] * cfg.hours_speed[notch - 1]
+	rate *= (1.0 + skill / cfg.skill_speed_div) * (1.0 - codebase / cfg.codebase_speed_div) * arch.ticket_speed * speed_mod
+	if level >= SENIOR:
+		rate *= cfg.calendar_tax
+		if quality == QUALITY_CLEAN:
+			rate *= cfg.quality_clean_speed
+		elif quality == QUALITY_FAST:
+			rate *= cfg.quality_fast_speed
+	return rate
+
+
+## Burnout change per day while you work, before the Burnout History floor: the Hours notch, minus the home's
+## recovery, plus a heavy Codebase, a short runway and a commute. A negative notch value is rest and is never
+## scaled; the Overtime edge trims only the notch-5 gain.
+static func burnout_delta(cfg: WorkConfig, notch: int, home: int, codebase: float, runway: float, commute: float, overtime_edge: bool) -> float:
+	var hours := cfg.hours_burnout[notch - 1]
+	if overtime_edge and notch == cfg.hours_burnout.size() and hours > 0.0:
+		hours *= cfg.edge_overtime_burnout_mult
+	var d := hours - cfg.home_recovery[home] + commute
+	if codebase >= cfg.codebase_burnout_min:
+		d += cfg.codebase_burnout
+	if runway < cfg.runway_red_months:
+		d += cfg.low_runway_burnout
+	return d
+
+
+## Burnout change per day with no work (between jobs or on a forced leave). It is the same formula as working (D-04: one
+## clock), minus what only a job has (a heavy Codebase, a commute): the Hours notch still sets how hard you push, the home
+## still recovers you, and a thin runway still weighs on you.
+static func idle_burnout_delta(cfg: WorkConfig, notch: int, home: int, runway: float) -> float:
+	var d := cfg.hours_burnout[notch - 1] - cfg.home_recovery[home]
+	if runway < cfg.runway_red_months:
+		d += cfg.low_runway_burnout
+	return d
+
+
+## Manager Opinion change per day: the Hours notch, plus an archetype's utilization at notches 1-2.
+static func mo_delta(cfg: WorkConfig, arch: ArchetypeData, notch: int) -> float:
+	var d := cfg.hours_mo[notch - 1]
+	if notch <= 2:
+		d += arch.utilization_mo
+	return d
+
+
+## The Codebase's drift per day: the archetype's, plus a Senior's quality bar.
+static func codebase_drift(cfg: WorkConfig, arch: ArchetypeData, level: int, quality: int) -> float:
+	var d := arch.codebase_drift
+	if level >= SENIOR:
+		if quality == QUALITY_CLEAN:
+			d += cfg.quality_clean_codebase
+		elif quality == QUALITY_FAST:
+			d += cfg.quality_fast_codebase
+	return d
+
+
+## p(incident per day): the Codebase's, times the floor's event frequency and any other multiplier (on-call,
+## the Studio's final threat).
+static func incident_p(cfg: WorkConfig, codebase: float, floor_n: int, mult: float) -> float:
+	return (cfg.incident_base + cfg.incident_per_codebase * codebase) * floor_mult(cfg.floor_event_step, floor_n) * mult
+
+
+## Days between incidents when each one starts a cooldown: the cooldown plus the mean wait of a daily roll.
+static func incident_gap_days(cfg: WorkConfig, codebase: float, cooldown_days: int) -> float:
+	return cooldown_days + 1.0 / incident_p(cfg, codebase, 1, 1.0)
+
+
+# ---------- the review (GDD 5.16) ----------
+
+## Your Evidence HP: a base, half your Manager Opinion, 5 per ticket shipped on time since the last review,
+## and the Brag doc edge.
+static func evidence(cfg: WorkConfig, mo: float, on_time_tickets: int, brag_edge: bool) -> float:
+	var e := cfg.evidence_base + mo / cfg.evidence_mo_div + cfg.evidence_per_ticket * on_time_tickets
+	if brag_edge:
+		e += cfg.edge_brag_evidence
+	return maxf(1.0, e)
+
+
+## The rating from the Evidence you have left: under 25% of it is Below, over 70% Exceeds, else Meets.
+static func rating(cfg: WorkConfig, evidence_total: float, evidence_left: float) -> int:
+	var share := evidence_left / evidence_total
+	if share < cfg.rating_below_max:
+		return BELOW
+	if share > cfg.rating_exceeds_min:
+		return EXCEEDS
+	return MEETS
+
+
+## The stand-in for the review duel until M3 (A67): the manager's Calibration HP chips at your Evidence for
+## review_standin_damage of itself, give or take review_standin_noise. Returns the Evidence you keep.
+static func review_standin_left(cfg: WorkConfig, calibration: float, evidence_total: float, rng: RandomNumberGenerator) -> float:
+	var damage := calibration * cfg.review_standin_damage * (1.0 + cfg.review_standin_noise * (rng.randf() * 2.0 - 1.0))
+	return clampf(evidence_total - damage, 0.0, evidence_total)
+
+
+## The raise a rating earns, as a fraction of salary.
+static func raise_for(cfg: WorkConfig, rating_id: int) -> float:
+	if rating_id == EXCEEDS:
+		return cfg.raise_exceeds
+	if rating_id == MEETS:
+		return cfg.raise_meets
+	return 0.0
+
+
+## True when this review promotes you: the archetype's rating, held for its streak (counting this review).
+static func promotes(arch: ArchetypeData, rating_id: int, streak: int, level: int) -> bool:
+	return level < SENIOR and rating_id >= arch.promotion_min_rating and streak >= arch.promotion_streak
+
+
+# ---------- events (GDD 5.19) ----------
+
+## The chance Burnout picks for you: 0 below auto_resolve_from, then (Burnout - 70) / 30, certain at 100.
+static func auto_resolve_p(cfg: WorkConfig, burnout: float) -> float:
+	if burnout < cfg.auto_resolve_from:
+		return 0.0
+	return clampf((burnout - cfg.auto_resolve_base) / cfg.auto_resolve_span, 0.0, 1.0)
+
+
+## How many employees a resizing cuts: the archetype's share of the floor, at least layoff_min_cut.
+static func layoff_cut_count(cfg: WorkConfig, arch: ArchetypeData, employees: int) -> int:
+	return clampi(maxi(cfg.layoff_min_cut, roundi(arch.layoff_share * employees)), 0, employees)
+
+
+## Which employees a resizing cuts (R-EVT-03): each one's chance is weighted layoff_salary_weight by salary rank (the
+## highest salary the largest share, the lowest none) and layoff_luck_weight by chance (an equal share each), and
+## `cuts` people are drawn from those weights without replacement. Manager Opinion is not an input (O1). Returns
+## indexes into salaries, in the order they were drawn.
+static func layoff_cuts(cfg: WorkConfig, salaries: Array, cuts: int, rng: RandomNumberGenerator) -> Array[int]:
+	var n := salaries.size()
+	var by_salary: Array[int] = []
+	for i: int in n:
+		by_salary.append(i)
+	by_salary.sort_custom(func(a: int, b: int) -> bool:
+		var sa: float = salaries[a]
+		var sb: float = salaries[b]
+		return sa < sb if sa != sb else a < b)
+	var rank_total := maxf(1.0, n * (n - 1) / 2.0)
+	var weight: Array[float] = []
+	weight.resize(n)
+	for rank: int in n:
+		weight[by_salary[rank]] = cfg.layoff_salary_weight * rank / rank_total + cfg.layoff_luck_weight / n
+	var out: Array[int] = []
+	var left: Array[int] = []
+	for i: int in n:
+		left.append(i)
+	for k: int in mini(cuts, n):
+		var total := 0.0
+		for i: int in left:
+			total += weight[i]
+		var r := rng.randf() * total
+		var pick := left.size() - 1
+		for j: int in left.size():
+			r -= weight[left[j]]
+			if r < 0.0:
+				pick = j
+				break
+		out.append(left[pick])
+		left.remove_at(pick)
+	return out
+
+
+## Daily odds of a random event: a per-year rate spread over the days, times the floor's event frequency and the
+## Studio's final-threat weight.
+static func random_event_p(cfg: WorkConfig, per_year: float, floor_n: int, threat_mult: float) -> float:
+	return per_year / cfg.days_per_year * floor_mult(cfg.floor_event_step, floor_n) * threat_mult
+
+
+# ---------- the job hunt (GDD 5.20) ----------
+
+## f_level: 1.0 at your level, 0.5 one level up, 0.8 below.
+static func level_factor(cfg: WorkConfig, posting_level: int, level: int) -> float:
+	if posting_level > level:
+		return cfg.callback_level_up
+	if posting_level < level:
+		return cfg.callback_level_down
+	return cfg.callback_level_same
+
+
+## p_callback = 0.35 x f_level x (1 - 0.15 per Short Tenure stack) x (1 + 0.1 per reference). e_handbook is 1.0
+## in v1: no Edge tip touches it.
+static func callback_p(cfg: WorkConfig, posting_level: int, level: int, short_tenure_stacks: int, references: int) -> float:
+	return cfg.callback_base * level_factor(cfg, posting_level, level) \
+		* (1.0 - cfg.callback_short_tenure_cut * short_tenure_stacks) * (1.0 + cfg.callback_reference_bonus * references)
+
+
+# ---------- the duel's inputs (GDD 5.20, R-JOB-03) ----------
+
+## Your Composure HP: the background's base, lowered by Burnout.
+static func duel_composure(cfg: WorkConfig, base: float, burnout: float) -> float:
+	return base * (1.0 - burnout / cfg.duel_composure_burnout_div)
+
+
+## The Answer Meter's width multiplier: Skill widens it, Rust narrows it. The caller keeps the 0.06 floor (RC-25).
+static func duel_zone_mult(cfg: WorkConfig, skill: float, rust: float) -> float:
+	return (1.0 + skill / cfg.duel_zone_skill_div) * (1.0 - rust / cfg.duel_zone_rust_div)
+
+
+## Dana's Doubt HP: the tier's base, raised by the floor.
+static func duel_doubt(cfg: WorkConfig, base: float, floor_n: int) -> float:
+	return base * floor_mult(cfg.floor_doubt_step, floor_n)
+
+
+# ---------- the Studio (GDD 3.4) ----------
+
+## How many of the five conditions hold: Senior, Remote, The Studio, Burnout at or below 30, and a runway of 6
+## months at Studio rent.
+static func studio_count(cfg: WorkConfig, level: int, remote: bool, home: int, burnout: float, savings: float, living: float) -> int:
+	var n := 0
+	if level >= SENIOR:
+		n += 1
+	if remote:
+		n += 1
+	if home == cfg.studio_home:
+		n += 1
+	if burnout <= cfg.studio_burnout_max:
+		n += 1
+	if savings / (cfg.home_rent_k[cfg.studio_home] + living) >= cfg.studio_runway_months:
+		n += 1
+	return n
+```
+
+`core/event_plan.gd`:
+
+```gdscript
+@tool
+class_name EventPlan
+extends RefCounted
+## Which events can happen (GDD 5.19): tier, archetype, level, the "requires" conditions of work_events.json, and
+## the calendar strip. Pure like WorkOdds: it reads a SimState and the SimContext, and changes nothing. The odds
+## of a roll are WorkOdds'; the rolling itself is Sim's, in a fixed order.
+
+
+## True when the event's archetype and level lists include yours and its own conditions hold.
+static func eligible(ctx: SimContext, state: SimState, evt: Dictionary) -> bool:
+	if state.employed:
+		if not (evt.get("archetypes", []) as Array).has(state.job_archetype):
+			return false
+	if not (evt.get("levels", []) as Array).has(WorkOdds.LEVELS[state.level]):
+		return false
+	return requires_met(ctx, state, evt.get("requires", {}))
+
+
+## Conditions of an event or of one choice. An empty dictionary always holds.
+static func requires_met(ctx: SimContext, state: SimState, req: Dictionary) -> bool:
+	for key: String in req:
+		var want: Variant = req[key]
+		match key:
+			"employed":
+				if state.employed != bool(want):
+					return false
+			"remote":
+				if (state.employed and state.job_remote) != bool(want):
+					return false
+			"rto":
+				if not state.employed:
+					return false
+				var arch := ctx.archetype(state.job_archetype)
+				if (arch.rto_after_days >= 0 and state.day - state.job_start >= arch.rto_after_days) != bool(want):
+					return false
+			"home_min":
+				if state.home < int(want):
+					return false
+			"tip":
+				if not state.has_tip(String(want)):
+					return false
+			"clause":
+				if not state.job_clauses.has(String(want)):
+					return false
+			"not_flag":
+				if state.job_flags.has(String(want)):
+					return false
+			"deadline_or_incident_days":
+				var n := int(want)
+				var near_deadline := state.employed and state.ticket_deadline - state.day <= n and state.ticket_deadline >= state.day
+				var after_incident := state.day - state.last_incident_day <= n
+				if not (near_deadline or after_incident):
+					return false
+	return true
+
+
+## The choices of an event that you can pick now, as the choice dictionaries.
+static func available_choices(ctx: SimContext, state: SimState, evt: Dictionary) -> Array:
+	var out: Array = []
+	for choice: Dictionary in evt.get("choices", []):
+		if requires_met(ctx, state, choice.get("requires", {})):
+			out.append(choice)
+	return out
+
+
+## The weight of a random event today: the final threats get final_threat_mult while the Studio hold is filming.
+static func threat_mult(ctx: SimContext, state: SimState, evt: Dictionary) -> float:
+	if state.studio_hold > 0 and bool(evt.get("final_threat", false)):
+		return ctx.cfg.final_threat_mult
+	return 1.0
+
+
+## What the calendar strip shows for the next `days` days (GDD 5.14): paydays, rent, the review, the lease, a
+## ticket's deadline, a chain's fire day and an interview, as [{day, kind}] sorted by day.
+static func calendar(ctx: SimContext, state: SimState, days: int) -> Array:
+	var cfg := ctx.cfg
+	var out: Array = []
+	for d: int in range(state.day + 1, state.day + days + 1):
+		if (d - cfg.payday) % cfg.days_per_month == 0 and state.employed:
+			out.append({"day": d, "kind": "payday"})
+		if (d - cfg.rent_day) % cfg.days_per_month == 0:
+			out.append({"day": d, "kind": "rent"})
+	if state.employed and state.next_review > state.day and state.next_review <= state.day + days:
+		out.append({"day": state.next_review, "kind": "review"})
+	var lease_due: int = state.lease_day + cfg.lease_days
+	if lease_due > state.day and lease_due <= state.day + days:
+		out.append({"day": lease_due, "kind": "lease"})
+	if state.employed and state.ticket_deadline > state.day and state.ticket_deadline <= state.day + days:
+		out.append({"day": state.ticket_deadline, "kind": "deadline"})
+	for app: Dictionary in state.applications:
+		var iv := int(app.get("interview", -1))
+		if bool(app.get("callback", false)) and iv > state.day and iv <= state.day + days:
+			out.append({"day": iv, "kind": "interview"})
+	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["day"]) < int(b["day"]))
+	return out
+```
+
+`core/sim.gd`:
+
+```gdscript
+@tool
+class_name Sim
+extends RefCounted
+## The career run's rules as one deterministic step function (GDD 5.14-5.22, ARCHITECTURE 19.2). Sim.step(state,
+## inputs, ctx) applies the inputs, then advances one day unless something waits for an answer (an event card, a
+## review, a duel, an offer: state.queue). Pure like Odds: no nodes, no autoloads, no wall clock, no global RNG; every
+## roll is on ctx.rng, restored from the state at the start of a step and saved back at its end, and the rolls
+## happen in one fixed order, so a seed plus the inputs replays a run exactly. Numbers come from WorkConfig,
+## ArchetypeData and the event JSON, never from this file (INV-09, INV-15), and no archetype is ever named here.
+##
+## One tick, in order: the calendar and money (day, rent, pay, living costs); the daily formulas (ticket, MO,
+## Codebase, Burnout, Rust); the job hunt (replies, interviews); the review and the lease; the telegraphed chains;
+## the rolls (incident, random events, chain starts); then the checks (forced leave, the PIP, Scars, the endings).
+
+const IN_SET_HOURS := "set_hours"
+const IN_CHOOSE := "choose"
+const IN_REVIEW_RESULT := "review_result"
+const IN_TICKET_PICK := "ticket_pick"
+const IN_DUEL_RESULT := "duel_result"
+const IN_ANSWER_OFFER := "answer_offer"
+const IN_APPLY := "apply"
+const IN_STUDY := "study"
+const IN_MOVE_HOME := "move_home"
+const IN_PUSH_BACK := "push_back"
+const IN_SET_QUALITY := "set_quality"
+const IN_ACK := "ack"
+
+const EVT_RESIZING := "evt_e07_resizing"
+const EVT_INCIDENT := "evt_e12_incident_prod"
+const EVT_LIFESTYLE := "evt_e21_lifestyle_offer"
+const EVT_RECRUITER := "evt_e18_recruiter_dm"
+const EVT_REVIEW := "evt_e02_review"
+
+const PICK_NAMES: PackedStringArray = ["feature", "bugfix", "paydown"]
+const QUALITY_NAMES: PackedStringArray = ["clean", "balanced", "fast"]
+const KIND_ASSIGNED := 0
+const KIND_FEATURE := 1
+const KIND_BUGFIX := 2
+const KIND_PAYDOWN := 3
+
+
+# ---------- a new run ----------
+
+## Run 1 starts employed at the authored job with a guaranteed layoff on day 240 (GDD 3.3, P-06); later runs start
+## between jobs with the board open. ctx.bg is the run's background. handbook is the collected tip ids.
+static func new_run(ctx: SimContext, run_number: int, run_seed: int, handbook: Array = []) -> SimState:
+	var cfg := ctx.cfg
+	var s := SimState.new()
+	s.rng_seed = run_seed
+	ctx.rng.seed = run_seed
+	s.bg_id = String(ctx.bg.id)
+	s.run_number = run_number
+	s.handbook = handbook.duplicate()
+	s.refresh_edges()
+	s.home = cfg.start_home
+	s.rent = cfg.home_rent_k[s.home]
+	s.living_cost = cfg.living_cost_k
+	s.savings = WorkOdds.start_savings(cfg, ctx.bg, s.h_emergency)
+	s.hours = cfg.hours_default
+	s.unemployed_since = 0
+	var events: Array = []
+	if run_number == 1:
+		var arch := ctx.archetype(cfg.run1_archetype)
+		var posting := {
+			"id": 0, "company": cfg.run1_company, "archetype": cfg.run1_archetype, "level": WorkOdds.JUNIOR, "floor": 1,
+			"salary": WorkOdds.offer_salary(cfg, arch, WorkOdds.JUNIOR, 1, 0), "remote": cfg.run1_remote, "clauses": [],
+		}
+		_start_job(s, ctx, posting, events, true)
+		s.pay_accrued = s.job_salary / cfg.days_per_month * cfg.run1_pay_days_accrued
+	else:
+		_refresh_board(s, ctx)
+	s.rng_state = ctx.rng.state
+	return s
+
+
+# ---------- the step ----------
+
+## Apply the inputs, then advance one day unless something is waiting. Returns what happened, as dictionaries with
+## a "kind" (for the UI, the harness and the run log).
+static func step(state: SimState, inputs: Array, ctx: SimContext) -> Array:
+	var events: Array = []
+	if state.ended:
+		return events
+	ctx.rng.seed = state.rng_seed
+	ctx.rng.state = state.rng_state
+	for input: Dictionary in inputs:
+		_apply_input(state, ctx, input, events)
+	if state.queue.is_empty() and not state.ended:
+		_tick(state, ctx, events)
+	state.rng_state = ctx.rng.state
+	return events
+
+
+## Replays a run from its log: the same seed and inputs give the same run (O8). Only the accepted inputs matter
+## (SimState.log entries with "k" == "in", each with the day it was sent on); the days between them tick on their own.
+## The run is replayed to until_day, or to the last day the log mentions.
+static func replay(ctx: SimContext, run_number: int, run_seed: int, handbook: Array, log: Array, until_day: int = -1) -> SimState:
+	var s := new_run(ctx, run_number, run_seed, handbook)
+	var entries: Array = []
+	var last_day := 0
+	for entry: Dictionary in log:
+		last_day = maxi(last_day, int(entry["d"]))
+		if entry.get("k", "") == "in":
+			entries.append(entry)
+	var end_day := until_day if until_day >= 0 else last_day
+	var i := 0
+	while i < entries.size() and not s.ended:
+		var day := int(entries[i]["d"])
+		var batch: Array = []
+		while i < entries.size() and int(entries[i]["d"]) == day:
+			batch.append(entries[i]["i"])
+			i += 1
+		while s.day < day and s.queue.is_empty() and not s.ended:
+			step(s, [], ctx)
+		step(s, batch, ctx)
+	while s.day < end_day and s.queue.is_empty() and not s.ended:
+		step(s, [], ctx)
+	return s
+
+
+# ---------- inputs ----------
+
+static func _apply_input(s: SimState, ctx: SimContext, input: Dictionary, events: Array) -> void:
+	var kind: String = input.get("kind", "")
+	var ok := false
+	match kind:
+		IN_SET_HOURS:
+			ok = _in_set_hours(s, ctx, input)
+		IN_CHOOSE:
+			ok = _in_choose(s, ctx, input, events)
+		IN_REVIEW_RESULT:
+			ok = _in_review_result(s, ctx, input, events)
+		IN_TICKET_PICK:
+			ok = _in_ticket_pick(s, ctx, input)
+		IN_DUEL_RESULT:
+			ok = _in_duel_result(s, ctx, input, events)
+		IN_ANSWER_OFFER:
+			ok = _in_answer_offer(s, ctx, input, events)
+		IN_APPLY:
+			ok = _in_apply(s, ctx, input, events)
+		IN_STUDY:
+			ok = _in_study(s, ctx, events)
+		IN_MOVE_HOME:
+			ok = _in_move_home(s, ctx, input, events)
+		IN_PUSH_BACK:
+			ok = _in_push_back(s, ctx)
+		IN_SET_QUALITY:
+			ok = _in_set_quality(s, ctx, input)
+		IN_ACK:
+			ok = _in_ack(s)
+	if ok:
+		_log(s, ctx, "in", {"i": input})
+	else:
+		s.bump("rejected")
+		events.append({"kind": "input_rejected", "input": kind})
+
+
+static func _in_set_hours(s: SimState, ctx: SimContext, input: Dictionary) -> bool:
+	if s.day <= s.hours_lock_until:
+		return false
+	var notch := clampi(int(input.get("notch", s.hours)), 1, ctx.cfg.hours_speed.size())
+	if notch != s.hours:
+		s.bump("hours_changes")
+	s.hours = notch
+	return true
+
+
+static func _in_choose(s: SimState, ctx: SimContext, input: Dictionary, events: Array) -> bool:
+	var item := s.pending()
+	if String(item.get("kind", "")) != "event":
+		return false
+	var choice_id := String(input.get("choice", ""))
+	if not (item["choices"] as Array).has(choice_id):
+		return false
+	s.queue.pop_front()
+	_resolve_choice(s, ctx, String(item["id"]), choice_id, events)
+	return true
+
+
+static func _in_review_result(s: SimState, ctx: SimContext, input: Dictionary, events: Array) -> bool:
+	var item := s.pending()
+	if String(item.get("kind", "")) != "review":
+		return false
+	s.queue.pop_front()
+	_resolve_review(s, ctx, item, float(input.get("evidence_left", 0.0)), events)
+	return true
+
+
+static func _in_ticket_pick(s: SimState, ctx: SimContext, input: Dictionary) -> bool:
+	var item := s.pending()
+	if String(item.get("kind", "")) != "ticket_pick":
+		return false
+	var pick := PICK_NAMES.find(String(input.get("pick", "")))
+	if pick < 0:
+		return false
+	s.queue.pop_front()
+	match pick:
+		0:
+			_new_ticket(s, ctx, KIND_FEATURE, ctx.rng.randi_range(1, 2))
+		1:
+			_new_ticket(s, ctx, KIND_BUGFIX, 0)
+		2:
+			_new_ticket(s, ctx, KIND_PAYDOWN, 1)
+	return true
+
+
+static func _in_duel_result(s: SimState, ctx: SimContext, input: Dictionary, events: Array) -> bool:
+	var item := s.pending()
+	if String(item.get("kind", "")) != "duel":
+		return false
+	s.queue.pop_front()
+	_resolve_duel(s, ctx, item, bool(input.get("passed", false)), events)
+	return true
+
+
+static func _in_answer_offer(s: SimState, ctx: SimContext, input: Dictionary, events: Array) -> bool:
+	var item := s.pending()
+	if String(item.get("kind", "")) != "offer":
+		return false
+	s.queue.pop_front()
+	var app_id := int(item["app"])
+	var posting: Dictionary = item["posting"]
+	_drop_application(s, app_id)
+	if bool(input.get("accept", false)):
+		if s.employed:
+			_end_job(s, ctx, "quit", events, 0.0)
+		if not s.ended:
+			_start_job(s, ctx, posting, events, false)
+	else:
+		s.blacklist.append(String(posting["company"]))
+		s.bump("declined")
+		events.append({"kind": "offer_declined", "company": posting["company"]})
+	return true
+
+
+static func _in_apply(s: SimState, ctx: SimContext, input: Dictionary, events: Array) -> bool:
+	var cfg := ctx.cfg
+	if s.employed and s.jobs_held >= cfg.max_jobs:
+		return false
+	var idx := -1
+	for i: int in s.board.size():
+		if int(s.board[i]["id"]) == int(input.get("posting", -1)):
+			idx = i
+			break
+	if idx < 0:
+		return false
+	var posting: Dictionary = s.board[idx]
+	var p := WorkOdds.callback_p(cfg, int(posting["level"]), s.level, s.scar_short_tenure, _references(s, cfg))
+	var callback := ctx.rng.randf() < p
+	var reply := s.day + ctx.rng.randi_range(cfg.reply_days_min, cfg.reply_days_max)
+	var interview := -1
+	if callback:
+		interview = reply + ctx.rng.randi_range(cfg.interview_days_min, cfg.interview_days_max)
+	s.applications.append({"posting": posting, "applied": s.day, "reply": reply, "callback": callback, "interview": interview,
+		"status": "wait", "duels_done": 0, "next_duel": -1})
+	if s.employed:
+		_add_burnout(s, cfg, cfg.apply_burnout_employed)
+		s.bump("applies_employed")
+		if ctx.rng.randf() < cfg.notice_p:
+			_add_mo(s, cfg, cfg.notice_mo)
+			events.append({"kind": "profile_noticed"})
+	else:
+		_add_burnout(s, cfg, cfg.apply_burnout_unemployed)
+	s.bump("applies")
+	s.board[idx] = _gen_posting(s, ctx)
+	events.append({"kind": "application_sent", "company": posting["company"]})
+	return true
+
+
+static func _in_study(s: SimState, ctx: SimContext, events: Array) -> bool:
+	var cfg := ctx.cfg
+	if s.last_study_day == s.day:
+		return false
+	s.last_study_day = s.day
+	_add_burnout(s, cfg, cfg.study_burnout)
+	s.rust = clampf(s.rust + cfg.study_rust, 0.0, cfg.stat_max)
+	s.skill = clampf(s.skill + cfg.study_skill, 0.0, cfg.stat_max)
+	if not s.employed:
+		s.studies_this_spell += 1
+	s.bump("studies")
+	events.append({"kind": "studied"})
+	return true
+
+
+static func _in_move_home(s: SimState, ctx: SimContext, input: Dictionary, events: Array) -> bool:
+	var tier := int(input.get("tier", s.home))
+	if tier == s.home or tier < 0 or tier >= ctx.cfg.home_rent_k.size():
+		return false
+	_move_home(s, ctx, tier, events)
+	return true
+
+
+static func _in_push_back(s: SimState, ctx: SimContext) -> bool:
+	var cfg := ctx.cfg
+	if not s.employed or s.level < WorkOdds.MID or s.push_back_used or s.ticket_progress >= 100.0:
+		return false
+	s.push_back_used = true
+	s.ticket_deadline += roundi(cfg.ticket_size_days[s.ticket_size] * cfg.push_back_deadline)
+	_add_mo(s, cfg, cfg.push_back_mo)
+	return true
+
+
+static func _in_set_quality(s: SimState, ctx: SimContext, input: Dictionary) -> bool:
+	var bar := QUALITY_NAMES.find(String(input.get("bar", "")))
+	if not s.employed or s.level < WorkOdds.SENIOR or bar < 0:
+		return false
+	s.quality = bar
+	return true
+
+
+static func _in_ack(s: SimState) -> bool:
+	var item := s.pending()
+	var kind := String(item.get("kind", ""))
+	if kind != "layoff_scene" and kind != "forced_leave" and kind != "info":
+		return false
+	s.queue.pop_front()
+	return true
+
+
+# ---------- one day ----------
+
+static func _tick(s: SimState, ctx: SimContext, events: Array) -> void:
+	var cfg := ctx.cfg
+	s.day += 1
+	var day := s.day
+	var arch: ArchetypeData = ctx.archetype(s.job_archetype) if s.employed else null
+	var on_leave := s.employed and day <= s.leave_end
+
+	_money(s, cfg, on_leave, events)
+
+	var runway := WorkOdds.runway_months(s.savings, s.rent, s.living_cost * s.living_mult)
+	if s.employed and not on_leave:
+		var notch := s.hours
+		var speed := s.speed_mod if day <= s.speed_mod_until else 1.0
+		s.ticket_progress += WorkOdds.ticket_rate(cfg, s.ticket_size, notch, s.skill, s.codebase, arch, s.level, s.quality, speed)
+		s.mo = clampf(s.mo + WorkOdds.mo_delta(cfg, arch, notch), cfg.mo_min, cfg.mo_max)
+		s.codebase = clampf(s.codebase + WorkOdds.codebase_drift(cfg, arch, s.level, s.quality), 0.0, cfg.stat_max)
+		_add_burnout(s, cfg, WorkOdds.burnout_delta(cfg, notch, s.home, s.codebase, runway, s.commute_burnout, s.h_overtime))
+		if s.ticket_progress >= 100.0:
+			_ship_ticket(s, ctx, events)
+	else:
+		_add_burnout(s, cfg, WorkOdds.idle_burnout_delta(cfg, s.hours, s.home, runway))
+	s.rust = minf(cfg.stat_max, s.rust + cfg.rust_per_day)
+
+	_hunt(s, ctx, events)
+	if s.employed and not on_leave:
+		if day >= s.next_review and s.next_review >= 0:
+			_queue_review(s, ctx, arch, events)
+		if day - s.lease_day >= cfg.lease_days:
+			_present_event(s, ctx, "evt_e04_lease_renewal", events)
+	elif not s.employed and day - s.lease_day >= cfg.lease_days:
+		_present_event(s, ctx, "evt_e04_lease_renewal", events)
+	if not s.chains.is_empty():
+		_run_chains(s, ctx, events)
+	_rolls(s, ctx, on_leave, events)
+	_checks(s, ctx, on_leave, events)
+
+
+static func _money(s: SimState, cfg: WorkConfig, on_leave: bool, events: Array) -> void:
+	var day := s.day
+	if day % cfg.living_cost_growth_days == 0:
+		s.living_cost *= 1.0 + cfg.living_cost_growth
+	if (day - cfg.rent_day) % cfg.days_per_month == 0:
+		var bills := s.rent + s.living_cost * s.living_mult
+		s.savings -= bills
+		events.append({"kind": "rent", "amount": bills})
+	if s.employed:
+		s.pay_accrued += s.job_salary / cfg.days_per_month * (cfg.forced_leave_pay if on_leave else 1.0)
+	if (day - cfg.payday) % cfg.days_per_month == 0 and s.pay_accrued > 0.0:
+		s.savings += s.pay_accrued
+		events.append({"kind": "payday", "amount": s.pay_accrued})
+		s.pay_accrued = 0.0
+	if s.savings < 0.0:
+		s.below_zero_days += 1
+	else:
+		s.below_zero_days = 0
+
+
+# ---------- tickets ----------
+
+static func _new_ticket(s: SimState, ctx: SimContext, kind: int = KIND_ASSIGNED, size: int = -1) -> void:
+	var cfg := ctx.cfg
+	if size < 0:
+		size = ctx.rng.randi_range(0, cfg.ticket_size_days.size() - 1)
+	s.ticket_kind = kind
+	s.ticket_size = size
+	s.ticket_progress = 0.0
+	s.ticket_start = s.day
+	s.ticket_deadline = s.day + roundi(cfg.ticket_size_days[size] * cfg.ticket_deadline_mult)
+
+
+static func _ship_ticket(s: SimState, ctx: SimContext, events: Array) -> void:
+	var cfg := ctx.cfg
+	var on_time := s.day <= s.ticket_deadline
+	s.tickets_shipped += 1
+	if on_time:
+		s.tickets_on_time += 1
+		s.on_time_since_review += 1
+		_add_mo(s, cfg, cfg.mo_on_time)
+	else:
+		_add_mo(s, cfg, cfg.mo_late)
+	s.skill = minf(cfg.stat_max, s.skill + cfg.skill_per_ticket)
+	match s.ticket_kind:
+		KIND_FEATURE:
+			_add_mo(s, cfg, cfg.pick_feature_mo)
+			s.codebase = clampf(s.codebase + cfg.pick_feature_codebase, 0.0, cfg.stat_max)
+		KIND_BUGFIX:
+			s.skill = clampf(s.skill + cfg.pick_bugfix_skill, 0.0, cfg.stat_max)
+			s.codebase = clampf(s.codebase + cfg.pick_bugfix_codebase, 0.0, cfg.stat_max)
+		KIND_PAYDOWN:
+			_add_mo(s, cfg, cfg.pick_paydown_mo)
+			s.codebase = clampf(s.codebase + cfg.pick_paydown_codebase, 0.0, cfg.stat_max)
+	events.append({"kind": "ticket_shipped", "on_time": on_time, "size": s.ticket_size})
+	if s.level >= WorkOdds.MID:
+		s.ticket_progress = 0.0
+		s.queue.append({"kind": "ticket_pick"})
+	else:
+		_new_ticket(s, ctx)
+
+
+# ---------- stats ----------
+
+static func _burnout_floor(s: SimState, cfg: WorkConfig) -> float:
+	return cfg.burnout_history_floor * s.scar_burnout_history
+
+
+static func _add_burnout(s: SimState, cfg: WorkConfig, delta: float) -> void:
+	s.burnout = clampf(s.burnout + delta, _burnout_floor(s, cfg), cfg.burnout_max)
+
+
+static func _add_mo(s: SimState, cfg: WorkConfig, delta: float) -> void:
+	s.mo = clampf(s.mo + delta, cfg.mo_min, cfg.mo_max)
+
+
+# ---------- events ----------
+
+## Show an event: a card that waits for a choice, or a choice the Burnout makes for you (GDD 5.19). An event with
+## no choices only happens (its effects are none today).
+static func _present_event(s: SimState, ctx: SimContext, evt_id: String, events: Array) -> void:
+	var evt: Dictionary = ctx.events.get(evt_id, {})
+	if evt.is_empty():
+		return
+	s.event_last[evt_id] = s.day
+	s.bump("events")
+	var choices := EventPlan.available_choices(ctx, s, evt)
+	if choices.is_empty():
+		events.append({"kind": "event", "id": evt_id, "choices": []})
+		return
+	var ids: Array = []
+	for choice: Dictionary in choices:
+		ids.append(choice["id"])
+	var exhausted: String = evt.get("exhausted_choice", "")
+	if not exhausted.is_empty() and s.burnout >= ctx.cfg.auto_resolve_from:
+		if ctx.rng.randf() < WorkOdds.auto_resolve_p(ctx.cfg, s.burnout):
+			s.bump("auto_resolved")
+			var pick := exhausted if ids.has(exhausted) else "none"
+			events.append({"kind": "auto_resolved", "id": evt_id, "choice": pick})
+			if pick != "none":
+				_resolve_choice(s, ctx, evt_id, pick, events)
+			return
+	s.queue.append({"kind": "event", "id": evt_id, "choices": ids, "exhausted": exhausted})
+	events.append({"kind": "event", "id": evt_id, "choices": ids})
+
+
+static func _resolve_choice(s: SimState, ctx: SimContext, evt_id: String, choice_id: String, events: Array) -> void:
+	var evt: Dictionary = ctx.events[evt_id]
+	for choice: Dictionary in evt.get("choices", []):
+		if choice["id"] == choice_id:
+			_apply_effects(s, ctx, choice.get("effects", {}), events)
+	var tip := String((evt.get("ducky", {}) as Dictionary).get("tip", "none"))
+	if tip != "none" and not s.tips_seen.has(tip):
+		s.tips_seen.append(tip)
+		events.append({"kind": "tip", "id": tip, "event": evt_id})
+	events.append({"kind": "event_resolved", "id": evt_id, "choice": choice_id})
+	_log(s, ctx, "event", {"id": evt_id, "choice": choice_id})
+
+
+## An event's effects, in one fixed order. Numbers come from the JSON; named actions are the few rules that are
+## more than a number.
+static func _apply_effects(s: SimState, ctx: SimContext, eff: Dictionary, events: Array) -> void:
+	var cfg := ctx.cfg
+	if eff.has("mo"):
+		_add_mo(s, cfg, float(eff["mo"]))
+	if eff.has("burnout"):
+		_add_burnout(s, cfg, float(eff["burnout"]))
+	if eff.has("codebase"):
+		s.codebase = clampf(s.codebase + float(eff["codebase"]), 0.0, cfg.stat_max)
+	if eff.has("skill"):
+		s.skill = clampf(s.skill + float(eff["skill"]), 0.0, cfg.stat_max)
+	if eff.has("rust"):
+		s.rust = clampf(s.rust + float(eff["rust"]), 0.0, cfg.stat_max)
+	if eff.has("savings"):
+		s.savings += float(eff["savings"])
+	if eff.has("living_mult"):
+		s.living_mult = float(eff["living_mult"])
+	if eff.has("commute_burnout"):
+		s.commute_burnout = float(eff["commute_burnout"])
+	if eff.has("speed_mod"):
+		var sm: Dictionary = eff["speed_mod"]
+		s.speed_mod = float(sm["mult"])
+		s.speed_mod_until = s.day + int(sm["days"])
+	if eff.has("hours_lock"):
+		var hl: Dictionary = eff["hours_lock"]
+		s.hours = int(hl["notch"])
+		s.hours_lock_until = s.day + int(hl["days"])
+	if eff.has("flags"):
+		for flag: String in eff["flags"]:
+			if not s.job_flags.has(flag):
+				s.job_flags.append(flag)
+	if eff.has("work_mode"):
+		s.job_remote = String(eff["work_mode"]) == "remote"
+	if eff.has("action"):
+		_action(s, ctx, String(eff["action"]), events)
+
+
+static func _action(s: SimState, ctx: SimContext, action: String, events: Array) -> void:
+	var cfg := ctx.cfg
+	match action:
+		"lease_accept":
+			s.rent *= 1.0 + cfg.lease_raise
+			s.lease_day = s.day
+		"lease_move_down":
+			if s.home > 0:
+				_move_home(s, ctx, s.home - 1, events)
+		"home_upgrade":
+			if s.home < cfg.home_rent_k.size() - 1:
+				_move_home(s, ctx, s.home + 1, events)
+		"board_early":
+			_refresh_board(s, ctx)
+		"ask_priya":
+			var best := 0.0
+			for cw: Dictionary in s.coworkers:
+				best = maxf(best, float(cw["rapport"]))
+			if best >= cfg.reference_rapport:
+				for ch: Dictionary in s.chains:
+					if ch["event"] == EVT_RESIZING:
+						s.layoff_known_day = int(ch["fire_day"])
+		"quit_job":
+			_end_job(s, ctx, "quit", events, 0.0)
+		"recruiter_call":
+			_recruiter_application(s, ctx, events)
+
+
+static func _move_home(s: SimState, ctx: SimContext, tier: int, events: Array) -> void:
+	var cfg := ctx.cfg
+	var new_rent := cfg.home_rent_k[tier]
+	s.savings -= new_rent * cfg.move_cost_months
+	s.home = tier
+	s.rent = new_rent
+	s.lease_day = s.day
+	s.bump("moves")
+	events.append({"kind": "moved", "home": tier})
+
+
+# ---------- the chains: telegraphed events (GDD 5.19) ----------
+
+static func _run_chains(s: SimState, ctx: SimContext, events: Array) -> void:
+	var i := 0
+	while i < s.chains.size():
+		var ch: Dictionary = s.chains[i]
+		for st: Dictionary in ch["stages"]:
+			if int(st["day"]) == s.day:
+				events.append({"kind": "rumor", "event": ch["event"], "text": st["text"]})
+				if bool(st.get("prep", false)):
+					_present_event(s, ctx, String(ch["event"]), events)
+		if s.day == int(ch["fire_day"]):
+			s.chains.remove_at(i)
+			_chain_fires(s, ctx, ch, events)
+			continue
+		i += 1
+
+
+static func _chain_fires(s: SimState, ctx: SimContext, ch: Dictionary, events: Array) -> void:
+	var evt: Dictionary = ctx.events[ch["event"]]
+	if String((evt.get("trigger", {}) as Dictionary).get("kind", "")) == "resizing":
+		_resize(s, ctx, ch, events)
+	else:
+		_present_event(s, ctx, String(ch["event"]), events)
+
+
+## A resizing (E07): run 1's cuts you for certain; later ones cut a share of the floor, picked by salary and luck
+## and never by Manager Opinion (R-EVT-03, O1).
+static func _resize(s: SimState, ctx: SimContext, ch: Dictionary, events: Array) -> void:
+	var cfg := ctx.cfg
+	var arch := ctx.archetype(s.job_archetype)
+	s.living_mult = 1.0
+	s.layoff_known_day = -1
+	var cut_you := bool(ch.get("scripted", false))
+	if not cut_you:
+		var salaries: Array = [s.job_salary]
+		for cw: Dictionary in s.coworkers:
+			salaries.append(float(cw["salary"]))
+		var cuts := WorkOdds.layoff_cut_count(cfg, arch, salaries.size())
+		var picked := WorkOdds.layoff_cuts(cfg, salaries, cuts, ctx.rng)
+		cut_you = picked.has(0)
+		if not cut_you:
+			var gone: Array[int] = []
+			for idx: int in picked:
+				gone.append(idx - 1)
+			gone.sort()
+			gone.reverse()
+			for g: int in gone:
+				s.past_coworkers.append({"id": s.coworkers[g]["id"], "rapport": s.coworkers[g]["rapport"]})
+				s.coworkers.remove_at(g)
+			s.bump("resizings_survived")
+			events.append({"kind": "resizing_survived", "cuts": cuts})
+			_schedule_resizing(s, ctx, arch, false)
+			return
+	var first_job := s.run_number == 1 and s.jobs_held == 1
+	var months := WorkOdds.severance_months(cfg, arch, s.day - s.job_start, first_job, ctx.rng)
+	s.bump("layoffs")
+	_end_job(s, ctx, "layoff", events, months)
+	if not s.ended:
+		s.queue.append({"kind": "layoff_scene", "severance_months": months})
+
+
+## Plan the next resizing chain of this job: run 1's authored five signs and the fixed day, or a rumor 10-30 days
+## ahead of a day rolled around the archetype's interval (shortened by the floor's event frequency).
+static func _schedule_resizing(s: SimState, ctx: SimContext, arch: ArchetypeData, scripted: bool) -> void:
+	var cfg := ctx.cfg
+	var evt: Dictionary = ctx.events.get(EVT_RESIZING, {})
+	if evt.is_empty():
+		return
+	var tel: Dictionary = evt.get("telegraph", {})
+	if scripted:
+		var stages: Array = []
+		var signs: Array = tel.get("run1_signs", [])
+		for i: int in signs.size():
+			stages.append({"day": int(signs[i]["day"]), "text": signs[i]["text"], "prep": i + 1 == int(tel.get("prep_after_sign", 0))})
+		s.chains.append({"event": EVT_RESIZING, "fire_day": int(tel["run1_fire_day"]), "stages": stages, "scripted": true})
+		return
+	if arch.layoff_interval_days <= 0:
+		return
+	var interval := arch.layoff_interval_days / WorkOdds.floor_mult(cfg.floor_event_step, s.floor_n())
+	var fire := s.day + maxi(cfg.rumor_lead_days_max + 1, roundi(interval) + ctx.rng.randi_range(-arch.layoff_jitter_days, arch.layoff_jitter_days))
+	var lead := ctx.rng.randi_range(cfg.rumor_lead_days_min, cfg.rumor_lead_days_max)
+	s.chains.append({"event": EVT_RESIZING, "fire_day": fire, "scripted": false,
+		"stages": [{"day": fire - lead, "text": tel.get("rumor", ""), "prep": true}]})
+
+
+# ---------- rolls ----------
+
+static func _rolls(s: SimState, ctx: SimContext, on_leave: bool, events: Array) -> void:
+	if not s.employed or on_leave:
+		_roll_random(s, ctx, events)
+		return
+	var cfg := ctx.cfg
+	var inc: Dictionary = ctx.events.get(EVT_INCIDENT, {})
+	if not inc.is_empty():
+		var cooldown := int((inc["trigger"] as Dictionary).get("cooldown_days", 0))
+		if s.day - s.last_incident_day >= cooldown:
+			var p := WorkOdds.incident_p(cfg, s.codebase, s.floor_n(), EventPlan.threat_mult(ctx, s, inc))
+			if ctx.rng.randf() < p:
+				s.last_incident_day = s.day
+				s.bump("incidents")
+				_present_event(s, ctx, EVT_INCIDENT, events)
+	_roll_random(s, ctx, events)
+	for e: Dictionary in ctx.chain_events:
+		var id: String = e["id"]
+		if _has_chain(s, id) or s.day - int(s.event_last.get(id, -9999)) < int(e["cooldown"]):
+			continue
+		var evt: Dictionary = ctx.events[id]
+		if not EventPlan.eligible(ctx, s, evt):
+			continue
+		var p2 := WorkOdds.random_event_p(cfg, float(e["per_year"]), s.floor_n(), EventPlan.threat_mult(ctx, s, evt))
+		if ctx.rng.randf() < p2:
+			s.event_last[id] = s.day
+			var lead := ctx.rng.randi_range(cfg.rumor_lead_days_min, cfg.rumor_lead_days_max)
+			var tel: Dictionary = evt.get("telegraph", {})
+			s.chains.append({"event": id, "fire_day": s.day + lead, "scripted": false,
+				"stages": [{"day": s.day + 1, "text": tel.get("rumor", ""), "prep": false}]})
+
+
+static func _roll_random(s: SimState, ctx: SimContext, events: Array) -> void:
+	var cfg := ctx.cfg
+	for e: Dictionary in ctx.random_events:
+		var id: String = e["id"]
+		if s.day - int(s.event_last.get(id, -9999)) < int(e["cooldown"]):
+			continue
+		var evt: Dictionary = ctx.events[id]
+		if not EventPlan.eligible(ctx, s, evt):
+			continue
+		var p := WorkOdds.random_event_p(cfg, float(e["per_year"]), s.floor_n(), EventPlan.threat_mult(ctx, s, evt))
+		if ctx.rng.randf() < p:
+			_present_event(s, ctx, id, events)
+
+
+static func _has_chain(s: SimState, evt_id: String) -> bool:
+	for ch: Dictionary in s.chains:
+		if ch["event"] == evt_id:
+			return true
+	return false
+
+
+# ---------- the review (GDD 5.16) ----------
+
+static func _queue_review(s: SimState, ctx: SimContext, arch: ArchetypeData, events: Array) -> void:
+	var cfg := ctx.cfg
+	s.next_review = s.day + arch.review_cadence_days
+	var evidence := WorkOdds.evidence(cfg, s.mo, s.on_time_since_review, s.h_brag)
+	s.queue.append({"kind": "review", "evidence": evidence, "calibration": arch.calibration_hp})
+	s.event_last[EVT_REVIEW] = s.day
+	s.bump("reviews")
+	events.append({"kind": "review", "evidence": evidence, "calibration": arch.calibration_hp})
+
+
+static func _resolve_review(s: SimState, ctx: SimContext, item: Dictionary, evidence_left: float, events: Array) -> void:
+	if not s.employed:
+		return
+	var cfg := ctx.cfg
+	var arch := ctx.archetype(s.job_archetype)
+	var evidence: float = item["evidence"]
+	var rating := WorkOdds.rating(cfg, evidence, clampf(evidence_left, 0.0, evidence))
+	s.below_streak = s.below_streak + 1 if rating == WorkOdds.BELOW else 0
+	s.rating_streak = s.rating_streak + 1 if rating >= arch.promotion_min_rating else 0
+	var raise := WorkOdds.raise_for(cfg, rating)
+	s.job_salary *= 1.0 + raise
+	var promoted := WorkOdds.promotes(arch, rating, s.rating_streak, s.level)
+	if promoted:
+		s.level += 1
+		s.job_salary = maxf(s.job_salary, WorkOdds.offer_salary(cfg, arch, s.level, s.floor_n(), 0))
+		s.rating_streak = 0
+		s.bump("promotions")
+	s.on_time_since_review = 0
+	s.push_back_used = false
+	if s.below_streak >= 2 and s.pip_end < 0:
+		s.pip_end = s.day + cfg.pip_days
+		events.append({"kind": "pip_started", "ends": s.pip_end})
+	s.bump("rating_%s" % WorkOdds.RATINGS[rating])
+	events.append({"kind": "review_result", "rating": rating, "raise": raise, "promoted": promoted})
+	_log(s, ctx, "review", {"rating": rating, "promoted": promoted})
+	var tip := String(((ctx.events[EVT_REVIEW] as Dictionary).get("ducky", {}) as Dictionary).get("tip", "none"))
+	if tip != "none" and not s.tips_seen.has(tip):
+		s.tips_seen.append(tip)
+		events.append({"kind": "tip", "id": tip, "event": EVT_REVIEW})
+	if (raise > 0.0 or promoted) and s.home < cfg.home_rent_k.size() - 1:
+		_present_event(s, ctx, EVT_LIFESTYLE, events)
+
+
+# ---------- the job hunt (GDD 5.20) ----------
+
+static func _hunt(s: SimState, ctx: SimContext, events: Array) -> void:
+	var cfg := ctx.cfg
+	if s.day - s.board_day >= cfg.board_refresh_days:
+		_refresh_board(s, ctx)
+	var i := 0
+	while i < s.applications.size():
+		var app: Dictionary = s.applications[i]
+		var status: String = app["status"]
+		if status == "wait" and s.day >= int(app["reply"]):
+			if bool(app["callback"]):
+				app["status"] = "callback"
+				events.append({"kind": "callback", "company": app["posting"]["company"], "interview": app["interview"]})
+			else:
+				s.applications.remove_at(i)
+				events.append({"kind": "rejected", "company": app["posting"]["company"]})
+				continue
+		elif status == "callback" and s.day >= int(app["interview"]):
+			_start_duel(s, ctx, app, events)
+		elif status == "between" and s.day >= int(app["next_duel"]):
+			_start_duel(s, ctx, app, events)
+		i += 1
+
+
+static func _start_duel(s: SimState, ctx: SimContext, app: Dictionary, events: Array) -> void:
+	var cfg := ctx.cfg
+	var posting: Dictionary = app["posting"]
+	var arch := ctx.archetype(String(posting["archetype"]))
+	var tier: TierData = ctx.tiers.get(String(arch.duel_tier)) as TierData
+	var request := {
+		"composure": WorkOdds.duel_composure(cfg, ctx.bg.composure_max, s.burnout),
+		"meter_mult": WorkOdds.duel_zone_mult(cfg, s.skill, s.rust),
+		"doubt_hp": WorkOdds.duel_doubt(cfg, tier.doubt_hp, int(posting["floor"])),
+		"floor": int(posting["floor"]), "archetype": String(arch.id), "tier": String(arch.duel_tier),
+		"unlocked_options": [], "rounds": cfg.review_prompts + 2,
+	}
+	app["status"] = "duel"
+	s.queue.append({"kind": "duel", "app": int(posting["id"]), "index": int(app["duels_done"]), "of": arch.duels_per_offer, "request": request})
+	s.bump("interviews")
+	events.append({"kind": "interview", "company": posting["company"]})
+
+
+static func _resolve_duel(s: SimState, ctx: SimContext, item: Dictionary, passed: bool, events: Array) -> void:
+	var cfg := ctx.cfg
+	s.rust = 0.0
+	var app := _find_app(s, int(item["app"]))
+	if app.is_empty():
+		return
+	if not passed:
+		_drop_application(s, int(item["app"]))
+		s.bump("interviews_failed")
+		events.append({"kind": "interview_failed", "company": app["posting"]["company"]})
+		return
+	var done := int(app["duels_done"]) + 1
+	app["duels_done"] = done
+	if done >= int(item["of"]):
+		app["status"] = "offer"
+		s.queue.append({"kind": "offer", "app": int(item["app"]), "posting": app["posting"]})
+		s.bump("offers")
+		events.append({"kind": "offer", "company": app["posting"]["company"]})
+	else:
+		app["status"] = "between"
+		app["next_duel"] = s.day + ctx.rng.randi_range(cfg.interview_days_min, cfg.interview_days_max)
+
+
+static func _find_app(s: SimState, app_id: int) -> Dictionary:
+	for app: Dictionary in s.applications:
+		if int(app["posting"]["id"]) == app_id:
+			return app
+	return {}
+
+
+static func _drop_application(s: SimState, app_id: int) -> void:
+	for i: int in s.applications.size():
+		if int(s.applications[i]["posting"]["id"]) == app_id:
+			s.applications.remove_at(i)
+			return
+
+
+## E18: a recruiter's posting skips the board and the callback and goes straight to an interview 3-7 days out.
+static func _recruiter_application(s: SimState, ctx: SimContext, events: Array) -> void:
+	var cfg := ctx.cfg
+	if s.employed and s.jobs_held >= cfg.max_jobs:
+		return
+	var posting := _gen_posting(s, ctx)
+	var interview := s.day + ctx.rng.randi_range(cfg.interview_days_min, cfg.interview_days_max)
+	s.applications.append({"posting": posting, "applied": s.day, "reply": s.day, "callback": true, "interview": interview,
+		"status": "callback", "duels_done": 0, "next_duel": -1})
+	events.append({"kind": "recruiter_posting", "company": posting["company"], "interview": interview})
+
+
+static func _references(s: SimState, cfg: WorkConfig) -> int:
+	var n := 0
+	for cw: Dictionary in s.coworkers:
+		if float(cw["rapport"]) >= cfg.reference_rapport:
+			n += 1
+	for cw: Dictionary in s.past_coworkers:
+		if float(cw["rapport"]) >= cfg.reference_rapport:
+			n += 1
+	return n
+
+
+# ---------- the board ----------
+
+static func _refresh_board(s: SimState, ctx: SimContext) -> void:
+	var cfg := ctx.cfg
+	s.board.clear()
+	for i: int in cfg.board_size + (cfg.edge_take_call_postings if s.h_take_call else 0):
+		s.board.append(_gen_posting(s, ctx))
+	s.board_day = s.day
+
+
+## One posting, with its rolls in a fixed order: archetype, level, remote, the three clauses, the company.
+static func _gen_posting(s: SimState, ctx: SimContext) -> Dictionary:
+	var cfg := ctx.cfg
+	var total := 0.0
+	for id: String in ctx.arch_ids:
+		total += ctx.archetype(id).board_weight
+	var r := ctx.rng.randf() * total
+	var arch: ArchetypeData = ctx.archetype(ctx.arch_ids[ctx.arch_ids.size() - 1])
+	for id: String in ctx.arch_ids:
+		r -= ctx.archetype(id).board_weight
+		if r < 0.0:
+			arch = ctx.archetype(id)
+			break
+	var lr := ctx.rng.randf()
+	var level := s.level
+	if lr < cfg.posting_level_weights[0]:
+		level = maxi(0, s.level - 1)
+	elif lr >= 1.0 - cfg.posting_level_weights[2]:
+		level = mini(WorkOdds.SENIOR, s.level + 1)
+	var floor_n := mini(s.jobs_held + 1, cfg.max_jobs)
+	var remote := ctx.rng.randf() < arch.remote_share
+	var clauses: Array = []
+	var in_writing := ctx.rng.randf() < cfg.clause_remote_in_writing_p
+	var on_call := ctx.rng.randf() < cfg.clause_on_call_p
+	var pto := ctx.rng.randf() < cfg.clause_unlimited_pto_p
+	if remote and in_writing:
+		clauses.append("remote_in_writing")
+	if on_call:
+		clauses.append("on_call")
+	if pto:
+		clauses.append("unlimited_pto")
+	var company := ""
+	var pool: PackedStringArray = arch.company_ids
+	if not pool.is_empty():
+		var start := ctx.rng.randi_range(0, pool.size() - 1)
+		company = pool[start]
+		for k: int in pool.size():
+			var candidate := pool[(start + k) % pool.size()]
+			if not s.blacklist.has(candidate):
+				company = candidate
+				break
+	var id_n := s.next_posting_id
+	s.next_posting_id += 1
+	return {"id": id_n, "company": company, "archetype": String(arch.id), "level": level, "floor": floor_n,
+		"salary": WorkOdds.offer_salary(cfg, arch, level, floor_n, s.scar_resume_gap), "remote": remote,
+		"clauses": clauses, "posted": s.day}
+
+
+# ---------- jobs (GDD 3.3) ----------
+
+static func _start_job(s: SimState, ctx: SimContext, posting: Dictionary, events: Array, scripted: bool) -> void:
+	var cfg := ctx.cfg
+	var arch := ctx.archetype(String(posting["archetype"]))
+	s.jobs_held += 1
+	s.employed = true
+	s.unemployed_since = -1
+	s.studies_this_spell = 0
+	s.gap_scar_given = false
+	s.job_company = String(posting["company"])
+	s.job_archetype = String(arch.id)
+	s.job_salary = float(posting["salary"])
+	s.job_start = s.day
+	s.job_remote = bool(posting["remote"])
+	s.job_clauses = (posting.get("clauses", []) as Array).duplicate()
+	s.job_flags = []
+	s.commute_burnout = 0.0
+	s.living_mult = 1.0
+	s.leave_end = -1
+	s.layoff_known_day = -1
+	if int(posting["level"]) > s.level:
+		s.level = int(posting["level"])
+		events.append({"kind": "promoted_on_hire", "level": s.level})
+	s.mo = 0.0
+	if s.scar_bad_reference > 0:
+		if _references(s, cfg) > 0:
+			events.append({"kind": "reference_cleared"})
+		else:
+			s.mo = cfg.bad_reference_mo * s.scar_bad_reference
+		s.scar_bad_reference = 0
+	s.codebase = clampf(arch.codebase_start + cfg.corner_cutter_codebase * s.scar_corner_cutter, 0.0, cfg.stat_max)
+	s.quality = WorkOdds.QUALITY_BALANCED
+	s.next_review = s.day + arch.review_cadence_days
+	s.on_time_since_review = 0
+	s.below_streak = 0
+	s.rating_streak = 0
+	s.pip_end = -1
+	s.push_back_used = false
+	s.speed_mod_until = -1
+	s.hours_lock_until = -1
+	s.applications.clear()
+	s.coworkers = _make_coworkers(s, ctx, arch, scripted)
+	s.chains = []
+	_schedule_resizing(s, ctx, arch, scripted and s.run_number == 1)
+	_new_ticket(s, ctx)
+	_refresh_board(s, ctx)
+	s.bump("jobs")
+	events.append({"kind": "job_started", "company": s.job_company, "archetype": s.job_archetype, "floor": s.jobs_held, "level": s.level})
+	_log(s, ctx, "job", {"company": s.job_company, "floor": s.jobs_held})
+
+
+## The people you work with: run 1's authored four, or floor_size - 1 generated ones with a level and a salary.
+static func _make_coworkers(s: SimState, ctx: SimContext, arch: ArchetypeData, scripted: bool) -> Array:
+	var cfg := ctx.cfg
+	var out: Array = []
+	if scripted and s.run_number == 1:
+		var ids: Array = ctx.coworker_defs.keys()
+		ids.sort()
+		for id: String in ids:
+			var def: Dictionary = ctx.coworker_defs[id]
+			var lvl := WorkOdds.LEVELS.find(String(def["level"]))
+			out.append({"id": id, "name": def["name"], "level": lvl, "salary": WorkOdds.offer_salary(cfg, arch, lvl, s.floor_n(), 0),
+				"rapport": cfg.coworker_rapport_start})
+		return out
+	for i: int in maxi(0, arch.floor_size - 1):
+		var r := ctx.rng.randf()
+		var lvl := cfg.coworker_level_weights.size() - 1
+		var acc := 0.0
+		for k: int in cfg.coworker_level_weights.size():
+			acc += cfg.coworker_level_weights[k]
+			if r < acc:
+				lvl = k
+				break
+		var noise := 1.0 + cfg.coworker_salary_noise * (ctx.rng.randf() * 2.0 - 1.0)
+		out.append({"id": "cw_gen_%d" % i, "level": lvl,
+			"salary": WorkOdds.offer_salary(cfg, arch, lvl, s.floor_n(), 0) * noise, "rapport": cfg.coworker_rapport_start})
+	return out
+
+
+## The job ends: reason is "layoff", "fired" or "quit". Accrued pay and severance are paid out, the Scars are
+## handed out, a title-inflating archetype takes a level, and losing job max_jobs ends the run (D-16).
+static func _end_job(s: SimState, ctx: SimContext, reason: String, events: Array, severance_months: float) -> void:
+	if not s.employed:
+		return
+	var cfg := ctx.cfg
+	var arch := ctx.archetype(s.job_archetype)
+	var tenure := s.day - s.job_start
+	s.savings += s.pay_accrued + severance_months * s.job_salary
+	s.pay_accrued = 0.0
+	if reason != "layoff" and tenure < cfg.short_tenure_days:
+		s.scar_short_tenure = mini(s.scar_short_tenure + 1, cfg.scar_max_stacks)
+	if reason == "fired" or (reason == "quit" and s.mo < cfg.bad_reference_quit_mo):
+		s.scar_bad_reference = mini(s.scar_bad_reference + 1, cfg.scar_max_stacks)
+	if s.level >= WorkOdds.SENIOR and s.codebase >= cfg.corner_cutter_leave_codebase:
+		s.scar_corner_cutter = mini(s.scar_corner_cutter + 1, cfg.scar_max_stacks)
+	for cw: Dictionary in s.coworkers:
+		if float(cw["rapport"]) >= cfg.reference_rapport:
+			s.past_coworkers.append({"id": cw["id"], "rapport": cw["rapport"]})
+	s.level = maxi(0, s.level - arch.leave_level_drop)
+	s.employed = false
+	s.unemployed_since = s.day
+	s.studies_this_spell = 0
+	s.gap_scar_given = false
+	s.job_company = ""
+	s.job_archetype = ""
+	s.job_salary = 0.0
+	s.job_clauses = []
+	s.job_flags = []
+	s.commute_burnout = 0.0
+	s.coworkers = []
+	s.chains = []
+	s.pip_end = -1
+	s.leave_end = -1
+	s.living_mult = 1.0
+	s.ticket_progress = 0.0
+	s.speed_mod_until = -1
+	s.hours_lock_until = -1
+	_drop_job_cards(s)
+	s.bump("exit_%s" % reason)
+	events.append({"kind": "job_ended", "reason": reason, "tenure": tenure, "severance_months": severance_months})
+	_log(s, ctx, "exit", {"reason": reason, "tenure": tenure})
+	if s.jobs_held >= cfg.max_jobs:
+		_end_run(s, ctx, "career_change", events)
+
+
+## A review or a ticket pick belongs to the job that just ended: its card goes with it.
+static func _drop_job_cards(s: SimState) -> void:
+	var i := 0
+	while i < s.queue.size():
+		var kind := String((s.queue[i] as Dictionary).get("kind", ""))
+		if kind == "review" or kind == "ticket_pick":
+			s.queue.remove_at(i)
+		else:
+			i += 1
+
+
+static func _end_run(s: SimState, ctx: SimContext, ending: String, events: Array) -> void:
+	if s.ended:
+		return
+	s.ended = true
+	s.ending = ending
+	s.queue.clear()
+	events.append({"kind": "ending", "ending": ending})
+	_log(s, ctx, "ending", {"ending": ending})
+
+
+# ---------- the checks ----------
+
+static func _checks(s: SimState, ctx: SimContext, on_leave: bool, events: Array) -> void:
+	var cfg := ctx.cfg
+	var day := s.day
+	if s.employed:
+		if s.burnout >= cfg.burnout_max and not on_leave:
+			_forced_leave(s, ctx, events)
+		if s.pip_end >= 0 and day >= s.pip_end:
+			s.pip_end = -1
+			s.below_streak = 0
+			if s.mo < cfg.pip_mo_min:
+				_end_job(s, ctx, "fired", events, 0.0)
+			else:
+				events.append({"kind": "pip_cleared"})
+		if s.employed and s.scar_short_tenure > 0 and day - s.job_start >= cfg.short_tenure_clear_days:
+			s.scar_short_tenure = 0
+		if s.employed and s.scar_corner_cutter > 0 and s.codebase < cfg.corner_cutter_clear_codebase:
+			s.scar_corner_cutter = 0
+	elif s.unemployed_since >= 0 and not s.gap_scar_given and day - s.unemployed_since > cfg.resume_gap_days:
+		s.gap_scar_given = true
+		if s.studies_this_spell < cfg.studies_prevent_gap:
+			s.scar_resume_gap = mini(s.scar_resume_gap + 1, cfg.scar_max_stacks)
+			events.append({"kind": "scar", "id": "resume_gap"})
+	if s.burnout <= cfg.burnout_history_calm:
+		s.calm_days += 1
+		if s.scar_burnout_history > 0 and s.calm_days >= cfg.burnout_history_clear_days:
+			s.scar_burnout_history -= 1
+			s.calm_days = 0
+	else:
+		s.calm_days = 0
+	for i: int in cfg.burnout_warnings.size():
+		var at: float = cfg.burnout_warnings[i]
+		if s.warn_armed[i] and s.burnout >= at:
+			s.warn_armed[i] = false
+			events.append({"kind": "burnout_warning", "level": i})
+		elif not s.warn_armed[i] and s.burnout < at - cfg.burnout_warning_rearm:
+			s.warn_armed[i] = true
+	var hold_ok := s.employed and WorkOdds.studio_count(cfg, s.level, s.job_remote, s.home, s.burnout, s.savings, s.living_cost * s.living_mult) == 5
+	if hold_ok:
+		s.studio_hold += 1
+		if s.studio_hold >= cfg.studio_days:
+			_end_run(s, ctx, "studio", events)
+			return
+	elif s.studio_hold > 0:
+		s.studio_hold = 0
+		events.append({"kind": "studio_broken"})
+	if s.ended:
+		return
+	if s.below_zero_days >= cfg.plan_b_days:
+		_end_run(s, ctx, "plan_b", events)
+	elif day >= cfg.legacy_day:
+		_end_run(s, ctx, "legacy", events)
+
+
+## Burnout hit 100: an interrupt, not an exit (GDD 3.3). The first costs a Burnout History Scar and 30 days at half
+## pay with the job kept; the second ends the run.
+static func _forced_leave(s: SimState, ctx: SimContext, events: Array) -> void:
+	var cfg := ctx.cfg
+	s.forced_leaves += 1
+	s.bump("forced_leaves")
+	if s.forced_leaves >= 2:
+		_end_run(s, ctx, "burnout", events)
+		return
+	s.scar_burnout_history = mini(s.scar_burnout_history + 1, cfg.scar_max_stacks)
+	s.leave_end = s.day + cfg.forced_leave_days
+	s.ticket_deadline += cfg.forced_leave_days
+	s.burnout = maxf(cfg.forced_leave_burnout, _burnout_floor(s, cfg))
+	s.queue.append({"kind": "forced_leave", "days": cfg.forced_leave_days})
+	events.append({"kind": "forced_leave"})
+
+
+# ---------- the run log (RC-26) ----------
+
+static func _log(s: SimState, ctx: SimContext, kind: String, data: Dictionary) -> void:
+	if not ctx.log_enabled:
+		return
+	var entry := {"d": s.day, "k": kind}
+	entry.merge(data)
+	s.log.append(entry)
+```
+
 ---
 
 ## 18. Unverified items and pitfalls
@@ -5168,9 +7027,9 @@ static func pan_path(picture: Vector2, frame: Vector2) -> Array[Vector2]:
 
 ---
 
-## 19. The career run's code plan (Run Spec v1; planned, not built)
+## 19. The career run's code (Run Spec v1; M1 built, M2-M6 planned)
 
-**Nothing in this section exists in the code yet.** It is the plan that M1-M6 build from (ROADMAP 12), written during the Run Spec v1 merge (2026-10-07). It follows every rule of sections 1-18 and every invariant, and says so where it adds a rule. Section 17 stays the code as it is: the merge changed no code. As each milestone builds a part, that part moves into the "as built" sections (3-12) and into section 17, as Steps 1-7 did. The design is GDD 5.14-5.22; class, file and field names here are proposals until M1.
+**M1 (STEP-14, 2026-10-08) built 19.1-19.3 and 19.6, and the sim suites of 19.10; 19.4, 19.5, 19.7 and 19.8 are still plans for M2-M5.** The plan was written during the Run Spec v1 merge (2026-10-07); where the build differs, the text below says what was built. It follows every rule of sections 1-18 and every invariant. The built classes are in section 17 (17.5 for the two Resource classes, 17.18 for the sim core). The design is GDD 5.14-5.22.
 
 ### 19.1 The shape (Run Spec v1 section 13)
 
@@ -5185,28 +7044,32 @@ static func pan_path(picture: Vector2, frame: Vector2) -> Array[Vector2]:
 - *Why this shape:* tuning to a 5-10% win rate needs thousands of runs, so the sim must run without the game's scenes; save, resume and "no time while closed" all reduce to serializing one state object. It is section 3's split one level up: the sim is the model, `GameState` the controller, the scenes the view.
 - **"No engine calls"** in GDScript means no Node, SceneTree, autoload, `Time`, `OS` or file access inside the sim. Engine value types and `RandomNumberGenerator` are fine: they are deterministic and run headless (A-02), and section 7.2's RNG rules hold.
 
-### 19.2 The sim core (M1)
+### 19.2 The sim core (M1, built)
 
-Planned classes, all `@tool`, `class_name` and `RefCounted`, pure like section 3's (INV-03), in `core/` next to them:
+Classes, all `@tool`, `class_name` and `RefCounted`, pure like section 3's (INV-03), in `core/` next to them (code in 17.18):
 
 | Class | File | Holds |
 |---|---|---|
-| `SimState` | `core/sim_state.gd` | the whole career as plain data (INV-07): the day, savings, level, the job (company, archetype, floor, salary, tenure, work mode, coworkers and their Rapport), the Hours notch, Burnout, MO, Skill, Rust, the Codebase, the ticket (size, progress, deadline), the home tier and its lease, Scars, the scheduled and telegraphed events, postings and applications, the Studio hold, flags, the RNG seed and state (strings, INV-05) and the run log; `to_dict` / `from_dict` like `RunState` (7.1) |
-| `Sim` | `core/sim.gd` | `static func step(state: SimState, inputs: Array, cfg: WorkConfig, archetypes: Dictionary, events: Dictionary, rng: RandomNumberGenerator) -> Array`: it changes `state` and returns the day's sim events (what happened, for the UI and the run log). The other rules (a choice, an application, a move, an offer) are static functions too |
-| `WorkOdds` | `core/work_odds.gd` | the formulas of GDD 5.15-5.21 as static functions, like `Odds`: ticket progress, Burnout per day, the incident odds, the callback odds, the offer salary, the review's Evidence and rating, layoff selection, the auto-resolve chance, the floor multipliers |
-| `EventPlan` | `core/event_plan.gd` | which events are eligible today (tier, archetype, level, trigger, cooldown, floor depth, the final-threat weight), the calendar strip's next 60 days, the telegraph chains |
+| `SimState` | `core/sim_state.gd` | the whole career as plain data (INV-07): the day, savings and the pay accrued, level, the job (company, archetype, salary, start, work mode, clauses, flags, coworkers and their Rapport), the Hours notch, Burnout, MO, Skill, Rust, the Codebase, the ticket, the home tier and its lease, the review and the PIP, Scars, the event queue and the telegraphed chains, the board, applications and offers, the Studio hold, the Handbook, the RNG seed and state, the stats counters and the run log. `to_dict` / `from_dict` walk the script variables, so a new field is saved without touching them. **`to_save` / `from_save` are the save of record** (A75): every float becomes its raw 64 bits in hex, because Godot's JSON parser does not read every double back exactly and one stray unit in the last place flips a threshold days of game time later |
+| `Sim` | `core/sim.gd` | `step(state, inputs, ctx) -> Array`: apply the inputs, then advance one day unless the queue holds a card; returns the sim events (dictionaries with a `kind`, for the UI, the harness and the log). Also `new_run`, `replay` and every rule (a choice, a review, a duel's result, an offer, a move) as static functions |
+| `SimContext` | `core/sim_context.gd` | everything the sim reads and never changes (INV-08): the `WorkConfig`, the archetypes, the event and coworker JSON, the background and tiers the duel request borrows, and the run's RNG; `load_default()` builds one from `res://` for the tests and the harness |
+| `WorkOdds` | `core/work_odds.gd` | the formulas of GDD 5.15-5.21 as static functions, like `Odds`: the salary table, the daily ticket, Burnout and MO changes, the incident odds, the callback odds, the review's Evidence, rating and stand-in, layoff selection, the auto-resolve chance, the floor multipliers, the duel's inputs, the Studio count |
+| `EventPlan` | `core/event_plan.gd` | whether an event can happen (archetype, level and its `requires`), the choices on offer, the final-threat weight and the calendar strip's next 60 days |
 
-**Inputs**, the only way a player or a bot changes the sim: set the Hours notch; pick an event choice; apply to a posting; study; accept or decline an offer; move home; pick a ticket (Mid); push back (Mid); set the quality bar (Senior). Each is a plain Dictionary `{kind, day, ...}` that also goes into the run log. The speed control and pausing are presentation: they decide how often `step` runs, never what it does.
+**Inputs**, the only way a player or a bot changes the sim: `set_hours {notch}`, `choose {choice}`, `review_result {evidence_left}`, `ticket_pick {pick}`, `duel_result {passed, composure_left}`, `answer_offer {accept}`, `apply {posting}`, `study`, `move_home {tier}`, `push_back`, `set_quality {bar}` and `ack`. A plain Dictionary `{kind, ...}`; an accepted one goes into the run log with the day it was sent on, a refused one becomes an `input_rejected` event and a `rejected` stat. The speed control and pausing are presentation: they decide how often `step` runs, never what it does.
 
-**One tick** (GDD 5.14), in a proposed order that M1 fixes and the harness checks:
-1. The calendar: day + 1; due scheduled events (payday, rent, review, the lease, interviews) queue up.
-2. Money on its days: rent and living costs on day 1 of a month, salary on day 25, living-cost growth every 180 days.
-3. The daily formulas: ticket progress (shipping: MO +5 or -5, Skill +2, the next ticket), Burnout (clamped between the Burnout History floor and 100), MO, Rust, the Codebase's drift, the Studio conditions and hold.
-4. The rolls, on the run RNG in a fixed order: the incident roll, the random events, the telegraph chains.
-5. The checks: a forced leave (Burnout 100), Plan B (30 days below zero), a PIP's end, the Legacy System day, the Studio hold at 90.
-6. An event with choices stops the tick: `step` returns it, and the clock waits for the choice. The auto-resolve rolls first, from Burnout 75 (GDD 5.19).
+**The queue** is how the sim asks for an answer: `state.queue` holds `event` (a card: its choices and the exhausted one), `review` (your Evidence and the manager's Calibration), `ticket_pick`, `duel` (the DuelRequest of GDD 5.20: Composure, meter multiplier, Doubt HP, floor, tier), `offer`, `layoff_scene` and `forced_leave` items. While it is not empty `step` applies inputs but does not tick, and the matching input resolves the head. A review or ticket pick leaves the queue when its job ends.
 
-**Determinism:** one run RNG, seeded once per run (7.2) and saved as strings (INV-05); rolls happen only in rule code, in a fixed order; no dictionary order decides anything (sort ids first, as `RunState` does). The same seed and inputs replay the same run (O8): `test_sim_replay` checks it (19.10).
+**One tick** (GDD 5.14), in the order the code runs and the replay test checks:
+1. The calendar and money: day + 1; living costs grow every 180 days; rent and living costs on day 1 of each month; pay accrues daily and is credited on day 25; the days below zero are counted.
+2. The daily formulas: ticket progress (a shipped ticket: MO +5 or -5, Skill +2, the next ticket or a Mid's pick), MO, the Codebase's drift, Burnout (clamped between the Burnout History floor and 100; between jobs the same formula without the work-only terms), Rust.
+3. The job hunt: the board refreshes every 14 days; replies, interviews and a MegaCorp's second duel come due.
+4. The review (E02) and the lease (E04) come due.
+5. The telegraphed chains: rumors, the prep card and the fire day (a resizing or the RTO memo).
+6. The rolls, on the run RNG in a fixed order: the incident, the other random events (sorted by id), the chain starts. An event with choices rolls the Burnout auto-resolve first (GDD 5.19).
+7. The checks: a forced leave, the PIP's end, Scar counters and clears, the Burnout warnings, the Studio hold, Plan B and the Legacy System day.
+
+**Determinism:** one run RNG, seeded once per run (7.2). In memory `SimState` holds the seed and the state as ints; `step` restores `ctx.rng` from them first and stores the state back last, so one context serves many runs and a seed plus the inputs replays a run exactly (O8). Rolls happen only in rule code, in the fixed order above; the archetypes and events are sorted by id before anything rolls; no dictionary order decides anything.
 
 ### 19.3 Data files (M1)
 
@@ -5219,17 +7082,18 @@ Planned classes, all `@tool`, `class_name` and `RefCounted`, pure like section 3
 | `tips.json`, `barks.json`, `endings.json`, `naming.json` (existing) | their shapes in 6.3 | the career run's tips, UI lines, endings and names (CONTENT 16) | - |
 
 - Sections 6.1-6.3 hold: numbers in `.tres`, text in JSON keyed by id, loaded data never modified (INV-08), script defaults equal to the GDD 11.7 defaults, file name = the `id` field.
-- INV-15's counts (7 `.tres`, 16 JSON) grow when M1 adds these files (to 11 and 18 under this plan); the invariant and section 0.6 are updated then.
-- **An event's numbers live with it** (A54), as in Phase 1's `events.json`, and the system constants go to `WorkConfig`. A trigger that is a formula, like E12's incident odds, names a `WorkConfig` formula rather than carrying an expression string: `"trigger": {"kind": "incident", "cooldown_days": 20}`.
+- INV-15's counts grew with M1: 11 `.tres` (7 + `work_config` and the three archetypes) and 18 JSON (16 + `work_events` and `coworkers`), and `Content` loads all 18; the invariant and section 0.6 say so. The three archetype ids are `startup`, `agency` and `megacorp` (MC-05, A68), each with a `duel_tier` naming the Phase 1 tier its duel borrows.
+- **An event's numbers live with it** (A54), as in Phase 1's `events.json`, and the system constants go to `WorkConfig`. A trigger that is a formula, like E12's incident odds, names a `WorkConfig` formula rather than carrying an expression string: `"trigger": {"kind": "incident", "cooldown_days": 5}`. The trigger kinds M1 reads are `monthly`, `review`, `lease`, `after_raise`, `chain` (a telegraphed event that starts from a roll), `resizing`, `random` and `incident`.
 
-The Run Spec's E12 example as JSON (GDD 5.19; its 20-day cooldown is Open, MC-23):
+The Run Spec's E12 example as JSON, as built (GDD 5.19; its 20-day cooldown is 5 days: MC-23, A69):
 
 ```json
 "evt_e12_incident_prod": {
   "tier": "random",
   "archetypes": ["startup", "agency", "megacorp"],
   "levels": ["junior", "mid", "senior"],
-  "trigger": {"kind": "incident", "cooldown_days": 20},
+  "trigger": {"kind": "incident", "cooldown_days": 5},
+  "requires": {"employed": true},
   "telegraph": {},
   "pause": true,
   "focus": "war_room",
@@ -5237,7 +7101,7 @@ The Run Spec's E12 example as JSON (GDD 5.19; its 20-day cooldown is Open, MC-23
   "choices": [
     {"id": "fix_it", "text": "Fix it yourself",
      "effects": {"mo": 10, "burnout": 15, "codebase": -5, "flags": ["owns_service"]}},
-    {"id": "escalate", "text": "Wake whoever is on call", "effects": {"mo": -3, "burnout": 2}}
+    {"id": "escalate", "text": "Wake whoever is on call", "requires": {"not_flag": "owns_service"}, "effects": {"mo": -3, "burnout": 2}}
   ],
   "exhausted_choice": "fix_it",
   "ducky": {
@@ -5245,18 +7109,20 @@ The Run Spec's E12 example as JSON (GDD 5.19; its 20-day cooldown is Open, MC-23
     "cause": "Whoever fixes it once becomes whoever fixes it always.",
     "tip": "tip_escalate"
   },
+  "final_threat": true,
   "diorama": {"flash": "red_screens"}
 }
 ```
 
-- Section 6.3's rules shape it: explicit lists instead of the YAML's `[any]` (the archetype ids wait for MC-05), the texts inline like a question's answers (CONTENT 16.3's ids that extend an event id name a field of its entry), and JSON numbers wrapped in `int()` where they are counts. An empty telegraph is `{}` rather than null (proposed), so no reader needs a null check.
-- `test_data_files` checks the new `.tres` against GDD 11.7, and `test_content_lint` covers the new JSON (19.10).
+- Section 6.3's rules shape it: explicit lists instead of the YAML's `[any]`, the texts inline like a question's answers (CONTENT 16.3's ids that extend an event id name a field of its entry), and JSON numbers wrapped in `int()` where they are counts. An empty telegraph is `{}` rather than null (proposed), so no reader needs a null check.
+- **As built, an event may also carry:** `requires` (on the event or on a choice: `employed`, `remote`, `rto`, `home_min`, `tip`, `clause`, `not_flag`, `deadline_or_incident_days`), `results` (E02's three ratings, with `{n}` for the raise), `final_threat` (the Studio hold's 3x weight), a `text_rent` beside E01's text, and for a telegraphed event a `telegraph` with a `rumor` or, for run 1's resizing, `run1_signs` and `run1_fire_day`. A choice's `effects` use `mo`, `burnout`, `codebase`, `skill`, `rust`, `savings`, `living_mult`, `commute_burnout`, `speed_mod {mult, days}`, `hours_lock {notch, days}`, `flags`, `work_mode` and a named `action` (`lease_accept`, `lease_move_down`, `home_upgrade`, `board_early`, `ask_priya`, `quit_job`, `recruiter_call`). `exhausted_choice` names a choice, or is `"none"` for E07's prep. `ducky.joke` and `cause` exist only for E12 until M6; every event has a `ducky.tip`, a tip id or `"none"` (O7). `coworkers.json` holds `cw_*` entries (name, role, line, level) and `_coworker_pool`.
+- `test_data_files` checks the new `.tres` against GDD 11.7, and `test_content_lint` checks every event's shape, its tips and its text budgets, and the coworkers (19.10).
 
 ### 19.4 Phases, save and meta (M2)
 
 - **New phases are appended** to `GameFlow.Phase` (INV-10, 4.1). Proposed: `WORK` (the work state, at a job or between jobs: one clock, D-04) and `LAYOFF` (the layoff scene). The job interview and the review both use `INTERVIEW` (the request says which, 19.5), and the career run's endings use `GAME_OVER` with an ending id (the Plan B card's layout, GDD S12). `PHASE2_STUB` stays in the enum, unused once MC-08 is answered (RC-04).
 - **Transitions** (proposed; `test_flow` grows with them): TITLE -> INTRO (run 1), BACKGROUND_SELECT (runs 2 and later) or WORK (Continue); INTRO -> WORK (run 1, MC-11) or BACKGROUND_SELECT; BACKGROUND_SELECT -> WORK; WORK -> INTERVIEW, LAYOFF or GAME_OVER; INTERVIEW -> OFFER or WORK; OFFER -> WORK; LAYOFF -> WORK; GAME_OVER -> TITLE or BACKGROUND_SELECT; and the quit-to-title rows of 4.1.
-- **The save** (proposed): the same one slot (`user://save_v1.json`, temp file then rename: section 8) with `{version: 2, phase, sim}`, where `sim` is `SimState.to_dict()`, the run log and the interview checkpoint included. What Continue does with a Phase 1 save waits for MC-01.
+- **The save** (proposed): the same one slot (`user://save_v1.json`, temp file then rename: section 8) with `{version: 2, phase, sim}`, where `sim` is **`SimState.to_save()`** (A75), the run log and the interview checkpoint included. Not `to_dict` through plain JSON numbers: Godot's JSON parser does not read every double back exactly (`123456789.12345679` comes back one step off), and a save that differs in the last digit resumes into a different future. `test_sim_replay` proves a `to_save` round trip is bit for bit and lives the same days. What Continue does with a Phase 1 save waits for MC-01.
 - **When it's written** (RC-35, GDD 5.11): only while the run is live (`WORK`, `INTERVIEW`, `OFFER`, `LAYOFF`: INV-06's list grows with the new phases); after every input (each is a committed action), on every event shown and every event resolved, on entering a live phase, and on `APPLICATION_PAUSED`, `FOCUS_OUT` and `WM_CLOSE_REQUEST`. It is deleted on entering `GAME_OVER`, where the run counts in `run_count`, as today.
 - **No time while closed** (D-13): the clock moves only in the `WORK` scene's `_process`, only while no card, app or modal is open, and the sim never reads the wall clock. Pausing on `APPLICATION_PAUSED` and `FOCUS_OUT` (section 9) stops it.
 - **Meta between runs**, in `settings.cfg`'s `[meta]` (section 8; proposed keys): `run_count` (exists), `handbook` (the collected tip ids), `endings_seen` (the gallery), `studio_wins` (the Self-Taught's unlock) and `last_background`. INV-11 holds: nothing but our JSON save and `settings.cfg` is read from `user://`.
@@ -5272,21 +7138,24 @@ Today `interview.gd` reads its three numbers itself (GDD 13.4): `_composure` fro
 - **OfferRequest -> the paper.** A career offer builder fills the same paper as `run.offer` (7.1) from the posting: company, role, salary (GDD 5.15, shown as MC-10 decides), work mode, the clauses where the fine print goes (the clause list is an M3 spec gap) and the hidden clause, revealed. `GameState.answer_offer(accept)` then yields `{decision, final_salary, clauses}`, with `final_salary` = the offered salary (no negotiation: D-27).
 - The fields are plain-data Dictionaries in snake_case (A55, INV-07). `test_adapter` checks that a request's numbers reach the interview's start values (19.10).
 
-### 19.6 The run log and the harness (M1; GDD 5.22, R-BAL, A56)
+### 19.6 The run log and the harness (M1, built; GDD 5.22, R-BAL, A56)
 
-- **The run log** (RC-26): the seed (a string), then one entry per input and per outcome, `{day, kind, ...}`. Not every tick: a tick is a pure function of the state, so the seed plus the inputs replays it. It is saved with the state (19.4) and feeds exact bug replays, the debug report (MC-15) and the win video's captions (GDD 3.4).
-- **The harness runs outside `test_run`** (A56): a `SceneTree` script, `tests/harness/run_harness.gd`. Living under `tests/` keeps it out of every export, and `test_run` doesn't pick it up, because discovery is `tests/test_*.gd`, non-recursive (12.1). Like the tests, it loads the `.tres` with `load()` and the JSON with `FileAccess` (no autoloads), plays N seeds per bot through `Sim.step`, and prints one line per bot (the win rate, the ending mix, the median run length, the Planner's Mid-in-job-1 share) plus a JSON report.
-- **The command**, on a copy of the repo as the access doc's runner uses (`PROJ` is the copy; `.agent/AGENTS.md` has the runner):
+- **The run log** (RC-26): one entry per accepted input, `{d: day, k: "in", i: input}`, and per outcome (`job`, `exit`, `event`, `review`, `ending`). Not every tick: a tick is a pure function of the state, so the seed plus the inputs replays it. `Sim.replay(ctx, run_number, seed, handbook, log, until_day)` does exactly that, and `ctx.log_enabled = false` turns the log off for speed (the harness). It feeds exact bug replays, the debug report (MC-15) and the win video's captions (GDD 3.4).
+- **The harness runs outside `test_run`** (A56): `tests/harness/run_harness.gd`, a `SceneTree` script with the loop in `HarnessRunner` (shared with the smoke test). Living under `tests/` keeps it out of every export, and `test_run` doesn't pick it up, because discovery is `tests/test_*.gd`, non-recursive (12.1). Like the tests, it loads the `.tres` with `load()` and the JSON with `FileAccess` (no autoloads).
+- **The commands**, from the repo root (`tools/headless/lib.sh` copies the game into `$PROJ`; `GODOT` overrides the binary):
 
 ```bash
-"$GODOT" --headless --path "$PROJ" --script res://tests/harness/run_harness.gd -- bot=planner seeds=10000
+bash tools/headless/run_harness.sh bot=planner seeds=10000          # one bot: a RESULT line, then the JSON report
+bash tools/headless/run_bots.sh seeds=10000 out=.project/evidence/STEP-14/<run>   # all five, in parallel, one copy each
+python tools/headless/sweep.py --seeds 1000 "base=" "a=ticket_deadline_mult:1.3"  # compare configurations without editing a .tres
 ```
 
-- **Bots** are pure classes in `tests/harness/bots/` with `func inputs(state: SimState, rng: RandomNumberGenerator) -> Array`: the Planner, the Coaster, the Grinder, the Lifestyle and the Random bot. Each rolls on its own RNG seeded from the run seed, so a bot's dice never shift the sim's (the trick of `InterviewPlan.meter_rng`, 7.2).
-- **Duels without a thumb:** the harness resolves an interview with the duel's own formulas (`Odds.knowledge_p`, `stat_score`, `answer_q`, the wheel) and a modeled tap error, as GDD 5.12's bot did, and a review with a stand-in model until M3 designs its prompts (GDD 5.16).
-- **The speed target** is 10,000 seeds per bot "in minutes" (M1's exit). A run is about 1,100-1,400 ticks of plain arithmetic, and a few minutes for 10,000 runs leaves about 10-30 ms a run; M1 measures it and records it with the evidence.
+  The harness arguments are `bot`, `seeds`, `first`, `run` (1 starts employed at Pivotly, 2 and later between jobs), `bg`, `handbook` (`none` or `full`), `out`, `set` (overrides: `field:value`, `arch.startup.pay_mult:0.9`, `bg.start_savings_months:1`, `evt.<id>.<path>:value`; the experiment never touches the repo), `trace=N` (one run's state every N days) and `dump=1` (one CSV line per run).
+- **Bots** are classes in `tests/harness/bots/` with `inputs(state, ctx) -> Array`: `BotBase` answers whatever the clock waits on through hooks, `BotCareer` adds the job-hunting competence (the best posting by callback odds x the interview's pass probability x its worth, studying to keep a Resume Gap off, comparing an offer with the job you hold), and the Planner, Coaster, Grinder, Lifestyle and Random bots set the policies (A76). Each rolls on its own RNG seeded from the run seed, so a bot's dice never shift the sim's (the trick of `InterviewPlan.meter_rng`, 7.2).
+- **Duels without a thumb:** `DuelModel` resolves an interview with the duel's own formulas (`Odds.knowledge_p`, `stat_score`, `zone_half`, `input_quality`, `answer_q`, the committee wheel), the real question pools and a modeled tap error of 75 ms, as GDD 5.12's bot did; it can also estimate a posting's pass probability, which the bots use. A review is `WorkOdds.review_standin_left` until M3 designs its prompts (GDD 5.16, A67).
+- **The speed** (M1's exit): the Planner takes about 40 ms a run (about 7 minutes for 10,000 seeds in one process) and the others 3-10 ms, measured in the evidence run (`.project/evidence/STEP-14/`).
 - **Before a tuning commit** (RC-32): the harness for every bot plus the test suites, headless; the report goes to `.project/evidence/STEP-NN/<run>/`.
-- **The smoke test in `test_run`** is `tests/test_sim_smoke.gd`: a few hundred seeds per bot, well under the 20 s a test may take (12.1), asserting no crash, determinism and loose bands.
+- **The smoke test in `test_run`** is `tests/test_sim_smoke.gd`: 60 seeds per bot through `HarnessRunner`, asserting no crash, no refused input, known endings, determinism and the loose bands (the Coaster never wins, the Random bot rarely does).
 
 ### 19.7 The work state's UI (M2)
 
@@ -5312,17 +7181,19 @@ Nothing retires before MC-01 says the career run replaces the Phase 1 flow. Then
 
 D-27's negotiation code did not wait for MC-01: it left in its own commit on 2026-10-08 (ROADMAP 12, Step 14 task 6): `Odds.negotiate_p`, `Odds.negotiated_salary`, BalanceConfig's `nego_*` fields, the offer's `negotiated` flag, `test_offer`'s negotiation test and the unused strings (CONTENT 16.7). Section 17 was re-synced in that commit. Each retired file's block leaves section 17 in the same commit, through the usual sync.
 
-### 19.10 Tests (planned)
+### 19.10 Tests (M1 built: 125 tests in six suites; the adapter's is M3)
 
-| Suite | Covers |
-|---|---|
-| `test_sim_rules.gd` | GDD 5.14-5.17's formulas, a worked example each: ticket progress, Burnout per day, the incident odds, raises, rent and salary days, the lease |
-| `test_sim_review.gd` | Evidence, the rating bands, each archetype's promotion rule, the PIP and firing |
-| `test_sim_events.gd` | eligibility, cooldowns, the auto-resolve chance and its warnings, layoff selection with no MO input (O1), run 1's chain days (R-RUN-02) |
-| `test_sim_endings.gd` | the Studio fires only with all five conditions held 90 days and resets on a break (O6, Q-06); each hard loss's trigger |
-| `test_sim_replay.gd` | the same seed and inputs give the same run; a save round trip mid-run replays identically (O8) |
-| `test_adapter.gd` | a DuelRequest's numbers reach the interview's start values; the 0.06 floor; a Phase 1 checkpoint still works |
-| `test_sim_smoke.gd` | the harness's small version (19.6) |
-| `test_data_files.gd`, `test_content_lint.gd` (grown) | the new `.tres` equal GDD 11.7; in `work_events.json`, every referenced id exists, the text budgets, ASCII, the banned brands, at most 3 choices, a tip or an explicit none for every event (O7), and every exhausted choice names one of its event's choices |
+| Suite | Tests | Covers |
+|---|---|---|
+| `test_sim_rules.gd` | 46 | GDD 5.14-5.17's formulas, a worked example each: ticket progress, Burnout per day, the idle Burnout, the incident odds and O5's formula, the salary table, the floor multipliers, severance, the callback formula, the duel's inputs; and through `Sim.step`: rent on day 1 and pay on day 25 (run 1 below zero for 24 days), a mid-month start paid for the days worked, moves and leases, tickets, a Mid's pick and push back, Hours notches, Study, applying, a MegaCorp's two duels, offers, Scars from leaving, level carry-over, and refused inputs |
+| `test_sim_review.gd` | 14 | Evidence, the rating bands and their boundaries, the stand-in, each archetype's promotion rule, the cadence, the PIP and firing, the lifestyle offer after a raise, a layoff taking the review card with it, the Brag doc edge |
+| `test_sim_events.gd` | 27 | the ten events' tiers and eligibility, their choices and effects, cooldowns, the auto-resolve chance and its warning beats, layoff selection with no MO input (O1), run 1's chain days (R-RUN-02) and its day-180 promotion, a generated chain, the prep choices, floor depth, and O5 (incidents at Codebase 80 against 20 through the sim; the spec's 20-day cooldown fails it) |
+| `test_sim_endings.gd` | 19 | the Studio fires only with all five conditions held 90 days and resets to zero on a break (O6, Q-06); the final threats' weight; each hard loss's trigger; the forced leave; every Scar, its stack cap and its counterplay |
+| `test_sim_replay.gd` | 11 | the same seed and inputs give the same run; a run replays from its log; a `to_save` round trip mid-run is bit for bit and lives the same days (O8); seeds and RNG states are strings (INV-05); the state is plain data (INV-07) |
+| `test_sim_smoke.gd` | 8 | the harness's small version (19.6): 60 seeds per bot, clean and deterministic, the Coaster never wins |
+| `test_data_files.gd`, `test_content_lint.gd` (grown) | 7, 36 | the new `.tres` equal GDD 11.7; in `work_events.json`, the ids, tiers, trigger kinds, the text budgets, ASCII, the banned brands, at most 3 choices, known requirements and effects, a tip or an explicit none for every event (O7), and every exhausted choice names one of its event's choices; the coworkers |
+| `test_adapter.gd` (M3) | - | a DuelRequest's numbers reach the interview's start values; the 0.06 floor; a Phase 1 checkpoint still works |
+
+`tests/sim_fixture.gd` (`SimFixture`) builds the context the sim suites share: the Run Spec's numbers (`WorkConfig.new()` and archetypes built by hand), so tuning the `.tres` never breaks a worked example.
 
 All of them follow 12.1 and INV-12: `@tool`, `extends McpTestSuite`, at least one assertion, no autoloads, no `user://`.

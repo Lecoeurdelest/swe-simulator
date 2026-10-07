@@ -143,7 +143,7 @@ preservation:
     - "Claude never changes a design decision silently; open questions go to the step's design huddle (ROADMAP 10)."
     - "Scope is tagged MUST / SHOULD / LATER; a new idea replaces something and never just adds; new ideas go to docs/ideas_parking_lot.md (ROADMAP 1, risk 1)."
     - "ARCHITECTURE section 17 code skeletons are copied verbatim."
-    - "Tuning lives in the 7 .tres files and text in the 16 JSON files; rebalancing never needs a script edit (ROADMAP 1)."
+    - "Tuning lives in the 11 .tres files and text in the 18 JSON files; rebalancing never needs a script edit (ROADMAP 1)."
     # 2026-09-27 (W3, W6; developer approved in chat): replaces "Every step keeps its You-do task for the developer's own hands;
     # Claude does not do it for them (ROADMAP 4, risk 8)." Still true; the placeholder and no-quiz rules are added.
     # 2026-09-29 (W7; the developer in the Step 7 review: "You do" learning exercises are suspended and Claude
@@ -177,7 +177,7 @@ components:
   - {id: CMP-CORE, title: "Pure rule classes (GameFlow, RunState, SaveIO, Odds, InterviewPlan, HuntTips)", paths: ["core/"], source: "ARCHITECTURE 3, 4, 7, 8, 17.1-17.4, 17.14, 17.16"}
   - {id: CMP-AUTOLOAD, title: "Autoloads (Content, GameState, Device, SceneRouter)", paths: ["autoload/"], source: "ARCHITECTURE 3, 5, 9, 17.6-17.9"}
   - {id: CMP-DATA, title: "Tuning resources (.tres) and their classes", paths: ["data/types/", "data/balance/", "data/backgrounds/", "data/tiers/"], source: "ARCHITECTURE 6.2, 17.5; GDD 11"}
-  - {id: CMP-CONTENT, title: "JSON content (16 files keyed by id)", paths: ["data/content/"], source: "ARCHITECTURE 6.3-6.4; CONTENT"}
+  - {id: CMP-CONTENT, title: "JSON content (18 files keyed by id)", paths: ["data/content/"], source: "ARCHITECTURE 6.3-6.4; CONTENT"}
   - {id: CMP-UI, title: "Theme, fonts, shared components", paths: ["ui/"], source: "ARCHITECTURE 1.4, 1.5, 10, 17.10, 17.15"}
   - {id: CMP-TITLE, title: "Title (S01)", paths: ["features/title/"], source: "ARCHITECTURE 11.1; GDD 4.2"}
   - {id: CMP-INTRO, title: "Intro cutscene (S02)", paths: ["features/intro/"], source: "ARCHITECTURE 11.2, 17.17; CONTENT 2"}
@@ -194,9 +194,9 @@ components:
   # 2026-09-29 (Step 7 review): the ideas parking lot and the developer's review queue added.
   - {id: CMP-DOCS, title: "Decision log, kill-test checklist, ideas parking lot, review queue, credits, devlog", paths: [docs/DECISIONS.md, docs/KILL_TESTS.md, docs/ideas_parking_lot.md, docs/REVIEW_QUEUE.md, CREDITS.md, docs/devlog.md], source: "ROADMAP 1, 5, 9, Step 6; ARCHITECTURE 9; .agent/AGENTS.md"}
   # 2026-10-07: the career run's planned components (ARCHITECTURE 19; none exists yet).
-  - {id: CMP-SIM, title: "The career run's sim core (SimState, Sim, WorkOdds, EventPlan) - pure, deterministic, headless (planned)", paths: [core/sim_state.gd, core/sim.gd, core/work_odds.gd, core/event_plan.gd], source: "ARCHITECTURE 19.1-19.2; GDD 5.14-5.22"}
-  - {id: CMP-WORKDATA, title: "The career run's data - WorkConfig, ArchetypeData, work_events.json, coworkers.json (planned)", paths: [data/types/work_config.gd, data/types/archetype_data.gd, "data/work/", "data/archetypes/", data/content/work_events.json, data/content/coworkers.json], source: "ARCHITECTURE 19.3; GDD 11.7; CONTENT 16"}
-  - {id: CMP-HARNESS, title: "The balancing harness and its five bots, run headless outside test_run (planned)", paths: ["tests/harness/"], source: "ARCHITECTURE 19.6; GDD 5.22; DECISIONS A56"}
+  - {id: CMP-SIM, title: "The career run's sim core (SimState, Sim, SimContext, WorkOdds, EventPlan) - pure, deterministic, headless (built in STEP-14)", paths: [core/sim_state.gd, core/sim.gd, core/sim_context.gd, core/work_odds.gd, core/event_plan.gd], source: "ARCHITECTURE 19.1-19.2; GDD 5.14-5.22"}
+  - {id: CMP-WORKDATA, title: "The career run's data - WorkConfig, ArchetypeData, work_events.json, coworkers.json (built in STEP-14)", paths: [data/types/work_config.gd, data/types/archetype_data.gd, "data/work/", "data/archetypes/", data/content/work_events.json, data/content/coworkers.json], source: "ARCHITECTURE 19.3; GDD 11.7; CONTENT 16"}
+  - {id: CMP-HARNESS, title: "The balancing harness and its five bots, run headless outside test_run (built in STEP-14)", paths: ["tests/harness/", "tools/headless/"], source: "ARCHITECTURE 19.6; GDD 5.22; DECISIONS A56"}
   - {id: CMP-WORK, title: "The work state's screens - the phone shell, event cards, apps, the layoff scene (planned)", paths: ["features/work/", "features/layoff/"], source: "ARCHITECTURE 19.4, 19.7; GDD 4.5-4.6"}
   - {id: CMP-DIORAMA, title: "The office diorama and the home rooms, in the pixel-art style (planned)", paths: ["features/work/"], source: "ARCHITECTURE 19.8; GDD 2.11"}
 
@@ -210,7 +210,7 @@ decisions:
   - {id: AD-03, title: "monogram 16 for body text; Press Start 2P only for logo, VS screen, banners", status: accepted, source: "ARCHITECTURE 0.3"}
   - {id: AD-04, title: "Folders by feature, plus core/, data/, ui/", status: accepted, source: "ARCHITECTURE 0.4"}
   - {id: AD-05, title: "Four autoloads, no event bus, rules in pure @tool classes", status: accepted, source: "ARCHITECTURE 0.5"}
-  - {id: AD-06, title: "Numbers in 7 .tres files, text in 16 JSON files; companies are JSON only", status: accepted, source: "ARCHITECTURE 0.6"}
+  - {id: AD-06, title: "Numbers in 11 .tres files (7 and the career run's 4, Step 14), text in 18 JSON files (16 and 2); companies are JSON only", status: accepted, source: "ARCHITECTURE 0.6, 19.3"}
   - {id: AD-07, title: "One seeded RNG per run, one per interview from a checkpoint; 64-bit values saved as strings", status: accepted, source: "ARCHITECTURE 0.7"}
   - {id: AD-08, title: "One JSON save in user://, written only while a run is live, after every commit and on focus loss", status: accepted, source: "ARCHITECTURE 0.8"}
   - {id: AD-09, title: "Rules in pure code the editor tests can run; scenes only display and call GameState verbs", status: accepted, source: "ARCHITECTURE 0.9"}
@@ -1085,7 +1085,7 @@ tasks:
     decision_ids: [AD-14, D-01, D-04, D-06, D-08, D-09, D-10, D-11, D-12, D-13, D-15, D-16, D-17, D-18, D-20, D-23, D-24, D-26, D-27, D-28, P-01, P-03, P-04, P-05, P-06, P-07, Q-01, Q-02, Q-06]
     depends_on: []
     acceptance_ids: [AC-S14-1, AC-S14-2, AC-S14-3, AC-S14-4, AC-S14-5, AC-S14-6, AC-S14-7, AC-ECO-1, AC-ECO05-1, AC-STAT02-1, AC-STAT03-1, AC-STAT04-1, AC-CTL01-1, AC-CTL04-1, AC-ARC02-1, AC-EVT01-1, AC-EVT02-1, AC-EVT04-1, AC-JOB02-1, AC-JOB05-1, AC-SCAR01-1, AC-WIN01-1, AC-WIN02-1, AC-WIN03-1, AC-WIN04-1, AC-WIN05-1, AC-WIN08-1]
-    outputs: [core/sim_state.gd, core/sim.gd, core/work_odds.gd, core/event_plan.gd, data/types/work_config.gd, data/types/archetype_data.gd, data/work/work_config.tres, "data/archetypes/", data/content/work_events.json, "tests/harness/", "tests/test_sim_*.gd"]
+    outputs: [core/sim_state.gd, core/sim.gd, core/sim_context.gd, core/work_odds.gd, core/event_plan.gd, data/types/work_config.gd, data/types/archetype_data.gd, data/work/work_config.tres, "data/archetypes/", data/content/work_events.json, data/content/coworkers.json, "tests/harness/", tests/sim_fixture.gd, "tests/test_sim_*.gd", "tools/headless/", ".project/evidence/STEP-14/"]
     out_of_scope: ["Any screen (M2)", "Events beyond the huddle's 10 (M4, M6)", "The review duel's prompts (M3)", "Answers to open MC items: they wait for the developer"]
     milestone: "M1 (Run Spec v1)"
   - id: STEP-15

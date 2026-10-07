@@ -1,0 +1,48 @@
+{
+  "bot": "coaster",
+  "early_loss_share": 1.0,
+  "endings": {
+    "plan_b": 10000
+  },
+  "guard_hits": 0,
+  "jobs_mean": 1.0,
+  "level_at_end": [
+    717,
+    9283,
+    0
+  ],
+  "median_day": 390,
+  "median_loss_day": 390,
+  "mid_in_job1_share": 0.9283,
+  "ms_per_run": 9.4089,
+  "ms_total": 94089,
+  "p10_day": 390,
+  "p90_day": 390,
+  "params": {
+    "bg": "intern",
+    "bot": "coaster",
+    "first": 1,
+    "handbook": "none",
+    "run": 1,
+    "seeds": 10000
+  },
+  "rejected_inputs": 0,
+  "runs": 10000,
+  "stats_per_run": {
+    "auto_resolved": 0.439,
+    "events": 8.438,
+    "exit_layoff": 1.0,
+    "forced_leaves": 0.082,
+    "hours_changes": 1.227,
+    "incidents": 3.368,
+    "jobs": 1.0,
+    "layoffs": 1.0,
+    "promotions": 0.928,
+    "rating_exceeds": 0.928,
+    "rating_meets": 0.072,
+    "reviews": 1.0
+  },
+  "studio_hold_max": 0,
+  "win_rate": 0.0,
+  "wins": 0
+}

@@ -4,7 +4,7 @@ Shared instructions for every coding agent. `.claude/CLAUDE.md` and `.code/AGENT
 
 The game is a satirical 2D pixel-art **portrait** mobile game: **iPhone first**, built on the developer's MacBook, with Android LATER (`docs/DECISIONS.md` D1, P1). It is built with Godot **4.7.2** (the exact version on every machine), GDScript and `gl_compatibility`, edited through the godot-ai MCP. The developer is a **first-time game developer** who wants to learn as well as ship: explain *why*, not just what, and bring design choices to them with a recommended default.
 
-Since 2026-10-07 the game is a **career roguelite** (Run Spec v1, merged into the docs: DECISIONS W8): one run is one career of up to five jobs on a macro clock, and the Phase 1 job hunt lives on as the DoomApply app, the Dana duel and the contract modal behind an adapter (GDD 0). The code is still Phase 1's v0.1 grey-box. **M1, the career run's sim core (STEP-14), is the next step** (W9; ROADMAP 12).
+Since 2026-10-07 the game is a **career roguelite** (Run Spec v1, merged into the docs: DECISIONS W8): one run is one career of up to five jobs on a macro clock, and the Phase 1 job hunt lives on as the DoomApply app, the Dana duel and the contract modal behind an adapter (GDD 0). The shipped game is still Phase 1's v0.1 grey-box. **M1, the career run's sim core (STEP-14), is built** (2026-10-08, branch `step-14-sim-core`, waiting for your review and merge): it runs headless beside the game, with five bots and a harness; nothing on screen uses it yet. **M2 (STEP-15, the grey-box UI) is next** (ROADMAP 12).
 
 ## What to read
 
@@ -78,16 +78,17 @@ P=<a copy of the repo without .git and .godot>
 
 "$GODOT" --version                                          # -> 4.7.2.stable.steam.ed1daf0bf
 "$GODOT" --headless --path "$P" --import                    # build the import cache and class_name table (first time ~10 s)
-"$GODOT" --headless --path "$P" --script res://__run_all.gd # run every test suite -> RESULT passed=217 failed=0 total=217 suites=20
-"$GODOT" --headless --path "$P" --script res://__run_all.gd -- suite=odds   # one suite -> passed=8
-"$GODOT" --headless --path "$P" --script res://__check_all.gd               # load every .gd/.tscn -> CHECK files=85 failed=0
+"$GODOT" --headless --path "$P" --script res://__run_all.gd # run every test suite -> RESULT passed=347 failed=0 total=347 suites=26
+"$GODOT" --headless --path "$P" --script res://__run_all.gd -- suite=odds   # one suite -> passed=8 (odds)
+"$GODOT" --headless --path "$P" --script res://__check_all.gd               # load every .gd/.tscn -> CHECK files=109 failed=0
 "$GODOT" --headless --path "$P" --quit-after 180            # boot the main scene for 180 frames: no errors
 ```
 
 - **The runner** is in the repo (`tools/headless/`, A71; a `.gdignore` keeps Godot out of it). From the repo root: `bash tools/headless/run_tests.sh` (all suites), `bash tools/headless/run_tests.sh odds` (one suite) or `bash tools/headless/run_tests.sh parse` (the load check). It copies the game folders into `$PROJ` (a temp folder by default) and imports them there, so give each parallel run its own `PROJ`. `GODOT` overrides the Godot path (the Windows Steam build and the Mac app are tried first). The access doc's appendix is the old, dated copy.
 - Autoloads exist only from the first frame on, not in `_init()`: a script that loads game scripts using `GameState`, `Content` or `Device` does its work on the first frame (as `check_all.gd` does).
 - Saves still go to the shared `user://` folder (keyed by `config/name`): on Windows `%APPDATA%\Godot\app_userdata\SWE Simulator\`.
-- **The career run's harness** (planned for M1, A56; ARCHITECTURE 19.6) runs the same way: `"$GODOT" --headless --path "$PROJ" --script res://tests/harness/run_harness.gd -- bot=planner seeds=10000`. It runs outside `test_run`; `tests/test_sim_smoke.gd` is its small version inside. Run it, and the suites, before every commit that changes a tuning number or an event (RC-32).
+- **The career run's harness** (built in M1, A56; ARCHITECTURE 19.6) runs outside `test_run`; `tests/test_sim_smoke.gd` is its small version inside. From the repo root: `bash tools/headless/run_harness.sh bot=planner seeds=10000` (one bot), `bash tools/headless/run_bots.sh seeds=10000 out=.project/evidence/STEP-NN/<run>` (all five in parallel, reports saved) and `python tools/headless/sweep.py --seeds 1000 "base=" "a=ticket_deadline_mult:1.3"` (compare configurations without editing a `.tres`; the harness's `set=` overrides work the same way). Run the harness for every bot, and the suites, before every commit that changes a tuning number or an event (RC-32); a tuning change updates the `.tres`, GDD 11.7 and `test_data_files` together.
+- **ARCHITECTURE section 17 stays byte-exact:** `python tools/headless/sync_arch17.py .` reports every block that differs from its file; `--fix` rewrites them, `--add-types` and `--add-section` add blocks for new files. Run it after any code change (the file's final newline is not part of a block).
 
 **Plan tracking** (on Windows `python`, not `python3`, with `PYTHONIOENCODING=utf-8`; on the Mac `python3`):
 

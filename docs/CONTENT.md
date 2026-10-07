@@ -1213,6 +1213,8 @@ One entry per event, keyed `evt_eNN_<name>` (A54). Its texts sit inline in the e
 | `evt_e25_review_request` | {coworker} asks you to review 2,000 lines of code. "Should be quick!" | `review`: Review it properly; `rubber_stamp`: Rubber-stamp it | Rubber-stamp it (proposed) |
 | `evt_e26_blame_postmortem` | Incident review. Slide 3 says "Root cause:" and then a pause long enough for your name. | `own_it`: Own it; `blame_deadline`: Blame the deadline | Own it (proposed) |
 
+**Built in M1 (STEP-14).** The ten events of DECISIONS A62 (E01, E02, E04, E07, E08, E12, E18, E20, E21, E24) are in `data/content/work_events.json` with these draft texts, unchanged except that E02's results say `{n}` for the raise so tuning can never make a card lie; the signs of run 1's chain and E08's rumor are inline in their entries. Their eight tips are in `tips.json` as drafts for your sign-off (`more` is empty until M6's writing pass). The exhausted choices are the "proposed" ones (A66); E07's prep takes none (`"none"`). `coworkers.json` holds Pivotly's four and the name pool.
+
 **E12's Ducky block** (the Run Spec's): `evt_e12_joke` "You fixed prod at 2 a.m. Prod now has your phone number."; `evt_e12_cause` "Whoever fixes it once becomes whoever fixes it always."; tip `tip_escalate`.
 
 **Rumors** (telegraphed events; shown on the calendar strip 10-30 days ahead):
