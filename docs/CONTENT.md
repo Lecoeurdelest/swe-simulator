@@ -1188,7 +1188,7 @@ The burnout lines follow GDD 1.3: the workload and the employer are the joke, ne
 
 ### 16.3 Event cards (`work_events.json`)
 
-One entry per event, keyed `evt_eNN_<name>` (A54). Each choice's label id is the event id plus the choice (`evt_e12_fix_it`); its effects are in GDD 5.19 and stay out of the text. "exh." is the exhausted choice: the Run Spec's where it gave one, otherwise **proposed** (a spec gap for M1 and M6). Ducky's joke and cause come with M6's writing pass, except E12's, which the Run Spec wrote; the tip ids are in 16.4.
+One entry per event, keyed `evt_eNN_<name>` (A54). Its texts sit inline in the entry, like a question's answers (ARCHITECTURE 6.3, 19.3), so an id below that extends an event id (a choice such as `evt_e12_fix_it`, a result such as `evt_e02_below`, a rumor, a sign) names a field of that entry, not an entry of its own. Each choice's effects are in GDD 5.19 and stay out of the text. "exh." is the exhausted choice: the Run Spec's where it gave one, otherwise **proposed** (a spec gap for M1 and M6). Ducky's joke and cause come with M6's writing pass, except E12's, which the Run Spec wrote; the tip ids are in 16.4.
 
 | id | Card text | Choices (label: text) | exh. |
 |---|---|---|---|

@@ -4,8 +4,8 @@
   "template_version": "task-index/1",
   "inputs": {
     "docs/GDD.md": "fff1dfa479ab1a5cc3702a90139a82de64ecfcc5ddf7e5e82b4c3f1ba2b74f41",
-    "docs/CONTENT.md": "fecef532a33e4943c56bc836d4c0da6bc07536c7242cb9f77714bc3b62be20e8",
-    "docs/ARCHITECTURE.md": "59c6c5dd4b19a4baceff17ed4449cd919324a8f4a411f0b9deb01b7b4d7e50f1",
+    "docs/CONTENT.md": "45735fbf2f0f18c4b00be14ef851e75af60329cbb39153ba7b6cb59266033e0b",
+    "docs/ARCHITECTURE.md": "c8fb8219c22236da228df0166ce28ec762e6f335b1cda65a6b7ced751c14bd51",
     "docs/ROADMAP.md": "2e22435d5182d33ac132b54e922d5e01c37d9899a2c93030da02bd4848a094d7",
     "docs/DECISIONS.md": "8c71d5f5a892718990dc7aaaa7f03d5fd50bf03d3af0da83b1bffc51ba84d583",
     "project.yaml": "11a0e6e9f8f90b8705a55cdd639fd1c1049096668b1e37e90d7943352280f275",
