@@ -84,7 +84,7 @@ P=<a copy of the repo without .git and .godot>
 "$GODOT" --headless --path "$P" --quit-after 180            # boot the main scene for 180 frames: no errors
 ```
 
-- **The runner:** recreate `run_tests.sh`, `run_all.gd` and `check_all.gd` from the access doc's appendix in the scratchpad (they aren't in the repo), then `bash run_tests.sh` (all suites), `bash run_tests.sh odds` (one suite) or `bash run_tests.sh parse` (the load check). Give each parallel run its own `PROJ` folder.
+- **The runner** is in the repo (`tools/headless/`, A71; a `.gdignore` keeps Godot out of it). From the repo root: `bash tools/headless/run_tests.sh` (all suites), `bash tools/headless/run_tests.sh odds` (one suite) or `bash tools/headless/run_tests.sh parse` (the load check). It copies the game folders into `$PROJ` (a temp folder by default) and imports them there, so give each parallel run its own `PROJ`. `GODOT` overrides the Godot path (the Windows Steam build and the Mac app are tried first). The access doc's appendix is the old, dated copy.
 - Autoloads exist only from the first frame on, not in `_init()`: a script that loads game scripts using `GameState`, `Content` or `Device` does its work on the first frame (as `check_all.gd` does).
 - Saves still go to the shared `user://` folder (keyed by `config/name`): on Windows `%APPDATA%\Godot\app_userdata\SWE Simulator\`.
 - **The career run's harness** (planned for M1, A56; ARCHITECTURE 19.6) runs the same way: `"$GODOT" --headless --path "$PROJ" --script res://tests/harness/run_harness.gd -- bot=planner seeds=10000`. It runs outside `test_run`; `tests/test_sim_smoke.gd` is its small version inside. Run it, and the suites, before every commit that changes a tuning number or an event (RC-32).
