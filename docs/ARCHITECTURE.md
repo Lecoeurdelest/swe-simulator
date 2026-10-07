@@ -3367,6 +3367,8 @@ func retry() -> void:
 
 ## Pause "Quit to title", Background select Back, ending "Title". The save survives for Continue.
 func quit_to_title() -> void:
+	if session != null:
+		save()   # a career run resumes where you left it, not at its last eventful day
 	change_phase(GameFlow.Phase.TITLE)
 	session = null
 
@@ -7957,6 +7959,7 @@ func handle_back() -> bool:
 	if _stub_open:
 		_close_stub_app()
 		return true
+	GameState.save()   # opening Pause keeps the quiet days since the last save, in case the app is killed from here
 	_pause.open()
 	return true
 
@@ -8470,6 +8473,7 @@ func _ready() -> void:
 func handle_back() -> bool:
 	if _pause.is_open():
 		return _pause.handle_back()
+	GameState.save()
 	_pause.open()
 	return true
 

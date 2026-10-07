@@ -196,6 +196,8 @@ func retry() -> void:
 
 ## Pause "Quit to title", Background select Back, ending "Title". The save survives for Continue.
 func quit_to_title() -> void:
+	if session != null:
+		save()   # a career run resumes where you left it, not at its last eventful day
 	change_phase(GameFlow.Phase.TITLE)
 	session = null
 

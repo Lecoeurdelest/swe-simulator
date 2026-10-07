@@ -97,6 +97,7 @@ func handle_back() -> bool:
 	if _stub_open:
 		_close_stub_app()
 		return true
+	GameState.save()   # opening Pause keeps the quiet days since the last save, in case the app is killed from here
 	_pause.open()
 	return true
 

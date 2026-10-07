@@ -49,6 +49,7 @@ func _ready() -> void:
 func handle_back() -> bool:
 	if _pause.is_open():
 		return _pause.handle_back()
+	GameState.save()
 	_pause.open()
 	return true
 
