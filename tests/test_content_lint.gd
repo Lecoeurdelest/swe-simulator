@@ -7,10 +7,11 @@ extends McpTestSuite
 
 const CONTENT_DIR := "res://data/content/"
 const BACKGROUND_DIR := "res://data/backgrounds/"
+const ARCHETYPE_DIR := "res://data/archetypes/"
 const FILES: PackedStringArray = [
 	"naming", "backgrounds", "tiers", "companies", "postings", "cv_lines",
 	"questions_choice", "questions_knowledge", "barks", "emails", "tips",
-	"endings", "events", "cutscene", "names", "news",
+	"endings", "events", "cutscene", "names", "news", "work_events", "coworkers",
 ]
 const TIERS: PackedStringArray = ["startup", "mid", "big"]
 const WRAP_COLUMNS := 40
@@ -39,6 +40,7 @@ const PLACEHOLDERS: PackedStringArray = [
 	"player_name", "company", "job_title", "salary", "work_mode", "commute_min", "office_days", "hours",
 	"last_company", "knockout", "insider", "days", "n", "day", "topic_1", "topic_2",
 	"r", "g", "i", "total",
+	"jobs", "layoffs", "money", "months", "level", "coworker", "choice", "home",   # CONTENT 16
 ]
 
 ## CONTENT.md 1.3, matched case-insensitively as whole words. It lives here, not in the game data,
@@ -66,12 +68,28 @@ const BANNED_BRANDS: PackedStringArray = [
 ## Banned words allowed anyway, each as {"word": "...", "reason": "..."} (CONTENT.md 1.3 lint_allow).
 const LINT_ALLOW: Array = []
 
+## work_events.json (GDD 5.19, ARCHITECTURE 19.3; DECISIONS A54, A62). The vocabularies the sim understands.
+const WORK_TIERS: PackedStringArray = ["scheduled", "telegraphed", "random"]
+const WORK_LEVELS: PackedStringArray = ["junior", "mid", "senior"]
+const WORK_TRIGGERS: PackedStringArray = ["monthly", "review", "lease", "after_raise", "chain", "resizing", "random", "incident"]
+const WORK_REQUIRES: PackedStringArray = ["employed", "remote", "rto", "home_min", "tip", "clause", "not_flag", "deadline_or_incident_days"]
+const WORK_EFFECTS: PackedStringArray = [
+	"mo", "burnout", "codebase", "skill", "rust", "savings", "living_mult", "commute_burnout", "speed_mod", "hours_lock",
+	"flags", "work_mode", "action",
+]
+const WORK_ACTIONS: PackedStringArray = ["lease_accept", "lease_move_down", "home_upgrade", "board_early", "ask_priya", "quit_job", "recruiter_call"]
+const WORK_MAX_CHOICES := 3          # pillar 2: at most 3 buttons
+const WORK_EVENT_NUMBERS := 26       # E01-E26 (the Run Spec's v1 table)
+const COWORKER_NAMES_TAKEN: PackedStringArray = ["Dana", "Remy", "Jordan"]
+
 ## Never linted: notes for the artist (ARCHITECTURE 6.3).
 const NOTE_KEYS: PackedStringArray = ["art", "visual", "audio", "note", "_notes"]
 ## Ids and enums, not display text: the test_ref_* methods check them instead.
 const DATA_KEYS: PackedStringArray = [
 	"tier", "tiers", "company", "tags", "topic", "kind", "weak_for", "tip", "background", "line",
 	"variant", "ghost", "style", "hoodie", "_gap_topic_pool",
+	# work_events.json and coworkers.json: ids, enums and numbers, not display text (the test_work_* tests check them)
+	"archetypes", "levels", "trigger", "requires", "effects", "focus", "diorama", "exhausted_choice", "id", "level",
 ]
 ## Dictionaries keyed by ids: their keys show up as "*" in a field path.
 const ID_KEYED: PackedStringArray = ["_keywords", "_topics"]
@@ -490,14 +508,143 @@ func test_shape_tier_pool_minimums() -> void:
 	_report(problems, "question pool")
 
 
+# ---------- 7. the career run's content (work_events.json, coworkers.json) ----------
+
+func test_work_events_shape() -> void:
+	var problems: Array[String] = []
+	var events := _entries("work_events")
+	var archetypes := _archetype_ids()
+	var tips := _entries("tips")
+	var numbers: Array[int] = []
+	var re := RegEx.create_from_string("^evt_e(\\d\\d)_[a-z0-9_]+$")
+	var event_ids: Array = events.keys()
+	event_ids.sort()
+	assert_gt(event_ids.size(), 0, "work_events.json has no events")
+	for id: String in event_ids:
+		if id.begins_with("_"):
+			continue
+		var evt: Variant = events[id]
+		if not (evt is Dictionary):
+			problems.append("%s: must be an object" % id)
+			continue
+		var e: Dictionary = evt
+		var m := re.search(id)
+		if m == null or int(m.get_string(1)) < 1 or int(m.get_string(1)) > WORK_EVENT_NUMBERS:
+			problems.append("%s: id must be evt_eNN_name with NN in 01-%d" % [id, WORK_EVENT_NUMBERS])
+		else:
+			if int(m.get_string(1)) in numbers:
+				problems.append("%s: event number %s is used twice" % [id, m.get_string(1)])
+			numbers.append(int(m.get_string(1)))
+		for key: String in ["tier", "archetypes", "levels", "trigger", "telegraph", "pause", "focus", "choices", "exhausted_choice", "ducky", "diorama"]:
+			if not e.has(key):
+				problems.append("%s: missing '%s'" % [id, key])
+		if not e.has("tier") or not e.has("choices") or not e.has("ducky") or not e.has("trigger"):
+			continue
+		if not str(e["tier"]) in WORK_TIERS:
+			problems.append("%s: tier '%s'" % [id, e["tier"]])
+		for a: Variant in e.get("archetypes", []):
+			if not str(a) in archetypes:
+				problems.append("%s: archetype '%s' is not a file in data/archetypes/" % [id, a])
+		if (e.get("archetypes", []) as Array).is_empty():
+			problems.append("%s: archetypes must be an explicit non-empty list (never \"all\")" % id)
+		for l: Variant in e.get("levels", []):
+			if not str(l) in WORK_LEVELS:
+				problems.append("%s: level '%s'" % [id, l])
+		if (e.get("levels", []) as Array).is_empty():
+			problems.append("%s: levels must be an explicit non-empty list" % id)
+		var trigger: Dictionary = e["trigger"]
+		if not str(trigger.get("kind", "")) in WORK_TRIGGERS:
+			problems.append("%s: trigger kind '%s'" % [id, trigger.get("kind", "")])
+		problems.append_array(_bad_requires(id, e.get("requires", {})))
+		if not str(e.get("text", "")) and (e.get("telegraph", {}) as Dictionary).is_empty():
+			problems.append("%s: needs a card text, or a telegraph that carries it" % id)
+		var choices: Array = e["choices"]
+		if choices.size() > WORK_MAX_CHOICES:
+			problems.append("%s: %d choices (at most %d, pillar 2)" % [id, choices.size(), WORK_MAX_CHOICES])
+		var choice_ids: Array[String] = []
+		for choice: Variant in choices:
+			if not (choice is Dictionary):
+				problems.append("%s: a choice must be an object" % id)
+				continue
+			var c: Dictionary = choice
+			var cid := str(c.get("id", ""))
+			if cid.is_empty() or cid in choice_ids:
+				problems.append("%s: choice id '%s' is empty or repeated" % [id, cid])
+			choice_ids.append(cid)
+			if str(c.get("text", "")).is_empty():
+				problems.append("%s/%s: no button text" % [id, cid])
+			problems.append_array(_bad_requires("%s/%s" % [id, cid], c.get("requires", {})))
+			var effects: Dictionary = c.get("effects", {})
+			for key: String in effects:
+				if not key in WORK_EFFECTS:
+					problems.append("%s/%s: effect '%s' is not one the sim knows" % [id, cid, key])
+			if effects.has("action") and not str(effects["action"]) in WORK_ACTIONS:
+				problems.append("%s/%s: action '%s' is not one the sim knows" % [id, cid, effects["action"]])
+		var exhausted := str(e.get("exhausted_choice", ""))
+		if choices.is_empty():
+			if not exhausted.is_empty():
+				problems.append("%s: has no choices, so no exhausted choice" % id)
+		elif exhausted != "none" and not exhausted in choice_ids:
+			problems.append("%s: exhausted_choice '%s' is not one of its choices (or \"none\")" % [id, exhausted])
+		var ducky: Dictionary = e["ducky"]
+		var tip := str(ducky.get("tip", ""))
+		if tip.is_empty():
+			problems.append("%s: ducky.tip must be a tip id or \"none\" (O7)" % id)
+		elif tip != "none" and not tips.has(tip):
+			problems.append("%s: ducky.tip '%s' is not in tips.json" % [id, tip])
+	_report(problems, "work event")
+
+
+func test_work_events_are_the_decided_ten() -> void:  # DECISIONS A62
+	var ids: Array = []
+	for id: String in _entries("work_events"):
+		if not id.begins_with("_"):
+			ids.append(id.substr(0, 7))
+	ids.sort()
+	assert_eq(ids, ["evt_e01", "evt_e02", "evt_e04", "evt_e07", "evt_e08", "evt_e12", "evt_e18", "evt_e20", "evt_e21", "evt_e24"], "M1 builds E01, E02, E04, E07, E08, E12, E18, E20, E21 and E24")
+
+
+func test_coworkers_shape() -> void:
+	var problems: Array[String] = []
+	var entries := _entries("coworkers")
+	var taken: Array[String] = []
+	for n: Variant in _entries("names").get("pool", []):
+		taken.append(str(n))
+	for reserved: String in COWORKER_NAMES_TAKEN:
+		taken.append(reserved)
+	var authored := 0
+	for id: String in entries:
+		if not id.begins_with("cw_"):
+			continue
+		authored += 1
+		var cw: Dictionary = entries[id] if entries[id] is Dictionary else {}
+		for key: String in ["name", "role", "line", "level"]:
+			if not cw.has(key):
+				problems.append("%s: missing '%s'" % [id, key])
+		if not str(cw.get("level", "")) in WORK_LEVELS:
+			problems.append("%s: level '%s'" % [id, cw.get("level", "")])
+		var cw_name := str(cw.get("name", ""))
+		if cw_name in taken:
+			problems.append("%s: the name %s is taken (CONTENT 16.1)" % [id, cw_name])
+		taken.append(cw_name)
+	assert_eq(authored, 4, "Pivotly has 4 authored coworkers (Minh, Priya, Tom, Kev)")
+	var pool: Array = entries.get("_coworker_pool", [])
+	assert_eq(pool.size(), 16, "the name pool has 16 names")
+	for n: Variant in pool:
+		if str(n) in taken:
+			problems.append("pool: the name %s is taken or repeated (CONTENT 16.1)" % n)
+		taken.append(str(n))
+	_report(problems, "coworker")
+
+
 # ---------- helpers ----------
 
 ## Budget category of one string (a BUDGETS key), or "" when it has none: a tip's Notebook text
 ## scrolls, and triggers are never shown. Mirrors GDD 2.7 row by row; everything else is "other".
 static func budget_of(file: String, id: String, field: String) -> String:
-	if file == "names":
+	if file == "names" or (file == "coworkers" and (field == "name" or id == "_coworker_pool")):
 		return "name"
-	if field in ["answers.text", "exclusive.text", "insider"]:
+	if field in ["answers.text", "exclusive.text", "insider"] or (file == "work_events" and field == "choices.text"):
 		return "answer"
 	if field == "red_flags" or (file == "postings" and field in ["title", "salary_text"]):
 		return "one_line"
@@ -512,7 +659,7 @@ static func budget_of(file: String, id: String, field: String) -> String:
 		return "tip" if field == "short" else ""
 	if file == "emails" and (field == "body" or (field.is_empty() and id.begins_with("mail_"))):
 		return "email"
-	if file == "barks" or field in ["answers.reaction", "exclusive.reaction", "ducky", "dana_line", "dana_opener", "captions.text"]:
+	if file == "barks" or field in ["answers.reaction", "exclusive.reaction", "ducky", "ducky.joke", "ducky.cause", "dana_line", "dana_opener", "captions.text"]:
 		return "dialogue"
 	return "other"
 
@@ -609,6 +756,26 @@ func _load_background(id: String, problems: Array[String]) -> BackgroundData:
 	if bg == null:
 		problems.append("%s is not a BackgroundData" % path)
 	return bg
+
+
+func _archetype_ids() -> Array[String]:
+	var ids: Array[String] = []
+	for file: String in ResourceLoader.list_directory(ARCHETYPE_DIR):
+		if file.ends_with(".tres"):
+			ids.append(file.get_basename())
+	return ids
+
+
+## Problems with an event's or a choice's "requires" keys.
+func _bad_requires(where: String, req: Variant) -> Array[String]:
+	var problems: Array[String] = []
+	if not (req is Dictionary):
+		problems.append("%s: requires must be an object" % where)
+		return problems
+	for key: String in req:
+		if not key in WORK_REQUIRES:
+			problems.append("%s: requires '%s' is not a condition the sim knows" % [where, key])
+	return problems
 
 
 func _where(t: Dictionary) -> String:

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ArchetypeData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/types/archetype_data.gd" id="1_arch"]
+
+[resource]
+script = ExtResource("1_arch")
+id = &"megacorp"
+duel_tier = &"big"
+duels_per_offer = 2
+remote_share = 0.25
+company_ids = PackedStringArray("co_monolith", "co_omniglobal", "co_nimbus", "co_adverse")
+pay_mult = 1.25
+severance_options = PackedFloat64Array(0)
+severance_per_year = 2.0
+leave_level_drop = 0
+codebase_start = 40.0
+codebase_drift = 0.04
+ticket_speed = 0.67
+utilization_mo = 0.0
+floor_size = 24
+review_cadence_days = 180
+calibration_hp = 80.0
+promotion_min_rating = 2
+promotion_streak = 2
+layoff_share = 0.1
+layoff_interval_days = 360
+rto_after_days = 0

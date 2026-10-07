@@ -1,0 +1,201 @@
+{
+  "_notes": "M1's 10 events (DECISIONS A62). One object per event, keyed evt_eNN_name (A54). trigger.kind picks the rule: monthly, review, lease, after_raise, chain (a telegraphed chain), resizing, random, incident. requires: employed, remote, rto, home_min, tip, clause, not_flag, deadline_or_incident_days. effects: mo, burnout, codebase, skill, rust, savings (k$), living_mult, commute_burnout, speed_mod {mult, days}, hours_lock {notch, days}, flags, work_mode, action. exhausted_choice names the choice a burnt-out you takes (A66), or none. ducky.tip is a tip id or none (O7). The draft copy awaits the developer's tone and tip sign-off (CONTENT 16).",
+  "evt_e01_payday": {
+    "tier": "scheduled",
+    "archetypes": ["startup", "agency", "megacorp"],
+    "levels": ["junior", "mid", "senior"],
+    "trigger": {"kind": "monthly"},
+    "telegraph": {},
+    "pause": false,
+    "focus": "desk",
+    "text": "Payday! {money} in.",
+    "text_rent": "Rent day. {money} out.",
+    "choices": [],
+    "exhausted_choice": "",
+    "ducky": {"tip": "none"},
+    "diorama": {}
+  },
+  "evt_e02_review": {
+    "tier": "scheduled",
+    "archetypes": ["startup", "agency", "megacorp"],
+    "levels": ["junior", "mid", "senior"],
+    "trigger": {"kind": "review"},
+    "requires": {"employed": true},
+    "telegraph": {},
+    "pause": true,
+    "focus": "meeting_room",
+    "text": "Review day. Your manager has a form, a template and 15 minutes.",
+    "results": {
+      "below": "Rating: Below. Your manager is 'concerned'. In writing.",
+      "meets": "Rating: Meets. Raise: {n}%. Inflation sends its regards.",
+      "exceeds": "Rating: Exceeds. Raise: {n}%. Your manager calls it 'a strong signal'."
+    },
+    "choices": [],
+    "exhausted_choice": "",
+    "ducky": {"tip": "tip_brag_doc"},
+    "diorama": {}
+  },
+  "evt_e04_lease_renewal": {
+    "tier": "scheduled",
+    "archetypes": ["startup", "agency", "megacorp"],
+    "levels": ["junior", "mid", "senior"],
+    "trigger": {"kind": "lease"},
+    "telegraph": {},
+    "pause": true,
+    "focus": "desk",
+    "text": "Lease renewal. Your landlord loves you. Your rent loves you 10% more.",
+    "choices": [
+      {"id": "accept", "text": "Accept the +10%", "effects": {"action": "lease_accept"}},
+      {"id": "move_down", "text": "Move down a tier", "requires": {"home_min": 1}, "effects": {"action": "lease_move_down"}}
+    ],
+    "exhausted_choice": "accept",
+    "ducky": {"tip": "none"},
+    "diorama": {}
+  },
+  "evt_e07_resizing": {
+    "tier": "telegraphed",
+    "archetypes": ["startup", "agency", "megacorp"],
+    "levels": ["junior", "mid", "senior"],
+    "trigger": {"kind": "resizing"},
+    "requires": {"employed": true},
+    "telegraph": {
+      "run1_fire_day": 240,
+      "run1_signs": [
+        {"day": 150, "text": "All-staff email: \"We're pausing hiring to stay nimble.\" The careers page says \"Coming soon\"."},
+        {"day": 165, "text": "All-hands: \"This year is about efficiency.\" The snacks are the first to go."},
+        {"day": 190, "text": "The new roadmap is out. Your project is in a box called \"Later\". Later has no date."},
+        {"day": 210, "text": "Minh's desk is empty. The plant is gone. The badge reader beeps red at no one."},
+        {"day": 235, "text": "Calendar invite from Dana: \"15 min sync\". No agenda. The room is called \"Opportunity\"."}
+      ],
+      "prep_after_sign": 3,
+      "rumor": "All-hands: \"This year is about efficiency.\" The snacks are the first to go."
+    },
+    "pause": true,
+    "focus": "meeting_room",
+    "choices": [
+      {"id": "update_profile", "text": "Update your profile", "effects": {"action": "board_early"}},
+      {"id": "ask_priya", "text": "Ask Priya what she's heard", "effects": {"action": "ask_priya"}},
+      {"id": "cut_spending", "text": "Cut spending", "effects": {"living_mult": 0.8}}
+    ],
+    "exhausted_choice": "none",
+    "ducky": {"tip": "tip_layoffs_cost"},
+    "final_threat": true,
+    "diorama": {}
+  },
+  "evt_e08_rto_mandate": {
+    "tier": "telegraphed",
+    "archetypes": ["startup", "megacorp"],
+    "levels": ["junior", "mid", "senior"],
+    "trigger": {"kind": "chain", "per_year": 1.0, "cooldown_days": 360},
+    "requires": {"employed": true, "remote": true, "rto": true},
+    "telegraph": {
+      "rumor": "Rumor: leadership toured an empty floor and \"felt sad\"."
+    },
+    "pause": true,
+    "focus": "meeting_room",
+    "text": "Memo: \"We're excited to bring everyone back together.\" Monday. Five days a week.",
+    "choices": [
+      {"id": "comply", "text": "Comply: back to the office", "effects": {"work_mode": "onsite", "commute_burnout": 0.3}},
+      {"id": "push_back", "text": "Push back: it's in my contract", "requires": {"tip": "tip_remote_in_writing", "clause": "remote_in_writing"}, "effects": {"mo": -15}},
+      {"id": "quit", "text": "Quit", "effects": {"action": "quit_job"}}
+    ],
+    "exhausted_choice": "comply",
+    "ducky": {"tip": "tip_remote_in_writing"},
+    "final_threat": true,
+    "diorama": {}
+  },
+  "evt_e12_incident_prod": {
+    "tier": "random",
+    "archetypes": ["startup", "agency", "megacorp"],
+    "levels": ["junior", "mid", "senior"],
+    "trigger": {"kind": "incident", "cooldown_days": 5},
+    "requires": {"employed": true},
+    "telegraph": {},
+    "pause": true,
+    "focus": "war_room",
+    "text": "2 a.m. Prod is down. The alerts are loud. Whoever is on call is very quiet.",
+    "choices": [
+      {"id": "fix_it", "text": "Fix it yourself", "effects": {"mo": 10, "burnout": 15, "codebase": -5, "flags": ["owns_service"]}},
+      {"id": "escalate", "text": "Wake whoever is on call", "requires": {"not_flag": "owns_service"}, "effects": {"mo": -3, "burnout": 2}}
+    ],
+    "exhausted_choice": "fix_it",
+    "ducky": {
+      "joke": "You fixed prod at 2 a.m. Prod now has your phone number.",
+      "cause": "Whoever fixes it once becomes whoever fixes it always.",
+      "tip": "tip_escalate"
+    },
+    "final_threat": true,
+    "diorama": {"flash": "red_screens"}
+  },
+  "evt_e18_recruiter_dm": {
+    "tier": "random",
+    "archetypes": ["startup", "agency", "megacorp"],
+    "levels": ["junior", "mid", "senior"],
+    "trigger": {"kind": "random", "per_year": 0.92, "cooldown_days": 30},
+    "telegraph": {},
+    "pause": true,
+    "focus": "desk",
+    "text": "A recruiter DMs: \"Exciting role, perfect fit, can we talk?\" They spelled your name right.",
+    "choices": [
+      {"id": "take_call", "text": "Take the call", "effects": {"action": "recruiter_call"}},
+      {"id": "ignore", "text": "Ignore it", "effects": {}}
+    ],
+    "exhausted_choice": "ignore",
+    "ducky": {"tip": "tip_take_the_call"},
+    "diorama": {}
+  },
+  "evt_e20_laptop_dies": {
+    "tier": "random",
+    "archetypes": ["startup", "agency", "megacorp"],
+    "levels": ["junior", "mid", "senior"],
+    "trigger": {"kind": "random", "per_year": 0.92, "cooldown_days": 30},
+    "telegraph": {},
+    "pause": true,
+    "focus": "desk",
+    "text": "Your laptop dies. Its last words: a spinning wheel.",
+    "choices": [
+      {"id": "pay", "text": "Buy a new one ({money})", "effects": {"savings": -1.2}},
+      {"id": "limp", "text": "Limp along", "effects": {"speed_mod": {"mult": 0.8, "days": 30}}}
+    ],
+    "exhausted_choice": "limp",
+    "ducky": {"tip": "tip_emergency_fund"},
+    "diorama": {}
+  },
+  "evt_e21_lifestyle_offer": {
+    "tier": "scheduled",
+    "archetypes": ["startup", "agency", "megacorp"],
+    "levels": ["junior", "mid", "senior"],
+    "trigger": {"kind": "after_raise"},
+    "telegraph": {},
+    "pause": true,
+    "focus": "desk",
+    "text": "A raise! A listing appears: \"{home}. You deserve this.\" Your rent agrees.",
+    "choices": [
+      {"id": "upgrade", "text": "Move to {home}", "effects": {"action": "home_upgrade"}},
+      {"id": "stay", "text": "Stay where you are", "effects": {}}
+    ],
+    "exhausted_choice": "stay",
+    "ducky": {"tip": "tip_savings_rate"},
+    "final_threat": true,
+    "diorama": {}
+  },
+  "evt_e24_overtime_ask": {
+    "tier": "random",
+    "archetypes": ["startup", "agency", "megacorp"],
+    "levels": ["junior", "mid", "senior"],
+    "trigger": {"kind": "random", "per_year": 4.0, "cooldown_days": 30},
+    "requires": {"employed": true, "deadline_or_incident_days": 3},
+    "telegraph": {},
+    "pause": true,
+    "focus": "desk",
+    "text": "Your manager: \"Can you stay late this week? Just this sprint.\" It is never just this sprint.",
+    "choices": [
+      {"id": "stay_late", "text": "Stay late", "effects": {"mo": 4, "hours_lock": {"notch": 5, "days": 5}}},
+      {"id": "decline", "text": "Decline", "effects": {"mo": -3}}
+    ],
+    "exhausted_choice": "stay_late",
+    "ducky": {"tip": "tip_overtime_loan"},
+    "final_threat": true,
+    "diorama": {}
+  }
+}
