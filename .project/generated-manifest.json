@@ -4,7 +4,7 @@
   "template_version": "task-index/1",
   "inputs": {
     "docs/GDD.md": "fff1dfa479ab1a5cc3702a90139a82de64ecfcc5ddf7e5e82b4c3f1ba2b74f41",
-    "docs/CONTENT.md": "6623f05a36a1f7aaac905ee881ad6261a99e1cec5264ac01ae493b71f34f687d",
+    "docs/CONTENT.md": "fecef532a33e4943c56bc836d4c0da6bc07536c7242cb9f77714bc3b62be20e8",
     "docs/ARCHITECTURE.md": "59c6c5dd4b19a4baceff17ed4449cd919324a8f4a411f0b9deb01b7b4d7e50f1",
     "docs/ROADMAP.md": "2e22435d5182d33ac132b54e922d5e01c37d9899a2c93030da02bd4848a094d7",
     "docs/DECISIONS.md": "8c71d5f5a892718990dc7aaaa7f03d5fd50bf03d3af0da83b1bffc51ba84d583",
