@@ -149,6 +149,13 @@ layout_mode = 2
 text = "Replay intro"
 flat = true
 
+[node name="HuntButton" type="Button" parent="SafeArea/Column/ThumbBand/BottomRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+text = "Old hunt"
+flat = true
+
 [node name="Version" type="Label" parent="SafeArea/Column/ThumbBand/BottomRow" unique_id=1927397448]
 unique_name_in_owner = true
 layout_mode = 2

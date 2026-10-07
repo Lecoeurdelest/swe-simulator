@@ -75,3 +75,16 @@ func test_a_save_from_before_d9_still_loads() -> void:
 	var saved := back.to_dict()
 	for key: String in REMOVED_KEYS:
 		assert_false(saved.has(key), "%s is dropped by the next save" % key)
+
+
+## The career run shares the slot with Phase 1's save (ARCHITECTURE 19.4): version 2 with a sim is a career save, anything
+## else that parses is a hunt save, and nothing is nothing. Pure string work: no file is written.
+func test_the_slot_tells_hunt_and_career_saves_apart() -> void:
+	assert_eq(SaveIO.kind_of({}), SaveIO.KIND_NONE)
+	assert_eq(SaveIO.kind_of(RunState.new().to_dict()), SaveIO.KIND_HUNT, "Phase 1's save has no sim")
+	assert_eq(SaveIO.kind_of({"version": 1, "phase": 3}), SaveIO.KIND_HUNT)
+	assert_eq(SaveIO.kind_of({"version": 2, "phase": 8}), SaveIO.KIND_HUNT, "version 2 without a sim is not a career save")
+	assert_eq(SaveIO.kind_of({"version": 2, "phase": 8, "sim": {}}), SaveIO.KIND_CAREER)
+	var text := SaveIO.encode({"version": 2, "phase": 8, "sim": {"day": 5}})
+	assert_eq(SaveIO.kind_of(SaveIO.decode(text)), SaveIO.KIND_CAREER, "through JSON and back")
+	assert_eq(SaveIO.decode("{ this is not json"), {}, "garbage reads as no save")

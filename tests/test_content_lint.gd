@@ -40,7 +40,7 @@ const PLACEHOLDERS: PackedStringArray = [
 	"player_name", "company", "job_title", "salary", "work_mode", "commute_min", "office_days", "hours",
 	"last_company", "knockout", "insider", "days", "n", "day", "topic_1", "topic_2",
 	"r", "g", "i", "total",
-	"jobs", "layoffs", "money", "months", "level", "coworker", "choice", "home",   # CONTENT 16
+	"jobs", "layoffs", "money", "months", "level", "coworker", "choice", "home", "what",   # CONTENT 16
 ]
 
 ## CONTENT.md 1.3, matched case-insensitively as whole words. It lives here, not in the game data,
@@ -684,6 +684,42 @@ static func wrap_lines(text: String, columns: int) -> int:
 				lines += 1
 				used -= columns
 	return lines
+
+
+func test_work_state_text_ids_exist() -> void:  # M2: every id the work state asks Content for (WorkHud, WorkCards, the scenes)
+	var problems: Array[String] = []
+	var barks := _entries("barks")
+	var cfg := WorkConfig.new()
+	var ids: Array[String] = []
+	ids.append_array(WorkCards.BURNOUT_WARN_IDS)
+	ids.append_array(WorkHud.LEVEL_IDS)
+	ids.append_array(WorkHud.HOME_IDS)
+	for label: Variant in WorkHud.CAL_IDS.values():
+		ids.append(String(label))
+	for notch: int in range(1, 6):
+		ids.append(WorkHud.hours_label_id(notch))
+	for position: int in WorkClock.speed_count(cfg):
+		ids.append(WorkHud.speed_label_id(position, cfg))
+	ids.append_array([WorkSession.COACH_SPEED, WorkSession.COACH_HOURS, WorkSession.COACH_STUDIO])
+	ids.append_array([
+		"ui_auto_resolved", "ui_pip", "ui_resizing_survived", "ui_feed_shipped", "ui_feed_late", "ui_promoted", "ui_forced_leave",
+		"ui_runway", "ui_burnout", "ui_ticket", "ui_codebase", "ui_studio_chip", "ui_hours", "ui_day", "ui_next", "ui_choice_none",
+		"ui_tab_jobs", "ui_tab_home", "ui_tab_video", "ui_tab_ducky", "ui_pick_feature", "ui_pick_bugfix", "ui_pick_paydown",
+		"ui_pick_paydown_note", "ui_pick_prompt", "ui_ok", "ui_continue", "ui_review_start", "ui_job_line", "ui_between_jobs",
+		"ui_duel_stub", "ui_offer_stub", "ui_app_stub", "ui_back", "ui_tap_to_continue",
+		"vs_layoff_title", "bark_dana_layoff", "bark_dana_layoff_2", "ui_severance", "ui_access_revoked"])
+	for id: String in ids:
+		if not barks.has(id):
+			problems.append("barks.json has no '%s'" % id)
+	var endings := _entries("endings")
+	for ending: String in ["plan_b", "studio", "burnout", "career_change", "legacy"]:
+		for key: String in ["end_%s_title" % ending, "end_%s" % ending]:
+			if not endings.has(key):
+				problems.append("endings.json has no '%s'" % key)
+	for key: String in ["end_studio_one", "end_career_stats"]:
+		if not endings.has(key):
+			problems.append("endings.json has no '%s'" % key)
+	_report(problems, "work-state text id")
 
 
 func test_work_companies_exist() -> void:  # DECISIONS D-34 (MC-06): the career run reuses Phase 1's companies

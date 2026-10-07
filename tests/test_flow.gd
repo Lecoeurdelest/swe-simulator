@@ -26,6 +26,16 @@ const LEGAL: Array[Array] = [
 	[GameFlow.Phase.JOB_HUNT, GameFlow.Phase.TITLE],
 	[GameFlow.Phase.INTERVIEW, GameFlow.Phase.TITLE],
 	[GameFlow.Phase.OFFER, GameFlow.Phase.TITLE],
+	# The career run (ARCHITECTURE 19.4): New game and Continue reach WORK; the layoff scene is its own phase.
+	[GameFlow.Phase.TITLE, GameFlow.Phase.WORK],
+	[GameFlow.Phase.TITLE, GameFlow.Phase.LAYOFF],
+	[GameFlow.Phase.INTRO, GameFlow.Phase.WORK],
+	[GameFlow.Phase.BACKGROUND_SELECT, GameFlow.Phase.WORK],
+	[GameFlow.Phase.WORK, GameFlow.Phase.LAYOFF],
+	[GameFlow.Phase.WORK, GameFlow.Phase.GAME_OVER],
+	[GameFlow.Phase.WORK, GameFlow.Phase.TITLE],
+	[GameFlow.Phase.LAYOFF, GameFlow.Phase.WORK],
+	[GameFlow.Phase.LAYOFF, GameFlow.Phase.TITLE],
 ]
 
 const ILLEGAL: Array[Array] = [
@@ -35,8 +45,16 @@ const ILLEGAL: Array[Array] = [
 	[GameFlow.Phase.INTRO, GameFlow.Phase.OFFER],
 	[GameFlow.Phase.JOB_HUNT, GameFlow.Phase.OFFER],
 	[GameFlow.Phase.GAME_OVER, GameFlow.Phase.JOB_HUNT],
+	[GameFlow.Phase.GAME_OVER, GameFlow.Phase.WORK],
+	[GameFlow.Phase.WORK, GameFlow.Phase.WORK],
+	[GameFlow.Phase.WORK, GameFlow.Phase.INTERVIEW],    # M3 adds these with the adapter
+	[GameFlow.Phase.WORK, GameFlow.Phase.OFFER],
+	[GameFlow.Phase.LAYOFF, GameFlow.Phase.GAME_OVER],
+	[GameFlow.Phase.INTRO, GameFlow.Phase.LAYOFF],
 ]
 
+## The phases a run is live in: Phase 1's hunt, and the career run's work state and layoff scene.
+const LIVE: Array[int] = [GameFlow.Phase.JOB_HUNT, GameFlow.Phase.INTERVIEW, GameFlow.Phase.OFFER, GameFlow.Phase.WORK, GameFlow.Phase.LAYOFF]
 const ROUTER_PATH := "res://autoload/scene_router.gd"
 const FEATURES_DIR := "res://features/"
 
@@ -59,7 +77,7 @@ func test_illegal_jumps_are_blocked() -> void:
 
 func test_only_live_run_phases_are_saved() -> void:
 	for phase: int in GameFlow.Phase.values():
-		var live := phase in [GameFlow.Phase.JOB_HUNT, GameFlow.Phase.INTERVIEW, GameFlow.Phase.OFFER]
+		var live := phase in LIVE
 		assert_eq(GameFlow.is_saved(phase), live, "is_saved(%s)" % GameFlow.Phase.find_key(phase))
 
 
@@ -70,6 +88,9 @@ func test_save_deleted_on_plan_b_and_after_hired() -> void:
 	assert_true(GameFlow.deletes_save(GameFlow.Phase.PHASE2_STUB, GameFlow.Phase.BACKGROUND_SELECT))
 	assert_false(GameFlow.deletes_save(GameFlow.Phase.OFFER, GameFlow.Phase.PHASE2_STUB), "killed on the Hired card: Continue still works")
 	assert_false(GameFlow.deletes_save(GameFlow.Phase.JOB_HUNT, GameFlow.Phase.TITLE), "Quit to title keeps the run")
+	assert_true(GameFlow.deletes_save(GameFlow.Phase.WORK, GameFlow.Phase.GAME_OVER), "an ending deletes the career save (KILL_TESTS 11)")
+	assert_false(GameFlow.deletes_save(GameFlow.Phase.WORK, GameFlow.Phase.TITLE), "Quit to title keeps the career run")
+	assert_false(GameFlow.deletes_save(GameFlow.Phase.WORK, GameFlow.Phase.LAYOFF), "the layoff scene is part of the run")
 
 
 ## GameState counts a finished run (settings meta run_count) exactly when change_phase() deletes the
@@ -106,7 +127,7 @@ func test_run_count_moves_only_with_the_save_deletion() -> void:
 
 func test_continue_only_resumes_live_runs() -> void:
 	for phase: int in GameFlow.Phase.values():
-		var live := phase in [GameFlow.Phase.JOB_HUNT, GameFlow.Phase.INTERVIEW, GameFlow.Phase.OFFER]
+		var live := phase in LIVE
 		assert_eq(GameFlow.can_resume(phase), live, "can_resume(%s)" % GameFlow.Phase.find_key(phase))
 
 

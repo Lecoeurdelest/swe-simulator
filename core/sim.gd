@@ -91,6 +91,21 @@ static func step(state: SimState, inputs: Array, ctx: SimContext) -> Array:
 	return events
 
 
+## Apply the inputs and do not tick: how the work state changes the Hours or answers a card while the clock is paused
+## (the clock driver ticks with step(state, [], ctx)). The run log stores the day each input was sent on, and replay()
+## batches the inputs of a day with the tick that follows them, so a run played this way replays to the same state (O8).
+static func apply_inputs(state: SimState, inputs: Array, ctx: SimContext) -> Array:
+	var events: Array = []
+	if state.ended:
+		return events
+	ctx.rng.seed = state.rng_seed
+	ctx.rng.state = state.rng_state
+	for input: Dictionary in inputs:
+		_apply_input(state, ctx, input, events)
+	state.rng_state = ctx.rng.state
+	return events
+
+
 ## Replays a run from its log: the same seed and inputs give the same run (O8). Only the accepted inputs matter
 ## (SimState.log entries with "k" == "in", each with the day it was sent on); the days between them tick on their own.
 ## The run is replayed to until_day, or to the last day the log mentions.
@@ -608,10 +623,11 @@ static func _resize(s: SimState, ctx: SimContext, ch: Dictionary, events: Array)
 			return
 	var first_job := s.run_number == 1 and s.jobs_held == 1
 	var months := WorkOdds.severance_months(cfg, arch, s.day - s.job_start, first_job, ctx.rng)
+	var severance := months * s.job_salary   # k$: the scene shows it, and _end_job clears the salary
 	s.bump("layoffs")
 	_end_job(s, ctx, "layoff", events, months)
 	if not s.ended:
-		s.queue.append({"kind": "layoff_scene", "severance_months": months})
+		s.queue.append({"kind": "layoff_scene", "severance_months": months, "severance": severance})
 
 
 ## Plan the next resizing chain of this job: run 1's authored five signs and the fixed day, or a rumor 10-30 days

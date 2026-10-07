@@ -215,3 +215,11 @@ static func _strings(value: Variant) -> Array[String]:
 		for item: Variant in value:
 			out.append_array(_strings(item))
 	return out
+
+
+func test_money_k_shows_thousands_with_two_decimals() -> void:  # GDD 5.15, the work state's feed
+	assert_eq(UiText.money_k(2.55), "$2.55k")
+	assert_eq(UiText.money_k(12.5), "$12.50k")
+	assert_eq(UiText.money_k(0.0), "$0.00k")
+	assert_eq(UiText.money_k(-0.4), "-$0.40k")
+	assert_eq(UiText.money_k(-0.001), "$0.00k", "no minus sign on a rounding crumb")

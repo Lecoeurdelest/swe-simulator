@@ -10,6 +10,7 @@ const BLINK_SEC := 0.5
 ## Debug-only labels, English on purpose (not player text, so not in CONTENT.md).
 const DEBUG_DEVICE_CHECK := "Device check"
 const DEBUG_FIRST_RUN := "Reset first run"
+const DEBUG_HUNT := "Old hunt"   # Phase 1's job hunt, until M4 retires it (DECISIONS A78)
 
 var _has_save: bool = false
 var _device_check: Control = null
@@ -22,6 +23,7 @@ var _device_check: Control = null
 @onready var _new_game_button: Button = %NewGameButton
 @onready var _continue_button: Button = %ContinueButton
 @onready var _replay_intro_button: Button = %ReplayIntroButton
+@onready var _hunt_button: Button = %HuntButton
 @onready var _debug_row: Control = %DebugRow
 @onready var _device_check_button: Button = %DeviceCheckButton
 @onready var _first_run_button: Button = %FirstRunButton
@@ -37,6 +39,8 @@ func _ready() -> void:
 	_new_game_button.text = Content.text("barks", "ui_new_game")
 	_continue_button.text = UiText.primary(Content.text("barks", "ui_continue"))
 	_replay_intro_button.text = Content.text("barks", "ui_replay_intro")
+	_hunt_button.text = DEBUG_HUNT
+	_hunt_button.visible = OS.is_debug_build()
 	_device_check_button.text = DEBUG_DEVICE_CHECK
 	_first_run_button.text = DEBUG_FIRST_RUN
 	_has_save = SaveIO.exists()
@@ -52,6 +56,7 @@ func _ready() -> void:
 	_new_game_button.pressed.connect(GameState.start_new_game)
 	_continue_button.pressed.connect(GameState.continue_game)
 	_replay_intro_button.pressed.connect(GameState.replay_intro)
+	_hunt_button.pressed.connect(GameState.start_hunt_game)
 	_device_check_button.pressed.connect(_open_device_check)
 	_first_run_button.pressed.connect(_reset_first_run)
 	_quit_dialog.confirmed.connect(get_tree().quit)

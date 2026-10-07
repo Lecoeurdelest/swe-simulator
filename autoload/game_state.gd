@@ -1,7 +1,8 @@
 extends Node
 ## Autoload "GameState" (no class_name: it would clash with the autoload name).
-## Owns the RunState, the run's RNG, the phase and the settings file.
-## Scenes read `run` and call verbs. Only change_phase() changes the phase.
+## Owns the RunState, the run's RNG, the phase and the settings file. The career run (M2) lives in `session`, a
+## WorkSession: `run` then only holds the phase and the background, and the career_* verbs below drive the session.
+## Scenes read `run` / `session` and call verbs. Only change_phase() changes the phase.
 ## Every verb that commits a player action ends with _commit() (save + HUD refresh).
 
 signal phase_changed(from: GameFlow.Phase, to: GameFlow.Phase)
@@ -12,6 +13,11 @@ const SETTINGS_PATH := "user://settings.cfg"
 var run: RunState = RunState.new()
 var rng := RandomNumberGenerator.new()
 var settings := ConfigFile.new()
+## The career run on screen (ARCHITECTURE 19.4, 19.7): null in Phase 1's hunt and outside a run.
+var session: WorkSession = null
+## New game starts the career run. Only the Title's debug button turns this off, for Phase 1's hunt (until M4 retires it).
+var career_flow: bool = true
+var _intro_starts_career: bool = false   # the intro in front of us is a new game's, not a replay
 ## Background select focuses this card: the last background played (settings meta "last_background",
 ## GDD S03), "" before the first run (The Graduate then).
 var preselect_background: String = ""
@@ -25,6 +31,10 @@ func _ready() -> void:
 func _notification(what: int) -> void:
 	match what:
 		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT:
+			if session != null:
+				session.clock.speed = WorkClock.PAUSE   # no time passes while the app is away (D-13, INV-22)
+				session.clock.hold()
+				run_changed.emit()                      # the speed control shows Pause when you come back
 			save()
 			if run.phase == GameFlow.Phase.INTERVIEW:
 				get_tree().paused = true  # interview.gd shows "Ready? Tap to continue", then unpauses
@@ -56,9 +66,13 @@ func reset_first_run() -> void:
 
 # ---------- saving ----------
 
-## Writes only while a run is live (JOB_HUNT / INTERVIEW / OFFER); a no-op otherwise.
+## Writes only while a run is live (JOB_HUNT / INTERVIEW / OFFER, WORK / LAYOFF); a no-op otherwise. The career run saves
+## the session ({version: 2, phase, sim, ui}), Phase 1's hunt the RunState.
 func save() -> void:
 	if not GameFlow.is_saved(run.phase):
+		return
+	if session != null and _is_career_phase(run.phase):
+		SaveIO.write_career(session.to_save(run.phase))
 		return
 	run.rng_state = str(rng.state)
 	SaveIO.write(run)
@@ -84,39 +98,97 @@ func change_phase(to: GameFlow.Phase) -> void:
 	phase_changed.emit(from, to)
 
 
+## The career run (DECISIONS A78): run 1 is the Intern at the authored job, after the intro the first time; later runs pick
+## a background first. Phase 1's hunt is only reachable through start_hunt_game().
 func start_new_game() -> void:  # Title: "Tap to start"
 	run = RunState.new()
+	session = null
+	career_flow = true
+	_intro_starts_career = false
+	if not next_run_is_first():
+		change_phase(GameFlow.Phase.BACKGROUND_SELECT)
+	elif setting("meta", "intro_seen", false):
+		_begin_career(1, "intern", "", new_run_seed())
+	else:
+		_intro_starts_career = true
+		change_phase(GameFlow.Phase.INTRO)
+
+
+## Debug builds only (the Title's "Old hunt" button): Phase 1's job hunt, as v0.1 shipped it, until M4 retires it.
+func start_hunt_game() -> void:
+	run = RunState.new()
+	session = null
+	career_flow = false
+	_intro_starts_career = false
 	var intro_seen: bool = setting("meta", "intro_seen", false)
 	change_phase(GameFlow.Phase.BACKGROUND_SELECT if intro_seen else GameFlow.Phase.INTRO)
 
 
 func replay_intro() -> void:  # Title: "Replay intro"
 	run = RunState.new()
+	session = null
+	career_flow = true
+	_intro_starts_career = false
 	change_phase(GameFlow.Phase.INTRO)
 
 
 func finish_intro() -> void:  # the intro ended, or Skip, or Android Back
 	set_setting("meta", "intro_seen", true)
-	change_phase(GameFlow.Phase.BACKGROUND_SELECT)
+	if career_flow and _intro_starts_career:
+		_intro_starts_career = false
+		_begin_career(1, "intern", "", new_run_seed())
+	else:
+		change_phase(GameFlow.Phase.BACKGROUND_SELECT)
 
 
+## Continue resumes whichever run the slot holds: a career run (version 2) or Phase 1's hunt. Never a dead button.
 func continue_game() -> void:
+	match SaveIO.kind():
+		SaveIO.KIND_CAREER:
+			if _resume_career():
+				return
+		SaveIO.KIND_HUNT:
+			if _resume_hunt():
+				return
+	start_new_game()
+
+
+func _resume_hunt() -> bool:
 	var loaded := SaveIO.read()
 	if loaded == null or not GameFlow.can_resume(loaded.phase):
-		start_new_game()  # never leave Continue dead
-		return
+		return false
 	var resume_at := loaded.phase
+	session = null
+	career_flow = false
 	run = loaded
 	run.phase = GameFlow.Phase.TITLE
 	rng.seed = run.rng_seed.to_int()   # seed first: setting seed resets state
 	rng.state = run.rng_state.to_int()
 	change_phase(resume_at)
+	return true
+
+
+func _resume_career() -> bool:
+	var data := SaveIO.peek()
+	var resume_at := int(data.get("phase", GameFlow.Phase.WORK)) as GameFlow.Phase
+	if not _is_career_phase(resume_at) or not GameFlow.can_resume(resume_at):
+		return false
+	var bg_id := str((data.get("sim", {}) as Dictionary).get("bg_id", "intern"))
+	session = WorkSession.from_save(data, SimContext.load_default(bg_id))   # the clock starts paused (KILL_TESTS 6)
+	career_flow = true
+	_intro_starts_career = false
+	run = RunState.new()
+	run.background_id = bg_id
+	run.player_name = session.player_name
+	change_phase(resume_at)
+	return true
 
 
 ## Plan B "Retry" and Hired "New run": a brand-new RunState, same background preselected.
 func retry() -> void:
 	var from := run.phase
 	preselect_background = run.background_id
+	session = null
 	run = RunState.new()
 	run.phase = from  # keeps the transition legal; leaving PHASE2_STUB deletes the save
 	change_phase(GameFlow.Phase.BACKGROUND_SELECT)
@@ -125,12 +197,17 @@ func retry() -> void:
 ## Pause "Quit to title", Background select Back, ending "Title". The save survives for Continue.
 func quit_to_title() -> void:
 	change_phase(GameFlow.Phase.TITLE)
+	session = null
 
 
 func choose_background(bg_id: String, player_name: String, run_seed: int = 0) -> void:
-	_init_run(bg_id, player_name, run_seed if run_seed != 0 else new_run_seed())
+	var chosen_seed := run_seed if run_seed != 0 else new_run_seed()
 	preselect_background = bg_id
 	set_setting("meta", "last_background", bg_id)
+	if career_flow:
+		_begin_career(int(setting("meta", "run_count", 0)) + 1, bg_id, player_name, chosen_seed)
+		return
+	_init_run(bg_id, player_name, chosen_seed)
 	change_phase(GameFlow.Phase.JOB_HUNT)
 
 
@@ -152,6 +229,21 @@ func preview_gap_topics(bg_id: String, run_seed: int) -> Array:
 	var preview := RandomNumberGenerator.new()
 	preview.seed = run_seed
 	return Odds.pick(preview, _gap_pool(), bg.gap_topics_count)
+
+
+## Debug only: set a career run up in place so `project_run mode="custom"` can launch the work or layoff scene alone.
+## No change_phase() and no signal, so SceneRouter never replaces the scene you launched. to_layoff plays run 1 to the
+## layoff scene (answering whatever comes, the simplest way).
+func debug_career_quick_start(to_layoff: bool = false, run_seed: int = 20261009) -> void:
+	run = RunState.new()
+	run.background_id = "intern"
+	run.player_name = "Alex"
+	career_flow = true
+	session = WorkSession.start(SimContext.load_default("intern"), 1, run_seed, [], "Alex", true)
+	run.phase = GameFlow.Phase.WORK
+	if to_layoff:
+		session.play_to_layoff()
+		run.phase = GameFlow.Phase.LAYOFF
 
 
 ## Debug only: set a run up in place so `project_run mode="custom"` can launch one feature scene.
@@ -211,6 +303,131 @@ func _init_run(bg_id: String, player_name: String, run_seed: int) -> void:
 
 func _gap_pool() -> Array:
 	return Content.entries("naming").get("_gap_topic_pool", [])
+
+
+# ---------- the career run (M2; ARCHITECTURE 19.4, 19.7) ----------
+## The WORK scene calls these; the rules are the sim's (WorkSession -> Sim). Every answer is applied without a tick, so
+## time moves only in career_tick(), which the scene calls once a day while nothing is open. Each answer saves.
+
+func _is_career_phase(phase: GameFlow.Phase) -> bool:
+	return phase == GameFlow.Phase.WORK or phase == GameFlow.Phase.LAYOFF
+
+
+## A new career run: the sim's first state, the Handbook's collected tips, then the work state (which saves).
+func _begin_career(run_number: int, bg_id: String, player_name: String, run_seed: int) -> void:
+	var from := run.phase
+	var first := next_run_is_first()
+	session = WorkSession.start(SimContext.load_default(bg_id), run_number, run_seed, collected_tips(), player_name, first)
+	run = RunState.new()
+	run.phase = from   # keeps the transition legal, like retry()
+	run.background_id = bg_id
+	run.player_name = player_name
+	change_phase(GameFlow.Phase.WORK)
+
+
+## The tips the player has collected over all runs (the Handbook, GDD 5.21), as ids.
+func collected_tips() -> Array:
+	return Array(setting("meta", "handbook", []))
+
+
+## One day (the clock). Saves when something happened worth keeping: a card, a payday, a shipped ticket.
+func career_tick() -> void:
+	if session == null:
+		return
+	var events := session.tick()
+	_after_career(events, _career_events_worth_a_save(events))   # refreshes the screen after every day, saves on the notable ones
+
+
+func career_set_speed(position: int) -> void:
+	if session != null:
+		session.clock.set_speed(position, session.ctx.cfg)
+		run_changed.emit()
+
+
+func career_set_hours(notch: int) -> void:
+	_career_answer(func() -> Array: return session.set_hours(notch))
+
+
+func career_choose(choice_id: String) -> void:
+	_career_answer(func() -> Array: return session.choose(choice_id))
+
+
+func career_pick_ticket(pick: String) -> void:
+	_career_answer(func() -> Array: return session.pick_ticket(pick))
+
+
+func career_resolve_review() -> void:
+	_career_answer(func() -> Array: return session.resolve_review())
+
+
+func career_fail_interview() -> void:
+	_career_answer(func() -> Array: return session.fail_interview())
+
+
+func career_decline_offer() -> void:
+	_career_answer(func() -> Array: return session.decline_offer())
+
+
+## OK on the layoff scene or the forced leave.
+func career_acknowledge() -> void:
+	_career_answer(func() -> Array: return session.acknowledge())
+
+
+## OK on a notice. Not an input to the sim: only the screen's own state changes.
+func career_dismiss_notice() -> void:
+	if session == null:
+		return
+	session.dismiss_notice()
+	_after_career([], true)
+
+
+func career_close_coach(coach_id: String) -> void:
+	if session != null:
+		session.close_coach(coach_id)
+		_commit()
+
+
+func _career_answer(answer: Callable) -> void:
+	if session == null:
+		return
+	_after_career(answer.call(), true)
+
+
+## After any step or answer: an ending leaves the run, the layoff scene is its own phase, and the save keeps what
+## happened (the run log and the screen's state travel with it).
+func _after_career(events: Array, save_now: bool) -> void:
+	if session.is_over():
+		_finish_career()
+		return
+	if run.phase == GameFlow.Phase.WORK and session.wants_layoff_scene():
+		session.clock.set_speed(WorkClock.PAUSE, session.ctx.cfg)   # the scene is a beat of its own: the clock waits after it
+		change_phase(GameFlow.Phase.LAYOFF)   # saves
+		return
+	if run.phase == GameFlow.Phase.LAYOFF and not WorkCards.is_layoff_pending(session.sim):
+		change_phase(GameFlow.Phase.WORK)     # saves
+		return
+	if save_now or session.is_blocked():
+		_commit()
+	else:
+		run_changed.emit()
+
+
+func _career_events_worth_a_save(events: Array) -> bool:
+	for e: Dictionary in events:
+		if String(e.get("kind", "")) in ["payday", "rent", "ticket_shipped", "job_ended", "event", "review"]:
+			return true
+	return false
+
+
+## The sim ended the run: the tips it showed join the Handbook, then the ending card. Entering GAME_OVER deletes the save
+## and counts the run (change_phase).
+func _finish_career() -> void:
+	var tips: Array = collected_tips()
+	for tip: Variant in session.sim.tips_seen:
+		if not tips.has(tip):
+			tips.append(tip)
+	set_setting("meta", "handbook", tips)
+	change_phase(GameFlow.Phase.GAME_OVER)
 
 
 # ---------- job hunt verbs (each committed action ends with _commit()) ----------

@@ -20,5 +20,15 @@
   "end_plan_b_final": "Somewhere, a 17-year-old is watching your video. At night. Under a blanket.",
   "end_decline": "You declined. Bold. The market respects confidence. The market does not care.",
   "end_stats": "Days: {day} - Applications: {n} - Interviews: {i} - Rejections: {r}",
-  "end_remy_dm": "@RemoteRemy liked your post 'I got a job!' New DM: 'Guest spot in my course? Pay: exposure.'"
+  "end_remy_dm": "@RemoteRemy liked your post 'I got a job!' New DM: 'Guest spot in my course? Pay: exposure.'",
+  "end_studio_title": "THE STUDIO",
+  "end_studio": "You woke at 10:47. It took {jobs} jobs.",
+  "end_studio_one": "You woke at 10:47. It took one job.",
+  "end_burnout_title": "BURNOUT",
+  "end_burnout": "You took the leave. You didn't come back.",
+  "end_career_change_title": "CAREER CHANGE",
+  "end_career_change": "You teach a bootcamp now. You show them the video.",
+  "end_legacy_title": "LEGACY SYSTEM",
+  "end_legacy": "Six years. Same service. You are the legacy system.",
+  "end_career_stats": "Days: {day} - Jobs: {jobs} - Layoffs: {layoffs} - Level: {level}"
 }

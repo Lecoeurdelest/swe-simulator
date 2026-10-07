@@ -165,6 +165,15 @@ static func from_save(data: Dictionary) -> SimState:
 	return from_dict(_decode(data))
 
 
+## The same exact encoding for any plain-data value (WorkSession's saved UI state goes through it too).
+static func encode_value(v: Variant) -> Variant:
+	return _encode(v)
+
+
+static func decode_value(v: Variant) -> Variant:
+	return _decode(v)
+
+
 static func _encode(v: Variant) -> Variant:
 	match typeof(v):
 		TYPE_FLOAT:
