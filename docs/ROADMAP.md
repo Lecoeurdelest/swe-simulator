@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Version | 1.2, 2026-09-29 (portrait, iPhone first). 1.2 follows the grey-box review: CV editing and lying cut (D9), the "You do" exercises suspended (W7) |
+| Version | 1.3, 2026-10-07: the career run (Run Spec v1, DECISIONS W8) added as section 12, its milestones M1-M6 tracked as STEP-14..STEP-19, with M1 the next step (W9); status notes on sections 2-3 and Steps 7-11, the art pipeline without commissioning (D-21), the career run's playtest gates (7) and risks 13-19 (8). 1.2, 2026-09-29 (portrait, iPhone first): the grey-box review cut CV editing and lying (D9) and suspended the "You do" exercises (W7) |
 | For | You, a first-time game developer, building with Claude Code and godot-ai |
 | Target | A **portrait** game for **your iPhone**, developed on the Windows PC and built on the MacBook. Android is LATER (`docs/DECISIONS.md` D1, P1) |
 | What the game is | `docs/GDD.md` (design) and `docs/CONTENT.md` (every string) |
@@ -36,7 +36,7 @@ Studios move through the same phases whatever the size of the game. Here's how e
 | **Vertical slice** | What does "finished" look like? | one part built to final quality | **Step 9**: the interview, fully drawn and polished |
 | **Production** | Build everything else to that bar | art and content at scale | **Steps 8, 10, 11** |
 | **Polish (alpha, beta)** | Does it feel good, and does it survive real phones? | juice, audio, bugs, performance | **Steps 12-13** |
-| **Release / live** | Can players get it? What comes next? | store builds, updates | after the MVP: the App Store release (TestFlight already runs in Step 13), Android LATER, then **Phase 2: The Working Life** |
+| **Release / live** | Can players get it? What comes next? | store builds, updates | after the MVP: the App Store release (TestFlight already runs in Step 13), Android LATER, then **Phase 2: The Working Life** (since 2026-10-07 the career run, built as M1-M6: section 12) |
 
 ### Best practices you'll use at every step
 
@@ -53,13 +53,15 @@ Studios move through the same phases whatever the size of the game. Here's how e
 8. **Cut scope early.** Everything is tagged MUST, SHOULD or LATER. A new idea replaces something; it never just adds.
 9. **The vertical slice sets the bar.** Make one screen beautiful, then match everything else to it.
 10. **Timebox, with the 2x rule.** If a task takes twice its estimate, stop, then cut it or simplify it.
-11. **Keep a decision log.** Each decision is one line with a reason, in `docs/DECISIONS.md` (it holds D1-D12, P1-P2, C1-C4, W1-W7 and the agent defaults A1 onward). It stops you from re-arguing the same thing in week 6.
+11. **Keep a decision log.** Each decision is one line with a reason, in `docs/DECISIONS.md` (it holds D1-D12, P1-P3, C1-C4, W1-W9, the Run Spec's D-01..D-25, P-01..P-08 and Q-01..Q-07, your later design decisions D-26 onward, and the agent defaults A1 onward). It stops you from re-arguing the same thing in week 6.
 
 ---
 
 ## 2. The MVP
 
 **In one sentence:** on an iPhone held upright in one hand, a player watches or skips the intro, picks a background, hunts for jobs in the DoomApply phone app until an interview invite lands, survives a fighting-game interview with Dana, and accepts or declines an offer. Every failure teaches a real career tip.
+
+**Run Spec v1 status:** this is Phase 1's MVP, as the v0.1 grey-box built it. The career run (section 12) changes what the game is: which game `v0.5-mvp` ships is Open (MC-01: proposed, the career run). The Work loop listed as out of scope below is now the career run (W8).
 
 **Out of scope for the MVP:**
 - the Work loop (Phase 2), and walking characters
@@ -127,6 +129,19 @@ Studios move through the same phases whatever the size of the game. Here's how e
 That comes to about **67 hours to the grey-box** (about 4 weeks) and **about 165 hours to the MVP** (about 9-11 weeks). Full-time, halve both.
 
 Art hours are the most uncertain. If you draw everything yourself, double Steps 9-11.
+
+**2026-10-07: the career run (Run Spec v1) is merged into these docs, and M1 starts now** (DECISIONS W8, W9). M1, the career run's sim core, is tracked as STEP-14 and is the next step, ahead of the open Steps 7-13. Its milestones M1-M6 (STEP-14..STEP-19) are section 12:
+
+| Step | Milestone | Your hours (estimate) |
+|---|---|---|
+| 14 | **M1: the sim core**, headless, with five bots (next: W9) | 3 |
+| 15 | M2: the grey-box UI, no diorama; three outside players | 6 |
+| 16 | M3: run 1 end to end | 6 |
+| 17 | M4: all systems; the Planner wins 5-10% | 6 |
+| 18 | M5: the pixel-art office diorama | 40 (you draw it: D-21) |
+| 19 | M6: the Handbook, events to about 40, the Ducky pass, tuning | 12 |
+
+What happens to Steps 7-13 meanwhile is still open (MC-01). The record of the merge, with every conflict and your open questions: `docs/merge-report.md`.
 
 ---
 
@@ -548,7 +563,7 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 - **Kill the app on your iPhone at 5 moments** (swipe it away in the app switcher: mid-hunt, right after Sleep, mid-interview, on the offer, on the Hired card) and check Continue each time. It's an iPhone check, so it stays yours under W7. [`docs/KILL_TESTS.md`](KILL_TESTS.md) has the steps, what each Continue should show, and a row for your results.
 
 **Design huddle**
-- **D7:** should Negotiate be the second SHOULD?
+- **D7:** should Negotiate be the second SHOULD? (Answered 2026-10-07: Negotiate is removed, D-27.)
 - Is the Dream vs Reality footer funny or smug? (Answered 2026-09-29: neither clear nor funny, so it was rewritten: C4.)
 
 **Done when**
@@ -565,6 +580,8 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 ---
 
 ### Step 7: Playtest #1, tuning and the balance sim (about 8 h)
+
+**Run Spec v1 status:** open (MC-01). M1 (STEP-14) starts ahead of this step (W9). Proposed: fold Playtest #1 into the M2 gate (STEP-15), and replace task 3's Phase 1 balance sim with the career run's R-BAL harness (STEP-14), which takes ISSUE-09 with it.
 
 - **Goal:** evidence that the loop is fun and fair, before you spend weeks on art.
 - **Best practice:** playtest in silence, tune data rather than code, and automate the balance check.
@@ -595,12 +612,14 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 
 ### Step 8: SHOULD features, in GDD 10.2 order (timebox 16 h)
 
+**Run Spec v1 status:** open (MC-01). Proposed: park the hunt's SHOULDs (tasks 1, 3, 5 and 8: Research, Network and the site tabs, the commute strip, the morning events and the Unicorn) and keep drag-to-sign (task 6) for M3. Task 2 was removed (D-27).
+
 - **Goal:** the highest-value extras, in priority order, until the timebox runs out.
 - **Best practice:** scope by priority and time, not by wish.
 
 **Tasks.** Build in this order:
 1. **Research** on the card back. It reveals ghosts, red flags and the real salary, and unlocks the insider "Why us?" answer. The balance and the teaching lean on it, so build it first and rerun the sim.
-2. One-tap **Negotiate**.
+2. One-tap **Negotiate** (removed 2026-10-07, DECISIONS D-27: the contract modal stays Accept or Decline).
 3. **Network** plus the 3 site tabs.
 4. The static top-down **room hub** with 4 hotspots.
 5. The Hard-mode **commute strip**.
@@ -614,13 +633,15 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 Stop at the timebox. Anything unbuilt goes to the cut list (section 11).
 
 **Done when**
-- [ ] Research and Negotiate have shipped and been tested on the iPhone.
+- [ ] Research has shipped and been tested on the iPhone. (Negotiate was removed: D-27.)
 - [ ] The sim has been rerun: GDD 5.12 predicts research pushes first-interview pass rates up by 10-15 points.
 - [ ] The cut list is updated.
 
 ---
 
 ### Step 9: Art style lock and the vertical slice: the interview (about 20 h; double it if you draw it yourself)
+
+**Run Spec v1 status:** no commissioned art (D-21): task 4's "draw, buy or commission" becomes draw or reuse, and buying a pack is Open (MC-16: proposed, free or CC0 packs only unless you OK one). Under MC-01's proposal the art and release steps (9-13) come after M4.
 
 - **Goal:** one screen at final quality. It becomes the reference for everything else.
 - **Best practice:** the vertical slice sets the quality bar before production.
@@ -647,6 +668,8 @@ Stop at the timebox. Anything unbuilt goes to the cut list (section 11).
 
 ### Step 10: Art production for the rest (about 30 h)
 
+**Run Spec v1 status:** the career run adds the office diorama and the home rooms at M5 (STEP-18, GDD 2.11), and D-21 applies here too (no commissioned art). Where this step sits against M1-M6 is Open (MC-01).
+
 - **Order, by time spent on screen:**
   1. the DoomApply skin (HUD, dock icons) and card art;
   2. 6 company logos (16x16) and the icons;
@@ -666,6 +689,8 @@ Stop at the timebox. Anything unbuilt goes to the cut list (section 11).
 ---
 
 ### Step 11: Intro cutscene art (about 12 h)
+
+**Run Spec v1 status:** run 1 skips Background select, so the intro's last caption has to hand over to day 0: Open (MC-11). The panels pan or tilt but never zoom (A19; "zooms" below predates A19).
 
 - **The piece:** 6 portrait panels (270x480; up to 480x480 for a sideways pan, 270x720 for a tilt) from CONTENT.md section 2, as a motion comic: still panels, pans, tilts and zooms, 2-4 frame loops (a glowing phone screen, blinking), and typed captions. Keep the focal content in the top 350 px: captions cover the bottom.
 - **The build:** the Step 6 slide system stays. You only swap in the art.
@@ -755,6 +780,8 @@ Keep sources in `art_src/` (Godot ignores that folder) and export PNGs into the 
 
 ### Where the art comes from
 
+**Run Spec v1 status (D-21, D-25):** no commissioned art. The hero pieces below are drawn by you or reused, so the "draw or commission" and "Commissioning" items no longer apply; buying a pack ("Props and UI frames (buy)") is Open (MC-16: proposed, free or CC0 packs only unless you OK one). The career run's office diorama is drawn in this same style, from an asset list per milestone that marks what already exists (GDD 2.11, R-DIO-05; INV-20). Double every estimate, as below.
+
 **Grey-box first**, then:
 - **Hero pieces (draw or commission):**
   - the 3 player busts;
@@ -808,6 +835,20 @@ Keep sources in `art_src/` (Godot ignores that folder) and export PNGs into the 
 | **Playtest #1 (Step 7)** | 3-5 people: 2 job seekers or students (the target audience), 1 non-gamer, 1 developer friend | grey-box, on your iPhone | Is the loop understandable, fair and funny? |
 | Step 9 | 2 people | vertical slice | Is the art readable? Does the interview feel good? |
 | **Playtest #2 (Step 13)** | 5-8 people | release candidate, on **their own iPhones** via TestFlight | readability, devices, crashes, balance |
+| **The M2 gate (STEP-15)** | 3 outside players | the career run's grey box | Do they finish job 1, and can they say why they were laid off? (gates 1-2 below; MC-01 proposes folding Playtest #1 in here) |
+| M5 (STEP-18) | 3+ playtesters | with the diorama | Do they mention the empty desk or the lamp unprompted? |
+| **The M6 gates (STEP-19)** | 5+ playtesters | the full career run | all four gates below |
+
+### The career run's playtest gates (Run Spec v1)
+
+The device for these playtests is your call: the iPhone once the Mac is set up (P2), or the desktop build until then.
+
+| Ask the player | Pass | If it fails |
+|---|---|---|
+| Could you have avoided the layoff? | "No, but I could have been readier" | make the five signs louder (R-RUN-02) |
+| What did you do with the Hours slider? | moved it at least twice a job, with a reason | Junior is passive: raise the event density, or let events push the slider |
+| What were you trying to get? | names The Studio or one of its conditions | the checklist isn't visible enough (R-WIN-07) |
+| Where did you stop playing? | at natural breaks: payday, a review, a job change | add a soft stop point after big events |
 
 **How to run a session**
 - Give them the phone and say only: "It's a game about getting a tech job. Think out loud." Note which hand they hold it in.
@@ -851,6 +892,15 @@ Keep sources in `art_src/` (Godot ignores that folder) and export PNGs into the 
 | 10 | **The Mac isn't at hand** (every iPhone build needs the MacBook) | Medium / High | Develop on the PC, build on the Mac at least weekly; push after every session; set up Godot, godot-ai and Claude on the Mac in Step 2 so work can continue there | No build on the phone for two weeks |
 | 11 | **7-day signing:** Personal Team builds stop launching 7 days after install | Certain / Low | Write down the install date; re-run from Xcode before every playtest; paid program from Step 13 | "The app won't open" |
 | 12 | **Apple's fee and review for testers** (TestFlight needs the 99 USD a year program; external testers need a beta review) | Certain / Medium | Join the program at the start of Step 13, not before; upload a few days before Playtest #2. Android and Play stay LATER | Playtest #2 is next week and nobody can install the game |
+| 13 | **A Junior with one slider still feels passive** (the career run) | High | The M2 gate; about 25 events a year; events that push the slider | M2 players can't say why they moved the slider (gate 2) |
+| 14 | **The Studio routing puzzle is opaque** | Medium | The checklist always visible (R-WIN-07); Ducky hints at a route after the first loss (no milestone yet: a spec gap, M6) | Players can't name The Studio or a condition (gate 3) |
+| 15 | **Scars plus rising costs become a death spiral** | Medium | Counterplay for every Scar, a 3-stack cap, harness checks (each hard loss at least 10% of losses) | Harness losses pile up in jobs 2-3, or Scars sit at 3 stacks |
+| 16 | **New pixel sprites outrun what you can draw** | Medium | Reuse existing tiles first; an asset list per milestone; labeled placeholders on the same grid (no commissioned art: D-21) | M5's asset list grows faster than its art; placeholders reach a playtest |
+| 17 | **Burnout auto-resolve feels unfair** | Medium | Three warnings first; the card says the choice was made for you (R-EVT-02) | Players say "the game chose for me" without remembering a warning |
+| 18 | **Layoffs and burnout are real, and the satire stings** | Low-medium | The joke is never on the player; Ducky's tip is always genuine (GDD 1.3) | Playtesters wince at the layoff scene instead of laughing |
+| 19 | **The review duel's content cost** | Low | A 12-prompt pool in v1 (P-08) | The pool repeats within a run |
+
+Rows 13-19 are the Run Spec's risks: its one "level" fills the likelihood / impact column, and the early warnings were drafted at the merge. Since D-21 there is no commissioned art, so risk 3's "commission only the hero art" no longer applies and risk 16 carries the drawing load; risk 1's "Work loop" is now the plan (section 12), and its creep risk moves into M1-M6.
 
 ---
 
@@ -862,7 +912,7 @@ Keep sources in `art_src/` (Godot ignores that folder) and export PNGs into the 
 | 2 | 3, then start 4 | tap-through of every screen; interview bars and choices |
 | 3 | finish 4, then 5 | a playable interview; the hunt started |
 | 4 | finish 5, then 6 and 7 | **`v0.1-greybox`**, and Playtest #1 done |
-| 5-6 | 8, 9 | Research and Negotiate; the interview at final quality |
+| 5-6 | 8, 9 | Research; the interview at final quality |
 | 7-8 | 10 | the art in place |
 | 9 | 11, 12 | the intro, audio and polish |
 | 10 | 13 | **`v0.5-mvp`** |
@@ -919,7 +969,7 @@ These aren't blocking. They're good conversations for later steps:
 - Dana's running gags. Which cameo lines land best?
 - The tone of the Plan B ending: warm or bitter?
 - Which 5 career tips matter most to you personally? They should be the ones players see first.
-- **Phase 2 pitch:** what does the first work day look like, and which MVP state does it use? For example, `employment` and `commute_pips`. Your first ideas (small random events, a few minor career improvements, no cosmetics for now) are parked in `docs/ideas_parking_lot.md`; nothing is built until you decide.
+- **Phase 2 pitch:** what does the first work day look like, and which MVP state does it use? For example, `employment` and `commute_pips`. Your first ideas (small random events, a few minor career improvements, no cosmetics for now) are parked in `docs/ideas_parking_lot.md`; nothing is built until you decide. (Superseded on 2026-10-07: the Run Spec is the working life, W8; section 12.)
 - **A post-MVP mini-game:** the take-home "CRUNCH!" mash, or a Buzzword Catch.
 
 ---
@@ -937,10 +987,12 @@ These aren't blocking. They're good conversations for later steps:
 7. The commute strip; show the text "-4 energy" instead.
 8. The top-down room hub; the DoomApply phone hub is enough.
 9. Network and the site tabs.
-10. Negotiate.
+10. Negotiate (already removed, D-27).
 11. Research. It's the last SHOULD to drop, because the balance leans on it. If it's cut, try GDD D8 option (c), gentler Doubt HP, and rerun the sim.
 12. *(MUST simplifications, only if desperate)* Build the intro from 2-3 illustrated slides plus text; use 1 recolored interview background for all 3 tiers; make the VS intro a static layout plus the slam.
 13. Cut content down to the GDD minimums: 15 knowledge, 10 ethics, 20 postings, 15 tips.
+
+**The career run's cut list** comes with its scope tags, which are yours (W4; GDD 10.7). This list is Phase 1's.
 
 **Never cut:**
 - the full Hunt > Interview > Offer loop;
@@ -951,3 +1003,151 @@ These aren't blocking. They're good conversations for later steps:
 - saving on pause;
 - running on your real iPhone;
 - the parody-names-only rule.
+
+---
+
+## 12. The career run: M1-M6 (STEP-14..STEP-19)
+
+Run Spec v1, the career run (GDD 0, 3.3-3.4, 5.14-5.22), is built in six milestones, tracked as STEP-14..STEP-19 (A53): task ids stay ROADMAP steps, nothing is renumbered, and the spec's M-ids stay in the titles. Its order: build the simulation first and headless, prove it with bots, then put the cheapest possible UI on it and playtest before drawing a single desk (GDD 10.7).
+
+**M1 (STEP-14) is the next step** (W9). It starts now, ahead of Phase 1's open Steps 7-13, because it is headless PC work that needs neither the iPhone nor the Phase 1 hunt; it is the one exception to W2's gate, which still orders Steps 7-13 among themselves. Where STEP-15..19 sit against Steps 7-13 is open (MC-01: proposed, fold Playtest #1 into the M2 gate, replace Step 7's Phase 1 balance sim with R-BAL, keep drag-to-sign for M3, park the hunt's SHOULDs, and put the art and release steps after M4). Each step runs section 10's session loop and W1: its own branch, committed and pushed after each verified increment, merged by you on GitHub in step order.
+
+| Step | Milestone | Branch (A53) | Depends on | Hours (estimates) |
+|---|---|---|---|---|
+| STEP-14 | M1: the sim core | `step-14-sim-core`, from `run-spec-v1-merge`, or from `main` once you've merged the merge's pull request (A61) | none (W9) | Claude about 20 h of tool calls; you about 3 h |
+| STEP-15 | M2: the grey-box UI | `step-15-greybox-ui` | STEP-14 | Claude about 16 h; you about 6 h |
+| STEP-16 | M3: run 1 end to end | `step-16-run-one` | STEP-15 | Claude about 20 h; you about 6 h |
+| STEP-17 | M4: all systems | `step-17-all-systems` | STEP-16 | Claude about 20 h; you about 6 h |
+| STEP-18 | M5: the office diorama | `step-18-diorama` | STEP-17 | Claude about 12 h; you about 40 h (you draw it: D-21) |
+| STEP-19 | M6: content and tuning | `step-19-content-tuning` | STEP-18 | Claude about 16 h; you about 12 h |
+
+The hours are estimates written at the merge; each step's kickoff revises them, and the 2x rule applies to Claude's hours too. The "You do" exercises stay suspended (W7): yours are the huddles' answers, the playtests, the art (M5), and the sign-offs on scope, tone and tips. The career run's scope tags (MUST / SHOULD / LATER) are yours to set (GDD 10.7).
+
+### Step 14 (M1): the sim core, headless
+
+- **Goal:** the whole career run's rules run headless, deterministic and fast, and five bots play it: 10,000 seeds in minutes, with the Planner within 5 points of its 5-10% band.
+- **Best practice:** simulate before you build screens. Balance is a property of the rules, and a harness finds a broken number in seconds, long before a playtest would.
+- **Status:** the next step (W9), ready to start once this merge is finished.
+
+**Tasks**
+1. **Data** (Claude): `WorkConfig` and `ArchetypeData`, `@tool` Resources whose script defaults equal GDD 11.7; `data/work/work_config.tres` and the three `data/archetypes/*.tres` (ids per MC-05); the huddle's 10 events in `data/content/work_events.json` (A54; texts from CONTENT 16.3). `test_data_files` and `test_content_lint` grow to cover them (ARCHITECTURE 19.10).
+2. **The sim core** (Claude): `SimState`, `Sim.step`, `WorkOdds` and `EventPlan` (ARCHITECTURE 19.2), covering every system so the bots can play whole careers: the clock and money (GDD 5.14-5.15), the work stats, the Codebase and the review (5.16, with a stand-in review until M3), the controls (5.17), archetypes and floor depth (5.18), events with the auto-resolve and layoff selection (5.19), the job hunt with the callback and duels resolved by formula (5.20), Scars and the Handbook's edges (5.21), the Studio hold and every ending (3.3, 3.4). Pure classes, no global RNG, plain-data state (INV-03, INV-04, INV-07).
+3. **The tests** (Claude): `test_sim_rules`, `test_sim_review`, `test_sim_events`, `test_sim_endings`, `test_sim_replay` and `test_sim_smoke` (ARCHITECTURE 19.10), with the GDD's worked numbers.
+4. **The harness and the five bots** (Claude): `tests/harness/run_harness.gd` and `tests/harness/bots/` (ARCHITECTURE 19.6), run headless on a copy of the repo (A56; the commands are in `.agent/AGENTS.md`). Every run's report goes to `.project/evidence/STEP-14/<run>/`.
+5. **First tuning** (Claude, then you): tune `WorkConfig` and `ArchetypeData` only, until the Planner is within 5 points of its band, and write down what changed and why.
+6. **D-27's cleanup** (Claude), as its own commit, since D-27 gave it to the next code change: remove `Odds.negotiate_p`, `Odds.negotiated_salary`, BalanceConfig's `nego_*` fields, the offer's `negotiated` flag, `test_offer`'s negotiation test and the unused strings (CONTENT 16.7), then sync GDD 11.6, ARCHITECTURE 6.2, 7.1 and 17, and `test_data_files`.
+
+**Claude and godot-ai do:** all of the above. M1 needs no editor: the headless runner and `test_run` (or its headless twin) are enough.
+
+**Design huddle** (W4: Claude takes the recommended defaults if you're away)
+- Which 10 events M1 builds. Proposed: E01, E02, E04, E07, E08, E12, E18, E20, E21, E24, so every bot's strategy meets the event it is built around (the money pulse, the review, rent, the layoff, the remote threat, incidents, the recruiter, the emergency, lifestyle creep, overtime).
+- The M1 spec gaps in `docs/merge-report.md`: the starting values, day 0, a promotion's salary, leases, severance, ticket deadlines and sizes, the random events' odds, exhausted choices, owning a service, E04 in the Shared room, and how the harness resolves duels.
+- MC-23 (E12's cooldown against O5), MC-05 (the archetype ids), MC-04 (starting savings) and MC-22 (INV-09's wording).
+- M1's exit also passes at 0% wins: add "and wins at least 1%"?
+
+**Done when** (`project.yaml` gives each one an id, and lists M1's rule checks)
+- [ ] 10,000 seeds per bot run headless in minutes (the time is recorded in the evidence).
+- [ ] The Planner wins within 5 points of its 5-10% band, and the other bots' numbers are recorded.
+- [ ] The Coaster never wins, and its median loss comes before day 1,800 (O2).
+- [ ] The objectives' sim tests pass: Manager Opinion has no effect on layoff selection (O1); incidents at Codebase 80 are at least 3x those at 20 (O5, once MC-23 settles E12's cooldown); the win fires only with all five conditions held 90 days (O6).
+- [ ] The same seed and inputs replay the same run (`test_sim_replay`), and every suite passes, including each M1 rule check `project.yaml` lists.
+
+**Pitfalls**
+- A rule hiding in the harness or a bot instead of the sim: a bot only sends inputs.
+- Dictionary order or the global RNG deciding a roll; the replay test catches both.
+- Tuning by editing scripts instead of the `.tres` files (INV-15).
+- Chasing the exact band at M1: "within 5 points" is M1's bar, and 5-10% is M4's.
+
+### Step 15 (M2): the grey-box UI
+
+- **Goal:** the career run on screen with the cheapest UI: the phone shell, the calendar strip, the four numbers, the Hours slider, event cards, the speed control, save and resume, and no diorama. Three outside players finish job 1 and can say why they were laid off.
+- **Best practice:** answer the riskiest question first (is a Junior with one slider fun?), with boxes and text, before any art or content spend.
+
+**Tasks**
+1. **Phases and the save** (Claude): append `WORK` and `LAYOFF` (INV-10), with the transitions and save rules of ARCHITECTURE 19.4 (RC-35) and the `GameState` verbs the screen calls.
+2. **`features/work/work.tscn`** (Claude), on the screen skeleton (ARCHITECTURE 10.1, 19.7; GDD 4.6): the top band, the Hours notches and the speed control in the thumb band, the dock, the event card (choices behind the 250 ms lock), the auto-resolve's warnings and its "Burnout picked" line, and an on-screen Back to Pause. Job 1 here is the sim's own: M1's events, with the resizing chain and the layoff as plain cards; M3 replaces them with run 1's authored content.
+3. **Kill tests** (Claude on the desktop; you on the iPhone once it's set up): the career run's moments in `docs/KILL_TESTS.md` (O8).
+4. **The M2 playtest** (you): three outside players, silent, as section 7 says; ask gates 1 and 2.
+
+**Design huddle:** the career run's first-run coach marks and how often a recurring event's tip shows (both spec gaps); whether a drag along the Hours notches should also work (A58); MC-12 (Tired) and MC-15 (telemetry).
+
+**Done when**
+- [ ] Three outside players finish job 1 and can say why they were laid off.
+- [ ] Killing the game mid-run, then Continue, restores the state of the last save (O8).
+- [ ] Every control used more than once a day sits in the thumb band, and the Junior screen has exactly one continuous control (O3).
+- [ ] The rest of M2's checks in `project.yaml` pass: the HUD, the event card, the auto-resolve's card, no time while closed.
+
+**Pitfalls**
+- Drawing the diorama now: M2 has none, on purpose.
+- Letting the clock run under an open card or app (GDD 4.5).
+- Explaining the game to the playtesters.
+
+### Step 16 (M3): run 1 end to end
+
+- **Goal:** run 1 playable from day 0 to the board: Pivotly and its coworkers, the resizing chain, the review duel, the layoff scene, the DoomApply board and the adapter.
+- **Best practice:** finish one vertical path before widening: run 1 is the tutorial, the story and the satire's thesis in one.
+
+**Tasks**
+1. **Run 1's content** (Claude): Pivotly's four coworkers (`coworkers.json`), the five signs (R-RUN-02), run 1's beats (GDD 3.3: the review on day 180, Dana's invite around day 235, the layoff on day 240) and the intro's handover (MC-11).
+2. **The review duel** (Claude): 3 prompts on the Dana duel UI with a manager portrait placeholder (P-08).
+3. **The adapter** (Claude): DuelRequest and DuelResult, OfferRequest and OfferResult (ARCHITECTURE 19.5), with `test_adapter`.
+4. **The layoff scene** (Claude): `features/layoff/` (GDD 5.19, RC-34).
+5. **The DoomApply board** (Claude): postings as nodes, the callback band, apply and study, replies and interviews on the calendar strip (GDD 5.20).
+
+**Design huddle:** the review's prompts, the clause list, the callback band's thresholds, E07's prep effects and run 1's work mode (spec gaps); MC-06 (the company names), MC-08 (what Accept shows), MC-11 (the intro's handover), MC-19 (Decline blacklists) and MC-20 (copy that names retired mechanics); the coworkers' and the layoff scene's tone, which is yours.
+
+**Done when**
+- [ ] Run 1 plays from day 0 to the board, with the five signs before day 240.
+- [ ] A won interview from the board reaches the contract modal through the adapter, and Accept starts job 2.
+- [ ] You've signed off the tone of Pivotly's coworkers and the layoff scene.
+- [ ] The rest of M3's checks in `project.yaml` pass: the review duel, the board, the adapter's inputs, Accept or Decline.
+
+### Step 17 (M4): all systems
+
+- **Goal:** a full run playable with every system on screen: 3 archetypes, floor depth, the Mid and Senior controls, home tiers, Scars, the Studio hold and every ending. The Planner wins 5-10%.
+
+**Tasks**
+1. The archetypes on the board and at work (GDD 5.18, 7.1), floor depth (6.1) and the level carry-over (5.17).
+2. The Mid and Senior controls (the ticket pick, push back, the quality bar, the calendar tax) on screen, at most 3 main actions per screen (pillar 2).
+3. The Home app and lifestyle creep (5.15), ClikClok's checklist and the Filming bar (3.4), Scars (5.21) and every ending card (3.3).
+4. Tune to R-BAL: the Planner at 5-10%, and the other bots' targets (GDD 5.22).
+
+**Design huddle:** the M4 spec gaps (layoff numbers, the forced leave, removing Scars, references, MegaCorp's two duels, the job-5 board, the generated manager); MC-03, MC-09, MC-10, MC-13 and MC-14.
+
+**Done when**
+- [ ] A full run is playable to every ending.
+- [ ] The Planner wins 5-10% over 10,000 seeds.
+- [ ] The other R-BAL holds pass: the median run, the ending mix, the Planner's promotion inside job 1, and the Grinder's, the Lifestyle bot's and the Random bot's targets (GDD 5.22).
+- [ ] The rest of M4's checks in `project.yaml` pass: the Home app, the Mid and Senior controls, the archetypes, all 26 events, ClikClok's checklist.
+
+### Step 18 (M5): the pixel-art office diorama
+
+- **Goal:** the office diorama in the shipped pixel-art style, pause-and-zoom, and the win's ending video. Playtesters mention the empty desk or the lamp unprompted.
+- **Best practice:** an asset list per milestone (R-DIO-05): reuse first, labeled placeholders on the same grid, and draw only what's missing.
+
+**Tasks**
+1. **The asset list** (Claude, then you): GDD 2.11's list checked against what exists, with the manager portrait and the walk cycle added (a spec gap), each with its size and frames.
+2. **The diorama** (Claude): ARCHITECTURE 19.8: the tile column, the lanes, the state swaps, pause-and-zoom in whole steps.
+3. **The art** (you): drawn to section 5's rules; no commissioned art (D-21), and CC0 packs only if they match the palette (paid packs: MC-16).
+4. **The ending video** (Claude), assembled from the run log (GDD 3.4).
+
+**Done when**
+- [ ] Playtesters mention the empty desk or the lamp unprompted.
+- [ ] Every new sprite matches the shipped pixel grid and palette, and nothing was commissioned (O9, INV-20).
+- [ ] The rest of M5's checks in `project.yaml` pass: the state swaps, the lanes, the zoom, the asset list.
+
+### Step 19 (M6): the Handbook, events to about 40, the Ducky pass, tuning
+
+- **Goal:** the Handbook, events to about 40, a Ducky writing pass and tuning, until the playtest gates pass (section 7).
+
+**Tasks**
+1. The Handbook app (GDD 5.21, 8.5; MC-18), the unlocks and the ending gallery.
+2. About 14 new events (none is written yet), each with a tip or an explicit none (O7).
+3. The Ducky writing pass: the jokes and causes, the tips' `more` lines, the plain-language rule (C3, MC-17), and a rent tip for E04 if you want one (D-28).
+4. Tuning with the harness, then the playtest gates.
+
+**Done when**
+- [ ] The playtest gates pass (section 7).
+- [ ] You've signed off every tip (GDD 8.1).
+- [ ] The content lint passes: every event has a tip or an explicit none.
+- [ ] The rest of M6's checks in `project.yaml` pass: the Handbook, the run log's report.

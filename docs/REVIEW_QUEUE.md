@@ -1,18 +1,70 @@
 # Review queue: what's waiting for you
 
-Written at the end of the Step 7 review run, 2026-09-29. Your v0.1 review is built on the branch `step-07-dev-review`: CV editing and lying are gone (D9), Ducky's coach marks close on a tap (D11), the VS screen waits for your tap and shows less text (D12), the choice questions and the Hired card are in plainer words (C3, C4), and the real HP and stat bars replaced the placeholders (W7). A review fix pass followed: leftovers of the CV removal, Ducky's offer tip (Q6), the VS fade, the Hired-card points, a few tips, and a debug button that replays the first run (A47-A51). **217 tests pass** (20 suites). Nothing was built for Phase 2. Tick items off here or delete this file when you're done.
+Rewritten on 2026-10-07 at the end of the Run Spec v1 merge. Section 0 is new; sections 1-6 carry over what was still waiting from the Step 7 review (2026-09-29). Tick items off here, or delete the file when you're done.
 
-## 1. Merge the work (5 minutes)
+## 0. The Run Spec v1 merge (2026-10-07)
 
-`step-07-dev-review` sits on top of `main` (your Step 6 merge) with 12 commits: the CV and lying removal, the copy fixes, the coach marks, the VS intro, the bars, the docs and tracking sync, then the review fix pass (D9 leftovers; the offer tip and the VS fade; the Hired-card points; tip fixes; the debug Reset first run; its docs and tracking).
+The Run Spec, the career run, is folded into the docs on branch `run-spec-v1-merge` (DECISIONS W8): GDD 2.0 (sections 0-4, the new 5.14-5.22, 6.1, 7.1, 8.5-8.6, 9.5, 10.7, 11.7 and 13), CONTENT 1.2 (section 16: draft strings), ARCHITECTURE 1.5 (section 19: the code plan, nothing built), ROADMAP 1.3 (section 12: M1-M6 as STEP-14..STEP-19), DECISIONS, the agent rules (`.agent/AGENTS.md`, INV-20) and the tracking. No code, scene, `.tres`, JSON or asset changed. `docs/merge-report.md` is the record: where every part of the spec went, every conflict and how it was resolved.
 
-- The pull request is open: [#6](https://github.com/Lecoeurdelest/swe-simulator/pull/6). Merge it with **"Create a merge commit"** (not squash).
-- Afterwards: `git switch main && git pull` on each machine. You can delete the branch on GitHub.
-- Heads-up: the verification runs on this PC may have left a test run in its save. If the title screen shows CONTINUE, tap New game for a clean run. They also pressed the new debug button "Reset first run" (A51), so your next New game on this PC is a first run, with Ducky's coach marks.
+### 0.1 Merge the branch (5 minutes)
 
-## 2. Decisions to review (`docs/DECISIONS.md`)
+Open the pull request at https://github.com/Lecoeurdelest/swe-simulator/pull/new/run-spec-v1-merge, look it over, and merge it with **"Create a merge commit"**. M1 then starts on `step-14-sim-core` (A61; from `main` if you merge first).
 
-Your answers from the review are written down as decisions; check that they say what you meant. The agent defaults followed the recommended option (W4); skim them, and add a new row to change one.
+### 0.2 Your open conflicts
+
+Each has a proposed resolution in `docs/merge-report.md`, and the docs mark it **Open (MC-nn)** wherever it matters. Nothing below is decided.
+
+| ID | The question | Proposed |
+|---|---|---|
+| MC-01 (the rest) | What happens to Steps 7-13 while M1-M6 run, and which game `v0.5-mvp` ships | fold Playtest #1 into the M2 gate; the R-BAL harness replaces Step 7's Phase 1 sim (ISSUE-09 goes with it); keep drag-to-sign for M3 and park the other hunt SHOULDs; the art and release steps after M4; `v0.5-mvp` = the career run |
+| MC-03 | What a background changes in the career run | the duel's inputs, starting savings and the commute (the Dream score) only |
+| MC-04 | Starting savings (not in the spec) | the Phase 1 runway days as months of expenses (0.5 / 0.4 / 0.4). A caution: the first rent is due on day 1, so a run that starts between jobs would be below zero at once and reach Plan B around day 31 unless a first salary lands; let the harness test it before you pick |
+| MC-05 | The three archetypes vs Phase 1's three tiers | Startup = `startup`, Agency = `mid`, MegaCorp = `big`, ids unchanged |
+| MC-06 | The placeholder company names (Pivotly, Outsourcery, Monolith) | reuse Hierarchai, Scope & Creep Digital and OmniGlobal Dynamics; otherwise a trademark check on new names (C1) |
+| MC-07 | Phase 1's hunt satire (ghost jobs, knockouts, the Radar, referrals, Research) on the new board | keep the Run Spec's board for M1-M4; consider ghost and knockout flags on postings at M6 |
+| MC-08 | What Accept shows, now that the Hired card isn't an ending | keep the HIRED! stamp as a short beat; drop `end_tbc` |
+| MC-09 | The career-long Dream vs Reality score | keep the 5 rows, rebased (runway months, clauses), scored per job |
+| MC-10 | The salary scale (k$ a month, a Junior at $29-45k a year) and its display | the contract shows the yearly figure; rebase the Dream target |
+| MC-11 | The intro ends on "How did you spend those four years?", but run 1 skips Background select | a new last caption that hands over to day 0 (draft in CONTENT 16.6) |
+| MC-12 | Tired has no source without energy pips | retire it: Burnout already lowers Composure |
+| MC-13 | The commute has no daily rule | none in M1; the Dream score only |
+| MC-14 | Work modes and office days for postings that aren't remote | remote or not; Phase 1's office days per tier |
+| MC-15 | Telemetry vs a game that is offline and collects nothing | a local run log and a debug report only |
+| MC-16 | Paid asset packs vs "no art budget" (D-21) | free or CC0 packs only, unless you OK one |
+| MC-17 | The plain-language rule (C3) for event cards and tips; two tip overlaps | apply C3 at M6's writing pass; reuse `tip_secrets` (E15) and `tip_blameless` (E26) |
+| MC-18 | The Handbook vs the Career Notebook; which tips count | the Handbook is the Notebook grown up; every tip that fires is collected, Phase 1's as Lore |
+| MC-19 | Does Decline still blacklist the company? | keep |
+| MC-20 | Copy that names retired mechanics ("decide before you sleep", "Rent's due.") | reword at M3 |
+| MC-22 | INV-09 says difficulty is "only numbers from BackgroundData", but floor depth and the archetypes' rules are new difficulty data | widen INV-09 to all the `.tres` data, with no branch on a difficulty or archetype label |
+| MC-23 | E12's 20-day cooldown makes O5's test fail (2.3x instead of 3x) | shorten the cooldown to 5 days, or drop it |
+
+(MC-02 and MC-21 are answered: D-26 and D-28.)
+
+### 0.3 Decisions to skim
+
+- **The merge's agent defaults A52-A61** (`docs/DECISIONS.md`): where the spec went, M1-M6 as STEP-14..19, events as JSON with `evt_eNN_*` ids, a snake_case adapter, the harness outside `test_run`, ASCII and American spelling, the Hours slider as five notches, the moved handoff docs, the D- series continuing at D-26, STEP-14's branch.
+- **RC-01..RC-35** (`docs/merge-report.md`): the conflicts resolved by your precedence rules or your own decisions. RC-32..RC-35 are new: "CI" means the headless runner (the repo has none); a choice that ends the run asks first; the layoff scene's beats advance on taps and Back opens Pause; the save triggers are the spec's and Phase 1's together.
+
+### 0.4 Only you can set these
+
+- **Scope tags for the career run** (W4; GDD 10.7). A starting point to react to: MUST = M1-M4 plus the Handbook (D-08's "something persists" needs it); SHOULD = M5 (the diorama, pause-and-zoom, the ending video), the events beyond the first 26, the Ducky writing pass; LATER = telemetry beyond a local run log (MC-15).
+- **Tone sign-off** on the drafts in CONTENT 16: Pivotly's coworkers, the event cards, the burnout warnings (GDD 1.3: the employer is the joke, never the person's health), the endings (is the Burnout ending's "You took the leave. You didn't come back." the right tone?), and Dana's layoff lines.
+- **Tip accuracy** for the 23 event tips (CONTENT 16.4; GDD 8.1). They are the Run Spec's own lines, made ASCII and American.
+- **Three proposed invariants** (`.agent/rules/invariants.md` has INV-20, the art rule, which you asked for):
+  - INV-21: the career run's sim core is a pure, deterministic step function with no Node, SceneTree, autoload, wall clock or file access, only the run's seeded RNG; the same seed and inputs replay the same run (ARCHITECTURE 19.1-19.2).
+  - INV-22: no time passes while the app is closed: the clock moves only in the work state with no card, app or modal open, and the sim never reads the wall clock (D-13).
+  - INV-23: a Junior's screen has exactly one continuous control, the Hours slider (D-14, O3).
+- **The headless test runner** lives in a temporary folder each session (the handoff's Appendix A). M1's harness leans on it (A56): shall Claude commit it into the repo (for example `tools/headless/`) at the start of M1?
+
+### 0.5 Spec gaps for M1's huddle
+
+The rules the Run Spec leaves undefined are listed in `docs/merge-report.md`, each with its milestone and a proposed default. M1's (STEP-14): the starting values (Skill, MO, Rapport, Burnout), the day numbering and a partial first month's salary, a promotion's salary, leases and moves, severance, ticket deadlines and sizes, the random events' odds, the exhausted choices, owning a service (E12), E04 in the Shared room, how the harness resolves duels, which 10 events M1 builds, and whether M1's exit should also need at least 1% Planner wins. If you're away, Claude takes the proposed defaults and logs them as agent defaults (W4).
+
+## 1. The Step 7 review (merged)
+
+Pull request #6 (`step-07-dev-review`) was merged into `main` (dde5b99): CV editing and lying removed (D9), coach marks that close on a tap (D11), the VS screen that waits for your tap (D12), plainer choice questions and Hired-card copy (C3, C4), and the real HP and stat bars (W7), plus the review fix pass (A47-A51). 217 tests passed in 20 suites. You can delete the merged step branches on GitHub.
+
+## 2. Decisions to review from the Step 7 review (`docs/DECISIONS.md`)
 
 | ID | In short |
 |---|---|
@@ -20,84 +72,44 @@ Your answers from the review are written down as decisions; check that they say 
 | D10 | Best Dream score per background is LATER. |
 | D11 | Coach marks close on a tap (a small "x" shows it). |
 | D12 | The VS intro waits for a tap; Dana shows one joke stat and one special move. |
-| C2 | Section 3 copy approved, and its 4 wording issues fixed. |
+| C2 | The review queue's copy approved, and its 4 wording issues fixed. |
 | C3 | The 14 choice questions checked for plain language (11 reworded, 3 already plain). |
 | C4 | New Hired-card header, row labels, lowest grade and footer. |
 | W7 | "You do" exercises suspended; Claude builds those features (supersedes W3). Installs, signing, iPhone checks and sign-offs stay yours. |
-| P3 | Phase 2 isn't scheduled until you choose its mechanic; ideas parked; no cosmetics for now (D6 stands). |
-| A21-A24 | CV removal details: the CV tips moved to the night screen after a Tailor & Apply; a 4-slot dock; the Graduate's flaw text; old saves still load; the lint keeps CV lines true. |
-| A25-A29 | Copy details: one tip's second line; the Hired-card wording; 6 tips reworded; the period rule for names ending in "."; a perk-themed fine print (pizza parties) is still allowed. |
-| A30-A35 | Coach marks: a tap counts on release; Mail's invite note closes too; closed notes are saved; closing one doesn't bring the next one early; "x" is a placeholder; the note now sits over the card's header strip. |
-| A36-A39 | VS intro: the prompt blinks once a second; the stat and the move take turns; Back acts like a tap; `vs_min_view_s` removed. |
-| A40-A46 | Bars: the white ghost eases in over 0.4 s; any value above 0 shows at least 1 px; stat blocks are amber on ink; both are `@tool`; your VS plate uses the stat bars. |
-| A47-A51 | Review fix pass: the offer's Ducky tip fades in after the paper lands and closes on a tap (answers Q6); Hired-card rows show points out of the row's maximum ("18.9/40"); a new tip for the harsh-feedback question; 3 tips and one reaction reworded; a debug-only "Reset first run" on the title. |
+| P3 | Phase 2 wasn't scheduled until you chose its mechanic. Superseded on 2026-10-07: the Run Spec is that mechanic (W8). |
+| A21-A51 | The agent defaults of the review: the CV removal's details, copy details, coach marks, the VS intro, the bars, and the review fix pass (the offer's Ducky tip, "18.9/40" rows, `tip_take_feedback`, a debug "Reset first run"). |
 
 A1-A20 from the first run are still there if you haven't skimmed them. A10, A11 and the lying parts of A9, A12, A13 and A20 are void under D9.
-
-Q6 (Ducky's tip over the offer's Fine print) is answered by A47: the paper slid up under the note for 0.3 s; at rest they never overlap. The note now fades in after the paper lands, and a tap closes it.
 
 **Questions only you can answer:**
 
 | # | Question | Current behaviour |
 |---|---|---|
-| A42 | Should the Composure bar be mirrored, so both HP bars grow from the screen centre like a fighting game? | Both fill left to right. |
-| Q3 | Balance (ISSUE-09): the agent playtest ran harder than GDD 5.12. D9 adds to it: Quick Apply now sends your honest CV, so the Graduate and the Self-Taught fail "1+ years" filters unless they Tailor & Apply. | Unchanged until Playtest #1 and the balance re-sim (Step 7). |
+| A42 | Should the Composure bar be mirrored, so both HP bars grow from the screen center like a fighting game? | Both fill left to right. The career run's duel uses the same bars. |
+| Q3 | Balance (ISSUE-09): the agent playtest ran harder than GDD 5.12, and D9 makes it a little harder again. | Unchanged. MC-01 proposes replacing Step 7's Phase 1 sim with the career run's R-BAL harness, which would take ISSUE-09 with it. |
 | Q5 | Should a swipe also commit on a quick flick? (A14) | Distance only, 67.5 px. Decide after feeling it on the iPhone. |
 
-## 3. Copy to sign off (`docs/CONTENT.md`)
+## 3. Phase 1 copy to sign off (`docs/CONTENT.md`)
 
-**Choice questions (section 7, C3):** all 14 now read plainly for someone outside tech (11 reworded; why-us, grind-culture and any-questions were already plain). `eq_leaked_password`'s neutral reaction is now "Deleting it doesn't change it. Half the company already saw it. Some took screenshots." (A50). The right answer should still be jokingly obvious, and the wrong ones should be the joke. Read them in CONTENT.md section 7.
-
-**Hired card (section 14, C4):**
-- `end_dream_header` "YOUR JOB vs REMY'S VIDEO"
-- Rows: "Salary (Remy: $150k)", "Days at home (Remy: 5 of 5)", "Commute (Remy: 3 steps)", "Red flags (Remy: none)", "Rent days to spare"
-- `end_dream_grade_1` "All reality, no dream" (grades 2-4 unchanged)
-- `end_dream_footer` "100 is the life in Remy's video. Nobody gets 100. Not even Remy."
-- Each row shows its points out of the row's maximum, e.g. "Salary (Remy: $150k)  18.9/40" (A48).
-
-**VS screen (section 8.3, D12):** one move per interview, in turn, instead of the list of three:
-- `vs_dana_move_1` "Special move: The Five-Year Plan"
-- `vs_dana_move_2` "Special move: The Salary Expectation Trap"
-- `vs_dana_move_3` "Special move: The Awkward Silence"
-
-**Coach marks:** no new text. The close hint is a plain "x" until the art pass (A34).
-
-**Tips (section 11), reworded in plain words. Tip accuracy is yours to check (W4):**
-- `tip_small_changes` "Release small, tested updates early in the week, so problems get fixed before the weekend."
-- `tip_blameless` "Good teams review mistakes without blame: what happened, how it was fixed, and what stops a repeat."
-- `tip_secrets` "A leaked password is no longer secret. Report it so it gets changed; deleting the message isn't enough."
-- `tip_teamwork_without_job` "No team yet? Public coding projects, team coding events and freelance clients give you feedback and team stories." (no trigger in the MVP now, A49)
-- `tip_star_stories` "Prepare 5 stories: conflict, failure, teamwork, a win, learning fast. Tell each as situation, task, action, result."
-- New, `tip_take_feedback` (the harsh-feedback question, A49): "Rude feedback can still hold a real fix. Ask what to change, then raise the tone privately and calmly."
-- `tip_ask_questions` "Always ask a question at the end: what success looks like in 90 days, how the team works, real hours."
+- **Choice questions** (section 7, C3): all 14 read plainly for someone outside tech. The right answer should still be jokingly obvious, and the wrong ones the joke.
+- **Hired card** (section 14, C4): the header "YOUR JOB vs REMY'S VIDEO", the rows naming Remy's numbers, grade 1 "All reality, no dream", the footer "100 is the life in Remy's video. Nobody gets 100. Not even Remy." (What the career run does with the Hired card is MC-08.)
+- **VS screen** (section 8.3, D12): one special move per interview, in turn.
+- **Reworded tips** (section 11; tip accuracy is yours): `tip_small_changes`, `tip_blameless`, `tip_secrets`, `tip_teamwork_without_job`, `tip_star_stories`, the new `tip_take_feedback`, `tip_ask_questions`.
 
 ## 4. Your "You do" exercises
 
-Suspended (W7): Claude built `hp_bar` (the 0.4 s white ghost bar) and `stat_bar` (5 segments), and the other exercises were dropped. Installs, signing, the iPhone checks and your sign-offs stay yours.
+Suspended (W7): Claude builds the features. Installs, signing, the iPhone checks and your sign-offs stay yours.
 
 ## 5. iPhone checklist (when the Mac and iPhone are ready)
 
-1. **ROADMAP Step 2, the setup** (tasks 1-7, 9-10): Xcode, Godot 4.7.2 + iOS templates on the Mac, Team ID, the iOS preset, Developer Mode, Run. Write down the install date (7-day expiry).
-2. **Title > Device check:** record AC-S02-8..19. Test drag-vs-tap with both "Rows STOP" and "Rows PASS", and check whether the 10 ms haptic can be felt. Claude then writes the results into ARCHITECTURE 18.1.
-3. **Steps 3-7 on the phone:**
-   - One-thumb click-through; is the text readable at arm's length? (A3's 12 px line pitch)
-   - Do the three company types feel different in interviews?
-   - Can you see your odds before the needle moves, and does your thumb never cover it?
-   - Swipe feel (A14, Q5)
-   - Does an invite arrive by day 2 in 3-5 minutes?
-   - **Coach marks** (a fresh install is a first run; in a debug build, Title > "Reset first run" replays it): tap a Ducky note. Does it close, with the card under it staying put? In Mail, does a drag that starts on the invite note still scroll? (ARCHITECTURE 18.1 #17)
-   - **VS intro:** the clip ends on a held frame with a blinking "Tap to continue". Is it easy to read now, and does a tap feel right?
-   - **Offer:** Ducky's tip fades in after the paper lands. Tap it: does it close, and does the paper ease down smoothly?
-   - **HP bars:** does the white ghost's 0.4 s drain feel good, and do the empty stat-bar blocks read on the dark panels? (18.1 #18)
-   - The laugh test
-   - 3 full runs with no crash
-   - The 5 kills in `docs/KILL_TESTS.md` (moments 1 and 3 changed: tap a Ducky note closed; the VS screen waits for your tap)
-   - The intro skip
-4. **Then tag the grey-box on `main`:** `git tag v0.1-greybox` and `git push origin v0.1-greybox` (AC-S06-4).
+1. **ROADMAP Step 2, the setup:** Xcode, Godot 4.7.2 and its iOS templates on the Mac, the Team ID, the iOS preset, Developer Mode, Run. Write down the install date (7-day expiry).
+2. **Title > Device check:** record AC-S02-8..19, including drag-vs-tap with "Rows STOP" and "Rows PASS" and whether the 10 ms haptic can be felt.
+3. **Steps 3-7 on the phone:** one-thumb reach and readability (A3's 12 px line pitch), the tiers' feel in interviews, the swipe (A14, Q5), the coach marks' tap and Mail's scroll (ARCHITECTURE 18.1 #17), the VS intro's tap, the offer's Ducky tip, the HP bars' ghost (18.1 #18), 3 full runs with no crash, the 5 kills in `docs/KILL_TESTS.md`, the intro skip.
+4. **Then tag the grey-box on `main`:** `git tag v0.1-greybox`, then `git push origin v0.1-greybox` (AC-S06-4).
+5. **Later, the career run's kills** (moments 6-11 in `docs/KILL_TESTS.md`), once M2 builds the work state.
 
-## 6. What's next after that
+## 6. What's next
 
-- **Step 7, Playtest #1** (needs people): 3-5 testers on your iPhone, and you stay silent (ROADMAP 7). Claude builds the Run Report screen and ports the GDD 5.12 simulation to `tests/test_balance.gd`. The sim has to be re-run after D9, because Quick Apply now sends the honest CV. Then the numbers get tuned (D8, ISSUE-09).
-- **Phase 2 is parked** until you choose its mechanic. Your ideas (small random events, a few minor career improvements, no cosmetics for now) are in `docs/ideas_parking_lot.md`. Nothing is built for it.
-- **Step 8, SHOULD features in GDD 10.2 order:** Research first, which is also the GDD's strongest balance lever, then Negotiate, and so on.
-- Every step's status is in `docs/task/README.md`. Evidence for everything Claude verified is in `.project/evidence/`; this review's is in `.project/evidence/STEP-07/2026-09-29-review/`.
+- **M1 (STEP-14), the career run's sim core,** is the next step (W9): headless PC work on `step-14-sim-core`, with five bots and the harness (ROADMAP 12; its bundle is `.project/bundles/STEP-14.md`). Its huddle needs your answers to 0.5, or Claude takes the defaults (W4).
+- **Steps 7-13 wait for MC-01.** Step 7 (Playtest #1) needs people and the iPhone (P2); Step 8's SHOULDs and the art steps are parked or reordered under MC-01's proposal.
+- Every step's status is in `docs/task/README.md`, and the evidence for everything Claude verified is in `.project/evidence/`.

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Version | 1.4, 2026-09-29: synced with the code after the Step 7 developer review (CV editing and lying removed, DECISIONS D9; coach marks close on a tap, D11; the VS intro waits for a tap, D12; the real HP and stat bars, W7). 1.3, 2026-09-27: synced with the code at the end of Step 6 (offer, endings, intro, Back). 1.2, 2026-09-27: synced with the code at the end of Step 5 (ISSUE-08). 1.1, 2026-09-26: portrait, iPhone first (`docs/DECISIONS.md` D1, D2, P1) |
+| Version | 1.5, 2026-10-07: the career run's code plan (Run Spec v1, DECISIONS W8) added as section 19, planned and not built, with pointers in sections 0, 4.1, 6.3, 11.8 and 12; section 17 is unchanged, because the merge changed no code. 1.4, 2026-09-29: synced with the code after the Step 7 developer review (CV editing and lying removed, DECISIONS D9; coach marks close on a tap, D11; the VS intro waits for a tap, D12; the real HP and stat bars, W7). 1.3, 2026-09-27: synced with the code at the end of Step 6 (offer, endings, intro, Back). 1.2, 2026-09-27: synced with the code at the end of Step 5 (ISSUE-08). 1.1, 2026-09-26: portrait, iPhone first (`docs/DECISIONS.md` D1, D2, P1) |
 | Engine | Godot 4.7.2-stable on both machines (Steam build on the Windows PC, the godotengine.org zip on the MacBook), GDScript, `gl_compatibility` renderer |
 | Readers | You (the developer) and every future Claude session that implements the game |
 | Design source of truth | `docs/GDD.md` (rules and numbers) and `docs/CONTENT.md` (every string and id) |
@@ -14,6 +14,7 @@
 - Sections 12-16 cover testing, export, git, performance and the godot-ai workflow.
 - Section 17 has the code skeletons: each one is its repo file, byte for byte. Copy them verbatim.
 - Section 18 lists what is still unverified, plus the pitfalls.
+- Section 19 is the career run's code plan (Run Spec v1): planned, not built.
 
 If this doc and the GDD disagree on a rule or a number, the GDD wins; fix this doc. If they disagree on an engine fact, this doc wins; fix the GDD.
 
@@ -47,6 +48,7 @@ If this doc and the GDD disagree on a rule or a number, the GDD wins; fix this d
    - It is written after every committed action, and whenever the app loses focus.
 9. **Rules live in pure code** that the editor-side tests can run (autoloads don't exist there). Scenes only display state and call `GameState` verbs.
 10. **iPhone first.** You develop on the Windows PC and build for the iPhone on the MacBook (Xcode, free Personal Team signing). Git keeps the two machines in sync. Android is LATER; JDK 17 is already on the PC.
+11. **The career run (Run Spec v1) is planned in section 19:** a pure, deterministic sim core in `core/` that bots play headless, its own data files (`WorkConfig`, `ArchetypeData`, the event JSON), and an adapter in front of the shipped duel and contract. None of it is built yet; M1 (STEP-14) starts it. The decisions above all carry over to it.
 
 ---
 
@@ -352,7 +354,7 @@ So there is one split:
 enum Phase { TITLE, INTRO, BACKGROUND_SELECT, JOB_HUNT, INTERVIEW, OFFER, PHASE2_STUB, GAME_OVER }
 ```
 
-**Append new phases at the end only**, for example `WORK` in Phase 2. Saves store the phase as an int, so reordering the enum breaks every existing save.
+**Append new phases at the end only**, for example `WORK` in Phase 2. Saves store the phase as an int, so reordering the enum breaks every existing save. The career run's planned phases (`WORK`, `LAYOFF`) and transitions are in section 19.4.
 
 | From | To | Trigger (the GameState verb) |
 |---|---|---|
@@ -528,6 +530,8 @@ Reading text:
 - `Content.text("barks", "ui_rent_due", {"days": 9})` returns "Rent due in 9 days".
 - `Content.field("questions_knowledge", "kq_hash_map", "green")` returns one field of a structured entry.
 
+The career run's planned JSON (`work_events.json`, `coworkers.json`) and its two planned Resource classes (`WorkConfig`, `ArchetypeData`) are in section 19.3.
+
 ### 6.4 Stable ids (GDD 5.0)
 
 | Kind | Ids |
@@ -569,7 +573,7 @@ The offer (GDD 5.9, S10) is `{company_id, template_id, tier, job_title, salary, 
 - `job_title` is the posting's `title` as the JSON has it; the screen `tr()`s it.
 - `salary` is `Odds.offer_salary` (yearly dollars) and `office_days` is `tier.office_days`.
 - Every other text is an `emails.json` id: `work_mode` is `offer_mode_<tier>`; `commute.id` is `offer_commute_remote` (no office days) or `offer_commute_office`, with `commute.args` = `{office_days, commute_min, hours}` and the weekly hours as one-decimal text ("12.7"); `perks` holds 2 `perk_*` ids and `fine_print` 1 `fp_*` id, all listed for the offer's tier. The fine print comes from `fine_print_pool(emails, tier_id, perks)` (Step 7 review): the tier's `fp_*` ids minus any `fp_<x>` whose `perk_<x>` was dealt on the same paper, so a startup never lists "Unlimited PTO*" twice (today `perk_unlimited_pto` / `fp_unlimited_pto` is the only such pair; a thematic overlap such as `perk_pizza` with `fp_perks` is allowed as a joke); `equity_text` is `offer_equity` at startups, else `""`.
-- `negotiated` stays false until Negotiate (SHOULD) exists.
+- `negotiated` stays false: Negotiate was removed on 2026-10-07 (DECISIONS D-27). The field, `Odds.negotiate_p`, `Odds.negotiated_salary`, BalanceConfig's `nego_*` fields and `test_offer`'s negotiation test leave with the next code change (section 17 still shows them, because it copies the code as it is).
 
 **Rule methods** (section 17.2). They take their data as arguments: `cfg` (BalanceConfig), `tiers` (`{"startup": TierData, "mid": ..., "big": ...}`), `bg` (this run's BackgroundData), `rng` (the run RNG) and `content` (the parsed `postings`, `companies`, `cv_lines` and `emails` JSON, keyed by file name; `GameState._hunt_content()` builds it).
 - **Character and CV:** `set_background(cfg, bg)`, `cv_sent(cv_lines, tailored)` (your background's true CV: Quick Apply sends every line Honest, Tailor & Apply sends every line as its Polished version, an honest reframing, for that one application; returns the lines, tags, degree and `passes_years` actually sent), `stat(id)`, `spend_energy(pips)`, `new_uid()`. `set_cv_level` and `cv_line` were removed with the CV screen (D9).
@@ -615,7 +619,7 @@ The offer (GDD 5.9, S10) is `{company_id, template_id, tier, job_title, salary, 
 
 **Step 6 agent defaults** (please review; `test_offer`, `test_endings` and `test_flow` pin them; the build logs in `.project/evidence/STEP-06/2026-09-27-r1/` list the screen-level ones):
 - **Startup equity is its own contract field** ("Equity: 0.0001%", under the salary). S10 has no Equity line, and `fp_equity` is one of the startup fine-print picks, so a startup contract can mention equity twice.
-- **The offer's one tip:** a startup offer (it carries the equity) shows `tip_equity_lottery`; every other offer `tip_total_comp`. `tip_negotiate` waits for Negotiate.
+- **The offer's one tip:** a startup offer (it carries the equity) shows `tip_equity_lottery`; every other offer `tip_total_comp`. `tip_negotiate` has no trigger: Negotiate was removed (D-27).
 - **The Plan B tip matches the cause:** no invite all run -> `tip_tailor_over_spray`; invites that led nowhere -> `tip_rejection_numbers`.
 - **The Dream vs Reality rows** are `Odds.dream_breakdown`: `dream_score`'s five terms, unrounded, added in the same order, so the card's rounded sum is always `dream_score`. The grade bands are `Odds.DREAM_GRADE_MINS` (40 / 60 / 80), fixed GDD 5.9.5 rules rather than tuning.
 - **A run counts once** (settings `run_count`, which `first_run` reads) when its save is deleted: entering Plan B, or leaving the Hired card. Not on Accept, because a kill on the Hired card resumes at the offer. A run abandoned with New game is never counted.
@@ -654,7 +658,7 @@ The offer (GDD 5.9, S10) is `{company_id, template_id, tier, job_title, salary, 
 | Never written on | entering TITLE, INTRO, BACKGROUND_SELECT, PHASE2_STUB or GAME_OVER |
 | Deleted when | **entering GAME_OVER**, and **leaving PHASE2_STUB** (Title or New run). `change_phase()` deletes it and counts the finished run in the same place (`run_count`, below) |
 | Accept and the Hired card | Accept writes **no** save: PHASE2_STUB is never saved, so the file on disk stays the OFFER one. Killing the app on the Hired card resumes at the offer with the same contract, and accepting again hires the same job (section 7.2) |
-| Committed actions | apply, tailor, skip, research, study, network, closing a first-run coach mark (`close_coach_mark`, Step 7 review), sleep, start day, start interview, interview result (a win saves the whole offer with the OFFER phase), negotiate, an offer decision that stays in the run (Decline: saved with JOB_HUNT). The CV change and the rescind were removed on 2026-09-29 (DECISIONS D9) |
+| Committed actions | apply, tailor, skip, research, study, network, closing a first-run coach mark (`close_coach_mark`, Step 7 review), sleep, start day, start interview, interview result (a win saves the whole offer with the OFFER phase), an offer decision that stays in the run (Decline: saved with JOB_HUNT). The CV change and the rescind were removed on 2026-09-29 (DECISIONS D9), and negotiate on 2026-10-07 (D-27) |
 | Interview | `start_interview()` checks today's slot and the energy, takes the invite out of Mail, pays, then freezes a **checkpoint** in `run.interview`: `invite_uid`, `company_id`, `template_id`, `tier`, `seed`, `question_ids` (in prompt order), `warmup_id` (`""` except on the first interview of the first run) and `tired`. (An old save's `probe_line` is never read, section 7.1.) `change_phase(INTERVIEW)` saves it. Doubt, Composure and the prompt index live in the scene, so a resume **restarts that interview with the same seed and the same questions** (GDD 5.11). Saves during the interview rewrite the same checkpoint, which is harmless. `finish_interview()` clears it |
 | Continue | `SaveIO.read()`. Then `GameFlow.can_resume(saved.phase)` must be true, or it falls back to `start_new_game()`. Then set the seed, then the state, then `change_phase(saved)` |
 | Retry / New run | `retry()` builds a **fresh `RunState`** and remembers `preselect_background` |
@@ -983,7 +987,7 @@ Offer (Control, full rect)   offer.gd
   - **The contract** is pre-wrapped at 40 columns by `UiText.word_wrap` and `UiText.field`, so the label never wraps by itself. Top to bottom (CONTENT.md 13.1): `offer_title` (the company), `offer_dear`, `offer_role` (the posting's title), a blank line, then one field per line after a 12-column label, values wrapping at 28 columns: Salary (yearly, `offer_salary`: `$71,000/year`), Equity (startups only: `offer_equity`, agent default), Work mode, Commute (2 lines), Perks (2, the second under the first, no trailing period), Fine print (up to 4 lines; never a repeat of a perk, `fine_print_pool`, section 7.1), then `offer_deadline`. The worst case is 19 lines, a 243 px paper (`test_contract_fits_the_paper` checks every tier).
   - **The paper slides up** (0.3 s ease-out) after the scene fade. ACCEPT and Decline stay off until it lands, which is also the input lock. The stage's desk line follows the paper's top edge, so Dana sits right above the contract: at 270x480 only her lower part shows, at 294x639 all of her. While the paper rises from below, the desk line already waits at the paper's place.
   - **One tip** under the paper, `HuntTips.offer(run)`: `tip_equity_lottery` for a startup offer, else `tip_total_comp` (section 7.1). It waits invisible (`modulate`, not `hide()`, so the column keeps its room and the paper's place doesn't move) and fades in (0.15 s) once the paper has landed; before the review fix pass the paper rose under the note and the buttons, which hid most of the contract for 0.3 s (REVIEW_QUEUE Q6). At rest nothing overlaps: at 270x480 the startup contract's paper spans y 90-321, the tip 325-394 and the thumb band 398-476. The tip is closable (agent default A47): a tap hides it for this offer only (nothing is saved), and the paper and the desk line ease (0.2 s) into the room it leaves. The same ease covers Dana's Decline line replacing the tip; each step aims at the column's latest place, because a wrapped label can take two layout passes to find its height.
-  - **Buttons:** the `[ < Back ]` row (it opens Pause; section 9), then `[ Decline ][ ACCEPT ]` (80 + 168). Negotiate and drag-to-sign (both SHOULD) are not built. GDD S10 puts Negotiate full width above the action bar, where the Back row now sits, so building it means re-planning that row.
+  - **Buttons:** the `[ < Back ]` row (it opens Pause; section 9), then `[ Decline ][ ACCEPT ]` (80 + 168). Drag-to-sign (SHOULD) is not built. Negotiate, which GDD S10 put full width above the action bar where the Back row now sits, was removed on 2026-10-07 (D-27).
   - **Decline** opens the confirm dialog: `ui_decline_confirm`, or `ui_decline_confirm_grace` when `run.decline_ends_run()` (rent at 0: the grace day, where Decline is Plan B). Confirmed, Dana's `bark_dana_decline` replaces the tip; a tap, Back or 2.5 s moves on, and only then is `answer_offer(false)` called, so a kill during her line leaves the offer open.
   - **ACCEPT** calls `answer_offer(true)`: `run.hire()` and the Hired card. Accept writes no save (section 8). The background check and its rescind (back to the hunt, the same day) were removed on 2026-09-29 (DECISIONS D9).
 - **`phase2_stub.tscn`** (S11, the Hired card), in two beats, because everything at once needs about 500 px:
@@ -997,7 +1001,7 @@ Offer (Control, full rect)   offer.gd
 - **Side view** (title, intro, interview, endings): `Parallax2D` layers as described in section 1.3, bottom-anchored in the GDD 2.5 portrait template. The interview, VS and commute stages are a wide vignette inside a band at least 270x160.
 - **Top-down** is SHOULD/LATER.
   - The room hub (SHOULD) is **one static 330x720 illustration with 4 tap hotspots** (at least 48x48, in the lower 60%): invisible `TextureButton`s. There is no walking sprite.
-  - Phase 2's office uses `TileMapLayer` (16x16 tiles) with y-sorted characters, scrolling vertically.
+  - Phase 2's office uses `TileMapLayer` (16x16 tiles) with y-sorted characters, scrolling vertically. It is now the career run's office diorama (GDD 2.11), planned in section 19.8.
   - If you ever use `Area2D` input, turn on the viewport's `physics_object_picking`.
   - Every new viewpoint needs its own character sprite set. That doubles character art, so defer it.
 
@@ -1028,7 +1032,7 @@ Offer (Control, full rect)   offer.gd
 | `test_save.gd` | `save` | 4 | RunState <-> JSON round trip; 64-bit RNG state (2^53 + 1 and negative); seed-then-state replay; since the Step 7 review, a save from before D9 still loads and the next save drops the removed keys | Step 1, grew in the Step 7 review (section 17.13) |
 | `test_odds.gd` | `odds` | 8 | P_invite worked examples (16.8%, 12.3%, 30.7%, 19.0%), clamps, bands, knockouts, relevance, determinism | Step 1 (section 17.13) |
 | `test_interview.gd` | `interview` | 3 | the GDD 5.8.7 walkthrough with fixed luck (Doubt 105.5, 68.6, then about 13.1; wheel 68%), Tired, input bands (the bluff odds test went with D9) | Step 1 (section 17.13) |
-| `test_offer.gd` | `offer` | 14 | salary $71,000, negotiation 77.5 / 62.5% with the 85% cap, Dream scores 68 / 57 / 49; since Step 6 the whole offer (GDD 5.9, S10): `make_offer` fills every field as plain data, 2 different perks and 1 fine print listed for the tier, the same checkpoint builds the same contract, a startup offer is remote with equity, the contract fits the paper at every tier, the commute hours, the offer surviving a save, the offer's tip, `decline_ends_run` only at 0 rent, and Accept after a Hired-card kill hiring the same job; since the Step 7 review, the fine print never repeating a perk | Step 1, grew in Step 6 and the Step 7 review (section 17.13) |
+| `test_offer.gd` | `offer` | 14 | salary $71,000, negotiation 77.5 / 62.5% with the 85% cap (this test leaves with the negotiation code, D-27), Dream scores 68 / 57 / 49; since Step 6 the whole offer (GDD 5.9, S10): `make_offer` fills every field as plain data, 2 different perks and 1 fine print listed for the tier, the same checkpoint builds the same contract, a startup offer is remote with equity, the contract fits the paper at every tier, the commute hours, the offer surviving a save, the offer's tip, `decline_ends_run` only at 0 rent, and Accept after a Hired-card kill hiring the same job; since the Step 7 review, the fine print never repeating a perk | Step 1, grew in Step 6 and the Step 7 review (section 17.13) |
 | `test_data_files.gd` | `data_files` | 4 | the 7 `.tres` files hold exactly the GDD section 11 defaults, and the derived values (9 / 8 / 6 energy; only the Self-Taught is a lone wolf). Changing a tuned value means updating GDD 11 and this test in the same commit | Step 3 |
 | `test_content_lint.gd` | `content_lint` | 33 | see 12.3 | Step 4, grows each step |
 | `test_interview_plan.gd` | `interview_plan` | 15 | `InterviewPlan` (GDD 5.8.2): prompt order and tier filtering, no opener-only picks, no repeats across interviews, the warm-up (first interview of the first run only, an unpicked difficulty-1 question that leaves the real picks unchanged), same seed same picks, dry pools, the prompts a checkpoint plays, and a resume or an early or late tap replaying the same luck; since the Step 7 review Dana's VS plate taking turns (the probe-question test went with D9) | Step 4 |
@@ -1101,6 +1105,7 @@ It reads the 16 JSON files with `FileAccess` and the background `.tres` with `lo
 - Drive the **real** `RunState`, `Odds` and `InterviewPlan` rules. Load the `.tres` with `load()` and the JSON with `FileAccess` inside the test, as the Step 5 hunt suites do; never through the `Content` autoload, which doesn't exist in the editor (INV-12).
 - **Split it by background:** one test method each, **about 1,000 runs**, which keeps every test well under 20 s.
 - Assert the 5.12 bands with tolerances that suit n = 1,000. For example, Medium offers 88-98% and the Hard first-interview pass rate 10-20%.
+- Whether Step 7 still ports this Phase 1 simulation is Open (MC-01: proposed, the career run's R-BAL harness replaces it). The career run's planned test suites are in section 19.10, and its headless harness, which runs outside `test_run` (A56), in section 19.6.
 
 ---
 
@@ -4958,3 +4963,164 @@ static func pan_path(picture: Vector2, frame: Vector2) -> Array[Vector2]:
 14. **Tests that touch autoloads or `user://`, lack `@tool`, or make zero assertions.**
 15. **Engine or template drift.** A Steam update on the PC, or a different download on the Mac, means the two machines and the templates no longer match 4.7.2. Commit first and update both together.
 16. **Testing only in the editor.** Fonts, the Dynamic Island, touch and performance only reveal themselves on the iPhone.
+
+---
+
+## 19. The career run's code plan (Run Spec v1; planned, not built)
+
+**Nothing in this section exists in the code yet.** It is the plan that M1-M6 build from (ROADMAP 12), written during the Run Spec v1 merge (2026-10-07). It follows every rule of sections 1-18 and every invariant, and says so where it adds a rule. Section 17 stays the code as it is: the merge changed no code. As each milestone builds a part, that part moves into the "as built" sections (3-12) and into section 17, as Steps 1-7 did. The design is GDD 5.14-5.22; class, file and field names here are proposals until M1.
+
+### 19.1 The shape (Run Spec v1 section 13)
+
+| Layer | What it is | Where (planned) |
+|---|---|---|
+| The sim core | a pure, deterministic step function, `step(state, inputs, seed) -> (state, events)`, with no scene tree, nodes, autoloads or wall clock | `core/` (19.2) |
+| Content as data | events, archetypes, tips and every constant in data files: numbers in `.tres`, text and events in JSON (A54) | `data/` (19.3) |
+| Presentation | reads the sim's state, draws the HUD and, from M5, the diorama, and sends inputs (the slider, choices, apps); it knows no rules | `features/work/` (19.7, 19.8) |
+| The adapter | the shipped duel and contract modal behind one typed interface (R-JOB-06) | `GameState` + the interview checkpoint (19.5) |
+| The run log | the seed plus every input and every outcome, not every tick (RC-26) | in the save (19.4, 19.6) |
+
+- *Why this shape:* tuning to a 5-10% win rate needs thousands of runs, so the sim must run without the game's scenes; save, resume and "no time while closed" all reduce to serializing one state object. It is section 3's split one level up: the sim is the model, `GameState` the controller, the scenes the view.
+- **"No engine calls"** in GDScript means no Node, SceneTree, autoload, `Time`, `OS` or file access inside the sim. Engine value types and `RandomNumberGenerator` are fine: they are deterministic and run headless (A-02), and section 7.2's RNG rules hold.
+
+### 19.2 The sim core (M1)
+
+Planned classes, all `@tool`, `class_name` and `RefCounted`, pure like section 3's (INV-03), in `core/` next to them:
+
+| Class | File | Holds |
+|---|---|---|
+| `SimState` | `core/sim_state.gd` | the whole career as plain data (INV-07): the day, savings, level, the job (company, archetype, floor, salary, tenure, work mode, coworkers and their Rapport), the Hours notch, Burnout, MO, Skill, Rust, the Codebase, the ticket (size, progress, deadline), the home tier and its lease, Scars, the scheduled and telegraphed events, postings and applications, the Studio hold, flags, the RNG seed and state (strings, INV-05) and the run log; `to_dict` / `from_dict` like `RunState` (7.1) |
+| `Sim` | `core/sim.gd` | `static func step(state: SimState, inputs: Array, cfg: WorkConfig, archetypes: Dictionary, events: Dictionary, rng: RandomNumberGenerator) -> Array`: it changes `state` and returns the day's sim events (what happened, for the UI and the run log). The other rules (a choice, an application, a move, an offer) are static functions too |
+| `WorkOdds` | `core/work_odds.gd` | the formulas of GDD 5.15-5.21 as static functions, like `Odds`: ticket progress, Burnout per day, the incident odds, the callback odds, the offer salary, the review's Evidence and rating, layoff selection, the auto-resolve chance, the floor multipliers |
+| `EventPlan` | `core/event_plan.gd` | which events are eligible today (tier, archetype, level, trigger, cooldown, floor depth, the final-threat weight), the calendar strip's next 60 days, the telegraph chains |
+
+**Inputs**, the only way a player or a bot changes the sim: set the Hours notch; pick an event choice; apply to a posting; study; accept or decline an offer; move home; pick a ticket (Mid); push back (Mid); set the quality bar (Senior). Each is a plain Dictionary `{kind, day, ...}` that also goes into the run log. The speed control and pausing are presentation: they decide how often `step` runs, never what it does.
+
+**One tick** (GDD 5.14), in a proposed order that M1 fixes and the harness checks:
+1. The calendar: day + 1; due scheduled events (payday, rent, review, the lease, interviews) queue up.
+2. Money on its days: rent and living costs on day 1 of a month, salary on day 25, living-cost growth every 180 days.
+3. The daily formulas: ticket progress (shipping: MO +5 or -5, Skill +2, the next ticket), Burnout (clamped between the Burnout History floor and 100), MO, Rust, the Codebase's drift, the Studio conditions and hold.
+4. The rolls, on the run RNG in a fixed order: the incident roll, the random events, the telegraph chains.
+5. The checks: a forced leave (Burnout 100), Plan B (30 days below zero), a PIP's end, the Legacy System day, the Studio hold at 90.
+6. An event with choices stops the tick: `step` returns it, and the clock waits for the choice. The auto-resolve rolls first, from Burnout 75 (GDD 5.19).
+
+**Determinism:** one run RNG, seeded once per run (7.2) and saved as strings (INV-05); rolls happen only in rule code, in a fixed order; no dictionary order decides anything (sort ids first, as `RunState` does). The same seed and inputs replay the same run (O8): `test_sim_replay` checks it (19.10).
+
+### 19.3 Data files (M1)
+
+| File | Class or shape | Holds | GDD 11.7 owner |
+|---|---|---|---|
+| `data/types/work_config.gd` + `data/work/work_config.tres` | `WorkConfig` (a `@tool` Resource) | the career run's global constants: the clock, money, Hours, the review, the controls, floors, events, the job hunt, Scars, the Handbook, the win | W |
+| `data/types/archetype_data.gd` + `data/archetypes/<id>.tres` (3 files) | `ArchetypeData` | per archetype: `pay_mult`, `remote_share`, `review_cadence_days`, `promotion_rule`, `codebase_start`, `codebase_drift`, `ticket_speed`, `severance_months`, `utilization_mo`, `leave_level_drop`, `calibration_hp`, `duels_per_offer` and the layoff pattern. The ids wait for MC-05 | A |
+| `data/content/work_events.json` | one object per event, keyed `evt_eNN_*` (A54) | E01-E26: tier, archetypes, levels, trigger, telegraph, pause, focus, the card text, choices with their effects, the exhausted choice, Ducky's joke, cause and tip, the diorama cue | E |
+| `data/content/coworkers.json` | `cw_*` entries plus `coworker_pool` | Pivotly's four coworkers and the name pool (CONTENT 16.1) | - |
+| `tips.json`, `barks.json`, `endings.json`, `naming.json` (existing) | their shapes in 6.3 | the career run's tips, UI lines, endings and names (CONTENT 16) | - |
+
+- Sections 6.1-6.3 hold: numbers in `.tres`, text in JSON keyed by id, loaded data never modified (INV-08), script defaults equal to the GDD 11.7 defaults, file name = the `id` field.
+- INV-15's counts (7 `.tres`, 16 JSON) grow when M1 adds these files (to 11 and 18 under this plan); the invariant and section 0.6 are updated then.
+- **An event's numbers live with it** (A54), as in Phase 1's `events.json`, and the system constants go to `WorkConfig`. A trigger that is a formula, like E12's incident odds, names a `WorkConfig` formula rather than carrying an expression string: `"trigger": {"kind": "incident", "cooldown_days": 20}`.
+
+The Run Spec's E12 example as JSON (GDD 5.19; its 20-day cooldown is Open, MC-23):
+
+```json
+"evt_e12_incident_prod": {
+  "tier": "random",
+  "archetypes": ["startup", "agency", "megacorp"],
+  "levels": ["junior", "mid", "senior"],
+  "trigger": {"kind": "incident", "cooldown_days": 20},
+  "telegraph": {},
+  "pause": true,
+  "focus": "war_room",
+  "text": "2 a.m. Prod is down. The alerts are loud. Whoever is on call is very quiet.",
+  "choices": [
+    {"id": "fix_it", "text": "Fix it yourself",
+     "effects": {"mo": 10, "burnout": 15, "codebase": -5, "flags": ["owns_service"]}},
+    {"id": "escalate", "text": "Wake whoever is on call", "effects": {"mo": -3, "burnout": 2}}
+  ],
+  "exhausted_choice": "fix_it",
+  "ducky": {
+    "joke": "You fixed prod at 2 a.m. Prod now has your phone number.",
+    "cause": "Whoever fixes it once becomes whoever fixes it always.",
+    "tip": "tip_escalate"
+  },
+  "diorama": {"flash": "red_screens"}
+}
+```
+
+- Section 6.3's rules shape it: explicit lists instead of the YAML's `[any]` (the archetype ids wait for MC-05), the texts inline like a question's answers (CONTENT 16.3's ids that extend an event id name a field of its entry), and JSON numbers wrapped in `int()` where they are counts. An empty telegraph is `{}` rather than null (proposed), so no reader needs a null check.
+- `test_data_files` checks the new `.tres` against GDD 11.7, and `test_content_lint` covers the new JSON (19.10).
+
+### 19.4 Phases, save and meta (M2)
+
+- **New phases are appended** to `GameFlow.Phase` (INV-10, 4.1). Proposed: `WORK` (the work state, at a job or between jobs: one clock, D-04) and `LAYOFF` (the layoff scene). The job interview and the review both use `INTERVIEW` (the request says which, 19.5), and the career run's endings use `GAME_OVER` with an ending id (the Plan B card's layout, GDD S12). `PHASE2_STUB` stays in the enum, unused once MC-08 is answered (RC-04).
+- **Transitions** (proposed; `test_flow` grows with them): TITLE -> INTRO (run 1), BACKGROUND_SELECT (runs 2 and later) or WORK (Continue); INTRO -> WORK (run 1, MC-11) or BACKGROUND_SELECT; BACKGROUND_SELECT -> WORK; WORK -> INTERVIEW, LAYOFF or GAME_OVER; INTERVIEW -> OFFER or WORK; OFFER -> WORK; LAYOFF -> WORK; GAME_OVER -> TITLE or BACKGROUND_SELECT; and the quit-to-title rows of 4.1.
+- **The save** (proposed): the same one slot (`user://save_v1.json`, temp file then rename: section 8) with `{version: 2, phase, sim}`, where `sim` is `SimState.to_dict()`, the run log and the interview checkpoint included. What Continue does with a Phase 1 save waits for MC-01.
+- **When it's written** (RC-35, GDD 5.11): only while the run is live (`WORK`, `INTERVIEW`, `OFFER`, `LAYOFF`: INV-06's list grows with the new phases); after every input (each is a committed action), on every event shown and every event resolved, on entering a live phase, and on `APPLICATION_PAUSED`, `FOCUS_OUT` and `WM_CLOSE_REQUEST`. It is deleted on entering `GAME_OVER`, where the run counts in `run_count`, as today.
+- **No time while closed** (D-13): the clock moves only in the `WORK` scene's `_process`, only while no card, app or modal is open, and the sim never reads the wall clock. Pausing on `APPLICATION_PAUSED` and `FOCUS_OUT` (section 9) stops it.
+- **Meta between runs**, in `settings.cfg`'s `[meta]` (section 8; proposed keys): `run_count` (exists), `handbook` (the collected tip ids), `endings_seen` (the gallery), `studio_wins` (the Self-Taught's unlock) and `last_background`. INV-11 holds: nothing but our JSON save and `settings.cfg` is read from `user://`.
+
+### 19.5 The adapter (M3; R-JOB-06, GDD 5.20, 13.4)
+
+Today `interview.gd` reads its three numbers itself (GDD 13.4): `_composure` from `_bg.composure_max`, `_doubt` from `_tier.doubt_hp`, and the meter's half-width from `Odds.zone_half(...)`. A-01 assumed they were inputs; they aren't. The plan:
+
+- **DuelRequest -> the interview checkpoint.** `GameState` turns a DuelRequest into the checkpoint the interview already resumes from (section 8), adding `composure` (base x (1 - Burnout/200)), `doubt_hp` (base x (1 + 0.08 (floor - 1))), `zone_mult` ((1 + Skill/200) x (1 - Rust/200)), `rounds` and `unlocked_options`. `interview.gd` reads them from the checkpoint when they are there and from the `.tres` files when they aren't, so a Phase 1 checkpoint still plays as today.
+- **The meter:** `half_width = maxf(cfg.zone_half_base, Odds.zone_half(cfg, s, bonus) * zone_mult)`, so the 0.06 floor clamps Rust (RC-25). S is unchanged, and so are knowledge P and the committee wheel, which keep reading the background's KNOWLEDGE, EXPERIENCE and NETWORK (D-26).
+- **Rounds:** `cfg.prompt_pattern` is one fixed 5-prompt pattern today, so a request's `rounds` (5, or 3 for a review) needs the pattern to come from the request. The review's pattern and prompts are an M3 spec gap (GDD 5.16).
+- **DuelResult** comes from `GameState.finish_interview(won, composure_left)`: `{passed, composure_left, dream_reality_delta}`, the last waiting for MC-09.
+- **OfferRequest -> the paper.** A career offer builder fills the same paper as `run.offer` (7.1) from the posting: company, role, salary (GDD 5.15, shown as MC-10 decides), work mode, the clauses where the fine print goes (the clause list is an M3 spec gap) and the hidden clause, revealed. `GameState.answer_offer(accept)` then yields `{decision, final_salary, clauses}`, with `final_salary` = the offered salary (no negotiation: D-27).
+- The fields are plain-data Dictionaries in snake_case (A55, INV-07). `test_adapter` checks that a request's numbers reach the interview's start values (19.10).
+
+### 19.6 The run log and the harness (M1; GDD 5.22, R-BAL, A56)
+
+- **The run log** (RC-26): the seed (a string), then one entry per input and per outcome, `{day, kind, ...}`. Not every tick: a tick is a pure function of the state, so the seed plus the inputs replays it. It is saved with the state (19.4) and feeds exact bug replays, the debug report (MC-15) and the win video's captions (GDD 3.4).
+- **The harness runs outside `test_run`** (A56): a `SceneTree` script, `tests/harness/run_harness.gd`. Living under `tests/` keeps it out of every export, and `test_run` doesn't pick it up, because discovery is `tests/test_*.gd`, non-recursive (12.1). Like the tests, it loads the `.tres` with `load()` and the JSON with `FileAccess` (no autoloads), plays N seeds per bot through `Sim.step`, and prints one line per bot (the win rate, the ending mix, the median run length, the Planner's Mid-in-job-1 share) plus a JSON report.
+- **The command**, on a copy of the repo as the access doc's runner uses (`PROJ` is the copy; `.agent/AGENTS.md` has the runner):
+
+```bash
+"$GODOT" --headless --path "$PROJ" --script res://tests/harness/run_harness.gd -- bot=planner seeds=10000
+```
+
+- **Bots** are pure classes in `tests/harness/bots/` with `func inputs(state: SimState, rng: RandomNumberGenerator) -> Array`: the Planner, the Coaster, the Grinder, the Lifestyle and the Random bot. Each rolls on its own RNG seeded from the run seed, so a bot's dice never shift the sim's (the trick of `InterviewPlan.meter_rng`, 7.2).
+- **Duels without a thumb:** the harness resolves an interview with the duel's own formulas (`Odds.knowledge_p`, `stat_score`, `answer_q`, the wheel) and a modeled tap error, as GDD 5.12's bot did, and a review with a stand-in model until M3 designs its prompts (GDD 5.16).
+- **The speed target** is 10,000 seeds per bot "in minutes" (M1's exit). A run is about 1,100-1,400 ticks of plain arithmetic, and a few minutes for 10,000 runs leaves about 10-30 ms a run; M1 measures it and records it with the evidence.
+- **Before a tuning commit** (RC-32): the harness for every bot plus the test suites, headless; the report goes to `.project/evidence/STEP-NN/<run>/`.
+- **The smoke test in `test_run`** is `tests/test_sim_smoke.gd`: a few hundred seeds per bot, well under the 20 s a test may take (12.1), asserting no crash, determinism and loose bands.
+
+### 19.7 The work state's UI (M2)
+
+- **One scene,** `features/work/work.tscn`, the phone shell on section 10.1's skeleton. TopBand (information only): the four numbers, the Studio chip, the calendar strip and the ticket bar. Body (it takes the extra height): a grey box until M5's diorama. ThumbBand: the Hours notches (five buttons of 34x34 or more, like the S03 selector: A58), the speed control and the dock (DoomApply, Home, ClikClok, the Handbook: 4 slots of 60x40, as the hub's dock).
+- **Apps are panels** inside the scene, not scenes, as the hub's Mail and Study are (11.4). The event card is a component in the ModalLayer: its choices are 254x36 buttons behind the 250 ms lock (10.3).
+- **The clock driver:** the scene's `_process` adds up `delta x speed` and calls a `GameState` verb (proposed: `advance_days(n)`), which runs `Sim.step` and saves (19.4). Scenes only call verbs (INV-01, INV-03); the sim holds the rules.
+- Every screen keeps an on-screen Back (section 9): the work state's opens Pause. The layoff scene (`features/layoff/`) follows RC-34: taps advance its beats, Back opens Pause, and the hold-to-skip pill (11.2) shows from the second viewing.
+
+### 19.8 The diorama (M5; GDD 2.11)
+
+- A `TileMapLayer` of 16x16 tiles (11.8), a column about three screens tall in the Body, with y-sorted characters. It scrolls like Mail's list, a ScrollContainer drag and never an action gesture (GDD 2.8 rule 5).
+- Coworkers walk fixed waypoint lanes (desk, pantry, meeting room, exit) with no pathfinding (R-DIO-03): one list of points per lane.
+- **Pause-and-zoom** (R-DIO-04): a `Camera2D` cuts between whole zoom steps (1x, 2x, 3x) on the event's focus location and never tweens through a fractional scale (1.3, RC-19); the nearest filter is already global (1.2).
+- **State as sprite and tile swaps** (R-DIO-02): the view reads `SimState` (Burnout -> posture frames, the Codebase -> red LED pixels, headcount -> empty desks, an incident -> red monitors within 3 flashes per second, overtime -> the lamp, remote -> the home room) and has no rules of its own.
+- The art follows INV-20: the shipped pixel grid and palette, existing tiles first, labeled placeholders on the same grid until the art exists, nothing commissioned.
+
+### 19.9 What retires
+
+Nothing retires before MC-01 says the career run replaces the Phase 1 flow. Then:
+- the hub's day loop, `features/job_hunt/` (the deck, Mail, the night screen, the Study panel as it is), with `RunState`'s day-loop fields and rules (the board, applications, Sleep and the morning reveal, the Radar, the day-2 guarantee), their `Odds` formulas and `HuntTips`' hunt tips;
+- `features/phase2_stub/` (the Hired card as an ending), once MC-08 is answered; the enum value stays (INV-10);
+- TierData's unused `meeting_load`, `layoff_risk` and `growth_mult` (RC-05).
+
+D-27's negotiation code goes with the next code change, whatever MC-01 decides: `Odds.negotiate_p`, `Odds.negotiated_salary`, BalanceConfig's `nego_*` fields, the offer's `negotiated` flag, `test_offer`'s negotiation test and the unused strings (CONTENT 16.7). Each retired file's block leaves section 17 in the same commit, through the usual sync.
+
+### 19.10 Tests (planned)
+
+| Suite | Covers |
+|---|---|
+| `test_sim_rules.gd` | GDD 5.14-5.17's formulas, a worked example each: ticket progress, Burnout per day, the incident odds, raises, rent and salary days, the lease |
+| `test_sim_review.gd` | Evidence, the rating bands, each archetype's promotion rule, the PIP and firing |
+| `test_sim_events.gd` | eligibility, cooldowns, the auto-resolve chance and its warnings, layoff selection with no MO input (O1), run 1's chain days (R-RUN-02) |
+| `test_sim_endings.gd` | the Studio fires only with all five conditions held 90 days and resets on a break (O6, Q-06); each hard loss's trigger |
+| `test_sim_replay.gd` | the same seed and inputs give the same run; a save round trip mid-run replays identically (O8) |
+| `test_adapter.gd` | a DuelRequest's numbers reach the interview's start values; the 0.06 floor; a Phase 1 checkpoint still works |
+| `test_sim_smoke.gd` | the harness's small version (19.6) |
+| `test_data_files.gd`, `test_content_lint.gd` (grown) | the new `.tres` equal GDD 11.7; in `work_events.json`, every referenced id exists, the text budgets, ASCII, the banned brands, at most 3 choices, a tip or an explicit none for every event (O7), and every exhausted choice names one of its event's choices |
+
+All of them follow 12.1 and INV-12: `@tool`, `extends McpTestSuite`, at least one assertion, no autoloads, no `user://`.

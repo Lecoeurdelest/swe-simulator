@@ -2,7 +2,7 @@
 
 Companion to `docs/GDD.md`. Every player-facing string for the MVP, with the stable ids the GDD's data model uses (GDD section 5.0). Each section names the JSON file it becomes.
 
-Status: v1.1, 2026-09-29 (v1.0: 2026-09-26). v1.1 follows the developer's review of the v0.1 grey-box: the CV screen and lying are gone (DECISIONS D9), the choice questions are in plain language for non-tech players (C3), the Hired card is clearer (C4), and the copy the review queue listed is approved, with its 4 wording fixes (C2). Everything here is still a first draft for playtesting. You (the developer) own the jokes and sign off every career tip before release.
+Status: v1.2, 2026-10-07 (v1.1: 2026-09-29; v1.0: 2026-09-26). v1.2 adds section 16, the career run's draft strings (Run Spec v1, DECISIONS W8), and Run Spec v1 notes in sections 1.1, 3, 14 and 15. v1.1 follows the developer's review of the v0.1 grey-box: the CV screen and lying are gone (DECISIONS D9), the choice questions are in plain language for non-tech players (C3), the Hired card is clearer (C4), and the copy the review queue listed is approved, with its 4 wording fixes (C2). Everything here is still a first draft for playtesting. You (the developer) own the jokes and sign off every career tip before release. 2026-10-07: Negotiate was removed (DECISIONS D-27), so its strings have no use (sections 8.2, 10.1, 11 and 13.1 say which); they leave the JSON with the next code change. The career run's strings (Run Spec v1) are section 16: drafts, not in the JSON yet.
 
 ---
 
@@ -55,6 +55,8 @@ Removed 2026-09-29 with the CV screen and lying (D9): Buzzwordsmith, the CV app,
 
 Before any public release, run a trademark and app-store search on every name above and on every company in section 4.
 
+**Run Spec v1 (2026-10-07):** the career run adds names (section 16.1): the placeholder companies Pivotly, Outsourcery and Monolith (Open, MC-06), Pivotly's four coworkers, a coworker name pool, the four home tiers and two phone apps, Home and the Handbook. The same trademark check applies to any of them that ships.
+
 ### 1.2 Keywords and topics
 
 Keywords (CV and posting tags): `python` Python, `javascript` JavaScript, `java` Java, `sql` SQL, `git` Git, `cloud` Cloud, `testing` Testing, `apis` APIs, `mobile` Mobile, `data` Data, `agile` Agile, `ai` AI.
@@ -86,6 +88,8 @@ google, alphabet, microsoft, macrohard, apple, amazon, amazoom, meta, facebook, 
 ---
 
 ## 3. Backgrounds -> `data/content/backgrounds.json` (numbers live in `BackgroundData`)
+
+**Run Spec v1 status:** run 1's background is always The Intern (P-06), so run 1 never shows Background select; The Graduate unlocks after run 1 and The Self-Taught after the first Studio win or five runs (GDD 5.21). The card's energy and rent-runway lines (`ui_energy_per_day`, `ui_rent_runway`) retire with the day loop (D-04), and what replaces them is Open (MC-04). The perk and flaw lines describe hunt mechanics (referrals, knockouts, Tailor & Apply), so they need new text once MC-03 says what a background changes in the career run. The lines the duel uses stay (`vs_nickname`, `dana_opener`), and so does `plan_b_line`. The header that ends the intro is Open (MC-11).
 
 ### 3.1 Text
 
@@ -505,7 +509,7 @@ Background-specific openers are in section 3 (`dana_opener`); company one-liners
 | `bark_dana_nego_win` | I asked. They said yes. Don't get used to it. |
 | `bark_dana_nego_lose` | This is our best and final. I did try. |
 
-Dana's four lie-probe lines (the probe intro, Come clean, a won bluff, BUSTED) were removed with lying on 2026-09-29 (DECISIONS D9).
+Dana's four lie-probe lines (the probe intro, Come clean, a won bluff, BUSTED) were removed with lying on 2026-09-29 (DECISIONS D9). `bark_dana_nego_win` and `bark_dana_nego_lose` have no use since Negotiate was removed on 2026-10-07 (D-27); they leave `barks.json` with the next code change.
 
 ### 8.3 VS screen and announcer
 
@@ -849,6 +853,8 @@ The hub's bottom dock (GDD 4.2 S04) uses `ui_tab_*` plus `ui_sleep`; dock labels
 
 **Approved (DECISIONS C2, 2026-09-29):** the developer approved all the copy the review queue listed ("go with it"): every line above that was added with no source text, the grammatical variants and the labels copied from the GDD mockups. The CV screen's labels (the CV dock tab, the degree and "1+ yrs" chips, Lie risk, Honest / Polished / Lie, and the row labels), and the Come clean and Bluff buttons, were removed with it (D9).
 
+**Unused since 2026-10-07 (DECISIONS D-27):** `ui_negotiate`, because Negotiate was removed. It leaves `barks.json` with the next code change.
+
 A primary button shows its label in capitals (`UiText.primary()` upper-cases it, as the GDD 4.2 mockups do: `[ CONTINUE ]`, `[ NEW RUN ]`), and a Back-style button puts "< " in front (`UiText.back()`). Write the text here in its normal case. (Agent default, please review.)
 
 ### 10.2 Ducky coach lines (first run, GDD 4.3)
@@ -899,13 +905,13 @@ Fields: `id, short (<=120, on screen), more (Notebook extra), triggers`. GDD 8.3
 | `tip_privacy` | Customer data is off-limits without a business reason. Access is logged. | Snooping is a fast way to lose a job and to hurt real people. | `eq_celebrity_orders` |
 | `tip_focus_time` | Protect focus time: decline meetings you aren't needed in and ask for notes. | Say what you're working on and when you'll be free. | `eq_meeting_overload` |
 | `tip_scope` | When a deadline is impossible, offer a smaller first version and write down the risks. | Flag slips early. Surprises are worse than bad news. | `eq_impossible_deadline`, `kq_estimate` |
-| `tip_negotiate` | A polite counter with a number and a reason is normal. It rarely backfires. | Know your market rate first. The usual worst case is 'this is our best offer'. Tight deadline? Asking for a few more days is normal. | offer opens (Negotiate shipped) |
+| `tip_negotiate` | A polite counter with a number and a reason is normal. It rarely backfires. | Know your market rate first. The usual worst case is 'this is our best offer'. Tight deadline? Asking for a few more days is normal. | none: Negotiate was removed (D-27) |
 | `tip_total_comp` | Compare total pay: salary, bonus, equity, benefits and commute. 3 hours a day on a bus is a pay cut. | Ask about office days, on-call and real working hours too. Tight deadline? Asking for a few more days is normal. | offer with a commute, `eq_rto` |
 | `tip_equity_lottery` | Treat startup equity like a lottery ticket. Ask the percentage and the vesting schedule. | A 1-year cliff means you get nothing if you leave or are laid off before 12 months. Also ask the strike price and how long you'd have to buy vested options after leaving. | startup offer |
 | `tip_fine_print` | Read non-compete, IP and probation clauses. Enforceability varies by country and state. Unsure? Ask a lawyer. | Ask HR what a clause covers and get the answer in writing before you sign. Whether it's enforceable is a question for an employment lawyer or legal aid. | fine print opened |
 | `tip_written_offer` | Don't stop other applications until you have a signed, written offer. | Check that it lists the start date, pay and work mode. | Hired card |
 
-Changed 2026-09-29: the tips for the plain-language choice questions (`tip_small_changes`, `tip_blameless`, `tip_secrets`, `tip_teamwork_without_job`, `tip_star_stories`, `tip_ask_questions`) lost their jargon (DECISIONS C3); tip accuracy is still yours to sign off. The two lying tips ("I don't know" beats a bluff; don't lie on a CV) were removed with lying (D9). `tip_keywords_honest` has no trigger in the MVP (it was the CV screen's), and `tip_quantify_impact` and `tip_projects_count` now come the night after a Tailor & Apply (GDD 8.3). Changed again in the review fix pass (DECISIONS A49, A50; please check their accuracy): `tip_star_stories` names the 5 topics before the structure; `tip_small_changes` lost the "how weekends die" hyperbole (GDD 1.3: the joke belongs to Dana's reaction); `tip_teamwork_without_job` says "team coding events", because most coding contests are solo; and `tip_take_feedback` is new: `eq_harsh_review`'s bad answer used to show `tip_teamwork_without_job`, which didn't match the cause (GDD 8.1 rule 4), so that tip has no trigger in the MVP now.
+Changed 2026-09-29: the tips for the plain-language choice questions (`tip_small_changes`, `tip_blameless`, `tip_secrets`, `tip_teamwork_without_job`, `tip_star_stories`, `tip_ask_questions`) lost their jargon (DECISIONS C3); tip accuracy is still yours to sign off. The two lying tips ("I don't know" beats a bluff; don't lie on a CV) were removed with lying (D9). `tip_keywords_honest` has no trigger in the MVP (it was the CV screen's), and `tip_quantify_impact` and `tip_projects_count` now come the night after a Tailor & Apply (GDD 8.3). Changed again in the review fix pass (DECISIONS A49, A50; please check their accuracy): `tip_star_stories` names the 5 topics before the structure; `tip_small_changes` lost the "how weekends die" hyperbole (GDD 1.3: the joke belongs to Dana's reaction); `tip_teamwork_without_job` says "team coding events", because most coding contests are solo; and `tip_take_feedback` is new: `eq_harsh_review`'s bad answer used to show `tip_teamwork_without_job`, which didn't match the cause (GDD 8.1 rule 4), so that tip has no trigger in the MVP now. Changed 2026-10-07: `tip_negotiate` has no trigger, because Negotiate was removed (DECISIONS D-27).
 
 ---
 
@@ -972,11 +978,10 @@ Perks:      {perk_1}.
             {perk_2}.
 Fine print: {fine_print}
 Please decide before you sleep.
-[               Negotiate               ]
 [ Decline ]  [          ACCEPT          ]
 ```
 
-One field per line after a 12-character label column; values wrap at 28 columns, fine print up to 4 lines (GDD 4.2 S10).
+One field per line after a 12-character label column; values wrap at 28 columns, fine print up to 4 lines (GDD 4.2 S10). The template's `[ Negotiate ]` row was removed on 2026-10-07 with Negotiate (DECISIONS D-27).
 
 The template's first line is `offer_title`; the salary value (without its "Salary:" label) is `offer_salary`, where `{salary}` is the whole-dollar amount with its "$" and thousands commas ("$71,000"). The Hired card reuses `offer_salary`. The other template lines got ids when Step 6 built the paper (2026-09-27): `offer_dear`, `offer_role`, the field labels `offer_label_*` and `offer_deadline`, copied from the template above. Two were new, and the developer approved them on 2026-09-29 (DECISIONS C2): `offer_label_equity` and `offer_equity`, the startup's joke equity (GDD 5.9.2 and 7: "$50-70k + 0.0001% equity") shown as its own field under the salary. `{hours}` is the weekly commute (`office_days` x 2 x `commute_min` / 60) with one decimal ("12.7").
 
@@ -1001,6 +1006,8 @@ The template's first line is `offer_title`; the salary value (without its "Salar
 | `offer_deadline` | Please decide before you sleep. |
 | `offer_equity_doubled` | Equity doubled! 0.0001% -> 0.0002%. |
 | `offer_signon` | Paid as a sign-on bonus. (Big corps love a one-time thing.) |
+
+`offer_equity_doubled` and `offer_signon` were Negotiate's success lines; they have no use since Negotiate was removed (2026-10-07, DECISIONS D-27) and leave `emails.json` with the next code change.
 
 ### 13.2 Perks (2 shown per offer)
 
@@ -1068,9 +1075,13 @@ Background lines for Plan B are in section 3 (`plan_b_line`). The Stealth Mode H
 
 Changed 2026-09-29 (DECISIONS C4): the Dream vs Reality header, row labels, lowest grade and footer. The four rows from Remy's video now name his number (the rent row has none: the video never mentions rent), each row shows its points out of the row's maximum ("18.9/40", DECISIONS A48), and the footer explains the 100 (the old one, "The video scored 100. The video was sponsored.", was neither clear nor funny to the developer). The rescinded-offer ending line was removed with the background check (D9).
 
+**Run Spec v1 status:** the Plan B card stays as the career run's runway loss (D-19); `end_plan_b`'s "Rent's due." is Open (MC-20), and `end_stats` counts the hunt (the career run's stats line is a draft in 16.5). The Hired card is no longer an ending (D-24): `end_hired_*`, the Dream rows and `end_tbc` wait for MC-08 and MC-09. The four new endings are drafts in 16.5.
+
 ---
 
 ## 15. Events, news and myths (SHOULD) -> `data/content/events.json`, `news.json`
+
+**Run Spec v1 status:** the career run's events (16.3, GDD 5.19) replace these morning cards (RC-16); what happens to them in Phase 1 is Open (MC-01: proposed, park them). The Unicorn (`evt_unicorn`) has no place on the career run's board yet (MC-07). The news ticker (15.2) stays.
 
 ### 15.1 Morning event cards (one per morning, 50% chance, never on day 1)
 
@@ -1094,3 +1105,213 @@ Changed 2026-09-29 (DECISIONS C4): the Dream vs Reality header, row labels, lowe
 | `news_04` | Study: 1 in 3 job postings 'may not technically be jobs' |
 | `news_05` | Hierarchai raises $40M to pivot |
 | `news_06` | Entry-level role now requires 5 years with a 2-year-old tool |
+
+---
+
+## 16. The career run (Run Spec v1): draft strings
+
+Every string in this section is a **draft** for the career run, written during the Run Spec v1 merge (2026-10-07). None is in the JSON yet, and none is approved: you own the jokes and the tone, and you sign off every tip (W4, GDD 8.1). M6 is the Ducky writing pass, with the plain-language rule for non-tech players (C3; Open, MC-17), so jargon here ("prod", "PR", "post-mortem") is kept only until then.
+
+- **Conventions** (section 0): ASCII only, American spelling (A57), snake_case ids with a prefix, and the GDD 2.7 budgets: a card or dialogue line 120 characters, a choice or answer button 40, a tip `short` 120, a dock label 6.
+- **New placeholders**, which join section 0's list when these strings go into the JSON: `{jobs}`, `{layoffs}`, `{money}`, `{months}`, `{level}`, `{coworker}`, `{choice}`, `{home}`. Money shows as `{money}` until MC-10 decides between k$ and yearly dollars.
+- **Banned words:** the brand list (1.3) bans some everyday words too ("indeed", "slack", "zoom", "meta", "intel", "apple", "discord", "copilot", "alphabet", "azure", "nimbus", "oracle"). These drafts avoid them; so must any rewrite.
+- **Where they go** (planned, ARCHITECTURE 19.3): names in `naming.json` and a new `coworkers.json`; the work state's UI in `barks.json` (`ui_*`); the events in a new `work_events.json` (`evt_eNN_*`, A54); the tips in `tips.json`; the endings in `endings.json`; Dana's new lines in `barks.json`.
+
+### 16.1 Names
+
+| Key | Name | Note |
+|---|---|---|
+| `co_pivotly` | Pivotly | run 1's Startup. A placeholder name and id: Open (MC-06), proposed Hierarchai (`co_synergai`) |
+| `co_outsourcery` | Outsourcery | the Agency placeholder (MC-06 proposes Scope & Creep Digital, `co_pixelpivot`) |
+| `co_monolith` | Monolith | the MegaCorp placeholder (MC-06 proposes OmniGlobal Dynamics, `co_omniglobal`) |
+| `app_home` | Home | the home-tier app. "Your rent, with nicer photos." |
+| `app_handbook` | The Handbook | Ducky's collected tips, kept between runs (GDD 5.21) |
+| `ui_archetype_startup` / `_agency` / `_megacorp` | Startup / Agency / MegaCorp | the ids wait for MC-05 |
+| `ui_level_junior` / `_mid` / `_senior` | Junior / Mid / Senior | |
+| `ui_home_shared` / `_one_bed` / `_studio` / `_penthouse` | Shared room / One-bed / The Studio / Penthouse | the home tiers (GDD 5.15) |
+| `scar_short_tenure` / `scar_burnout_history` / `scar_bad_reference` / `scar_resume_gap` / `scar_corner_cutter` | Short Tenure / Burnout History / Bad Reference / Resume Gap / Corner-Cutter | the Scars (GDD 5.21); "Resume" without the accent (A57) |
+
+**Pivotly's coworkers** (`coworkers.json`; a new `cw_` prefix that joins GDD 5.0's list when the file exists):
+
+| id | Name | Role | Card line |
+|---|---|---|---|
+| `cw_minh` | Minh | Junior, your desk neighbor | Kind. Clicks everything. |
+| `cw_priya` | Priya | Senior engineer | Hears things early. |
+| `cw_tom` | Tom | product manager | "It's a small one." |
+| `cw_kev` | Kev | your engineering manager | Means well. Reports up. |
+
+Dana is the same Dana (sections 8 and 16.6). **The coworker name pool** for an Agency or a MegaCorp (`coworker_pool`), sharing no name with the dice pool (3.2), Dana, Remy, Jordan or Pivotly's four: Ari, Bo, Cam, Eli, Fran, Gale, Hana, Ira, Jo, Lee, Nico, Noor, Oli, Pat, Ren, Sasha.
+
+### 16.2 The work state (the phone shell, M2)
+
+| id | Text | Where |
+|---|---|---|
+| `ui_runway` | {months} mo | the Runway chip (red under 2) |
+| `ui_burnout` | BURNOUT | the HUD |
+| `ui_ticket` | TICKET | the HUD, under the calendar strip |
+| `ui_codebase` | CODEBASE | the HUD's server rack |
+| `ui_studio_chip` | Studio {n}/5 | the HUD chip (R-WIN-07) |
+| `ui_studio_s1` | Senior engineer | ClikClok's checklist (GDD 3.4) |
+| `ui_studio_s2` | Fully remote | |
+| `ui_studio_s3` | Living in The Studio | |
+| `ui_studio_s4` | Burnout 30 or less | |
+| `ui_studio_s5` | 6 months saved at Studio rent | |
+| `ui_filming` | Filming... | ClikClok's 90-day hold bar |
+| `ui_hours` | Hours | the slider's label |
+| `ui_hours_1` | Quiet quitting | the notch labels (GDD 5.17), shown one at a time over the notches |
+| `ui_hours_2` | Nine-to-five-ish | |
+| `ui_hours_3` | Reasonable | |
+| `ui_hours_4` | Just this sprint | |
+| `ui_hours_5` | Hustle culture | |
+| `ui_speed_pause` / `ui_speed_1` / `ui_speed_2` / `ui_speed_4` | Pause / 1x / 2x / 4x | the speed control |
+| `ui_cal_payday` / `ui_cal_rent` / `ui_cal_review` / `ui_cal_interview` / `ui_cal_deadline` / `ui_cal_lease` | Payday / Rent / Review / Interview / Deadline / Lease | the calendar strip |
+| `ui_tab_home` / `ui_tab_video` / `ui_tab_ducky` | Home / Video / Ducky | dock labels (6 characters): the Home app, ClikClok, the Handbook; DoomApply keeps `ui_tab_jobs` |
+| `ui_pick_feature` / `ui_pick_bugfix` / `ui_pick_paydown` | Feature / Bugfix / Pay-down | a Mid's ticket pick (GDD 5.17) |
+| `ui_pick_paydown_note` | Nobody notices. | the Run Spec's line on the pay-down card |
+| `ui_push_back` | Push back the deadline | a Mid's once-per-cycle action |
+| `ui_quality_clean` / `ui_quality_balanced` / `ui_quality_fast` | Clean / Balanced / Fast | a Senior's quality bar |
+| `ui_home_move` | Move here: {money} | the Home app (one month of the new rent) |
+| `ui_home_here` | You live here. | |
+| `ui_callback` | Callback | the posting's 5-dot odds band (GDD 5.20) |
+| `ui_applied` | Applied. Reply in 3-10 days. Maybe. | after Apply on the board |
+| `ui_last_floor` | This is your last floor. There's no job 6. | the board during job 5 (a spec gap's proposal) |
+| `ui_run_ends_confirm` | Leaving job 5 ends your career. Are you sure? | RC-33's confirm |
+| `ui_promoted` | Promoted to {level}! Same desk. Bigger title. | after a review |
+| `ui_pip` | Performance plan: 60 days. Your manager has concerns, in writing. | two Below in a row |
+| `ui_forced_leave` | Burnout hit 100. Forced leave: your body filed the ticket nobody else would. | the forced leave (GDD 5.21) |
+| `ui_burnout_warn_60` | You read the same line four times. | the first warning beat (the Run Spec's line) |
+| `ui_burnout_warn_70` | You said yes to a meeting about meetings. You don't remember saying it. | the second |
+| `ui_burnout_warn_75` | Running on empty. From now on, a tired you may pick some choices for you. | the third: auto-resolve starts here (R-EVT-02) |
+| `ui_auto_resolved` | Too tired to choose. Burnout picked: {choice} | an auto-resolved card says so (R-EVT-02) |
+
+The burnout lines follow GDD 1.3: the workload and the employer are the joke, never the person's health.
+
+### 16.3 Event cards (`work_events.json`)
+
+One entry per event, keyed `evt_eNN_<name>` (A54). Its texts sit inline in the entry, like a question's answers (ARCHITECTURE 6.3, 19.3), so an id below that extends an event id (a choice such as `evt_e12_fix_it`, a result such as `evt_e02_below`, a rumor, a sign) names a field of that entry, not an entry of its own. Each choice's effects are in GDD 5.19 and stay out of the text. "exh." is the exhausted choice: the Run Spec's where it gave one, otherwise **proposed** (a spec gap for M1 and M6). Ducky's joke and cause come with M6's writing pass, except E12's, which the Run Spec wrote; the tip ids are in 16.4.
+
+| id | Card text | Choices (label: text) | exh. |
+|---|---|---|---|
+| `evt_e01_payday` | Payday! {money} in. (On day 1 of each month: "Rent day. {money} out.", `evt_e01_rent`.) | none: the money pulse | - |
+| `evt_e02_review` | Review day. Your manager has a form, a template and 15 minutes. | the 3-prompt review duel; results `evt_e02_below` "Rating: Below. Your manager is 'concerned'. In writing.", `evt_e02_meets` "Rating: Meets. Raise: 1%. Inflation sends its regards.", `evt_e02_exceeds` "Rating: Exceeds. Raise: 3%. Your manager calls it 'a strong signal'." | - |
+| `evt_e03_new_project` | Tom: "Got a new project. It's a small one." It is not a small one. | `volunteer`: Volunteer; `stay`: Stay on your ticket | Volunteer (proposed) |
+| `evt_e04_lease_renewal` | Lease renewal. Your landlord loves you. Your rent loves you 10% more. | `accept`: Accept the +10%; `move_down`: Move down a tier | Accept the +10% (proposed) |
+| `evt_e05_all_hands` | All-hands. 42 slides. The word "exciting" appears 19 times. | none: it carries rumors | - |
+| `evt_e06_on_call` | On-call week. Your phone is a pager now. It knows where you sleep. | none: 7 days of effects | - |
+| `evt_e07_resizing` | (the chain's signs, below, then the layoff scene, 16.6) | prep, on a card during the chain: `update_profile`: Update your profile; `ask_priya`: Ask Priya what she's heard; `cut_spending`: Cut spending | to set at M3 (proposed: no prep is taken; too tired to prepare) |
+| `evt_e08_rto_mandate` | Memo: "We're excited to bring everyone back together." Monday. Five days a week. | `comply`: Comply: back to the office; `push_back`: Push back: it's in my contract (the tip and a remote clause); `quit`: Quit | Comply (proposed) |
+| `evt_e09_reorg` | Reorg. You have a new manager with a new vision. Neither has met you. | `book_1on1`: Book a 1:1 in week one; `wait`: Wait and see | Wait and see (proposed) |
+| `evt_e10_pivot` | Pivot! The company is AI for pets now. Your project is "legacy". | `champion`: Champion it; `stay_quiet`: Stay quiet | Stay quiet (proposed) |
+| `evt_e11_client_churn` | The client left. You're on the bench. The bench is a chair by the printer. | `learn`: Learn something new; `any_client`: Ask for any client | Ask for any client (proposed) |
+| `evt_e12_incident_prod` | 2 a.m. Prod is down. The alerts are loud. Whoever is on call is very quiet. | `fix_it`: Fix it yourself; `escalate`: Wake whoever is on call | Fix it yourself (the Run Spec's) |
+| `evt_e13_phishing_test` | Email: "URGENT: your payroll is on hold. Click here to fix it." The sender looks almost right. | `click`: Click the link; `report`: Report it; `ignore`: Ignore it | Click the link (the Run Spec's) |
+| `evt_e14_coworker_scam` | {coworker} clicked a "free pizza" link. Their laptop is now mining something. | `help`: Help clean up; `stay_out`: Stay out of it | Help clean up (proposed) |
+| `evt_e15_hardcoded_secret` | You found a password in the code. In plain text. From 2019. It still works. | `report`: Report it; `fix_quietly`: Fix it quietly; `ignore`: Ignore it | Ignore it (the Run Spec's) |
+| `evt_e16_stale_pr` | Your change has waited 9 days for a review. Someone reacted with a cobweb. | `ping_one`: Ping one named reviewer; `post_channel`: Post in the team channel; `merge_anyway`: Merge it anyway | Merge it anyway (proposed) |
+| `evt_e17_credit_taken` | Demo day. {coworker} presents your feature. "I" comes up 14 times. "We", once. | `speak_up`: Speak up; `say_nothing`: Say nothing; `brag_doc`: Send the brag doc (the tip) | Say nothing (proposed) |
+| `evt_e18_recruiter_dm` | A recruiter DMs: "Exciting role, perfect fit, can we talk?" They spelled your name right. | `take_call`: Take the call; `ignore`: Ignore it | Ignore it (the Run Spec's) |
+| `evt_e19_coffee_machine` | The coffee machine is broken. A sign says "Ticket filed." Morale: also broken. | none: 3 days of effects | - |
+| `evt_e20_laptop_dies` | Your laptop dies. Its last words: a spinning wheel. | `pay`: Buy a new one ({money}); `limp`: Limp along | Limp along (the Run Spec's) |
+| `evt_e21_lifestyle_offer` | A raise! A listing appears: "{home}. You deserve this." Your rent agrees. | `upgrade`: Move to {home}; `stay`: Stay where you are | Stay where you are (proposed) |
+| `evt_e22_ai_agent` | Your ticket went to an AI agent. It finished in 4 minutes. It also deleted a test. | `review`: Review its work properly; `approve`: Approve it | Approve it (the Run Spec's) |
+| `evt_e23_mentor_offer` | {coworker}: "Want to meet every other Thursday? Bring questions." | `accept`: Accept; `decline`: Decline | Decline (proposed) |
+| `evt_e24_overtime_ask` | Your manager: "Can you stay late this week? Just this sprint." It is never just this sprint. | `stay_late`: Stay late; `decline`: Decline | Stay late (the Run Spec's) |
+| `evt_e25_review_request` | {coworker} asks you to review 2,000 lines of code. "Should be quick!" | `review`: Review it properly; `rubber_stamp`: Rubber-stamp it | Rubber-stamp it (proposed) |
+| `evt_e26_blame_postmortem` | Incident review. Slide 3 says "Root cause:" and then a pause long enough for your name. | `own_it`: Own it; `blame_deadline`: Blame the deadline | Own it (proposed) |
+
+**E12's Ducky block** (the Run Spec's): `evt_e12_joke` "You fixed prod at 2 a.m. Prod now has your phone number."; `evt_e12_cause` "Whoever fixes it once becomes whoever fixes it always."; tip `tip_escalate`.
+
+**Rumors** (telegraphed events; shown on the calendar strip 10-30 days ahead):
+
+| id | Text |
+|---|---|
+| `evt_e08_rumor` | Rumor: leadership toured an empty floor and "felt sad". |
+| `evt_e09_rumor` | Rumor: a consultant is "mapping the org". With a red pen. |
+| `evt_e10_rumor` | Rumor: the founder's new podcast episode is called "Burn the Boats". |
+| `evt_e11_rumor` | Rumor: the client's new CTO "has a nephew who codes". |
+
+**Run 1's resizing chain** (R-RUN-02, GDD 5.19):
+
+| id | About day | Text |
+|---|---|---|
+| `evt_e07_sign_1` | 150 | All-staff email: "We're pausing hiring to stay nimble." The careers page says "Coming soon". |
+| `evt_e07_sign_2` | 165 | All-hands: "This year is about efficiency." The snacks are the first to go. |
+| `evt_e07_sign_3` | 190 | The new roadmap is out. Your project is in a box called "Later". Later has no date. |
+| `evt_e07_sign_4` | 210 | Minh's desk is empty. The plant is gone. The badge reader beeps red at no one. |
+| `evt_e07_sign_5` | 235 | Calendar invite from Dana: "15 min sync". No agenda. The room is called "Opportunity". |
+
+### 16.4 Event tips (`tips.json`)
+
+The Run Spec's own tip texts, made ASCII and American ("favorite", "practice"). The `more` line (the Handbook's extra) comes with M6's writing pass. Tip accuracy is yours to sign off (W4, GDD 8.1). Where each fires and its kind: GDD 8.6.
+
+| id | short | Event |
+|---|---|---|
+| `tip_brag_doc` | Keep a brag doc; your manager forgets, documents don't. | E02 (Edge) |
+| `tip_visible_work` | Volunteer for work your manager's manager can see. | E03 |
+| `tip_read_slides` | Read the slides for what isn't said. | E05 |
+| `tip_on_call_appendix` | On-call lives in the appendix; read it. | E06 |
+| `tip_layoffs_cost` | Layoffs select for cost, not performance; prepare anyway. | E07 |
+| `tip_remote_in_writing` | Get remote in writing; verbal flexibility expires. | E08 (Option) |
+| `tip_new_manager` | New manager? Book the 1:1 before they form an opinion. | E09 |
+| `tip_pivot_roadmap` | Pivots move headcount; know where your work sits on the new roadmap. | E10 |
+| `tip_bench_visible` | On the bench, visible beats busy. | E11 |
+| `tip_escalate` | Heroics are a staffing bug; escalate first, then help. | E12 |
+| `tip_check_sender` | Urgency is the scammer's favorite feature; check the sender. | E13 |
+| `tip_report_fast` | Report fast; the cleanup is cheaper than the shame. | E14 |
+| `tip_rotate_key` | A leaked key gets rotated, not just deleted. | E15 (MC-17 proposes reusing `tip_secrets`) |
+| `tip_small_prs` | Small PRs get reviewed; ask one named person. | E16 |
+| `tip_write_it_down` | Write it down the day you ship it. | E17 |
+| `tip_take_the_call` | Always take the call; information is free. | E18 (Edge) |
+| `tip_emergency_fund` | An emergency fund is boring until it's the only thing that works. | E20 (Edge) |
+| `tip_savings_rate` | Raise your savings rate before your rent. | E21 |
+| `tip_review_ai_code` | Reviewing generated code is a skill now; practice it. | E22 |
+| `tip_ask_mentorship` | Ask for mentorship specifically: 30 minutes, every two weeks. | E23 |
+| `tip_overtime_loan` | Overtime is a loan; know who's paying it back. | E24 (Edge) |
+| `tip_review_design` | Review the design, not the semicolons. | E25 |
+| `tip_blameless_postmortem` | Blameless post-mortems fix systems; blame fixes nothing. | E26 (MC-17 proposes reusing `tip_blameless`) |
+
+23 tips. E01, E04 and E19 have none (D-28 took E04's "Landlords negotiate too; ask before you sign").
+
+### 16.5 Endings (`endings.json`)
+
+| id | Text |
+|---|---|
+| `end_studio_title` | THE STUDIO |
+| `end_studio` | You woke at 10:47. It took {jobs} jobs. |
+| `end_studio_one` | You woke at 10:47. It took one job. |
+| `end_studio_caption` | 10:47 - woke up. {jobs} jobs. {layoffs} layoffs. 1 Studio. |
+| `end_burnout_title` | BURNOUT |
+| `end_burnout` | You took the leave. You didn't come back. |
+| `end_career_change_title` | CAREER CHANGE |
+| `end_career_change` | You teach a bootcamp now. You show them the video. |
+| `end_legacy_title` | LEGACY SYSTEM |
+| `end_legacy` | Six years. Same service. You are the legacy system. |
+| `end_career_stats` | Days: {day} - Jobs: {jobs} - Layoffs: {layoffs} - Level: {level} |
+
+- The four card lines are the Run Spec's (GDD 3.3); `end_studio_caption` is the win video's caption (GDD 3.4). `end_studio_one` is a grammatical variant, like `ui_ghost_footer_one`; the caption's one-job and one-layoff variants come with the JSON.
+- Plan B keeps `end_plan_b_title`, `end_plan_b` (its "Rent's due." is Open, MC-20), the background's `plan_b_line` and `end_plan_b_final`.
+- Every ending card also shows the career-long Dream vs Reality score, whose formula and rows are Open (MC-09).
+
+### 16.6 The layoff scene and Dana's new lines (`barks.json`)
+
+| id | Text |
+|---|---|
+| `vs_layoff_title` | DANA VS YOU |
+| `bark_dana_layoff` | We're reshaping how we're shaped. |
+| `bark_dana_layoff_2` | Your badge stops at 5 PM. Mine stops at 6. I asked for a head start. |
+| `ui_severance` | Severance: {money} |
+| `ui_access_revoked` | ACCESS REVOKED |
+| `bark_dana_greet_after_layoff` | Yes, I laid you off at {last_company}. Then they laid me off. Hi. Shall we? |
+| `vs_banner_big_2` | ROUND 2 OF 7 |
+
+- `vs_layoff_title` and `bark_dana_layoff` are the Run Spec's (D-22). Dana stays as written (GDD 1.3, RC-23): the joke is the script she has to read and the process behind it, never her.
+- `bark_dana_greet_after_layoff` is for the first interview after run 1's layoff, which Dana delivered rather than interviewed you for, so `bark_dana_greet_again` ("Didn't I interview you at...") doesn't fit there (proposed).
+- `vs_banner_big_2` is the banner of a MegaCorp posting's second duel (GDD 5.20).
+- The intro's handover to day 0 is Open (MC-11). The proposed last caption, as a draft: `intro_p6_handover` "Four years later, you have a job. Remy says the next part is easy."
+
+### 16.7 Phase 1's strings in the career run
+
+- **Kept:** the duel's (sections 7-9), the offer's (13; `offer_deadline`, "Please decide before you sleep.", is Open, MC-20), the Plan B card's (14) and `coach_meter` (10.2).
+- **Retired with the hunt** when the career run is built (MC-01 decides when): the hunt's UI lines in 10.1 (energy, rent, the Radar, the deck, Mail), its coach lines in 10.2, the emails (12) and the morning events (15.1).
+- **Waiting for MC-08 and MC-09:** `end_hired_*`, the Dream rows and `end_tbc`.
+- **Already unused** (D-27): `tip_negotiate`, `bark_dana_nego_win`, `bark_dana_nego_lose`, `ui_negotiate`, `offer_equity_doubled`, `offer_signon`.

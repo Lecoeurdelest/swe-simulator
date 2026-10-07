@@ -9,6 +9,14 @@
 # DECISIONS D9-D12, C2-C4, W7). CV editing and lying were removed (D9): MUST-07 and AC-DOD-05 are retired, not
 # deleted, and the statements that named the lie probe, BUSTED or the skippable VS intro follow the current docs.
 # The prior wording is in git at 8aaae75.
+# 2026-10-07: Run Spec v1 merged into the docs (branch run-spec-v1-merge; docs/merge-report.md; DECISIONS W8):
+# GDD 2.0, CONTENT 1.2, ARCHITECTURE 1.5, ROADMAP 1.3. Indexed here: the developer's decisions of that day (W9: M1
+# starts now, a convention below; D-26: Phase 1's stats only feed the duel; D-27: Negotiate removed, so D7 is
+# superseded and SHOULD-02 and AC-S08-2 are retired, not deleted; D-28: E04's lease negotiation removed too), the
+# Run Spec's decisions D-01..D-25, P-01..P-08 and Q-01..Q-07, its requirements R-* (each with criteria; the
+# milestones' Done-when items are the AC-S14..AC-S19 criteria), AD-14, INV-20, the new docs as artifacts, a
+# BASE-RUNSPEC baseline, and the tasks STEP-14..STEP-19 (= M1-M6, A53), with STEP-14 next (W9). The merge changed
+# no code. Open conflicts (MC-nn) live in docs/merge-report.md, not here.
 schema_version: 1
 
 project:
@@ -29,7 +37,9 @@ project:
     - "Engine facts: docs/ARCHITECTURE.md wins; fix GDD.md (ARCHITECTURE header)."
     - "Every player-facing string and content id: docs/CONTENT.md."
     - "Step plan, task breakdown and Done-when criteria: docs/ROADMAP.md."
-    - "Design decision answers: docs/DECISIONS.md (one line each; D1-D8, P1 and C1 since 2026-09-26, D9-D12, P3 and C2-C4 since 2026-09-29, plus the workflow rows W1-W7 and the agent defaults A1 onward). A change is a new superseding row there first, then the GDD section it points to (GDD 12)."
+    # 2026-10-07: the decision ranges grew with the Run Spec merge (W8), and W8's precedence rule was added below.
+    - "Design decision answers: docs/DECISIONS.md (one line each; D1-D8, P1 and C1 since 2026-09-26, D9-D12, P3 and C2-C4 since 2026-09-29, the Run Spec's D-01..D-25, P-01..P-08 and Q-01..Q-07 and the developer's D-26 onward since 2026-10-07, plus the workflow rows W1-W9 and the agent defaults A1 onward). A change is a new superseding row there first, then the GDD section it points to (GDD 12)."
+    - "Run Spec v1 precedence (DECISIONS W8, the developer's instruction for the merge): the original docs win on pixel-art style, engine and language, code conventions, shipped UI conventions and existing characters; the Run Spec material wins on game design (run structure, systems, rules, numbers, events, endings) and supersedes every earlier work-loop note. A conflict neither rule settles is listed in docs/merge-report.md as an MC-nn with a proposed resolution and is never resolved silently. docs/run-spec-v1.md is archived input: the merged docs win over it."
     - "Execution state and evidence: .project/state.json and .project/evidence/."
 
 preservation:
@@ -46,6 +56,15 @@ preservation:
     - id: BASE-DOCS-REVIEW
       source: "docs/GDD.md 1.2, docs/CONTENT.md 1.1, docs/ARCHITECTURE.md 1.4, docs/ROADMAP.md 1.2 and docs/DECISIONS.md (D9-D12, P3, C2-C4, W7, A21-A51), synced with the code of commits d8db453..8aaae75 and the review fix pass f89cf09..62c2a68"
       revision: "the docs and tracking commit on branch step-07-dev-review that follows 8aaae75, then the review fix pass docs commit that follows 62c2a68 (2026-09-29); sha256 of all five docs in the .project/generated-manifest.json inputs of the latest one"
+      superseded_by: BASE-DOCS-RUNSPEC
+    # 2026-10-07: the Run Spec v1 merge (DECISIONS W8). BASE-RUNSPEC is the spec as received; BASE-DOCS-RUNSPEC the
+    # merged docs.
+    - id: BASE-RUNSPEC
+      source: "Run Spec v1 (2026-10-05, @Quy), received on 2026-10-07 and archived read-only as docs/run-spec-v1.md (a 3-line header above the unchanged body)"
+      revision: "original file sha256 f64ea13ca5c739cef5ab4a68ae6cad3aefcac03f9856308fb95e2fbd3b5106af; archived in commit 4a96d57"
+    - id: BASE-DOCS-RUNSPEC
+      source: "docs/GDD.md 2.0, docs/CONTENT.md 1.2, docs/ARCHITECTURE.md 1.5, docs/ROADMAP.md 1.3 and docs/DECISIONS.md (to D-28 and A61) after the Run Spec v1 merge; no code changed"
+      revision: "branch run-spec-v1-merge, commits 4a96d57..the merge's final commit (2026-10-07); sha256 of the five docs in the .project/generated-manifest.json inputs of that commit"
     - id: BASE-CODE
       source: Step 1 foundation code copied from ARCHITECTURE section 17
       revision: 64ed38f
@@ -55,7 +74,7 @@ preservation:
   artifacts:
     - id: ART-GDD
       path: docs/GDD.md
-      role: design source of truth (rules, numbers, MUST/SHOULD/LATER scope, decisions D1-D12 and P1 in section 12)
+      role: design source of truth (rules, numbers, MUST/SHOULD/LATER scope, decisions D1-D12 and P1 in section 12, with the Run Spec's D-01..D-25 and P-01..P-08 summarized there); since 2.0 also the career run (sections 0, 2.11, 3, 4.5-4.6, 5.14-5.22, 6.1, 7.1, 8.5-8.6, 9.5, 10.7, 11.7, 13)
       disposition: preserve
     - id: ART-CONTENT
       path: docs/CONTENT.md
@@ -71,7 +90,24 @@ preservation:
       disposition: preserve
     - id: ART-DECISIONS
       path: docs/DECISIONS.md
-      role: decision log (D1-D12, P1-P3, C1-C4, W1-W7, agent defaults A1-A51); one line per decision, changed only by a new superseding row
+      role: decision log (D1-D12, P1-P3, C1-C4, W1-W9, the Run Spec's D-01..D-25, P-01..P-08 and Q-01..Q-07, the developer's D-26 onward, agent defaults A1-A61); one line per decision, changed only by a new superseding row
+      disposition: preserve
+    # 2026-10-07: the Run Spec merge's input and record, and the dated handoff references (A59).
+    - id: ART-RUNSPEC
+      path: docs/run-spec-v1.md
+      role: Run Spec v1 as received, archived read-only (BASE-RUNSPEC); the merged docs win over it
+      disposition: preserve
+    - id: ART-MERGE-REPORT
+      path: docs/merge-report.md
+      role: the Run Spec merge's record - where each part went, the conflicts resolved (RC-nn) and open (MC-nn) with proposed resolutions, the spec gaps with proposed defaults
+      disposition: preserve
+    - id: ART-HANDOFF
+      path: docs/swe-simulator-handoff.md
+      role: the 2026-10-06 session handoff, a dated reference (A59)
+      disposition: preserve
+    - id: ART-GODOT-ACCESS
+      path: docs/swe-simulator-godot-access.md
+      role: how to drive Godot through the godot-ai MCP and headless, a dated reference (A59); .agent/AGENTS.md copies its commands
       disposition: preserve
     # 2026-09-29: the parking lot the scope convention below points to now exists (the developer's Phase 2 ideas, D10).
     - id: ART-PARKING
@@ -95,7 +131,9 @@ preservation:
       role: TierData, BackgroundData, BalanceConfig resource classes
       disposition: preserve
   conventions:
-    - "ROADMAP step numbers are stable task ids (STEP-00 .. STEP-13); never renumber them."
+    # 2026-10-07 (A53, an agent default for the developer's review): STEP-14..STEP-19 added for the career run's
+    # M1-M6; was "(STEP-00 .. STEP-13)".
+    - "ROADMAP step numbers are stable task ids (STEP-00 .. STEP-19; STEP-14..19 are the career run's milestones M1-M6, ROADMAP 12); never renumber them."
     - "ROADMAP Done-when checkboxes are ticked by the developer; the three-marker index in docs/task/README.md is generated from .project/state.json and never replaces them."
     # 2026-09-27: the next convention replaces "A design change is one line with a reason in docs/DECISIONS.md;
     # the GDD is not rewritten (ROADMAP Step 0 pitfalls)." The v1.1 docs (DECISIONS.md header, GDD 12) now update
@@ -118,8 +156,12 @@ preservation:
     # "The developer commits; Claude suggests the message and commits before script_patch or engine updates (ROADMAP 10, ARCHITECTURE 14.3)."
     - "Claude commits after each verified increment on a per-step branch (step-NN-<slug>, each branched from the previous step's branch) and pushes without asking; it still commits before script_patch or engine updates. The developer reviews and merges on GitHub in step order with merge commits (DECISIONS W1; ARCHITECTURE 14.3)."
     - "Dependency gate: a step may start when every earlier step is done or has only developer-owned criteria left (device, manual review; You-do exercises are suspended, W7); those steps stay in_progress/verifying until the developer confirms (DECISIONS W2)."
+    # 2026-10-07 (W9, the developer: "M1 should start now"): an exception to the gate above.
+    - "M1, the career run's sim core (STEP-14), starts ahead of the open Steps 7-13 (DECISIONS W9); the dependency gate still orders Steps 7-13 among themselves. Where STEP-15..19 sit against Steps 7-13 is open (MC-01)."
     - "While the developer is away, design huddles take the documented recommended default, logged in docs/DECISIONS.md as 'agent default, please review'; scope, tone and tip accuracy wait for the developer (DECISIONS W4)."
-    - "Current mode (2026-09-27): PC only (P2); autonomous run from Step 2's PC part through Step 6, with a summary after each step (DECISIONS W5). Since 2026-09-29 the developer's review fixes are built on the Step 7 branch (step-07-dev-review); Phase 2 is not designed or built until the developer decides (docs/ideas_parking_lot.md)."
+    # 2026-10-07: the last sentence was "Phase 2 is not designed or built until the developer decides
+    # (docs/ideas_parking_lot.md)"; the Run Spec v1 is that design now (W8).
+    - "Current mode (2026-09-27): PC only (P2); autonomous run from Step 2's PC part through Step 6, with a summary after each step (DECISIONS W5). Since 2026-09-29 the developer's review fixes are built on the Step 7 branch (step-07-dev-review). Since 2026-10-07 the Run Spec v1 is the working life (W8), built as M1-M6 (STEP-14..19), M1 next (W9)."
     - "The 2x rule: a task past twice its estimate stops and is cut or simplified (ROADMAP 1)."
     - "Two machines share the GitHub repo: everyday building on the Windows PC, iPhone builds on the MacBook; pull before you start, push before you switch, and run the same Godot 4.7.2 on both (ROADMAP 10; ARCHITECTURE 14.1)."
   status_dimensions:
@@ -151,6 +193,12 @@ components:
   # 2026-09-27 (Step 6 doc sync): docs/KILL_TESTS.md, the Step 6 kill-test checklist (ROADMAP Step 6 task 6), added.
   # 2026-09-29 (Step 7 review): the ideas parking lot and the developer's review queue added.
   - {id: CMP-DOCS, title: "Decision log, kill-test checklist, ideas parking lot, review queue, credits, devlog", paths: [docs/DECISIONS.md, docs/KILL_TESTS.md, docs/ideas_parking_lot.md, docs/REVIEW_QUEUE.md, CREDITS.md, docs/devlog.md], source: "ROADMAP 1, 5, 9, Step 6; ARCHITECTURE 9; .agent/AGENTS.md"}
+  # 2026-10-07: the career run's planned components (ARCHITECTURE 19; none exists yet).
+  - {id: CMP-SIM, title: "The career run's sim core (SimState, Sim, WorkOdds, EventPlan) - pure, deterministic, headless (planned)", paths: [core/sim_state.gd, core/sim.gd, core/work_odds.gd, core/event_plan.gd], source: "ARCHITECTURE 19.1-19.2; GDD 5.14-5.22"}
+  - {id: CMP-WORKDATA, title: "The career run's data - WorkConfig, ArchetypeData, work_events.json, coworkers.json (planned)", paths: [data/types/work_config.gd, data/types/archetype_data.gd, "data/work/", "data/archetypes/", data/content/work_events.json, data/content/coworkers.json], source: "ARCHITECTURE 19.3; GDD 11.7; CONTENT 16"}
+  - {id: CMP-HARNESS, title: "The balancing harness and its five bots, run headless outside test_run (planned)", paths: ["tests/harness/"], source: "ARCHITECTURE 19.6; GDD 5.22; DECISIONS A56"}
+  - {id: CMP-WORK, title: "The work state's screens - the phone shell, event cards, apps, the layoff scene (planned)", paths: ["features/work/", "features/layoff/"], source: "ARCHITECTURE 19.4, 19.7; GDD 4.5-4.6"}
+  - {id: CMP-DIORAMA, title: "The office diorama and the home rooms, in the pixel-art style (planned)", paths: ["features/work/"], source: "ARCHITECTURE 19.8; GDD 2.11"}
 
 decisions:
   # ARCHITECTURE section 0: accepted engineering decisions.
@@ -170,6 +218,8 @@ decisions:
   - {id: AD-11, title: "270x480 base (portrait), viewport + expand + integer, runtime scale guard with fractional fallback on SE- and 720p-class screens", status: accepted, supersedes: AD-01, source: "ARCHITECTURE 0.1; D2"}
   - {id: AD-12, title: "Portrait only (orientation 1, no upside-down), one thumb; only the job-card and background-card swipes read raw touch", status: accepted, supersedes: AD-02, source: "ARCHITECTURE 0.2; D1"}
   - {id: AD-13, title: "iPhone first: develop on the Windows PC, build on the MacBook (Xcode, free Personal Team signing); Android LATER", status: accepted, supersedes: AD-10, source: "ARCHITECTURE 0.10; P1"}
+  # 2026-10-07: the Run Spec's architecture (its section 13), merged by W8; class and file names are proposals until M1.
+  - {id: AD-14, title: "The career run - a pure, deterministic GDScript sim core that bots play headless; content as data; a presentation that knows no rules; the duel and the contract behind an adapter; a run log of inputs and outcomes", status: accepted, source: "ARCHITECTURE 0.11, 19.1; Run Spec v1 section 13; DECISIONS A55, A56"}
   # GDD section 12 and docs/DECISIONS.md: answered by the developer on 2026-09-26 (proposed until then).
   # `default` keeps the first draft's recommended default; `answer` is the decision.
   - {id: D1, title: "Orientation", status: accepted, answer: "portrait only (orientation = 1, no upside-down)", default: "(a) landscape only, sensor", decided: "2026-09-26", source: "GDD 12; GDD 2.1; docs/DECISIONS.md"}
@@ -178,7 +228,7 @@ decisions:
   - {id: D4, title: "Lying depth", status: superseded, superseded_by: [D9], answer: "the default", default: "(a) 3 CV lines x Honest/Polished/Lie + Come clean/Bluff + background check for degree lies", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
   - {id: D5, title: "Fail state", status: accepted, answer: "the default", default: "(a) one Plan B ending, grace day, one-tap retry", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
   - {id: D6, title: "Customization depth", status: accepted, answer: "the default; cosmetics LATER", default: "(a) background + name dice", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
-  - {id: D7, title: "Negotiation", status: accepted, answer: "the default: once, never rescinded", default: "(b) one-tap Negotiate, first SHOULD after Research", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
+  - {id: D7, title: "Negotiation", status: superseded, superseded_by: [D-27], superseded_on: "2026-10-07", answer: "the default: once, never rescinded", default: "(b) one-tap Negotiate, first SHOULD after Research", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
   - {id: D8, title: "Interview brutality (run length)", status: accepted, answer: "the default; revisit after Playtest #1 (Step 7)", default: "(a) Doubt HP 118/128/132 for playtest #1, then decide", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
   - {id: P1, title: "Platform", status: accepted, answer: "iPhone first, built and deployed from the developer's MacBook (Xcode, free Personal Team signing); Android LATER (no Android phone to test on)", decided: "2026-09-26", source: "GDD 12; GDD 2.10; docs/DECISIONS.md"}
   - {id: C1, title: "Parody names after a trademark web check", status: accepted, answer: "12 parody names renamed (e.g. SynergAI -> Hierarchai, HireBot 3000 -> Parsinator 3000); content ids unchanged; a real trademark search still runs before any public release", decided: "2026-09-26", source: "docs/DECISIONS.md; CONTENT 1.1, 4"}
@@ -190,6 +240,54 @@ decisions:
   - {id: C2, title: "Review-queue copy approved, 4 wording fixes", status: accepted, answer: "section 3 copy as written; Graduate perk says knowledge question; no doubled period after a company name; fine print never repeats a perk; GDD coach_sleep line matches the JSON", decided: "2026-09-29", source: "docs/DECISIONS.md; CONTENT 3.1, 13.3"}
   - {id: C3, title: "Choice questions in plain language", status: accepted, answer: "all 14 choice questions checked for non-tech players (11 reworded, 3 already plain kept); ids, kinds, tiers and tips unchanged (A49 later gave eq_harsh_review its own tip)", decided: "2026-09-29", source: "docs/DECISIONS.md; CONTENT 7"}
   - {id: C4, title: "New Hired-card copy", status: accepted, answer: "header YOUR JOB vs REMY'S VIDEO, the four video rows naming Remy's value, grade 1 All reality, no dream, footer 100 is the life in Remy's video. Nobody gets 100. Not even Remy.", decided: "2026-09-29", source: "docs/DECISIONS.md; GDD 5.9.5; CONTENT 14"}
+  # docs/DECISIONS.md, decided by the developer on 2026-10-07 during the Run Spec v1 merge (the D- series, A60).
+  - {id: D-26, title: "Phase 1 stats in the career run", status: accepted, answer: "KNOWLEDGE, EXPERIENCE and NETWORK stay at the background's starting values and only feed the duel (knowledge P, the committee wheel); Study, callbacks and offers do not touch them (for now)", decided: "2026-10-07", source: "GDD 5.1, 12; docs/DECISIONS.md; docs/merge-report.md MC-02"}
+  - {id: D-27, title: "Offer negotiation removed", status: accepted, supersedes: D7, answer: "no Negotiate anywhere: neither Phase 1's one-tap Negotiate (SHOULD, never built) nor the Run Spec's R-JOB-04 version; the contract modal is Accept or Decline; the Handbook keeps 4 Edge tips; the existing negotiation code leaves with the next code change", decided: "2026-10-07", source: "GDD 5.9.3, 10.2, 12; docs/DECISIONS.md"}
+  - {id: D-28, title: "Lease negotiation removed", status: accepted, answer: "E04 (lease renewal) is accept the +10% rent or move down a tier; its negotiate choice and the Landlords negotiate too tip go; E04 has no Ducky tip for now; no negotiation is left in the game", decided: "2026-10-07", source: "GDD 12; docs/DECISIONS.md; docs/merge-report.md MC-21"}
+  # docs/DECISIONS.md, the Run Spec v1 rows (merged 2026-10-07, W8). D-01..D-25 are the spec's decision log
+  # (basis Yours = the developer stated it; Unchallenged = the spec proposed it and nobody objected, so it can be
+  # reopened). P-01..P-08 were the spec's proposals, accepted on 2026-10-07 by the developer's instruction for the
+  # merge; Q-01..Q-07 its open questions, answered (Q-01 and Q-02 from the repo, Q-03..Q-07 at the spec's defaults).
+  - {id: D-01, title: "A macro clock, about 1 in-game day per second; no cosmetics", status: accepted, basis: Yours, decided: "2026-10-01", source: "GDD 5.14; docs/DECISIONS.md"}
+  - {id: D-02, title: "Run 1 starts employed; job 1 ends in a telegraphed, guaranteed layoff", status: accepted, basis: Yours, decided: "2026-10-01", source: "GDD 3.3, 5.19; docs/DECISIONS.md"}
+  - {id: D-03, title: "The job hunt is a phone menu button; interviews stay the Dana duel", status: accepted, basis: Yours, decided: "2026-10-01", source: "GDD 5.20; docs/DECISIONS.md"}
+  - {id: D-04, title: "One clock - unemployment is the same clock with salary 0", status: accepted, basis: Unchallenged, decided: "2026-10-01", partly_supersedes: [D5], note: "retires the day loop, the energy pips and the rent countdown with its grace day when the career run is built", source: "GDD 5.14; docs/DECISIONS.md"}
+  - {id: D-05, title: "CV tailoring is dropped", status: accepted, basis: Yours, decided: "2026-10-01", partly_supersedes: [D9], note: "the part of D9 that kept Tailor & Apply", source: "GDD 5.4, 5.20; docs/DECISIONS.md"}
+  - {id: D-06, title: "Playtime - sessions of 5-12 min, a run of 25-35 min, 2.5-4 h of content", status: accepted, basis: Unchallenged, decided: "2026-10-01", source: "GDD 3.2; docs/DECISIONS.md"}
+  - {id: D-07, title: "Junior eye level - no project-manager mechanics at Junior", status: accepted, basis: Yours, decided: "2026-10-01", source: "GDD 5.17; docs/DECISIONS.md"}
+  - {id: D-08, title: "A career roguelite - harder with each level, a near-inevitable loss, something persists", status: accepted, basis: Yours, decided: "2026-10-02", source: "GDD 0, 3.3, 5.21; docs/DECISIONS.md"}
+  - {id: D-09, title: "Escalation comes from the company and the clock, not the title; the title caps at Senior", status: accepted, basis: Unchallenged, decided: "2026-10-02", source: "GDD 5.16, 5.18; docs/DECISIONS.md"}
+  - {id: D-10, title: "Runway is the anti-coast mechanic - salary is fixed, expenses rise", status: accepted, basis: Unchallenged, decided: "2026-10-02", source: "GDD 5.15; docs/DECISIONS.md"}
+  - {id: D-11, title: "A soft loss sends you to the job hunt with a Scar; a hard loss ends the run", status: accepted, basis: Unchallenged, decided: "2026-10-02", source: "GDD 3.3, 5.21; docs/DECISIONS.md"}
+  - {id: D-12, title: "The Codebase (inherited tech debt) is the core system", status: accepted, basis: Yours, decided: "2026-10-05", source: "GDD 5.16, 5.17; docs/DECISIONS.md"}
+  - {id: D-13, title: "No time passes while the app is closed", status: accepted, basis: Yours, decided: "2026-10-05", source: "GDD 5.14; docs/DECISIONS.md"}
+  - {id: D-14, title: "A Junior has exactly one continuous control (the Hours slider, built as five notches - A58)", status: accepted, basis: Yours, decided: "2026-10-05", source: "GDD 5.17; docs/DECISIONS.md"}
+  - {id: D-15, title: "Win-rate target 5-10%", status: accepted, basis: Yours, decided: "2026-10-05", source: "GDD 3.2, 5.22; docs/DECISIONS.md"}
+  - {id: D-16, title: "At most 5 jobs per run, then a forced hard loss", status: accepted, basis: Yours, decided: "2026-10-05", source: "GDD 3.3; docs/DECISIONS.md"}
+  - {id: D-17, title: "Three company archetypes in v1", status: accepted, basis: Yours, decided: "2026-10-05", source: "GDD 5.18; docs/DECISIONS.md"}
+  - {id: D-18, title: "The Handbook grants options plus small, capped stat edges", status: accepted, basis: Yours, decided: "2026-10-05", source: "GDD 5.21; docs/DECISIONS.md"}
+  - {id: D-19, title: "The Studio is the canonical ending; the ClikClok-coach ending becomes the runway loss", status: accepted, basis: Yours, decided: "2026-10-05", source: "GDD 3.3; docs/DECISIONS.md"}
+  - {id: D-20, title: "Lifestyle creep ships in v1", status: accepted, basis: Yours, decided: "2026-10-05", source: "GDD 5.15; docs/DECISIONS.md"}
+  - {id: D-21, title: "No art budget - no commissioned art", status: accepted, basis: Yours, decided: "2026-10-05", source: "GDD 2.5, 2.11; ROADMAP 5; docs/DECISIONS.md"}
+  - {id: D-22, title: "The layoff meeting is a non-interactive scene", status: accepted, basis: Yours, decided: "2026-10-05", source: "GDD 5.19; docs/DECISIONS.md"}
+  - {id: D-23, title: "The first promotion is reachable inside job 1", status: accepted, basis: Yours, decided: "2026-10-05", source: "GDD 3.3, 5.22; docs/DECISIONS.md"}
+  - {id: D-24, title: "Win = The Studio as a Senior engineer; leaving tech is a loss ending", status: accepted, basis: Yours, decided: "2026-10-05", source: "GDD 3.4; docs/DECISIONS.md"}
+  - {id: D-25, title: "Art stays the original docs' pixel-art style; the office diorama is drawn in it", status: accepted, basis: Yours, decided: "2026-10-07", source: "GDD 2.5, 2.11; docs/DECISIONS.md"}
+  - {id: P-01, title: "Floor depth (job number 1-5) is the difficulty scalar; archetypes set flavor and rules", status: accepted, decided: "2026-10-07", source: "GDD 5.18, 6.1; R-ARC-02; docs/DECISIONS.md"}
+  - {id: P-02, title: "The DoomApply board is the route map - each posting is a node you choose", status: accepted, decided: "2026-10-07", source: "GDD 5.20; R-JOB-01; docs/DECISIONS.md"}
+  - {id: P-03, title: "Layoff selection is weighted by salary, not performance", status: accepted, decided: "2026-10-07", source: "GDD 5.19; R-EVT-03; docs/DECISIONS.md"}
+  - {id: P-04, title: "Every Scar has counterplay; at most 3 stacks each", status: accepted, decided: "2026-10-07", source: "GDD 5.21; R-SCAR-01; docs/DECISIONS.md"}
+  - {id: P-05, title: "The Studio = 5 conditions held for 90 days", status: accepted, decided: "2026-10-07", source: "GDD 3.4; R-WIN-01..08; docs/DECISIONS.md"}
+  - {id: P-06, title: "Run 1's background is fixed - The Intern, converted to Junior", status: accepted, decided: "2026-10-07", source: "GDD 3.3, 5.2; docs/DECISIONS.md"}
+  - {id: P-07, title: "The three archetypes are Startup, Agency and MegaCorp", status: accepted, decided: "2026-10-07", source: "GDD 5.18, 7.1; docs/DECISIONS.md"}
+  - {id: P-08, title: "The performance review is a 3-prompt duel on the Dana duel UI", status: accepted, decided: "2026-10-07", source: "GDD 5.16, 5.19; docs/DECISIONS.md"}
+  - {id: Q-01, title: "Engine and language", status: accepted, answer: "Godot 4.7.2 and GDScript; the sim core is GDScript too and runs headless", decided: "2026-10-07", source: "GDD 13.3; docs/DECISIONS.md"}
+  - {id: Q-02, title: "The duel's stat names and which can be fed in", status: accepted, answer: "Composure (BackgroundData.composure_max), Doubt (TierData.doubt_hp) and the meter's half-width h (Odds.zone_half); none is a parameter today, so the adapter carries them in the interview checkpoint", decided: "2026-10-07", source: "GDD 13.4; ARCHITECTURE 19.5; docs/DECISIONS.md"}
+  - {id: Q-03, title: "Startup, Agency and MegaCorp as the three archetypes", status: accepted, answer: "yes (= P-07)", decided: "2026-10-07", source: "GDD 13.3; docs/DECISIONS.md"}
+  - {id: Q-04, title: "Five conditions held 90 days for The Studio", status: accepted, answer: "yes, tuned by the harness (= P-05)", decided: "2026-10-07", source: "GDD 13.3; docs/DECISIONS.md"}
+  - {id: Q-05, title: "Run 1's background fixed to The Intern", status: accepted, answer: "yes (= P-06)", decided: "2026-10-07", source: "GDD 13.3; docs/DECISIONS.md"}
+  - {id: Q-06, title: "A broken Studio hold", status: accepted, answer: "resets to zero", decided: "2026-10-07", source: "GDD 3.4, 13.3; docs/DECISIONS.md"}
+  - {id: Q-07, title: "Layoff selection by salary, not performance", status: accepted, answer: "yes (= P-03)", decided: "2026-10-07", source: "GDD 13.3; docs/DECISIONS.md"}
 
 invariants:
   # Global rules every task must keep. Full text and sources: .agent/rules/invariants.md
@@ -212,6 +310,7 @@ invariants:
   - INV-17
   - INV-18
   - INV-19  # added 2026-09-27 with the developer's approval: the portrait layout rule from .agent/AGENTS.md
+  - INV-20  # added 2026-10-07 at the developer's request (the merge brief): the art rule (D-21, D-25)
 
 requirements:
   # ---------- GDD 10.1 MUST (ids keep the GDD numbering) ----------
@@ -380,12 +479,17 @@ requirements:
     source: {file: docs/GDD.md, section: "10.2 item 1"}
     acceptance:
       - {id: AC-S08-1, statement: "Research has shipped and been tested on the iPhone.", verification: [device_observation, behavioral_test]}
+  # 2026-10-07 (DECISIONS D-27, the developer's call): Negotiate was removed. The requirement and its criterion stay,
+  # retired, so the ids and history remain readable; GDD 10.2 item 2 keeps its number.
   - id: SHOULD-02
-    title: "One-tap Negotiate"
+    title: "One-tap Negotiate (removed 2026-10-07, DECISIONS D-27)"
     risk: standard
+    relevance: retired
+    retired_on: "2026-10-07"
+    approval: "D-27 in docs/DECISIONS.md (developer, 2026-10-07)"
     source: {file: docs/GDD.md, section: "10.2 item 2"}
     acceptance:
-      - {id: AC-S08-2, statement: "Negotiate has shipped and been tested on the iPhone.", verification: [device_observation, behavioral_test]}
+      - {id: AC-S08-2, statement: "Negotiate has shipped and been tested on the iPhone.", verification: [device_observation, behavioral_test], relevance: retired, retired_on: "2026-10-07", reason: "D-27: Negotiate was removed; the contract modal is Accept or Decline (GDD 5.9.3; ROADMAP Step 8 task 2)"}
   - {id: SHOULD-03, title: "Network action and 3 site tabs", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 3"}, acceptance: [{id: AC-SH-03, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
   - {id: SHOULD-04, title: "Static top-down room hub", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 4"}, acceptance: [{id: AC-SH-04, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
   - {id: SHOULD-05, title: "Hard-mode commute strip", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 5"}, acceptance: [{id: AC-SH-05, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
@@ -421,6 +525,8 @@ requirements:
     source: {file: docs/GDD.md, section: "1.2; 1.3"}
     acceptance:
       - {id: AC-S05-5, statement: "The developer laughed at least once during the hunt grey-box.", verification: [manual_review]}
+      # 2026-10-07: the career run's tone sign-off at M3 (ROADMAP 12, Step 16).
+      - {id: AC-S16-3, statement: "The developer has signed off the tone of Pivotly's coworkers and the layoff scene (GDD 1.3, W4).", verification: [manual_review]}
   - id: REQ-DECISIONS
     title: "Decision log: D1-D8 and P1 answered, one line each with a reason"
     risk: standard
@@ -498,6 +604,303 @@ requirements:
       - {id: AC-S13-1, statement: "Every item in the ROADMAP section 2 checklist is ticked.", verification: [document_check]}
       - {id: AC-S13-3, statement: "Tag v0.5-mvp exists.", verification: [document_check]}
 
+  # ---------- Run Spec v1 requirements (merged 2026-10-07, DECISIONS W8; GDD 2.11, 3.3-3.4, 5.14-5.22, 13.1) ----------
+  # The ids are the Run Spec's own (R-...); criteria AC-S14-n..AC-S19-n are the milestones' Done-when items (ROADMAP 12),
+  # the others are each requirement's own checks, verified in the step that builds it. Nothing here is built yet.
+  - id: R-CLK
+    title: "One macro clock - 1 tick = 1 in-game day; pause, 1x, 2x, 4x; auto-pause on decisions; no time while the app is closed; saves at every event, input and backgrounding"
+    risk: critical
+    source: {file: docs/GDD.md, section: "5.14; 5.11; 13.1 O8"}
+    acceptance:
+      - {id: AC-S14-3, statement: "The same seed and inputs replay the same run (test_sim_replay), and every suite passes, including each M1 rule check listed in project.yaml.", verification: [behavioral_test]}
+      - {id: AC-CLK-1, statement: "No time passes while the app is closed - the clock moves only in the work state with no card, app or modal open, and the sim never reads the wall clock (D-13).", verification: [behavioral_test, manual_review]}
+      - {id: AC-S15-2, statement: "Killing the game mid-run, then Continue, restores the state of the last save (O8; docs/KILL_TESTS.md moments 6-8).", verification: [behavioral_test, device_observation]}
+  - id: R-ECO
+    title: "Money flow - rent and living costs on day 1, salary on day 25, living costs rising, raises below expense growth, debt and the Plan B trigger"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.15"}
+    acceptance:
+      - {id: AC-ECO-1, statement: "test_sim_rules - rent and living costs on day 1 of a month, salary on day 25, living costs +6% every 180 days, rent +10% at each lease renewal, raises of 1% or 3% within a level, and Plan B after 30 days in a row below zero (GDD 5.15).", verification: [behavioral_test]}
+  - id: R-ECO-05
+    title: "Home tiers and lifestyle creep - Shared room, One-bed, The Studio, Penthouse"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.15"}
+    acceptance:
+      - {id: AC-ECO05-1, statement: "test_sim_rules - the four home tiers' rent and Burnout recovery, a move costing one month of the new rent, and E21's upgrade offer after a raise (GDD 5.15).", verification: [behavioral_test]}
+      - {id: AC-ECO05-2, statement: "The Home app shows the four tiers and moves you, at any time and after a raise (GDD 4.6, 5.15).", verification: [manual_review]}
+  - id: R-STAT-01
+    title: "Four numbers on screen - Runway, Burnout, Ticket, Codebase"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.16"}
+    acceptance:
+      - {id: AC-STAT01-1, statement: "The work state's top band shows Runway (a months chip, red under 2, with its number), Burnout, the Ticket and the Codebase's 10 LEDs (GDD 5.16, 4.6).", verification: [manual_review]}
+  - id: R-STAT-02
+    title: "Hidden values - Manager Opinion, Skill, Rust, Rapport per coworker, the Studio hold"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.16"}
+    acceptance:
+      - {id: AC-STAT02-1, statement: "test_sim_rules - MO, Skill, Rust, Rapport per coworker and the Studio hold stay within their ranges and move only by GDD 5.16's rules.", verification: [behavioral_test]}
+  - id: R-STAT-03
+    title: "The daily formulas - ticket progress, Burnout per day, incident odds"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.16"}
+    acceptance:
+      - {id: AC-STAT03-1, statement: "test_sim_rules checks ticket progress, Burnout per day and the incident odds against GDD 5.16's formulas with worked numbers.", verification: [behavioral_test]}
+  - id: R-STAT-04
+    title: "The review rating - a 3-prompt duel; Evidence against Calibration; Below, Meets, Exceeds; promotion rules; the PIP"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.16"}
+    acceptance:
+      - {id: AC-STAT04-1, statement: "test_sim_review - Evidence, each archetype's Calibration HP, the rating bands, each promotion rule, the PIP and firing (GDD 5.16).", verification: [behavioral_test]}
+      - {id: AC-STAT04-2, statement: "The review plays as a 3-prompt duel on the Dana duel UI with a manager portrait (P-08).", verification: [manual_review]}
+  - id: R-CB-02
+    title: "Incidents scale with the Codebase"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.16; 13.1 O5"}
+    acceptance:
+      - {id: AC-S14-5, statement: "Sim - incidents a year at Codebase 80 are at least 3x those at 20 (O5), once MC-23 has settled E12's cooldown.", verification: [behavioral_test]}
+  - id: R-CTL-01
+    title: "The Junior's Hours slider - five notches trading output for Burnout and MO"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.17; 13.1 O3"}
+    acceptance:
+      - {id: AC-CTL01-1, statement: "test_sim_rules - each Hours notch's ticket speed, Burnout and MO per day (GDD 5.17), and E24's lock to notch 5 for 5 days.", verification: [behavioral_test]}
+      - {id: AC-S15-3, statement: "Every control used more than once a day sits in the thumb band, and the Junior screen has exactly one continuous control, the Hours slider (O3).", verification: [manual_review]}
+  - id: R-CTL-02
+    title: "Mid unlocks - the ticket pick, push back, review requests"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.17"}
+    acceptance:
+      - {id: AC-CTL02-1, statement: "A Mid picks the next ticket from three cards and pushes back once per review cycle, with GDD 5.17's effects, and review requests (E25) arrive.", verification: [behavioral_test, manual_review]}
+  - id: R-CTL-03
+    title: "Senior unlocks - the quality bar, owning the Codebase, the calendar tax"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.17"}
+    acceptance:
+      - {id: AC-CTL03-1, statement: "A Senior sets the quality bar and pays the calendar tax, and an incident within 30 days of running Fast triggers the blame post-mortem (E26) (GDD 5.17).", verification: [behavioral_test, manual_review]}
+  - id: R-CTL-04
+    title: "Level carry-over between jobs"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.17"}
+    acceptance:
+      - {id: AC-CTL04-1, statement: "test_sim_rules - the level carries over between jobs; leaving an Agency drops one level, never below Junior; applying one level up halves the callback and promotes you on hire (GDD 5.17).", verification: [behavioral_test]}
+  - id: R-ARC-02
+    title: "Floor depth - the job number multiplies event frequency, Dana's Doubt HP and offer salaries"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.18; 6.1"}
+    acceptance:
+      - {id: AC-ARC02-1, statement: "test_sim_rules - floor n multiplies the random and telegraphed events' odds by 1 + 0.15(n - 1), Doubt HP by 1 + 0.08(n - 1) and offers by 1 + 0.04(n - 1) (GDD 5.18, 6.1).", verification: [behavioral_test]}
+      - {id: AC-ARC02-2, statement: "In play, postings and jobs follow their archetype's rules (GDD 5.18, 7.1), and floor depth reaches the duel's Doubt HP.", verification: [manual_review]}
+  - id: R-EVT-01
+    title: "Event tiers - scheduled, telegraphed, random"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.19"}
+    acceptance:
+      - {id: AC-EVT01-1, statement: "test_sim_events - scheduled events reach the calendar up to 60 days ahead, telegraphed ones send rumors 10-30 days before, random ones roll daily; the harness counts about 10 scheduled events with choices, 1-2 chains and about 12 random events a year at floor 1.", verification: [behavioral_test]}
+      - {id: AC-EVT01-2, statement: "An event card pauses the clock, slides up into the thumb band and offers at most 3 choices behind the 250 ms lock (GDD 4.6, 5.19).", verification: [manual_review]}
+  - id: R-EVT-02
+    title: "Burnout auto-resolve - from Burnout 75 an event may take its exhausted choice, after three warnings"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.19"}
+    acceptance:
+      - {id: AC-EVT02-1, statement: "test_sim_events - from Burnout 75 the auto-resolve chance is (Burnout - 70) / 30, it takes the exhausted choice, and the three warnings fire first at 60, 70 and 75.", verification: [behavioral_test]}
+      - {id: AC-EVT02-2, statement: "An auto-resolved card says the choice was made for you.", verification: [manual_review]}
+  - id: R-EVT-03
+    title: "Layoff selection weighs salary, not performance"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.19; 13.1 O1"}
+    acceptance:
+      - {id: AC-S14-4, statement: "Sim - Manager Opinion has no effect on layoff selection, which weighs salary rank 80% and chance 20% (O1, P-03).", verification: [behavioral_test]}
+  - id: R-EVT-04
+    title: "The event schema - events are data, one JSON object per event"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.19; ARCHITECTURE 19.3"}
+    acceptance:
+      - {id: AC-EVT04-1, statement: "test_content_lint - every event in work_events.json has the R-EVT-04 fields, valid ids, at most 3 choices and an exhausted choice that names one of its choices (GDD 5.19, A54).", verification: [behavioral_test]}
+  - id: R-EVT-05
+    title: "The v1 event table - E01-E26"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.19; 8.6; 13.1 O7"}
+    acceptance:
+      - {id: AC-EVT05-1, statement: "E01-E26 are in work_events.json with GDD 5.19's tiers, triggers and effects, E04 without negotiation (D-28).", verification: [behavioral_test, document_check]}
+      - {id: AC-S19-3, statement: "The content lint passes - every event has a tip or an explicit none (O7).", verification: [behavioral_test]}
+  - id: R-RUN-02
+    title: "Run 1's resizing chain - five readable signs before the day-240 layoff"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.19; 3.3; 13.1 O1"}
+    acceptance:
+      - {id: AC-S15-1, statement: "Three outside players finish job 1 and can say why they were laid off (the M2 gate).", verification: [manual_review]}
+      - {id: AC-S16-1, statement: "Run 1 plays from day 0 to the board, with the five signs before the day-240 layoff.", verification: [behavioral_test, manual_review]}
+  - id: R-JOB-01
+    title: "The DoomApply board - 3-5 postings as route-map nodes"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.20"}
+    acceptance:
+      - {id: AC-JOB01-1, statement: "The board shows 3-5 postings, refreshed every 14 days or after an application, each with company, archetype, level, salary, work mode and visible clauses; applying costs Burnout +3 employed or +2 unemployed, and a reply comes in 3-10 days (GDD 5.20).", verification: [behavioral_test, manual_review]}
+  - id: R-JOB-02
+    title: "The callback formula"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.20"}
+    acceptance:
+      - {id: AC-JOB02-1, statement: "test_sim_rules - the callback odds follow GDD 5.20's formula (level fit, Short Tenure, references, e_handbook = 1.0), and the board shows them as a 5-dot band.", verification: [behavioral_test]}
+  - id: R-JOB-03
+    title: "The interview's inputs from the work state - Composure, the meter's width, Doubt HP"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.20; 13.4"}
+    acceptance:
+      - {id: AC-JOB03-1, statement: "test_adapter - Composure, the meter's half-width (never below 0.06) and Doubt HP reach the interview from the work state, while knowledge P and the committee wheel read the background's stats unchanged (D-26).", verification: [behavioral_test]}
+  - id: R-JOB-04
+    title: "The offer - the existing contract modal, Accept or Decline (D-27)"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.20; 5.9"}
+    acceptance:
+      - {id: AC-JOB04-1, statement: "The contract modal offers only Accept or Decline (D-27), and accepting while employed is a voluntary exit (Quit).", verification: [behavioral_test, manual_review]}
+  - id: R-JOB-05
+    title: "Study - a DoomApply action against Rust"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.20"}
+    acceptance:
+      - {id: AC-JOB05-1, statement: "test_sim_rules - Study gives Burnout +4, Rust -20 and Skill +1, and three Studies while unemployed prevent the Resume Gap Scar.", verification: [behavioral_test]}
+  - id: R-JOB-06
+    title: "The adapter - DuelRequest, DuelResult, OfferRequest, OfferResult in front of the shipped duel and contract"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.20; ARCHITECTURE 19.5"}
+    acceptance:
+      - {id: AC-S16-2, statement: "A won interview from the board reaches the contract modal through the adapter's DuelRequest and DuelResult and OfferRequest and OfferResult, and Accept starts job 2.", verification: [behavioral_test, manual_review]}
+  - id: R-SCAR-01
+    title: "Scars within a run - five Scars, 3 stacks at most, each with counterplay"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.21"}
+    acceptance:
+      - {id: AC-SCAR01-1, statement: "test_sim_rules - each Scar's trigger, effect per stack, 3-stack cap and counterplay follow GDD 5.21, and a layoff gives no Scar.", verification: [behavioral_test]}
+  - id: R-HB-01
+    title: "The Handbook between runs - 23 v1 tips as Options, Edges and Lore"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.21; 8.5-8.6; 13.1 O7"}
+    acceptance:
+      - {id: AC-HB01-1, statement: "Every tip is collected for good the first time it appears; the Handbook lists the 23 v1 tips by kind with completion as a percentage, and the 4 Edge tips apply their bonuses (GDD 5.21; D-27, D-28).", verification: [behavioral_test, manual_review]}
+      - {id: AC-S19-2, statement: "The developer has signed off every event tip (GDD 8.1, W4).", verification: [manual_review]}
+  - id: R-WIN-01
+    title: "The Studio's S1 - level is Senior"
+    risk: standard
+    source: {file: docs/GDD.md, section: "3.4"}
+    acceptance:
+      - {id: AC-WIN01-1, statement: "test_sim_endings - the Studio's S1 holds only at Senior.", verification: [behavioral_test]}
+  - id: R-WIN-02
+    title: "The Studio's S2 - work mode is Remote"
+    risk: standard
+    source: {file: docs/GDD.md, section: "3.4"}
+    acceptance:
+      - {id: AC-WIN02-1, statement: "test_sim_endings - S2 holds only in a remote job.", verification: [behavioral_test]}
+  - id: R-WIN-03
+    title: "The Studio's S3 - home tier is The Studio"
+    risk: standard
+    source: {file: docs/GDD.md, section: "3.4"}
+    acceptance:
+      - {id: AC-WIN03-1, statement: "test_sim_endings - S3 holds only while living in The Studio.", verification: [behavioral_test]}
+  - id: R-WIN-04
+    title: "The Studio's S4 - Burnout at or below 30"
+    risk: standard
+    source: {file: docs/GDD.md, section: "3.4"}
+    acceptance:
+      - {id: AC-WIN04-1, statement: "test_sim_endings - S4 holds only at Burnout 30 or less.", verification: [behavioral_test]}
+  - id: R-WIN-05
+    title: "The Studio's S5 - a runway of 6 months or more at Studio rent"
+    risk: standard
+    source: {file: docs/GDD.md, section: "3.4"}
+    acceptance:
+      - {id: AC-WIN05-1, statement: "test_sim_endings - S5 holds only with 6 months or more of runway at Studio rent.", verification: [behavioral_test]}
+  - id: R-WIN-06
+    title: "The Studio hold - all five conditions held 90 days; a break resets it"
+    risk: standard
+    source: {file: docs/GDD.md, section: "3.4; 13.1 O6"}
+    acceptance:
+      - {id: AC-S14-6, statement: "Unit tests - the win fires only with all five conditions held 90 days, and a broken condition resets the hold to zero (O6, Q-06).", verification: [behavioral_test]}
+  - id: R-WIN-07
+    title: "The Studio target always visible - ClikClok's checklist and a Studio n/5 chip from day 0"
+    risk: standard
+    source: {file: docs/GDD.md, section: "3.4"}
+    acceptance:
+      - {id: AC-WIN07-1, statement: "The Studio checklist lives in the ClikClok app, and a Studio n/5 chip sits on the HUD from day 0.", verification: [manual_review]}
+  - id: R-WIN-08
+    title: "Final threats - 3x weight while filming"
+    risk: standard
+    source: {file: docs/GDD.md, section: "3.4"}
+    acceptance:
+      - {id: AC-WIN08-1, statement: "test_sim_events - while the Studio hold is filming, the final threats get 3x weight.", verification: [behavioral_test]}
+  - id: R-DIO-01
+    title: "The office diorama in the original pixel-art style; no commissioned art"
+    risk: standard
+    source: {file: docs/GDD.md, section: "2.11; 13.1 O9"}
+    acceptance:
+      - {id: AC-S18-2, statement: "Every new sprite matches the shipped pixel grid and palette, and nothing was commissioned (O9, INV-20).", verification: [document_check, manual_review]}
+  - id: R-DIO-02
+    title: "State as sprite and tile swaps"
+    risk: standard
+    source: {file: docs/GDD.md, section: "2.11"}
+    acceptance:
+      - {id: AC-S18-1, statement: "Playtesters mention the empty desk or the lamp unprompted.", verification: [manual_review]}
+      - {id: AC-DIO02-1, statement: "The diorama shows the state as sprite and tile swaps - the time of day, the overtime lamp, the posture frames, the server rack's LEDs, empty desks, red monitors and the home room (GDD 2.11).", verification: [manual_review]}
+  - id: R-DIO-03
+    title: "Walking on fixed waypoint lanes, no pathfinding"
+    risk: standard
+    source: {file: docs/GDD.md, section: "2.11"}
+    acceptance:
+      - {id: AC-DIO03-1, statement: "Coworkers walk fixed waypoint lanes (desk, pantry, meeting room, exit) with no pathfinding.", verification: [manual_review]}
+  - id: R-DIO-04
+    title: "Pause-and-zoom in whole steps"
+    risk: standard
+    source: {file: docs/GDD.md, section: "2.11"}
+    acceptance:
+      - {id: AC-DIO04-1, statement: "An event cuts the camera to 2x or 3x on its focus location in whole steps with nearest filtering, and closing the card zooms back out (GDD 2.11).", verification: [manual_review]}
+  - id: R-DIO-05
+    title: "An asset list per milestone"
+    risk: standard
+    source: {file: docs/GDD.md, section: "2.11"}
+    acceptance:
+      - {id: AC-DIO05-1, statement: "M5's asset list gives each sprite's size, frames and states and marks what already exists; every missing piece shows a labeled placeholder on the same grid.", verification: [document_check]}
+  - id: R-BAL
+    title: "The balancing harness - five bots, 10,000 seeds each, and its holds"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.22"}
+    acceptance:
+      - {id: AC-S14-1, statement: "10,000 seeds per bot run headless in minutes; the time is recorded in the evidence.", verification: [behavioral_test]}
+      - {id: AC-BAL-1, statement: "The harness holds - a median run of 1,100-1,400 days, each hard-loss ending at least 10% of losses, and the Planner reaching Mid inside job 1 in 60% or more of run-1 seeds (D-23).", verification: [behavioral_test]}
+      - {id: AC-BAL-2, statement: "The Grinder ends mostly in Burnout with under 2% wins, the Lifestyle bot mostly in Plan B, and the Random bot wins under 1%.", verification: [behavioral_test]}
+  - id: R-BAL-01
+    title: "The Planner wins 5-10%"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.22; 13.1 O4"}
+    acceptance:
+      - {id: AC-S14-2, statement: "The Planner wins within 5 points of its 5-10% band at M1, and the other bots' numbers are recorded.", verification: [behavioral_test]}
+      - {id: AC-S17-2, statement: "The Planner wins 5-10% over 10,000 seeds (D-15, O4).", verification: [behavioral_test]}
+  - id: R-BAL-02
+    title: "The Coaster never wins"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.22; 13.1 O2"}
+    acceptance:
+      - {id: AC-S14-7, statement: "The Coaster never wins, and its median loss comes before day 1,800 (O2).", verification: [behavioral_test]}
+  - id: R-TEL-01
+    title: "Telemetry - what the run reports (how is open, MC-15)"
+    risk: standard
+    source: {file: docs/GDD.md, section: "5.22"}
+    acceptance:
+      - {id: AC-TEL01-1, statement: "The run log records what R-TEL-01 lists (the win rate by background, run length, the ending mix, Hours changes per job, the share of auto-resolved events, DoomApply use while employed, quit points) for a local debug report; anything beyond that waits for MC-15.", verification: [behavioral_test, document_check]}
+  # Cross-cutting career-run requirements that have no R- id in the Run Spec (the endings of section 3 and its
+  # playtest gates of section 13).
+  - id: REQ-CAREER-FLOW
+    title: "The full career run plays start to finish, to every ending"
+    risk: standard
+    source: {file: docs/GDD.md, section: "3.3; 4.5"}
+    acceptance:
+      - {id: AC-S17-1, statement: "A full career run is playable to every ending - The Studio, Plan B, Burnout, Career Change and Legacy System (GDD 3.3).", verification: [behavioral_test, manual_review]}
+  - id: REQ-CAREER-GATES
+    title: "The career run's playtest gates pass"
+    risk: standard
+    source: {file: docs/GDD.md, section: "10.7; ROADMAP 7"}
+    acceptance:
+      - {id: AC-S19-1, statement: "The career run's playtest gates pass (ROADMAP 7).", verification: [manual_review]}
+
 tasks:
   # One task per ROADMAP step. The step's "Tasks", "You do" and "Pitfalls" in docs/ROADMAP.md are the
   # detailed specification; bundles in .project/bundles/ collect the context for one step.
@@ -510,7 +913,7 @@ tasks:
     requirement_ids: [MUST-01, REQ-TOOLCHAIN, REQ-DECISIONS]
     component_ids: [CMP-REPO, CMP-DOCS]
     # D4 stays: Step 0 answered it, and D9 superseded it on 2026-09-29, so the validator warns that D4 is no
-    # longer accepted. That warning is expected.
+    # longer accepted. That warning is expected. The same goes for D7, superseded by D-27 on 2026-10-07.
     decision_ids: [D1, D2, D3, D4, D5, D6, D7, D8, P1]
     depends_on: []
     acceptance_ids: [AC-S00-1, AC-S00-2, AC-S00-3]
@@ -586,7 +989,8 @@ tasks:
     # core/ (offer, hire, Dream rows, tips), ui/ (EndingArt, UiText, ProbeButton), tests/ and wrote docs/KILL_TESTS.md.
     component_ids: [CMP-ENDINGS, CMP-INTRO, CMP-CONTENT, CMP-AUTOLOAD, CMP-CORE, CMP-UI, CMP-TESTS, CMP-DOCS]
     # 2026-09-29: D9, C2 and C4 added; they changed what this step built (see amendments).
-    decision_ids: [D7, D9, C2, C4]
+    # 2026-10-07: D7 (this step's huddle) was superseded by D-27, which removed Negotiate.
+    decision_ids: [D-27, D9, C2, C4]
     depends_on: [STEP-05]
     acceptance_ids: [AC-S06-1, AC-S06-2, AC-S06-3, AC-S06-4]
     outputs: [docs/KILL_TESTS.md]
@@ -611,10 +1015,12 @@ tasks:
     timebox_hours: 16
     requirement_ids: [SHOULD-01, SHOULD-02, SHOULD-03, SHOULD-04, SHOULD-05, SHOULD-06, SHOULD-07, SHOULD-08, SHOULD-09, SHOULD-10, SHOULD-11, REQ-BALANCE, REQ-SCOPE]
     component_ids: [CMP-HUNT, CMP-ENDINGS, CMP-INTERVIEW, CMP-UI]
-    decision_ids: [D7]
+    # 2026-10-07: D7 was superseded by D-27, which removed Negotiate (SHOULD-02, task 2).
+    decision_ids: [D-27]
     depends_on: [STEP-07]
-    acceptance_ids: [AC-S08-1, AC-S08-2, AC-S08-3, AC-S08-4]
-    note: "SHOULD-03..11 are timeboxed: each is either shipped or moved to the cut list; only AC-S08-1..4 gate completion."
+    acceptance_ids: [AC-S08-1, AC-S08-3, AC-S08-4]
+    retired_acceptance_ids: [AC-S08-2]  # 2026-10-07: Negotiate was removed (D-27)
+    note: "SHOULD-03..11 are timeboxed: each is either shipped or moved to the cut list; only AC-S08-1, AC-S08-3 and AC-S08-4 gate completion (AC-S08-2 retired with Negotiate, D-27)."
   - id: STEP-09
     title: "Art style lock and the vertical slice: the interview"
     source: {file: docs/ROADMAP.md, section: "Step 9"}
@@ -663,6 +1069,89 @@ tasks:
     retired_acceptance_ids: [AC-DOD-05]  # 2026-09-29: the CV screen was removed (D9)
     note: "The release candidate goes out through TestFlight: join the paid Apple Developer Program at the start of the step (ROADMAP Step 13; ARCHITECTURE 13.1). Android and Google Play stay LATER (ARCHITECTURE 13.2)."
     milestone: v0.5-mvp
+
+  # ---------- The career run: M1-M6 (Run Spec v1; ROADMAP 12), tracked as STEP-14..STEP-19 (A53) ----------
+  # Branches step-14-sim-core .. step-19-content-tuning. hours = the developer's estimate, agent_hours = Claude's
+  # (both written at the merge, revised at each kickoff). STEP-14 has no dependency: it starts ahead of the open
+  # Steps 7-13 (W9); where STEP-15..19 sit against them is open (MC-01).
+  - id: STEP-14
+    title: "M1: the sim core, headless"
+    source: {file: docs/ROADMAP.md, section: "12, Step 14"}
+    hours: 3
+    agent_hours: 20
+    branch: step-14-sim-core
+    requirement_ids: [R-CLK, R-ECO, R-ECO-05, R-STAT-02, R-STAT-03, R-STAT-04, R-CB-02, R-CTL-01, R-CTL-04, R-ARC-02, R-EVT-01, R-EVT-02, R-EVT-03, R-EVT-04, R-JOB-02, R-JOB-05, R-SCAR-01, R-WIN-01, R-WIN-02, R-WIN-03, R-WIN-04, R-WIN-05, R-WIN-06, R-WIN-08, R-BAL, R-BAL-01, R-BAL-02]
+    component_ids: [CMP-SIM, CMP-WORKDATA, CMP-HARNESS, CMP-TESTS, CMP-CONTENT, CMP-DATA, CMP-CORE]
+    decision_ids: [AD-14, D-01, D-04, D-06, D-08, D-09, D-10, D-11, D-12, D-13, D-15, D-16, D-17, D-18, D-20, D-23, D-24, D-26, D-27, D-28, P-01, P-03, P-04, P-05, P-06, P-07, Q-01, Q-02, Q-06]
+    depends_on: []
+    acceptance_ids: [AC-S14-1, AC-S14-2, AC-S14-3, AC-S14-4, AC-S14-5, AC-S14-6, AC-S14-7, AC-ECO-1, AC-ECO05-1, AC-STAT02-1, AC-STAT03-1, AC-STAT04-1, AC-CTL01-1, AC-CTL04-1, AC-ARC02-1, AC-EVT01-1, AC-EVT02-1, AC-EVT04-1, AC-JOB02-1, AC-JOB05-1, AC-SCAR01-1, AC-WIN01-1, AC-WIN02-1, AC-WIN03-1, AC-WIN04-1, AC-WIN05-1, AC-WIN08-1]
+    outputs: [core/sim_state.gd, core/sim.gd, core/work_odds.gd, core/event_plan.gd, data/types/work_config.gd, data/types/archetype_data.gd, data/work/work_config.tres, "data/archetypes/", data/content/work_events.json, "tests/harness/", "tests/test_sim_*.gd"]
+    out_of_scope: ["Any screen (M2)", "Events beyond the huddle's 10 (M4, M6)", "The review duel's prompts (M3)", "Answers to open MC items: they wait for the developer"]
+    milestone: "M1 (Run Spec v1)"
+  - id: STEP-15
+    title: "M2: the grey-box UI"
+    source: {file: docs/ROADMAP.md, section: "12, Step 15"}
+    hours: 6
+    agent_hours: 16
+    branch: step-15-greybox-ui
+    requirement_ids: [R-CLK, R-STAT-01, R-CTL-01, R-EVT-01, R-EVT-02, R-RUN-02]
+    component_ids: [CMP-WORK, CMP-CORE, CMP-AUTOLOAD, CMP-UI, CMP-TESTS, CMP-DOCS]
+    decision_ids: [D-01, D-04, D-07, D-13, D-14]
+    depends_on: [STEP-14]
+    acceptance_ids: [AC-S15-1, AC-S15-2, AC-S15-3, AC-CLK-1, AC-STAT01-1, AC-EVT01-2, AC-EVT02-2]
+    outputs: ["features/work/", docs/KILL_TESTS.md]
+    out_of_scope: ["The diorama (M5)", "Run 1's authored content (M3)"]
+    milestone: "M2 (Run Spec v1)"
+  - id: STEP-16
+    title: "M3: run 1 end to end"
+    source: {file: docs/ROADMAP.md, section: "12, Step 16"}
+    hours: 6
+    agent_hours: 20
+    branch: step-16-run-one
+    requirement_ids: [R-RUN-02, R-STAT-04, R-JOB-01, R-JOB-03, R-JOB-04, R-JOB-06, REQ-TONE]
+    component_ids: [CMP-WORK, CMP-SIM, CMP-WORKDATA, CMP-INTERVIEW, CMP-ENDINGS, CMP-CONTENT, CMP-TESTS]
+    decision_ids: [D-02, D-03, D-05, D-22, D-23, D-26, D-27, P-02, P-06, P-08, Q-02]
+    depends_on: [STEP-15]
+    acceptance_ids: [AC-S16-1, AC-S16-2, AC-S16-3, AC-STAT04-2, AC-JOB01-1, AC-JOB03-1, AC-JOB04-1]
+    outputs: ["features/layoff/", data/content/coworkers.json, tests/test_adapter.gd]
+    milestone: "M3 (Run Spec v1)"
+  - id: STEP-17
+    title: "M4: all systems"
+    source: {file: docs/ROADMAP.md, section: "12, Step 17"}
+    hours: 6
+    agent_hours: 20
+    branch: step-17-all-systems
+    requirement_ids: [REQ-CAREER-FLOW, R-ECO-05, R-CTL-02, R-CTL-03, R-ARC-02, R-EVT-05, R-WIN-07, R-BAL, R-BAL-01]
+    component_ids: [CMP-WORK, CMP-SIM, CMP-WORKDATA, CMP-HARNESS, CMP-ENDINGS, CMP-TESTS]
+    decision_ids: [D-09, D-15, D-16, D-17, D-19, D-20, D-24, P-01, P-04, P-05, P-07]
+    depends_on: [STEP-16]
+    acceptance_ids: [AC-S17-1, AC-S17-2, AC-BAL-1, AC-BAL-2, AC-ECO05-2, AC-CTL02-1, AC-CTL03-1, AC-ARC02-2, AC-EVT05-1, AC-WIN07-1]
+    milestone: "M4 (Run Spec v1)"
+  - id: STEP-18
+    title: "M5: the pixel-art office diorama"
+    source: {file: docs/ROADMAP.md, section: "12, Step 18"}
+    hours: 40
+    agent_hours: 12
+    branch: step-18-diorama
+    requirement_ids: [R-DIO-01, R-DIO-02, R-DIO-03, R-DIO-04, R-DIO-05]
+    component_ids: [CMP-DIORAMA, CMP-ART, CMP-WORK]
+    decision_ids: [D-21, D-25]
+    depends_on: [STEP-17]
+    acceptance_ids: [AC-S18-1, AC-S18-2, AC-DIO02-1, AC-DIO03-1, AC-DIO04-1, AC-DIO05-1]
+    note: "hours is the developer's drawing time (D-21: no commissioned art); double it, as ROADMAP 5 says for every art estimate."
+    milestone: "M5 (Run Spec v1)"
+  - id: STEP-19
+    title: "M6: the Handbook, events to about 40, the Ducky pass, tuning"
+    source: {file: docs/ROADMAP.md, section: "12, Step 19"}
+    hours: 12
+    agent_hours: 16
+    branch: step-19-content-tuning
+    requirement_ids: [REQ-CAREER-GATES, R-HB-01, R-EVT-05, R-TEL-01]
+    component_ids: [CMP-WORK, CMP-WORKDATA, CMP-CONTENT, CMP-HARNESS, CMP-TESTS]
+    decision_ids: [D-15, D-18, D-28]
+    depends_on: [STEP-18]
+    acceptance_ids: [AC-S19-1, AC-S19-2, AC-S19-3, AC-HB01-1, AC-TEL01-1]
+    milestone: "M6 (Run Spec v1)"
 
 verification:
   thresholds:

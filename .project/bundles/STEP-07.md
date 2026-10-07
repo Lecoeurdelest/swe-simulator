@@ -2,6 +2,7 @@
 
 Snapshot: 2026-09-29, branch `step-07-dev-review` (on top of `main`, the Step 6 merge): the developer's v0.1 review (d8db453, 5c0f968, e255e6f, 501def5, 8aaae75, a04ae64) and its review fix pass (f89cf09..62c2a68 plus a docs and tracking commit). Docs: GDD 1.2, CONTENT 1.1, ARCHITECTURE 1.4, ROADMAP 1.2, DECISIONS up to A51 and P3. Spec: [ROADMAP Step 7 and section 7](../../docs/ROADMAP.md), [GDD 5.12, 10.6](../../docs/GDD.md), [ARCHITECTURE 12.4](../../docs/ARCHITECTURE.md).
 State: `in_progress` since 2026-09-29 under W2 (STEP-03..06 have only developer-owned criteria left). Depends on STEP-06. About 8 h. Tests: 217/217 in 20 suites.
+Updated 2026-10-07: the Run Spec v1 merge (DECISIONS W8) and W9 change this step's context. M1, the career run's sim core (STEP-14), runs ahead of this step, and what happens to this step is open (MC-01; see "Out of scope").
 
 ## Objective
 
@@ -9,7 +10,7 @@ Evidence that the loop is fun and fair before weeks go into art: a silent playte
 
 ## Out of scope
 
-- Phase 2 (the working life): not scheduled until the developer picks its mechanic (DECISIONS P3). Ideas stay in `docs/ideas_parking_lot.md`.
+- The career run (Run Spec v1). It replaced Phase 2's parking on 2026-10-07 (W8, superseding P3) and is built as STEP-14..19; M1 (STEP-14) runs ahead of this step (W9). What happens to this step's Playtest #1 and its Phase 1 balance sim is open (MC-01: proposed, fold Playtest #1 into the M2 gate and let the career run's R-BAL harness replace the Phase 1 sim, which takes ISSUE-09 with it). Until the developer answers, don't build either.
 - New features instead of fixing confusion (ROADMAP Step 7 pitfalls); SHOULD features wait for Step 8.
 - Cosmetic customization (D6 stands).
 - Code changes during tuning: numbers change in the 7 `.tres` files only (INV-15).
@@ -25,7 +26,7 @@ Evidence that the loop is fun and fair before weeks go into art: a silent playte
 
 ## Decisions
 
-D8 (Doubt HP 118/128/132 until this step decides), D9 (no CV editing or lying: the bot's Quick Apply sends the honest CV), D10 (best Dream score LATER), D11 (coach marks close on a tap), D12 (the VS intro waits for a tap), C2-C4 (copy), W2 (dependency gate), W4 (agent defaults while the developer is away), W7 (Claude builds the features; installs, signing, iPhone checks and sign-offs stay the developer's), P2 (PC only until the Mac and iPhone are set up), P3 (Phase 2 parked). Agent defaults waiting for review: A21-A51. Open questions: A42 (mirror Composure), Q3 (balance, ISSUE-09), Q5 (flick swipes) in `docs/REVIEW_QUEUE.md`.
+D8 (Doubt HP 118/128/132 until this step decides), D9 (no CV editing or lying: the bot's Quick Apply sends the honest CV), D10 (best Dream score LATER), D11 (coach marks close on a tap), D12 (the VS intro waits for a tap), C2-C4 (copy), W2 (dependency gate), W4 (agent defaults while the developer is away), W7 (Claude builds the features; installs, signing, iPhone checks and sign-offs stay the developer's), P2 (PC only until the Mac and iPhone are set up), P3 (Phase 2 parked; superseded on 2026-10-07 by W8, the Run Spec merge), W9 (M1 runs ahead of this step), D-27 (Negotiate removed). Agent defaults waiting for review: A21-A51. Open questions: A42 (mirror Composure), Q3 (balance, ISSUE-09), Q5 (flick swipes) in `docs/REVIEW_QUEUE.md`.
 
 ## Tasks (ROADMAP Step 7)
 

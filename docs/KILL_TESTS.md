@@ -21,6 +21,19 @@ Start a fresh run (New game on the title) and play it through the 5 moments in o
 | 4 | **On the offer:** while the paper contract shows. | The same contract: company, role, salary, work mode, commute, both perks and the fine print unchanged. ACCEPT and Decline work. |
 | 5 | **On the Hired card:** after ACCEPT, while HIRED! or the Dream vs Reality tally shows. | The **offer** again (the Hired card is never saved), with the same contract. ACCEPT gives the same Hired card and the same Dream score. Then leave it with `< Title` or NEW RUN: the title no longer shows CONTINUE (the save is cleared). |
 
+## The career run (Run Spec v1, planned for M2)
+
+O8 asks for this: kill the app mid-run, and the state restores identically (GDD 13.1). The career run saves at every event, after every player input and when the app goes to background (GDD 5.11, RC-35), so "identically" means the state of the last save. On the iPhone a kill comes after the pause notification, so nothing is lost; the desktop's harsher stop can lose the days since the last save, never a choice. These moments join the checklist when M2 builds the work state (ROADMAP Step 15), and M3 adds the duel and the scene:
+
+| # | Kill when | Expected after CONTINUE |
+|---|---|---|
+| 6 | the clock running, no card open | the same day (on the desktop: the day of the last event or input), the same numbers, the same Hours notch; the clock waits, paused, until you start it (proposed) |
+| 7 | an event card open, before you choose | the same card with the same choices; an auto-resolve isn't rolled again |
+| 8 | right after a choice | the choice made, its effects applied once |
+| 9 | mid-review duel (M3) | the same review from its start, with the same prompts (as moment 3) |
+| 10 | during the layoff scene (M3) | the scene again from its start; the job is lost and the severance paid only once |
+| 11 | on an ending card | no CONTINUE: the save was deleted on entering the ending |
+
 ## If one fails
 
 Write down the moment, what you saw and what you expected, and leave the phone as it is if you can. Common causes are in ROADMAP Step 6 "Pitfalls": a Node saved in the run, `morning_report` not cleared on Start day, a Decline that doesn't blacklist the company.
