@@ -1,23 +1,42 @@
-# Software Engineer Simulator - Game Design Document (MVP)
+# Software Engineer Simulator - Game Design Document
 
 | | |
 |---|---|
-| Version | 1.2, portrait and iPhone first (design source of truth for the MVP). 1.2 matches the v0.1 grey-box review: CV editing and lying removed (D9), coach marks close on a tap (D11), the VS intro waits for a tap (D12) |
-| Date | 2026-09-26 (v1.2: 2026-09-29) |
+| Version | 2.0, the career run (2026-10-07): Run Spec v1 merged (DECISIONS W8). The game is a satirical career roguelite: one run is one career of up to five jobs, the work state is the game, and the Phase 1 job hunt lives on as the DoomApply app, the Dana duel and the contract modal behind an adapter. 1.2 (2026-09-29) matched the v0.1 grey-box review: CV editing and lying removed (D9), coach marks close on a tap (D11), the VS intro waits for a tap (D12) |
+| Date | 2026-09-26 (v1.2: 2026-09-29; v2.0: 2026-10-07) |
 | Engine | Godot 4.7.2-stable, GDScript, `gl_compatibility` renderer |
 | Platforms | iPhone first (built on the developer's MacBook; free Apple ID signing for development), Android LATER |
 | Companion file | `docs/CONTENT.md`: every player-facing string, with the ids used below |
-| Scope of this doc | MVP = intro -> background select -> job hunt -> interview -> offer -> Hired or Plan B ending. The Work loop is Phase 2. |
+| Scope of this doc | The whole game. **The career run** (Run Spec v1) is sections 0, 2.11, 3, 4.5-4.6, 5.14-5.22, 6.1, 7.1, 8.5-8.6, 9.5, 10.7, 11.7 and 13. **Phase 1** is the rest: the v0.1 grey-box as built (intro -> background select -> job hunt -> interview -> offer -> Hired or Plan B). Each Phase 1 section the career run changes opens with a **Run Spec v1 status** line: kept, adapted, or retired when the career run is built. The code is still Phase 1 today |
+| Sources | Phase 1: these docs since 2026-09-26. The career run: Run Spec v1 (2026-10-05, @Quy), merged on 2026-10-07 and archived read-only as `docs/run-spec-v1.md`. `docs/merge-report.md` maps every spec section to its place here and lists every conflict |
 
 How to read this:
 - Every decision has a one-line **Why**.
-- Your (the developer's) decisions are marked **Decided (Dn)** and collected in section 12. D1-D8, plus the platform decision P1, were decided on 2026-09-26, and D9-D12 on 2026-09-29 after the grey-box review; `docs/DECISIONS.md` is the log.
-- Every number here is a starting value. Section 11 lists them all with the file that owns them. Section 5.12 shows what they produce in a 4,000-runs-per-background simulation.
-- **MUST / SHOULD / LATER** tags follow the cut line in section 10.
+- Your (the developer's) decisions are marked **Decided (Dn)** and collected in section 12. D1-D8, plus the platform decision P1, were decided on 2026-09-26, and D9-D12 on 2026-09-29 after the grey-box review. The Run Spec's decisions keep its own ids, with a hyphen (D-01..D-25, P-01..P-08: D-12 is not D12); they are summarized at the end of section 12. `docs/DECISIONS.md` is the log for both series.
+- **Which material wins** (DECISIONS W8): on game design (run structure, systems, rules, numbers, events, endings) the Run Spec material wins over the Phase 1 material and over every earlier work-loop note. On pixel-art style, engine and language, code conventions, shipped UI conventions and existing characters, the original rules win. A conflict neither rule settles is listed in `docs/merge-report.md` with a proposed resolution; text marked **Open (MC-nn)** here is one of them, waiting for you.
+- The Run Spec's ids are kept everywhere: D-, P-, Q- (decisions and questions), R- (requirements), E01-E26 (events), S1-S5 (the Studio's conditions), O1-O9 (objectives), A-01..A-05 (assumptions) and M1-M6 (milestones).
+- Every number here is a starting value. Section 11 lists them all with the file that owns them. Section 5.12 shows what Phase 1's numbers produce in a 4,000-runs-per-background simulation; the career run's numbers (11.7) are set by the balancing harness (5.22).
+- **MUST / SHOULD / LATER** tags follow the cut line in section 10. The career run's tags are yours to set (10.7).
 
 ---
 
 ## 0. The whole game on one page
+
+- **Hook.** In influencer videos, software engineers wake at 10:47, "work" for 12 minutes and live in a cozy studio. It's 2026, the market is brutal, and you want that life anyway. Software Engineer Simulator is a satirical **career roguelite**: one run is one career of up to five jobs, and you win by living the influencer's video as a Senior engineer (D-08, D-24).
+- **Run.** One career takes 25-35 minutes and about 3-4 in-game years, with at most 5 jobs (floors). Sessions last 5-12 minutes; you can save anywhere, and no time passes while the app is closed (D-06, D-13, D-16).
+- **The work state is the game.** A macro clock runs one in-game day per second (pause, 1x, 2x, 4x) while you survive rent, burnout and an inherited codebase through events (D-01, D-12). Four numbers are on screen: Runway, Burnout, Ticket and Codebase (5.16).
+- **Your controls grow with your level.** A Junior has one control, the Hours slider; a Mid picks tickets and can push back; a Senior sets the quality bar and owns the Codebase (D-07, D-14, 5.17).
+- **Events.** About 25 decisions a year at the first job: scheduled ones on a 60-day calendar strip, telegraphed ones that arrive with rumors, random ones (incidents grow with the Codebase). Layoffs select for cost, not performance (5.19, P-03).
+- **Job hunt.** The DoomApply app on your phone: a board of 3-5 postings, each a node on your career's route map (P-02). Interviews are still the Dana duel, now fed by the work state, and offers are still the contract modal (D-03, 5.20).
+- **First run.** The Intern, converted to Junior, employed at Pivotly (a startup) on day 0. Job 1 ends in a telegraphed layoff on day 240, two months after a possible promotion: performance doesn't protect you (D-02, D-23, P-06).
+- **Win and losses.** The Studio: Senior, remote, living in The Studio, Burnout 30 or less and 6 months of runway, all held for 90 days (P-05, 3.4). The hard losses are Plan B (the ClikClok career coach), Burnout, Career Change and Legacy System (3.3). Most runs end in a loss; skilled play wins 5-10% of the time (D-15).
+- **Between runs.** Every Ducky tip goes into the Handbook for good: options, a few small edges and lore. Each job in a run is harder than the last (floor depth, Scars), and each run a little easier than the last (the Handbook) (D-18, P-01, P-04, 5.21).
+- **Teaching.** Every failure shows the joke, then the cause, then one true career tip from Ducky the rubber duck.
+- **Art.** The original pixel-art style, with no commissioned art and existing sprites reused first (D-21, D-25; 2.5, 2.11).
+
+### Phase 1 on one page (v1.2, as built)
+
+**Run Spec v1 status:** this is the v0.1 grey-box, the code today. When the career run is built, its day loop, energy pips and separate rent countdown retire (D-04), CV tailoring goes (D-05) and the Hired card stops being an ending (D-24); the duel and the contract modal stay, behind an adapter (R-JOB-06). The bullets below are the v1.2 text.
 
 - **Hook.** In influencer videos, software engineers wake at 10:47, "work" for 12 minutes and live in a cozy studio. It's 2026, the market is brutal, and you want that life anyway. You tailor your (true) CV, swipe through job postings, survive a fighting-game-style interview with Dana from HR, and get an offer that's never quite what the video promised.
 - **Run.** One run is one job search: about 8-16 minutes, 2-4 interviews, a median of 3-7 in-game days to an offer, with rent due in 12-15 days.
@@ -35,6 +54,8 @@ How to read this:
 ### 1.1 Hook
 "Chase the influencer's dream job through the 2026 hiring gauntlet." The satire is the gap between the dream (remote, rich, relaxed) and the process (ghost jobs, knockout filters, 5-round interviews, exploding offers).
 
+The career run (Run Spec v1) carries the hook past the offer: you get the job, then you have to survive it, and then the next one. The satire follows you to work: layoffs that select for cost, reviews with forced distribution, a codebase that rots while you hustle, a rent that rises faster than your raises (3.3, 5.15, 5.19).
+
 ### 1.2 Pillars
 Every feature must serve at least one. If it serves none, cut it.
 
@@ -47,6 +68,8 @@ Every feature must serve at least one. If it serves none, cut it.
 4. **Laugh, then learn.** Every failure has a visible cause and exactly one true tip. The tip always comes after the joke.
    *Why:* comedy first keeps it a game; the tip is the reward for reading.
 
+The Run Spec's design objectives O1-O9 (13.1) carry these pillars into the career run. For example, O1 "performance doesn't protect you" makes a rule out of a joke (pillar 1: layoffs really select for cost, P-03), O3 "Junior eye level" keeps one control on a Junior's screen (pillar 2), and O7 "every failure teaches" is pillar 4. Pillar 3's display rule holds there too: odds show as 5-dot bands, never as percentages (a posting's callback chance included).
+
 ### 1.3 Tone and satire rules
 - **Punch up.** Targets: hiring systems, corporate doublespeak, hype culture, influencer grift, AI hype. Never individuals, genders, ethnicities, nationalities, ages, rural people, or people who are struggling (the player, other applicants, laid-off workers).
 - **Parody names only.** No real company, product, platform, school or person. The world naming sheet is in CONTENT.md section 1. Archetype parodies ("OmniGlobal Dynamics") are fine; one-letter-off brand parodies ("Amazoom") are not.
@@ -56,6 +79,7 @@ Every feature must serve at least one. If it serves none, cut it.
   *Why:* the brief's "HR lady" can easily become a demeaning stereotype; making her the most competent person in the room avoids that and is funnier.
 - **Hard mode is "the filters are stacked", not "self-taught people are worse."** Dana to the Self-Taught: "Our ATS hates 'no degree'. I don't. Show me what you shipped."
 - **PG-13, no profanity.** Burnout and layoffs: the employer is the joke, never the person's mental health.
+- **The career run's satire stings** (Run Spec risk; ROADMAP 8): layoffs and burnout are real. The joke is never on the player, a laid-off coworker or anyone's health; it's on the euphemism, the process and the employer, and Ducky's tip is always genuine. Dana delivers the layoff scene and is resized herself: the punchline is the script she has to read ("We're reshaping how we're shaped"), never her. The new coworkers (5.18), the event cards and the ending lines are draft copy for your tone sign-off (W4).
 - **Tips are true.** Exaggeration only lives in the joke half of a line. No statistics in tips.
 - **Second person.** UI text says "you". The protagonist has a default name (Alex) the player can re-roll.
 - **Topical 2026 AI-hype jokes live in data** (news ticker, recruiter spam, influencer posts), so they can be refreshed without code changes.
@@ -75,6 +99,22 @@ By the end of one run a player should have met these real ideas, each through a 
 | Negotiating politely rarely backfires | Negotiate never rescinds in the MVP |
 | Compare total compensation, including commute | The offer shows commute hours; the Dream vs Reality score counts them |
 | Rest matters | Arriving Tired speeds up the interview needle |
+
+**Run Spec v1 status:** the first six rows teach through the Phase 1 hunt (knockouts, tailoring, honest reframing, referrals, research, ghost jobs). The career run's board (5.20) has no place for them yet: Open (MC-07). The interview rows (think aloud, STAR, ask a question) stay with the duel, and the offer rows (negotiate, total compensation) with the contract modal. "Rest matters" moves from energy to Burnout, which lowers your Composure (5.20).
+
+The career run adds these lessons, each through a rule (the event tips are in 5.19):
+
+| Real lesson | Where the game makes it true |
+|---|---|
+| Layoffs select for cost, not performance; prepare anyway | P-03: a resizing picks 80% by salary rank and 20% by chance, and Manager Opinion is no input. The counterplay is savings, Rapport and a live application (E07) |
+| Standing still is never safe | Salary is fixed within a level while living costs and rent rise (D-10): a coasting Junior runs a deficit in year 3 (5.15) |
+| Raise your savings rate before your rent | Every raise offers a bigger home (E21); the Penthouse is the trap (R-ECO-05) |
+| Burnout makes your decisions for you | From Burnout 75, an event may pick its "exhausted" choice for you, and says so (R-EVT-02) |
+| Keep a brag doc; your manager forgets, documents don't | Review Evidence +10 (E02), one of the Handbook's edges (5.21) |
+| Get remote in writing | Pushing back on an RTO mandate needs the tip and a remote clause (E08) |
+| Heroics are a staffing bug | Fixing prod yourself makes you its owner (E12) |
+| An emergency fund is boring until it's the only thing that works | E20; the Handbook's edge starts each run with a month saved |
+| Information is free: take the recruiter's call | E18 opens a posting that skips to the interview |
 
 ---
 
@@ -178,9 +218,13 @@ Keep as they are: renderer `gl_compatibility` (on iOS that is native OpenGL ES 3
 | Interview | **Side-view stage band** in the upper part (you left, Dana right, desk between, company background); dialogue and answers below | MUST |
 | Offer | Paper contract that slides up over the dimmed stage | MUST |
 | Endings | Illustration card: side-view illustration on top, text below | MUST (one per ending), per-tier variants SHOULD |
-| Work loop (Phase 2) | Top-down office that scrolls vertically, with walking characters | LATER |
+| Work loop (Phase 2) | Top-down office that scrolls vertically, with walking characters | LATER (superseded by the next row, W8) |
+| Work state (career run) | **The office diorama:** a top-down pixel-art floor plan about three screens tall that scrolls vertically; coworkers walk fixed lanes; the camera steps in on events (2.11) | Run Spec v1, built at M5 (the grey-box M2-M4 has no diorama) |
+| Remote work (career run) | Your home room, top-down; its furniture follows your home tier (2.11) | M5 |
+| Review duel, layoff scene (career run) | The duel's side-view stage with a manager portrait; the VS layout with no fight (5.16, 5.19) | M3 |
+| The win's ending (career run) | A ClikClok-style vertical "video" from your run log (3.4) | M5 |
 
-*Why top-down is SHOULD/LATER:* every viewpoint needs its own character sprite set. A static illustration with hotspots gets the top-down feel with zero extra sprites.
+*Why top-down is SHOULD/LATER:* every viewpoint needs its own character sprite set. A static illustration with hotspots gets the top-down feel with zero extra sprites. **Run Spec v1 status:** the career run makes the top-down office part of the design (D-25). That cost is why the diorama comes after the grey-box milestones and reuses existing sprites and tiles first (D-21).
 
 ### 2.5 Art direction (derived from the reference image)
 What the reference does, and the rule we take from it:
@@ -210,7 +254,8 @@ What the reference does, and the rule we take from it:
 - **Motion** stays horizontal: the Title's slow idle drift, the commute bus, sideways intro pans. Vertical movement appears only as intro tilts.
 - **Palette:** one master palette of about 32 colors (Endesga 32 from Lospec is a good starting point) plus at most 8 UI and brand accents. Tier mood comes from which ramps dominate: Big corp cool blue-greys and glass; Mid-size warm beige and fluorescent; Startup purple and teal neon over a dark warehouse.
 - **Detail level:** match the reference's density. Big readable shapes, 2-4 shade ramps, no noise textures.
-- **Art sourcing:** grey-box first. For final art, draw or commission only the hero pieces (player busts x3, Dana bust with 3 outfits and 4 expressions, 6 intro panels, 3 interview backgrounds). Buy office props and UI frames from **one** itch.io pack family and palette-map them. AI-generated art: reference and mood boards only, never shipped. Double every art estimate you make.
+- **Art sourcing (D-21, D-25, 2026-10-05/07): no commissioned art.** Grey-box first. Reuse existing sprites and tiles first, and draw anything new yourself in this style: the hero pieces (player busts x3, Dana bust with 3 outfits and 4 expressions, 6 intro panels, 3 interview backgrounds) and the office diorama (2.11). CC0 pixel packs can fill gaps if they match the palette (check each license); whether a paid pack counts as the "art budget" D-21 rules out is Open (MC-16). AI-generated art: reference and mood boards only, never shipped. Double every art estimate you make. (Until D-21 this read: "draw or commission only the hero pieces ... Buy office props and UI frames from one itch.io pack family and palette-map them.")
+- **The career run keeps this style** (D-25): the office diorama uses the same pixel grid, palette and character proportions (2.11). Where the Run Spec and these rules differ on a detail, these rules win.
 
 ### 2.6 Asset sizes (at 270x480)
 
@@ -228,6 +273,9 @@ What the reference does, and the rule we take from it:
 | Icons | 16x16 (energy pip 6x8) | dock icons sit above a 12 px label |
 | App icon | 32x32 or 64x64 pixel art, upscaled by a whole number to 1024x1024 | the iOS preset's icon interpolation must be Nearest (2.10) |
 | UI panels | 9-slice, 4 px border + 3 px padding, whole-pixel margins | one panel style; a full-width panel is 254 px outside and 240 px of text |
+| Office diorama tiles (career run) | 16x16 (ARCHITECTURE 11.8) | a column about three screens tall; the asset list is in 2.11 |
+| Top-down characters (career run) | set at M5 | the side-view characters are 40-48 px; the top-down ones need their own size and walk cycle (2.11) |
+| Manager portrait (career run) | 96 px bust, like Dana's | the review duel (P-08); not on the Run Spec's asset list (2.11) |
 
 Parallax layer defaults (`Parallax2D.scroll_scale.x`): sky 0.1 (clouds `autoscroll` -4 px/s), far 0.3, buildings 0.6, props 0.9, ground 1.0. Set `repeat_size.x` to the texture width and `repeat_times` to 2-3, so 330 px wide screens are covered.
 
@@ -311,11 +359,80 @@ On an iPhone 15 the 88 px beyond the 480 frame go to the middle zone (2.8). Desk
 - **Android (LATER):** JDK 17 and the Android SDK with `platforms;android-36` (the 4.7.2 Gradle template targets API 36, which Google Play has required for new apps and updates since 2026-08-31); the editor generates the debug keystore itself; `permissions/vibrate` for haptics; Play needs a Data safety form even for apps that collect nothing.
 - **Both machines** run exactly 4.7.2 with matching export templates. The Windows Steam build can auto-update: commit first and update both machines together. **Exclude** `addons/godot_ai/*, tests/*` from every export (the addon's export plugin already strips its autoload). Setup steps: ARCHITECTURE.md section 13 and ROADMAP Step 2.
 
+### 2.11 The office diorama (Run Spec v1 section 12, R-DIO-01..05)
+
+The work state's main view: the office, drawn in this section's pixel-art style. "No art budget" means no commissioned art: reuse existing sprites and tiles first, and draw anything new in the same style (D-21, D-25, R-DIO-01). Where the Run Spec and the art rules (2.5-2.6, ARCHITECTURE 1.3, ROADMAP 5) differ on a detail, the art rules win. It's built at M5, after the grey-box milestones (10.7).
+
+**Visual language (R-DIO-01)**
+- A top-down pixel-art floor plan in a tall column about three screens high; scrolling it reads the company's health. It scrolls vertically, which suits the portrait screen.
+- The same pixel grid, palette and character proportions as the rest of the game.
+- Top to bottom: the manager's office and meeting rooms, the server rack, the desk rows, the pantry, the exit.
+- You stand out the way the game already marks the player: your background's hoodie color (2.5).
+
+**State as sprite and tile swaps (R-DIO-02)**
+
+| What changes | How it looks |
+|---|---|
+| Time of day | a palette or lighting shift across each tick |
+| Overtime | at 18:00 coworkers walk to the exit; your desk-lamp sprite stays lit |
+| Burnout | your sprite's posture frames: upright, slumped, head on the desk |
+| Codebase | a server-rack sprite with 10 LED pixels; one turns red per 10 points |
+| Headcount | a removed coworker's desk swaps to an empty, unlit desk tile |
+| Incident | every monitor sprite flashes red (never more than 3 flashes per second, 9.1) |
+| Remote work | the view swaps to your home room; its furniture follows your home tier, and The Studio has the window, plant and lamp from the video |
+
+**Walking (R-DIO-03).** Coworkers move along fixed waypoint lanes (desk, pantry, meeting room, exit) with no pathfinding, using the game's walk cycle. You walk only inside event scenes. (The Run Spec calls the walk cycle "existing"; the game has none yet: it is drawn with the top-down characters at M5.)
+
+**Pause-and-zoom (R-DIO-04).** When an event fires, the camera steps from 1x to 2x or 3x on the event's focus location, and the card slides up into the thumb band. The zoom stays at whole-number steps with nearest filtering, so the pixels stay crisp: it cuts from step to step and never tweens through a fractional scale (ARCHITECTURE 1.3; the intro's "never zoom" rule, A19, is about its panels). Closing the card zooms back out, and the clock resumes.
+
+**Asset list (R-DIO-05).** Each milestone lists the sprites and tiles it needs (size, frames, states) and marks which already exist. Until the art exists, labelled placeholders sit on the same pixel grid. CC0 pixel packs can fill gaps if they match the palette; check each pack's license first. The list is an estimate until it is checked against the existing assets; today the repo has none (`art/` holds placeholders until Steps 9-11), so "existing" means what the art steps and earlier milestones produce.
+
+| Likely new art | States or frames |
+|---|---|
+| Office floor, wall and room tiles | day and night palettes |
+| Desk with monitor | normal, red, empty and unlit |
+| Desk lamp | on, off |
+| Server rack | 10 LED pixels, set in code |
+| Coworkers: 5 at Pivotly, palette swaps elsewhere | idle, walk |
+| Your sprite | upright, slumped, head on the desk |
+| Home room | Shared room, One-bed, The Studio, Penthouse |
+
+The Run Spec implies two more: a manager portrait for the review duel (P-08), at the duel's 96 px bust size (2.6), and Dana's expressions for the layoff scene (her 4 expressions may cover it). Tiles are 16x16 (ARCHITECTURE 11.8); the top-down characters' size is set at M5.
+
 ---
 
 ## 3. Core loop and meta loop
 
 ### 3.1 Loop diagram
+
+**The career run (Run Spec v1 section 3).** The spec's own diagram ("2 starts, the career loop, 1 win, 4 hard losses") was an embedded picture that didn't come with the spec file; this one is redrawn from its text (3.3).
+
+```mermaid
+flowchart TD
+  T[Title] -->|run 1| R1[Intro, then day 0: Junior at Pivotly]
+  T -->|run 2 and later| BS[Background select]
+  BS --> U[Between jobs: salary 0, the same clock]
+  R1 --> W[At work: the clock, Hours, events, reviews]
+  W -->|DoomApply| BD[The board: 3-5 postings]
+  U --> BD
+  BD -->|callback| IV[Interview: the Dana duel]
+  IV -->|pass| OF[Offer: the contract modal]
+  IV -->|fail| BD
+  OF -->|accept: the next floor| W
+  OF -->|decline| BD
+  W -->|soft loss: laid off, fired, quit| U
+  W -->|Studio held 90 days| WIN([The Studio: the win])
+  W -->|savings below 0 for 30 days| PB([Plan B])
+  U -->|savings below 0 for 30 days| PB
+  W -->|a second forced leave| BO([Burnout])
+  W -->|job 5 lost| CC([Career Change])
+  W -->|day 2,160| LS([Legacy System])
+  U -->|day 2,160| LS
+```
+
+Every soft loss sends you to the board and the next floor; The Studio is the only way out that counts as a win. META across runs: the Handbook (every Ducky tip, for good), the background unlocks, an ending gallery (5.21).
+
+**Phase 1 (v1.2, as built).** **Run Spec v1 status:** retired by D-04 when the career run is built: one macro clock (5.14) replaces the Morning / Day / Night cycle, and unemployment is the same clock with salary 0. The WORK-mode line at the bottom was an earlier work-loop note; the Run Spec supersedes it (W8).
 
 ```
 META (across runs): Career Notebook of tips (SHOULD) - [best Dream score per background, LATER: D10] - intro_seen - run_count
@@ -342,9 +459,24 @@ META (across runs): Career Notebook of tips (SHOULD) - [best Dream score per bac
        laid off / quit / startup folds -> back to HUNT with more EXPERIENCE
 ```
 
-*Why one Day Cycle:* HUNT and WORK share morning, energy, commute, sleep and the rent/paycheck tick. Building the cycle generically now makes Phase 2 "add a mode", and getting laid off sending you back to HUNT is both the joke and the replay loop.
+*Why one Day Cycle:* HUNT and WORK share morning, energy, commute, sleep and the rent/paycheck tick. Building the cycle generically now makes Phase 2 "add a mode", and getting laid off sending you back to HUNT is both the joke and the replay loop. (D-04 keeps the idea, one clock for working and job hunting, and drops the day cycle; being laid off still sends you back to the hunt, now with a Scar or none, 5.21.)
 
 ### 3.2 Pacing targets
+
+**The career run (Run Spec v1, D-06):**
+
+| Target | Value | How it's enforced |
+|---|---|---|
+| One career run | 25-35 min, about 3-4 in-game years (a median run of 1,100-1,400 days) | 1 day per second at 1x (5.14); the harness checks it (5.22) |
+| Session | 5-12 min; save anywhere; no time passes while the app is closed | auto-pause on events; a save at every event and when the app goes to background (5.14) |
+| Jobs per run | 5 at most, then a forced hard loss | D-16 |
+| Win rate | 5-10% for skilled play (the Planner bot) | R-BAL-01 |
+| Total content | 2.5-4 h | D-06 |
+| Decisions | about 25 a year at floor 1 | the event tiers (5.19) |
+| First promotion | reachable inside job 1 (the review on day 180) | D-23; the Planner reaches Mid inside job 1 in 60% or more of run-1 seeds |
+| A duel | at most 90 s including the VS intro (Phase 1's target, kept) | 5 prompts; a review duel has 3 |
+
+**Phase 1 (v1.2, as built).** **Run Spec v1 status:** the rows about the hunt day, rent and the run length are retired by D-04 and D-06 when the career run is built; the interview row stays.
 
 | Target | Value | How it's enforced |
 |---|---|---|
@@ -355,11 +487,79 @@ META (across runs): Career Notebook of tips (SHOULD) - [best Dream score per bac
 | Run length | 10-15 min, Hard at most 20 | sim: Easy about 8, Medium about 14, Hard about 16 (section 5.12, D8) |
 | Mobile session | any 3-5 min bite | autosave after every committed action |
 
+### 3.3 Run structure (Run Spec v1 section 3)
+
+A run is one career: up to five jobs (floors), each left by a soft loss or a voluntary exit, until you win or a hard loss ends it (D-08, D-11, D-16).
+
+**The first playthrough and later runs**
+
+| | Run 1 | Run 2 and later |
+|---|---|---|
+| Background | The Intern, converted to Junior (P-06) | pick The Intern, The Graduate or The Self-Taught, as unlocked (5.21) |
+| Start | employed at Pivotly (Startup), day 0 | between jobs, with the DoomApply board open |
+| Floor 1 | always Pivotly, with 5 authored coworkers (5.18) | chosen from the board |
+| Guaranteed layoff | yes, on day 240, telegraphed from about day 150 (R-RUN-02) | no; every exit is earned |
+| First review | day 180; a promotion to Mid is reachable (D-23) | on the archetype's cadence (5.18) |
+
+**Run 1's beats:** the influencer clip on day 0; the first rumor around day 150; the review and a possible promotion on day 180; more signs; Dana's invite around day 235; the layoff scene on day 240; then the DoomApply board. A promotion followed by a layoff 60 days later is deliberate: it teaches that performance doesn't protect you (O1). How the intro hands over to day 0 is Open (MC-11).
+
+**Exits from a job**
+
+| Exit | Type | Trigger | Scar (5.21) |
+|---|---|---|---|
+| Laid off | soft | a resizing event selects you (5.19) | none: a layoff is not your fault |
+| Fired | soft | two "Below" reviews in a row with the PIP not cleared (5.16) | Bad Reference |
+| Quit | soft, voluntary | you accept another offer, or quit from an event | Short Tenure, if under 180 days |
+| Forced leave | an interrupt, not an exit | Burnout reaches 100 | Burnout History |
+
+Losing job 5 by any route becomes a hard loss (D-16).
+
+**Endings**
+
+| Ending | Type | Trigger | Card line (draft, CONTENT 16.5) |
+|---|---|---|---|
+| The Studio | win | all five Studio conditions held for 90 days (3.4) | "You woke at 10:47. It took {jobs} jobs." |
+| Plan B | hard loss | savings below zero for 30 days in a row (5.15) | "You became a ClikClok career coach." (the existing Plan B card, S12; D-19) |
+| Burnout | hard loss | a second forced leave in one run | "You took the leave. You didn't come back." |
+| Career Change | hard loss | you lose job 5 | "You teach a bootcamp now. You show them the video." |
+| Legacy System | hard loss | day 2,160 (6 in-game years) without a win | "Six years. Same service. You are the legacy system." |
+
+Every ending card shows the career-long Dream vs Reality score; its formula is Open (MC-09). Phase 1's Hired card is no longer an ending (D-24): what Accept shows instead is Open (MC-08).
+
+### 3.4 Win condition: The Studio (Run Spec v1 section 4, R-WIN-01..08)
+
+You win by living the influencer's video as a Senior engineer: five conditions true at once, held for 90 in-game days (D-24, P-05). "Successful in IT" needs a measurable definition, or it collapses into "reach Senior", which is too easy and isn't the video. So success is the video's own conditions.
+
+| # | Condition | The video's promise | Req |
+|---|---|---|---|
+| S1 | Level is Senior | a software engineer who made it | R-WIN-01 |
+| S2 | Work mode is Remote | wakes at 10:47 | R-WIN-02 |
+| S3 | Home tier is The Studio | the cozy studio | R-WIN-03 |
+| S4 | Burnout at or below 30 | "works" 12 minutes a day | R-WIN-04 |
+| S5 | A runway of 6 months or more at Studio rent | can actually afford it | R-WIN-05 |
+
+- **Hold (R-WIN-06).** When all five are true, the ClikClok app starts "Filming...", a 90-day bar (90 s at 1x). Any condition breaking resets it to zero (Q-06: the default, reset rather than keep half).
+- **Always visible (R-WIN-07).** The checklist lives in the ClikClok app, and a "Studio 3/5" chip sits on the HUD from day 0, so the player knows the target in the first minute.
+- **Final threats (R-WIN-08).** While filming, these events get 3x weight: the RTO mandate rumor (threatens S2), the 2 a.m. incident and the overtime ask (S4), the Penthouse offer (S5), the resizing rumor (all five).
+- **The ending.** A ClikClok-style vertical "video" assembled from your run log, captioned with your real career: "10:47 - woke up. 4 jobs. 2 layoffs. 1 Studio." Dream vs Reality shows what it cost.
+
+**Why it's hard: no archetype gives you all five.** The win is a routing puzzle across jobs.
+
+| Archetype | Remote postings | Senior pay vs Studio costs | Speed to Senior |
+|---|---|---|---|
+| Startup | often, 60% | barely covers it; savings build slowly | normal |
+| Agency | rarely, 10% | doesn't cover it | fast, but you drop a level when you leave |
+| MegaCorp | sometimes, 25%, threatened by RTO | covers it with room to save | slow |
+
+Typical winning routes chain archetypes: an Agency for the title, then a MegaCorp or a remote Startup posting for the pay. A remote MegaCorp posting is the rare "dream job" node on the board.
+
 ---
 
 ## 4. MVP screen flow
 
 ### 4.1 Flow
+
+**Run Spec v1 status:** Phase 1's flow, the code today. The career run's flow is 4.5: it reuses the Title, the Intro, Background select (runs 2 and later), the VS intro, the interview, the offer and the Plan B card, and retires the hub's day loop (S04-S06) and the Hired card as an ending (S11) when it is built.
 
 ```mermaid
 flowchart LR
@@ -438,6 +638,8 @@ Transitions are a 0.2 s fade (SceneRouter) unless noted. Every screen has an on-
 - Out: the chosen card flies up and the phone "boots" DoomApply (0.35 s) -> day 1.
 
 **S04 Job hunt hub: your phone, DoomApply open** (MUST) - flat UI, full screen
+
+**Run Spec v1 status:** the deck, energy, the HUD's rent countdown and the Night/Morning screens retire with the day loop (D-04) and CV tailoring (D-05); the career run's DoomApply is a board of 3-5 postings (5.20). The phone frame and the bottom dock are shipped UI conventions the career run's phone shell can reuse (4.6).
 
 The screen is your phone and DoomApply is the job app: the influencer hooked you through a phone video, DoomApply's tagline is already "Swipe right on your future", and a portrait screen already is a phone, so the frame costs nothing. The old laptop dashboard maps 1:1: top bar -> HUD, left rail -> app dock, deck -> the app's main view.
 
@@ -578,12 +780,16 @@ The screen is your phone and DoomApply is the job app: the influencer hooked you
 - Out: Accept -> Hired card (5.9.4). Decline -> Dana's line -> DoomApply (same day), or Plan B on the grace day (5.10).
 
 **S11 Hired card** (MUST) - side-view illustration card, in two beats
+
+**Run Spec v1 status:** in the career run, accepting an offer leads to the next job, not an ending (D-24), and "TO BE CONTINUED - Phase 2" goes with the Phase 1/Phase 2 framing (W8). What Accept shows, and where the Dream vs Reality sheet goes, is Open (MC-08, MC-09).
 - Beat 1: the "HIRED!" stamp (Press Start 2P 32) slams onto a 254x140 illustration; below it company, role and salary (3 lines) and the Hired line for that tier (up to 3 lines). Tap anywhere to continue.
 - Beat 2: the **Dream vs Reality** panel slides up over the illustration: the header "YOUR JOB vs REMY'S VIDEO" (`end_dream_header`), its 5 rows (section 5.9.5; label left, the four video rows with Remy's number in brackets, e.g. "Salary (Remy: $150k)"; points right out of the row's maximum, e.g. "18.9/40" (A48); one line each, tallying one by one), the score and grade, "100 is the life in Remy's video. Nobody gets 100. Not even Remy." (`end_dream_footer`, Decided C4), `tip_written_offer`, "TO BE CONTINUED - Phase 2: The Working Life" (`end_tbc`).
 - Buttons: `[ < Title ][ NEW RUN ]`, in beat 2. Leaving it deletes the run save.
 - *Why two beats:* everything at once needs about 500 px, more than the 480 frame, and the pause lets the joke land before the score.
 
 **S12 Plan B ending** (MUST) - side-view illustration card, one beat (about 400 px)
+
+**Run Spec v1 status:** kept as the career run's Plan B ending, the "runway hits zero" loss (D-19, 3.3); its trigger becomes savings below zero for 30 days in a row. The other endings use the same card (4.6).
 - The "PLAN B" stamp over a 254x140 illustration (you, a ring light, ClikClok); "Rent's due. You became a ClikClok career coach..." (3 lines); the background-specific line; the closing line (a 17-year-old watching your video, 5.10; `end_plan_b_final`); one tip; run stats (days, applications, interviews, rejections; 2 lines).
 - Buttons: `[ < Title ][ RETRY ]` (one tap -> Background select with the same background preselected, fresh run).
 
@@ -612,6 +818,53 @@ Only on the first run. Coach marks are full-width Ducky sticky notes (40 columns
 - **On-screen Back everywhere.** iOS has no Back button, so every screen shows its own: the bottom-left `[ < Back ]` of the action bar, `[=]` on the hub, `[II]` in the interview. These, Android Back (LATER, `NOTIFICATION_WM_GO_BACK_REQUEST`) and desktop Esc all call `Device.handle_back()`, which asks the current scene's `handle_back() -> bool` first: close a modal, flip a card back, return from an app to Jobs, skip the cutscene, act as a tap on the VS intro (S07), open Pause. If nothing handled it, the Title shows "Quit?" (Android and desktop only). Scenes must not handle the notification themselves.
 - **No edge-swipe back gesture:** iOS gives games none, and a custom one would fight the job-card swipe.
 - **Interruptions:** save on `NOTIFICATION_APPLICATION_PAUSED` and `NOTIFICATION_APPLICATION_FOCUS_OUT`. On iOS, going home or to the app switcher sends PAUSED (then about 5 s before iOS may kill the app); Control Center, Notification Center and call banners send only FOCUS_OUT / FOCUS_IN. During an interview, also pause the tree: the needle must not auto-miss while Control Center is open.
+
+### 4.5 Career-run flow (Run Spec v1)
+
+```mermaid
+flowchart LR
+  T[Title] -->|New game, run 1| I[Intro] --> WK[Work state: Pivotly, day 0]
+  T -->|New game, later runs| B[Background select] --> WK
+  T -->|Continue| WK
+  WK -->|DoomApply| BD[The board]
+  BD -->|back| WK
+  BD -->|callback, then the scheduled day| IV[Interview: VS intro, then the duel]
+  IV -->|pass| OF[Offer: the contract modal]
+  IV -->|fail| WK
+  OF -->|Accept| WK
+  OF -->|Decline| BD
+  WK -->|an event fires| EV[Event card: the clock pauses]
+  EV --> WK
+  WK -->|review day| RV[Review duel: 3 prompts]
+  RV --> WK
+  WK -->|a resizing selects you| LO[Layoff scene] --> BD
+  WK -->|an ending| EN[Ending card]
+  EN --> T
+```
+
+- "Work state" covers both being at a job and being between jobs: one clock (D-04). Between jobs the board is the main screen and the salary is 0.
+- The clock runs only in the work state with no card or app open over it; everything else pauses it (5.14).
+- Phase 1 screens it reuses: Title (S01), Intro (S02), Background select (S03, runs 2 and later), VS intro (S07), Interview and Result (S08-S09, with new inputs), Offer (S10), the Plan B card (S12) and Pause (S13). Retired when it's built: the hub's day loop (S04-S06) and the Hired card as an ending (S11, MC-08).
+- New game-flow phases are appended to `GameFlow.Phase`, never inserted (INV-10; ARCHITECTURE 19.4).
+
+### 4.6 Career-run screens (Run Spec v1; grey-box at M2)
+
+The Run Spec names these screens; their layouts are designed at M2 under the touch rules every Phase 1 screen follows (2.7-2.9, INV-14, INV-19). Shipped UI conventions win (W8).
+
+| Screen | What the Run Spec asks for | Layout rules that apply |
+|---|---|---|
+| The work state (the phone shell) | the four numbers (5.16), the "Studio 3/5" chip (3.4), the calendar strip of the next 60 days (paydays, rent, reviews, interviews, deadlines, scheduled events) with the Ticket bar under it, the speed control (pause, 1x, 2x, 4x), the Hours slider, and the diorama from M5 (2.11) | numbers, chip and strip in the top band (information only); the slider and the speed control in the thumb band (controls used more than once a day); the diorama in the middle zone, which takes the extra height. The apps (DoomApply, Home, ClikClok, the Handbook) can live in S04's bottom dock |
+| The Hours slider | 5 notches (5.17) | five tappable notches like the S03 selector, 34x34 hit areas or larger (A58) |
+| Event card | slides up into the thumb band while the clock pauses and the camera steps in (2.11); a card the Burnout auto-resolve picked says so (5.19) | its choices are stacked full-width 254x36 buttons behind the 250 ms input lock, like S08's answers; its text sits on a solid panel within the GDD 2.7 budgets |
+| DoomApply board | 3-5 postings as nodes of a route map (5.20) | the nodes in the middle zone; apply from the thumb band; callback odds as a 5-dot band (pillar 3) |
+| Home app | the four home tiers; upgrade or move (5.15) | |
+| ClikClok app | the Studio checklist and the "Filming..." bar (3.4) | |
+| Review duel | the duel's UI with a manager portrait, 3 prompts (P-08) | S08's layout |
+| Layoff scene | the VS intro plays "DANA vs YOU", then no fight starts (5.19) | S07's layout, non-interactive; skippable after the first time |
+| Ending cards | 5 endings (3.3); the win plays a vertical ClikClok-style video (3.4) | S11 and S12's card layout |
+| Handbook | the collected tips, by kind (5.21) | S13's Career Notebook list grows into it (Open, MC-18) |
+
+Every screen keeps an on-screen Back (4.4), and pillar 2's "at most 3 main actions" holds on each.
 
 ---
 
