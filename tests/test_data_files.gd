@@ -110,7 +110,8 @@ const BACKGROUNDS: Dictionary = {
 }
 
 
-## GDD 11.7, owner W (one file). Packed arrays run level / home / Hours-notch order, as the GDD tables do.
+## GDD 11.7, owner W (one file). Packed arrays run level / home / Hours-notch order, as the GDD tables do. Three values are
+## STEP-14's first tuning (DECISIONS A74): the .tres holds them, the script defaults keep the Run Spec numbers.
 var work_expected: Dictionary = {
 	# Clock (5.14)
 	"days_per_month": 30, "days_per_year": 360, "speeds": PackedInt32Array([1, 2, 4]), "calendar_days": 60,
@@ -124,7 +125,7 @@ var work_expected: Dictionary = {
 	"run1_pay_days_accrued": 5, "run1_company": "co_pivotly", "run1_archetype": "startup", "run1_remote": false,
 	# Work stats (5.16)
 	"burnout_max": 100.0, "stat_max": 100.0, "mo_min": -100.0, "mo_max": 100.0, "skill_per_ticket": 2.0,
-	"rust_per_day": 0.1, "ticket_size_days": PackedInt32Array([10, 20, 35]), "ticket_deadline_mult": 1.0,
+	"rust_per_day": 0.1, "ticket_size_days": PackedInt32Array([10, 20, 35]), "ticket_deadline_mult": 1.5,
 	"hours_speed": PackedFloat64Array([0.6, 0.8, 1.0, 1.25, 1.5]),
 	"hours_burnout": PackedFloat64Array([-0.6, -0.3, 0.1, 0.5, 1.0]),
 	"hours_mo": PackedFloat64Array([-0.15, -0.05, 0.0, 0.05, 0.10]), "hours_default": 3, "skill_speed_div": 200.0,
@@ -133,14 +134,14 @@ var work_expected: Dictionary = {
 	# The review (5.16)
 	"review_prompts": 3, "evidence_base": 50.0, "evidence_mo_div": 2.0, "evidence_per_ticket": 5.0,
 	"rating_below_max": 0.25, "rating_exceeds_min": 0.70, "pip_days": 60, "pip_mo_min": 0.0,
-	"review_standin_damage": 0.55, "review_standin_noise": 0.20,
+	"review_standin_damage": 0.37, "review_standin_noise": 0.20,
 	# Controls (5.17)
 	"pick_feature_mo": 6.0, "pick_feature_codebase": 3.0, "pick_bugfix_skill": 3.0, "pick_bugfix_codebase": -2.0,
 	"pick_paydown_codebase": -15.0, "pick_paydown_mo": 0.0, "push_back_deadline": 0.30, "push_back_mo": -3.0,
 	"quality_clean_codebase": -0.05, "quality_clean_speed": 0.85, "quality_fast_codebase": 0.12,
 	"quality_fast_speed": 1.2, "fast_blame_days": 30, "calendar_tax": 0.85,
 	# Archetypes and floors (5.18, 6.1)
-	"floor_event_step": 0.15, "floor_doubt_step": 0.08, "floor_salary_step": 0.04, "max_jobs": 5,
+	"floor_event_step": 0.15, "floor_doubt_step": 0.16, "floor_salary_step": 0.04, "max_jobs": 5,
 	"coworker_level_weights": PackedFloat64Array([0.35, 0.40, 0.25]), "coworker_salary_noise": 0.05,
 	"coworker_rapport_start": 50.0,
 	# Events (5.19)

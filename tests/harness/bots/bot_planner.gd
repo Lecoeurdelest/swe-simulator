@@ -7,24 +7,29 @@ extends BotCareer
 ## moves into The Studio when it keeps six months of runway there.
 
 const AGENCY := "agency"
-const HUNT_AFTER_DAYS := 150          # leave a job no sooner than this, so the next one starts after day 180
+const HUNT_AFTER_DAYS := 172          # leave a job no sooner than day 180: a reply takes 3+ days and an interview 3+ more
 const RESIZING_WARNING_DAYS := 75
+const HUNT_GAP_DAYS := 12             # while employed, at most one application every 12 days
+const HUNT_BURNOUT_CEILING := 55.0
 const FILMING_BURNOUT_CAP := 27.0     # keep clear of the Studio's 30 while the hold runs
 const SAVINGS_MARGIN_MONTHS := 1.0    # extra runway over the Studio's 6 before moving in
 
 var _studio_ready_soon: bool = false
+var _last_hunt_day: int = -999
 var _archetypes: Dictionary = {}
 
 
 func hours_notch(state: SimState, _ctx: SimContext) -> int:
 	var b := state.burnout
+	if not state.employed:
+		return 1 if b > 45.0 else 2
 	if state.studio_hold > 0 or _studio_ready_soon:
 		if b > FILMING_BURNOUT_CAP:
 			return 1
 		return 2 if b > FILMING_BURNOUT_CAP - 6.0 else 3
-	if b < 30.0:
+	if b < 35.0:
 		return 4
-	if b < 45.0:
+	if b < 50.0:
 		return 3
 	if b < 60.0:
 		return 2
@@ -34,6 +39,9 @@ func hours_notch(state: SimState, _ctx: SimContext) -> int:
 func plan(state: SimState, ctx: SimContext) -> Array:
 	_studio_ready_soon = state.employed and state.level >= WorkOdds.SENIOR and state.job_remote and state.home >= work_cfg.studio_home
 	var out := super.plan(state, ctx)
+	for input: Dictionary in out:
+		if input["kind"] == Sim.IN_APPLY and state.employed:
+			_last_hunt_day = state.day
 	out.append_array(home_moves(state))
 	out.append_array(controls(state))
 	return out
@@ -42,7 +50,9 @@ func plan(state: SimState, ctx: SimContext) -> Array:
 func wants_to_hunt(state: SimState, _ctx: SimContext) -> bool:
 	if not state.employed:
 		return true
-	if state.studio_hold > 0 or state.burnout > 62.0:
+	if state.studio_hold > 0 or state.burnout > HUNT_BURNOUT_CEILING:
+		return false
+	if state.applications.size() >= 1 or state.day - _last_hunt_day < HUNT_GAP_DAYS:
 		return false
 	if _resizing_soon(state):
 		return true
@@ -50,7 +60,7 @@ func wants_to_hunt(state: SimState, _ctx: SimContext) -> bool:
 		return false
 	if state.level >= WorkOdds.SENIOR:
 		return not state.job_remote
-	return state.job_archetype != AGENCY
+	return state.job_archetype != AGENCY or state.mo < -25.0
 
 
 func posting_score(state: SimState, _ctx: SimContext, posting: Dictionary) -> float:
@@ -140,6 +150,8 @@ func controls(state: SimState) -> Array:
 func start_run(ctx: SimContext, duel_model: DuelModel, bot_seed: int) -> void:
 	super.start_run(ctx, duel_model, bot_seed)
 	_archetypes = ctx.archetypes
+	_last_hunt_day = -999
+	_studio_ready_soon = false
 
 
 func _resizing_soon(state: SimState) -> bool:

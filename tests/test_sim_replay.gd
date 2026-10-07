@@ -74,18 +74,30 @@ func test_a_run_replays_from_its_log() -> void:  # RC-26: the seed plus the inpu
 func test_a_save_taken_mid_run_resumes_to_the_same_future() -> void:  # O8: kill the app, restore, identical
 	var c := SimContext.load_default()
 	c.log_enabled = false
-	var a := _play(c, 1, SEED, 300)
-	var saved := JSON.stringify(a.to_dict(), "", true, true)
-	var b := SimState.from_dict(JSON.parse_string(saved))
-	assert_eq(_norm(b), _norm(a), "the restored state equals the saved one")
-	for i: int in 400:
-		var inputs: Array = SimFixture.answer(a) if a.is_waiting() else []
-		Sim.step(a, inputs, c)
-		Sim.step(b, inputs, c)
-		if a.ended:
-			break
-	assert_eq(_norm(b), _norm(a), "and both live the same next 400 days")
-	assert_true(a.day > 300)
+	for run_number: int in [1, 2]:
+		var a := _play(c, run_number, SEED + run_number, 300)
+		var b := SimState.from_save(JSON.parse_string(JSON.stringify(a.to_save())))
+		assert_eq(_json(b), _json(a), "run %d: the restored state is bit for bit the saved one" % run_number)
+		assert_true(a.to_dict() == b.to_dict(), "and equal as plain data")
+		for i: int in 500:
+			var inputs: Array = SimFixture.answer(a) if a.is_waiting() else []
+			Sim.step(a, inputs, c)
+			Sim.step(b, inputs, c)
+			if a.ended:
+				break
+		assert_eq(_json(b), _json(a), "run %d: both live the same next days to the same state" % run_number)
+
+
+func test_a_plain_json_number_save_is_close_but_the_save_of_record_is_exact() -> void:  # why SimState.to_save exists
+	var c := SimContext.load_default()
+	c.log_enabled = false
+	var a := _play(c, 1, SEED, 330)
+	var plain := SimState.from_dict(JSON.parse_string(JSON.stringify(a.to_dict(), "", true, true)))
+	for key: String in ["savings", "burnout", "mo", "skill", "rust", "codebase", "ticket_progress", "job_salary", "pay_accrued"]:
+		assert_true(absf(float(plain.get(key)) - float(a.get(key))) < 1.0e-9, "%s survives a plain JSON save to within 1e-9" % key)
+	var exact := SimState.from_save(JSON.parse_string(JSON.stringify(a.to_save())))
+	for key: String in ["savings", "burnout", "mo", "skill", "rust", "codebase", "ticket_progress", "job_salary", "pay_accrued"]:
+		assert_true(float(exact.get(key)) == float(a.get(key)), "%s survives to_save exactly" % key)
 
 
 func test_a_save_taken_while_a_card_waits_resumes_the_card() -> void:

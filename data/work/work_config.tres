@@ -4,3 +4,6 @@
 
 [resource]
 script = ExtResource("1_work")
+floor_doubt_step = 0.16
+ticket_deadline_mult = 1.5
+review_standin_damage = 0.37

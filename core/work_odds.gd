@@ -88,9 +88,11 @@ static func burnout_delta(cfg: WorkConfig, notch: int, home: int, codebase: floa
 	return d
 
 
-## Burnout change per day with no work (between jobs or on a forced leave): rest at home, and the money worry.
-static func idle_burnout_delta(cfg: WorkConfig, home: int, runway: float) -> float:
-	var d := -cfg.home_recovery[home]
+## Burnout change per day with no work (between jobs or on a forced leave). It is the same formula as working (D-04: one
+## clock), minus what only a job has (a heavy Codebase, a commute): the Hours notch still sets how hard you push, the home
+## still recovers you, and a thin runway still weighs on you.
+static func idle_burnout_delta(cfg: WorkConfig, notch: int, home: int, runway: float) -> float:
+	var d := cfg.hours_burnout[notch - 1] - cfg.home_recovery[home]
 	if runway < cfg.runway_red_months:
 		d += cfg.low_runway_burnout
 	return d

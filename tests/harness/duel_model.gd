@@ -91,6 +91,16 @@ func resolve_interview(req: Dictionary, bg: BackgroundData, tier: TierData, gap_
 	return {"passed": false, "doubt": doubt, "composure": composure, "ko": false, "wheel": false}
 
 
+## The share of interviews a request passes, from n trials on the given RNG: what a player learns from the VS banner and
+## the odds on the posting. The bots use it to pick which door to knock on.
+func estimate_pass(req: Dictionary, bg: BackgroundData, tier: TierData, gap_topics: Array, rng: RandomNumberGenerator, n: int = 40) -> float:
+	var wins := 0
+	for i: int in n:
+		if resolve_interview(req, bg, tier, gap_topics, rng)["passed"]:
+			wins += 1
+	return float(wins) / float(n)
+
+
 static func _read(path: String) -> Dictionary:
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 	return parsed if parsed is Dictionary else {}

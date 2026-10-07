@@ -61,10 +61,12 @@ func test_overtime_edge_trims_only_the_notch_5_gain() -> void:  # R-HB-01: Burno
 	_near(WorkOdds.burnout_delta(cfg, 1, 2, 20.0, 5.0, 0.0, true), -0.6 - 0.25, 0.0001, "rest is never scaled")
 
 
-func test_idle_burnout_has_no_hours_term() -> void:  # DECISIONS A73: between jobs only home recovery and the money worry
-	_near(WorkOdds.idle_burnout_delta(cfg, 0, 1.0), 0.4, 0.0001, "Shared room, a runway under 2 months")
-	_near(WorkOdds.idle_burnout_delta(cfg, 2, 5.0), -0.25, 0.0001, "The Studio, comfortable")
-	_near(WorkOdds.idle_burnout_delta(cfg, 3, 5.0), -0.35, 0.0001, "The Penthouse")
+func test_idle_burnout_uses_the_hours_notch_but_no_work_terms() -> void:  # DECISIONS A73: D-04's one clock; the slider still decides how hard you push
+	_near(WorkOdds.idle_burnout_delta(cfg, 3, 0, 5.0), 0.1, 0.0001, "notch 3 in the Shared room, comfortable")
+	_near(WorkOdds.idle_burnout_delta(cfg, 1, 0, 5.0), -0.6, 0.0001, "notch 1 is rest")
+	_near(WorkOdds.idle_burnout_delta(cfg, 1, 0, 1.0), -0.2, 0.0001, "...with a runway under 2 months on your mind")
+	_near(WorkOdds.idle_burnout_delta(cfg, 3, 2, 5.0), 0.1 - 0.25, 0.0001, "The Studio recovers you")
+	_near(WorkOdds.idle_burnout_delta(cfg, 5, 3, 5.0), 1.0 - 0.35, 0.0001, "hustle culture at The Penthouse")
 
 
 func test_mo_per_day_and_utilization() -> void:  # R-STAT-03; the Agency's utilization at notches 1-2
@@ -535,7 +537,7 @@ func test_an_interview_resets_rust_and_a_megacorp_takes_two_duels() -> void:  # 
 	var again := s.pending()
 	assert_eq(again.get("kind", ""), "duel", "the second duel starts 3-7 days after the first")
 	assert_eq(int(again["index"]), 1, "it is the second one")
-	assert_eq(float((again["request"] as Dictionary)["composure"]), 100.0, "at full Composure")
+	_near(float((again["request"] as Dictionary)["composure"]), WorkOdds.duel_composure(c.cfg, 100.0, s.burnout), 0.0001, "at full Composure for your Burnout: nothing carries over from the first duel")
 	Sim.step(s, [{"kind": Sim.IN_DUEL_RESULT, "passed": true, "composure_left": 60.0}], c)
 	assert_eq(s.pending().get("kind", ""), "offer", "both won: an offer")
 

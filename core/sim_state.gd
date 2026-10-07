@@ -5,10 +5,12 @@ extends RefCounted
 ## Dictionaries, never a Resource or a Node. Sim.step changes it and nothing else does. Money is in k$ (GDD 5.15).
 ## Levels are 0 junior, 1 mid, 2 senior; homes 0 shared room to 3 penthouse (WorkOdds). to_dict and from_dict walk
 ## the script variables below, so a new field is saved without touching them. Seeds and the RNG state travel as
-## strings (INV-05). A JSON save must write floats at full precision (JSON.stringify's full_precision), or a
-## resumed run drifts from the one that never stopped.
+## strings (INV-05). The save of record is to_save: Godot's JSON parser does not read every double back exactly (it can be a
+## unit in the last place off), and one stray digit is enough to flip a threshold days of game time later, so to_save writes
+## every float as its raw 64 bits in hex and from_save restores it exactly. to_dict keeps plain floats for tests and display.
 
 const VERSION := 1
+const FLOAT_TAG := "f:"
 
 # ---------- the run ----------
 var version: int = VERSION
@@ -151,6 +153,58 @@ func refresh_edges() -> void:
 
 func bump(key: String, by: int = 1) -> void:
 	stats[key] = int(stats.get(key, 0)) + by
+
+
+## The exact save (O8): to_dict with every float as "f:" and 16 hex digits. Only ints stay JSON numbers, so a JSON round
+## trip cannot change a value.
+func to_save() -> Dictionary:
+	return _encode(to_dict())
+
+
+static func from_save(data: Dictionary) -> SimState:
+	return from_dict(_decode(data))
+
+
+static func _encode(v: Variant) -> Variant:
+	match typeof(v):
+		TYPE_FLOAT:
+			var bytes := PackedByteArray()
+			bytes.resize(8)
+			bytes.encode_double(0, v)
+			return FLOAT_TAG + bytes.hex_encode()
+		TYPE_ARRAY:
+			var out: Array = []
+			for item: Variant in v:
+				out.append(_encode(item))
+			return out
+		TYPE_DICTIONARY:
+			var out: Dictionary = {}
+			for key: Variant in v:
+				out[key] = _encode(v[key])
+			return out
+	return v
+
+
+static func _decode(v: Variant) -> Variant:
+	match typeof(v):
+		TYPE_STRING:
+			var text: String = v
+			if text.length() == FLOAT_TAG.length() + 16 and text.begins_with(FLOAT_TAG):
+				return text.substr(FLOAT_TAG.length()).hex_decode().decode_double(0)
+			return text
+		TYPE_FLOAT:
+			return int(v)
+		TYPE_ARRAY:
+			var out: Array = []
+			for item: Variant in v:
+				out.append(_decode(item))
+			return out
+		TYPE_DICTIONARY:
+			var out: Dictionary = {}
+			for key: Variant in v:
+				out[key] = _decode(v[key])
+			return out
+	return v
 
 
 func to_dict() -> Dictionary:

@@ -2799,8 +2799,9 @@ extends Resource
 class_name WorkConfig
 extends Resource
 ## The career run's global constants (GDD section 11.7, owner "W"). One file: res://data/work/work_config.tres.
-## These defaults ARE the GDD 11.7 defaults. Tune the .tres in the Inspector; leave these lines alone
-## (the sim tests build WorkConfig.new() and expect the GDD numbers). Per-archetype numbers live in
+## These defaults are the Run Spec's numbers (and my gap-fills, DECISIONS A63-A73). The .tres holds the tuned ones: three
+## differ after STEP-14's first tuning (DECISIONS A74; GDD 11.7 lists both). Tune the .tres, leave these lines alone (the
+## sim tests build WorkConfig.new() and expect the Run Spec's worked examples). Per-archetype numbers live in
 ## ArchetypeData, an event's own numbers in data/content/work_events.json (DECISIONS A54).
 ## Level arrays run junior, mid, senior; home arrays run shared room, one-bed, studio, penthouse;
 ## notch arrays run Hours notch 1 to 5.

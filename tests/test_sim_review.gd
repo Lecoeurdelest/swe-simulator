@@ -194,6 +194,22 @@ func test_a_pip_is_cleared_when_mo_is_not_negative() -> void:
 	assert_eq(s.pip_end, -1)
 
 
+func test_a_layoff_on_the_review_day_takes_the_review_card_with_it() -> void:  # a stale card must not outlive its job
+	var c := SimFixture.ctx(true)
+	var s := _review_state(c, "agency")
+	Sim.step(s, [], c)
+	assert_eq(s.pending().get("kind", ""), "review")
+	Sim._end_job(s, c, "layoff", [], 1.0)
+	assert_false(s.is_waiting(), "the review went with the job")
+	var events := Sim.step(s, [{"kind": Sim.IN_REVIEW_RESULT, "evidence_left": 10.0}], c)
+	assert_eq(SimFixture.count(events, "input_rejected"), 1, "nothing left to answer")
+	var t := _review_state(c, "agency")
+	Sim.step(t, [], c)
+	Sim._end_job(t, c, "quit", [], 0.0)
+	Sim._end_job(t, c, "quit", [], 0.0)
+	assert_eq(t.jobs_held, 1, "ending a job twice does nothing the second time")
+
+
 func test_the_brag_doc_edge_adds_evidence_through_the_sim() -> void:  # R-HB-01
 	var c := SimFixture.ctx(true)
 	var plain := _review_state(c, "agency")

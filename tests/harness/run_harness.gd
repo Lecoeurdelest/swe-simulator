@@ -8,7 +8,9 @@ extends SceneTree
 ## seeds = how many runs (default 1000); first = the first seed (default 1); run = the run number, 1 starts employed at
 ## the authored job and 2 or more start between jobs (default 1); bg = intern | graduate | self_taught (default intern);
 ## handbook = none | full (the Edge and Option tips collected, default none); out = a folder to write <bot>.json into;
-## trace = N prints the first seed's state every N days and every sim event (debugging one run).
+## set = overrides for experiments, "field:value,arch.startup.pay_mult:0.9,bg.start_savings_months:1" (HarnessRunner.apply_overrides);
+## trace = N prints the first seed's state every N days and every sim event (debugging one run); dump = 1 prints one
+## RUN,seed,ending,day,jobs,level,employed,savings,burnout,promotions,layoffs,quits_and_fires line per run.
 ## Prints one RESULT line per bot, then the JSON report on a REPORT line.
 
 
@@ -23,15 +25,18 @@ func _init() -> void:
 	var handbook: Array = HarnessRunner.HANDBOOK_FULL if str(args.get("handbook", "none")) == "full" else []
 	var out_dir := str(args.get("out", ""))
 	var trace_every := int(args.get("trace", "0"))
+	var dump := str(args.get("dump", "0")) == "1"
 	var ctx := SimContext.load_default(bg_id)
 	ctx.log_enabled = false
+	for problem: String in HarnessRunner.apply_overrides(ctx, str(args.get("set", ""))):
+		print("OVERRIDE_PROBLEM ", problem)
 	var duel := DuelModel.load_default()
 	for bot_name: String in names:
 		var bot := HarnessRunner.make_bot(bot_name)
 		if bot == null:
 			print("UNKNOWN_BOT ", bot_name)
 			continue
-		var report := HarnessRunner.play(bot_name, bot, ctx, duel, first, seeds, run_number, handbook, trace_every)
+		var report := HarnessRunner.play(bot_name, bot, ctx, duel, first, seeds, run_number, handbook, trace_every, dump)
 		report["params"] = {"bot": bot_name, "seeds": seeds, "first": first, "run": run_number, "bg": bg_id, "handbook": str(args.get("handbook", "none"))}
 		print(HarnessRunner.summary_line(report))
 		print("REPORT ", JSON.stringify(report))

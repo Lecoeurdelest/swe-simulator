@@ -6,6 +6,7 @@ extends RefCounted
 
 const BOTS := ["planner", "coaster", "grinder", "lifestyle", "random"]
 const GUARD_STEPS := 40000
+const EARLY_DAY := 400            # a loss by this day is a loss at the first hunt after run 1's day-240 layoff
 const HANDBOOK_FULL: Array = ["tip_emergency_fund", "tip_brag_doc", "tip_take_the_call", "tip_overtime_loan", "tip_remote_in_writing"]
 
 
@@ -25,7 +26,7 @@ static func make_bot(bot_name: String) -> BotBase:
 
 
 ## Play `seeds` careers with one bot and summarize them.
-static func play(bot_name: String, bot: BotBase, ctx: SimContext, duel: DuelModel, first: int, seeds: int, run_number: int, handbook: Array, trace_every: int = 0) -> Dictionary:
+static func play(bot_name: String, bot: BotBase, ctx: SimContext, duel: DuelModel, first: int, seeds: int, run_number: int, handbook: Array, trace_every: int = 0, dump: bool = false) -> Dictionary:
 	var endings: Dictionary = {}
 	var days: Array[int] = []
 	var loss_days: Array[int] = []
@@ -35,6 +36,7 @@ static func play(bot_name: String, bot: BotBase, ctx: SimContext, duel: DuelMode
 	var guard_hits := 0
 	var totals: Dictionary = {}
 	var hold_max := 0
+	var early_losses := 0
 	var level_end: Array[int] = [0, 0, 0]
 	var started := Time.get_ticks_msec()
 	for seed_n: int in range(first, first + seeds):
@@ -53,10 +55,15 @@ static func play(bot_name: String, bot: BotBase, ctx: SimContext, duel: DuelMode
 		if not state.ended:
 			guard_hits += 1
 		var ending := state.ending if state.ended else "guard"
+		if dump:
+			print("RUN,%d,%s,%d,%d,%d,%s,%.1f,%.1f,%d,%d,%d" % [seed_n, ending, state.day, state.jobs_held, state.level, str(state.employed), state.savings,
+				state.burnout, int(state.stats.get("promotions", 0)), int(state.stats.get("exit_layoff", 0)), int(state.stats.get("exit_fired", 0)) + int(state.stats.get("exit_quit", 0))])
 		endings[ending] = int(endings.get(ending, 0)) + 1
 		days.append(state.day)
 		if ending != "studio":
 			loss_days.append(state.day)
+			if state.day <= EARLY_DAY:
+				early_losses += 1
 		jobs_total += state.jobs_held
 		if reached_mid:
 			mid_in_job1 += 1
@@ -75,7 +82,7 @@ static func play(bot_name: String, bot: BotBase, ctx: SimContext, duel: DuelMode
 		"median_loss_day": _pct(loss_days, 0.5), "jobs_mean": float(jobs_total) / maxf(1.0, seeds),
 		"mid_in_job1_share": float(mid_in_job1) / maxf(1.0, seeds), "level_at_end": level_end,
 		"stats_per_run": _per_run(totals, seeds), "rejected_inputs": rejected, "guard_hits": guard_hits,
-		"studio_hold_max": hold_max, "ms_total": elapsed, "ms_per_run": float(elapsed) / maxf(1.0, seeds),
+		"early_loss_share": float(early_losses) / maxf(1.0, seeds), "studio_hold_max": hold_max, "ms_total": elapsed, "ms_per_run": float(elapsed) / maxf(1.0, seeds),
 	}
 
 
@@ -111,4 +118,73 @@ static func summary_line(r: Dictionary) -> String:
 		100.0 * float(r["mid_in_job1_share"]), JSON.stringify(r["endings"]), r["ms_per_run"], float(r["ms_total"]) / 1000.0,
 		r["rejected_inputs"], r["guard_hits"]]
 
+## Experiments without editing a .tres: "a:1.5,b:2" sets WorkConfig fields; "arch.startup.pay_mult:0.9" an archetype's;
+## "bg.start_savings_months:1" the background's; "evt.evt_e24_overtime_ask.trigger.per_year:3" a path into an event's
+## JSON. Arrays take "|" between items ("salary_base_k:3|4.2|6"). The ctx gets its own copies first (INV-08).
+static func apply_overrides(ctx: SimContext, spec: String) -> PackedStringArray:
+	var problems := PackedStringArray()
+	if spec.strip_edges().is_empty():
+		return problems
+	ctx.cfg = ctx.cfg.duplicate() as WorkConfig
+	ctx.bg = ctx.bg.duplicate() as BackgroundData
+	for id: String in ctx.archetypes.keys():
+		ctx.archetypes[id] = (ctx.archetypes[id] as ArchetypeData).duplicate()
+	ctx.events = ctx.events.duplicate(true)
+	for item: String in spec.split(",", false):
+		var i := item.rfind(":")
+		if i <= 0:
+			problems.append("bad override '%s'" % item)
+			continue
+		var key := item.substr(0, i).strip_edges()
+		var value := item.substr(i + 1).strip_edges()
+		var parts := key.split(".")
+		if parts[0] == "arch" and parts.size() == 3:
+			var arch := ctx.archetypes.get(parts[1]) as ArchetypeData
+			if arch == null or not _set_prop(arch, parts[2], value):
+				problems.append("unknown %s" % key)
+		elif parts[0] == "bg" and parts.size() == 2:
+			if not _set_prop(ctx.bg, parts[1], value):
+				problems.append("unknown %s" % key)
+		elif parts[0] == "evt" and parts.size() >= 3:
+			var node: Variant = ctx.events.get(parts[1])
+			for k: int in range(2, parts.size() - 1):
+				node = (node as Dictionary).get(parts[k]) if node is Dictionary else null
+			if node is Dictionary:
+				var old: Variant = (node as Dictionary).get(parts[parts.size() - 1], 0)
+				(node as Dictionary)[parts[parts.size() - 1]] = int(value) if old is int else float(value)
+			else:
+				problems.append("unknown %s" % key)
+		elif not _set_prop(ctx.cfg, key, value):
+			problems.append("unknown %s" % key)
+	ctx.build()
+	return problems
 
+
+static func _set_prop(obj: Object, prop: String, value: String) -> bool:
+	var cur: Variant = obj.get(prop)
+	match typeof(cur):
+		TYPE_INT:
+			obj.set(prop, int(value))
+		TYPE_FLOAT:
+			obj.set(prop, float(value))
+		TYPE_BOOL:
+			obj.set(prop, value == "true")
+		TYPE_STRING:
+			obj.set(prop, value)
+		TYPE_STRING_NAME:
+			obj.set(prop, StringName(value))
+		TYPE_PACKED_FLOAT64_ARRAY:
+			var f := PackedFloat64Array()
+			for v: String in value.split("|"):
+				f.append(float(v))
+			obj.set(prop, f)
+		TYPE_PACKED_INT32_ARRAY:
+			var n := PackedInt32Array()
+			for v: String in value.split("|"):
+				n.append(int(v))
+			obj.set(prop, n)
+		TYPE_PACKED_STRING_ARRAY:
+			obj.set(prop, PackedStringArray(value.split("|")))
+		_:
+			return false
+	return true

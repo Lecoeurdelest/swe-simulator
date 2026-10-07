@@ -9,6 +9,10 @@ extends BotBase
 var max_active_applications: int = 3
 var apply_burnout_ceiling: float = 70.0
 var stage_bonus_unemployed: float = 4.0
+## Pass estimates are shared by every run in the process and seeded from their own key, so a run's decisions never depend
+## on which runs came before it.
+static var _pass_cache: Dictionary = {}
+var _estimate_rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
 
 func plan(state: SimState, ctx: SimContext) -> Array:
@@ -53,7 +57,7 @@ func best_posting(state: SimState, ctx: SimContext) -> Dictionary:
 		if worth <= 0.0:
 			continue
 		var p := WorkOdds.callback_p(work_cfg, int(posting["level"]), state.level, state.scar_short_tenure, references(state))
-		var ev := p * worth
+		var ev := p * pass_probability(state, ctx, posting) * worth
 		if ev > best_ev:
 			best_ev = ev
 			best = posting
@@ -66,6 +70,22 @@ func posting_score(state: SimState, _ctx: SimContext, posting: Dictionary) -> fl
 	if not state.employed:
 		worth += stage_bonus_unemployed
 	return worth
+
+
+## How likely this posting's interview(s) are to be passed at your current Burnout, Skill and Rust: the difficulty of the
+## tier the archetype borrows, the floor's Doubt, and a MegaCorp's second duel. Cached by buckets of your state.
+func pass_probability(state: SimState, ctx: SimContext, posting: Dictionary) -> float:
+	var arch := ctx.archetype(String(posting["archetype"]))
+	var floor_n := int(posting["floor"])
+	var key := "%s|%s|%s|%d|%d|%d|%d" % [bg.id, ",".join(PackedStringArray(gap_topics)), arch.duel_tier, floor_n, int(state.burnout / 15.0), int(state.skill / 15.0), int(state.rust / 15.0)]
+	if not _pass_cache.has(key):
+		_estimate_rng.seed = hash(key)
+		var tier: TierData = tiers.get(String(arch.duel_tier)) as TierData
+		var req := {"composure": WorkOdds.duel_composure(work_cfg, bg.composure_max, state.burnout),
+			"meter_mult": WorkOdds.duel_zone_mult(work_cfg, state.skill, state.rust),
+			"doubt_hp": WorkOdds.duel_doubt(work_cfg, tier.doubt_hp, floor_n)}
+		_pass_cache[key] = duel.estimate_pass(req, bg, tier, gap_topics, _estimate_rng)
+	return pow(float(_pass_cache[key]), arch.duels_per_offer)
 
 
 func accept_offer(state: SimState, ctx: SimContext, posting: Dictionary) -> bool:

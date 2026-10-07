@@ -339,7 +339,7 @@ static func _tick(s: SimState, ctx: SimContext, events: Array) -> void:
 		if s.ticket_progress >= 100.0:
 			_ship_ticket(s, ctx, events)
 	else:
-		_add_burnout(s, cfg, WorkOdds.idle_burnout_delta(cfg, s.home, runway))
+		_add_burnout(s, cfg, WorkOdds.idle_burnout_delta(cfg, s.hours, s.home, runway))
 	s.rust = minf(cfg.stat_max, s.rust + cfg.rust_per_day)
 
 	_hunt(s, ctx, events)
@@ -705,6 +705,8 @@ static func _queue_review(s: SimState, ctx: SimContext, arch: ArchetypeData, eve
 
 
 static func _resolve_review(s: SimState, ctx: SimContext, item: Dictionary, evidence_left: float, events: Array) -> void:
+	if not s.employed:
+		return
 	var cfg := ctx.cfg
 	var arch := ctx.archetype(s.job_archetype)
 	var evidence: float = item["evidence"]
@@ -979,6 +981,8 @@ static func _make_coworkers(s: SimState, ctx: SimContext, arch: ArchetypeData, s
 ## The job ends: reason is "layoff", "fired" or "quit". Accrued pay and severance are paid out, the Scars are
 ## handed out, a title-inflating archetype takes a level, and losing job max_jobs ends the run (D-16).
 static func _end_job(s: SimState, ctx: SimContext, reason: String, events: Array, severance_months: float) -> void:
+	if not s.employed:
+		return
 	var cfg := ctx.cfg
 	var arch := ctx.archetype(s.job_archetype)
 	var tenure := s.day - s.job_start
@@ -1012,11 +1016,23 @@ static func _end_job(s: SimState, ctx: SimContext, reason: String, events: Array
 	s.ticket_progress = 0.0
 	s.speed_mod_until = -1
 	s.hours_lock_until = -1
+	_drop_job_cards(s)
 	s.bump("exit_%s" % reason)
 	events.append({"kind": "job_ended", "reason": reason, "tenure": tenure, "severance_months": severance_months})
 	_log(s, ctx, "exit", {"reason": reason, "tenure": tenure})
 	if s.jobs_held >= cfg.max_jobs:
 		_end_run(s, ctx, "career_change", events)
+
+
+## A review or a ticket pick belongs to the job that just ended: its card goes with it.
+static func _drop_job_cards(s: SimState) -> void:
+	var i := 0
+	while i < s.queue.size():
+		var kind := String((s.queue[i] as Dictionary).get("kind", ""))
+		if kind == "review" or kind == "ticket_pick":
+			s.queue.remove_at(i)
+		else:
+			i += 1
 
 
 static func _end_run(s: SimState, ctx: SimContext, ending: String, events: Array) -> void:

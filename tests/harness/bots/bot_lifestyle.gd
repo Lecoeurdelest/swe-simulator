@@ -2,11 +2,12 @@
 class_name BotLifestyle
 extends BotCareer
 ## The Lifestyle bot (GDD 5.22): upgrades the home tier at every offer, and moves up whenever a raise or a promotion
-## makes it look affordable. Hours notch 3 or 4. Target: mostly Plan B endings.
+## makes it look affordable. It works like anyone sensible (notch 3, resting at notch 1 when worn out), so what ruins it is
+## its spending, not its hours. Target: mostly Plan B endings.
 
 
 func hours_notch(state: SimState, _ctx: SimContext) -> int:
-	return 3 if state.burnout > 50.0 else 4
+	return 1 if state.burnout > 60.0 else 3
 
 
 func plan(state: SimState, ctx: SimContext) -> Array:
