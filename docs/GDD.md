@@ -36,7 +36,7 @@ How to read this:
 
 ### Phase 1 on one page (v1.2, as built)
 
-**Run Spec v1 status:** this is the v0.1 grey-box, the code today. When the career run is built, its day loop, energy pips and separate rent countdown retire (D-04), CV tailoring goes (D-05) and the Hired card stops being an ending (D-24); the duel and the contract modal stay, behind an adapter (R-JOB-06). The bullets below are the v1.2 text.
+**Run Spec v1 status:** this is the v0.1 grey-box, the code today. When the career run is built, its day loop, energy pips and separate rent countdown retire (D-04), CV tailoring goes (D-05) and the Hired card stops being an ending (D-24); the duel and the contract modal stay, behind an adapter (R-JOB-06). Negotiate, a SHOULD that was never built, is removed (D-27): the contract modal is Accept or Decline. The bullets below are the v1.2 text.
 
 - **Hook.** In influencer videos, software engineers wake at 10:47, "work" for 12 minutes and live in a cozy studio. It's 2026, the market is brutal, and you want that life anyway. You tailor your (true) CV, swipe through job postings, survive a fighting-game-style interview with Dana from HR, and get an offer that's never quite what the video promised.
 - **Run.** One run is one job search: about 8-16 minutes, 2-4 interviews, a median of 3-7 in-game days to an offer, with rent due in 12-15 days.
@@ -96,11 +96,11 @@ By the end of one run a player should have met these real ideas, each through a 
 | Research the company | Research unlocks the insider "Why us?" answer (the strongest choice answer in the game; research before every interview raises first-interview pass rates by 10-15 points) |
 | Ghost jobs exist | Some postings never reply; research shows "Posted 412 days ago" |
 | Think aloud, use STAR, ask a question at the end | Knowledge and choice questions reward these; the model answer is always shown |
-| Negotiating politely rarely backfires | Negotiate never rescinds in the MVP |
+| Negotiating politely rarely backfires | Negotiate never rescinds in the MVP (removed 2026-10-07 with Negotiate, D-27: no mechanic teaches this now) |
 | Compare total compensation, including commute | The offer shows commute hours; the Dream vs Reality score counts them |
 | Rest matters | Arriving Tired speeds up the interview needle |
 
-**Run Spec v1 status:** the first six rows teach through the Phase 1 hunt (knockouts, tailoring, honest reframing, referrals, research, ghost jobs). The career run's board (5.20) has no place for them yet: Open (MC-07). The interview rows (think aloud, STAR, ask a question) stay with the duel, and the offer rows (negotiate, total compensation) with the contract modal. "Rest matters" moves from energy to Burnout, which lowers your Composure (5.20).
+**Run Spec v1 status:** the first six rows teach through the Phase 1 hunt (knockouts, tailoring, honest reframing, referrals, research, ghost jobs). The career run's board (5.20) has no place for them yet: Open (MC-07). The interview rows (think aloud, STAR, ask a question) stay with the duel, and the total-compensation row with the contract modal; the negotiation row left with Negotiate (D-27). "Rest matters" moves from energy to Burnout, which lowers your Composure (5.20).
 
 The career run adds these lessons, each through a rule (the event tips are in 5.19):
 
@@ -770,13 +770,12 @@ The screen is your phone and DoomApply is the job app: the influencer hooked you
 | | Please decide before you sleep.       | |
 | | x____________________ (sign, SHOULD)  | |   drag-to-sign line
 | +---------------------------------------+ |
-| [               Negotiate               ] |   once, SHOULD
 | [ Decline ] [           ACCEPT          ] |   action bar
 +-------------------------------------------+
 ```
 
 - Contents: the paper (254 wide, about 250 tall) slides up from the bottom over the dimmed stage; Dana stays visible above it. One field per line after a 12-character label column (values wrap at 28 columns): role and company, **yearly salary**, at startups an "Equity: 0.0001%" line under it (section 7's joke equity; built in Step 6 as an agent default), work mode, commute preview (e.g. "4 days x 95 min each way = 12.7 h a week", 2 lines), 2 perks, 1 fine-print joke (up to 4 lines; `[?]` shows all 3, SHOULD), "Please decide before you sleep." One Ducky tip sits under the paper (8.3). It fades in once the paper has landed, so it never covers the rising contract, and a tap closes it for this offer (its "x" shows it, as on the coach marks, D11); the paper then eases down into the room it leaves (agent default A47).
-- Buttons: [**Negotiate**, full width above the action bar, once, SHOULD], then `[ Decline ][ ACCEPT ]` (80 + 168). Decline holds the action bar's bottom-left, so the on-screen Back (4.4), `[ < Back ]` (it opens Pause; Back never declines), has its own row above the action bar, where Negotiate would go. Decline opens a confirm dialog; on the grace day it says the run ends. SHOULD: ACCEPT becomes drag-to-sign along the 200 px line, left to right.
+- Buttons: `[ Decline ][ ACCEPT ]` (80 + 168). (A full-width Negotiate above the action bar, a SHOULD, was removed on 2026-10-07: D-27.) Decline holds the action bar's bottom-left, so the on-screen Back (4.4), `[ < Back ]` (it opens Pause; Back never declines), has its own row above the action bar. Decline opens a confirm dialog; on the grace day it says the run ends. SHOULD: ACCEPT becomes drag-to-sign along the 200 px line, left to right.
 - Out: Accept -> Hired card (5.9.4). Decline -> Dana's line -> DoomApply (same day), or Plan B on the grace day (5.10).
 
 **S11 Hired card** (MUST) - side-view illustration card, in two beats
@@ -894,17 +893,19 @@ Stable ids: backgrounds `intern`, `graduate`, `self_taught`; tiers `startup`, `m
 
 ### 5.1 Stats
 
+**Run Spec v1 status:** in the career run, KNOWLEDGE, EXPERIENCE and NETWORK stay at the background's starting values, and only the duel uses them: knowledge P (5.8.4) and the committee wheel (5.8.6) (D-26, for now). Energy and Rent runway retire with the day loop (D-04); the career run's work stats are 5.16, its money 5.15.
+
 | Stat | Id | Range | Shown as | Drives |
 |---|---|---|---|---|
 | KNOWLEDGE (the brief's "intelligence") | `knw` | 0-100, cap 80 | 5-segment bar (value / 20, rounded) | 70% of tech answers, 30% of behavioral answers |
 | EXPERIENCE | `exp` | 0-100, cap 80 | 5-segment bar | 70% of behavioral answers, 30% of tech answers |
-| NETWORK | `net` | 0-100, cap 80 | 5-segment bar | invite odds (x(1 + NET/100)), committee wheel, negotiation |
+| NETWORK | `net` | 0-100, cap 80 | 5-segment bar | invite odds (x(1 + NET/100)), committee wheel (negotiation left with Negotiate, D-27) |
 | Energy | - | pips per day | pips | every action |
 | Rent runway | - | days | "Rent due in N days" | fail state |
 
 Hidden per-background values: `teamwork_mult` (lone-wolf penalty for the Self-Taught), `gap_topics` (2 random knowledge topics rolled for the Self-Taught at run start). No cash stat. *Why:* three visible stats are readable at a glance; money as days is one number instead of cash, burn and fares.
 
-Stat growth in the MVP: Study +5 KNOWLEDGE; Network (SHOULD) +5 NETWORK. EXPERIENCE doesn't grow during a hunt (it grows in Phase 2 at work).
+Stat growth in the MVP: Study +5 KNOWLEDGE; Network (SHOULD) +5 NETWORK. EXPERIENCE doesn't grow during a hunt (it grows in Phase 2 at work). (D-26: in the career run none of the three grows. Study gives Skill +1 and Rust -20 instead (R-JOB-05), and "EXPERIENCE grows at work" was an earlier work-loop note, now superseded.)
 
 ### 5.2 Backgrounds
 The difficulty screen is the character creator: the background is who you are. Full per-stage effects are in section 6; text is in CONTENT.md section 3.
@@ -1149,16 +1150,8 @@ salary   = round_to_1000( lerp(tier.salary_min, tier.salary_max, band_pos) * bg.
 
 Example (continuing 5.8.7): Composure 96.9/100 -> band_pos = 0.734 -> $50k + $20k x 0.734 = $64.7k x 1.10 = **$71,000/year** at Hierarchai, fully remote, "0.0001% equity".
 
-#### 5.9.3 Negotiate (SHOULD, once per offer)
-**Decided (D7):** one tap, one attempt.
-
-```
-P_success = min(0.85, 0.55 + NET/200 + (0.15 if another invite is waiting))
-success: salary x (1 + U(0.05, 0.08)), rounded to $1,000; Startup offers also "double" the equity (0.0001% -> 0.0002%)
-failure: "This is our best and final." No change. Never rescinded in the MVP.
-```
-
-Intern 77.5%, Graduate 62.5%, Self-Taught 57.5% (+15 with a pending invite, cap 85%). Tip: negotiating politely "rarely backfires".
+#### 5.9.3 Negotiate (removed 2026-10-07, DECISIONS D-27)
+Replaced by nothing: the contract modal is Accept or Decline, in Phase 1 and in the career run. Negotiate was a SHOULD that was never built (D7: one tap, once, never rescinded; P_success = min(0.85, 0.55 + NET/200 + 0.15 with another invite waiting), worth +5-8% salary and a "doubled" startup equity). The Run Spec's version goes too (R-JOB-04: 0.30 + 0.05 x runway months, capped at 0.70, +8% salary). The formula code that exists (`Odds.negotiate_p`, `Odds.negotiated_salary`, BalanceConfig's `nego_*` fields) leaves with the next code change.
 
 #### 5.9.4 Accept, Decline
 - **Accept:** the offer becomes your job -> Hired card. No dice. (The degree background check and "OFFER RESCINDED" were removed 2026-09-29, DECISIONS D9: with a true CV there is nothing to check.)
@@ -1232,7 +1225,7 @@ Port the simulation to GDScript (`tests/test_balance.gd`) once the loop exists, 
 
 ### 5.13 Randomness rules
 - One `RandomNumberGenerator` per run in GameState, seeded at Background select; never call the global `randf()`/`randi()` in gameplay code; pass the RNG into pure functions (`Odds`).
-- Rolls that use it: posting generation, ghost flags, reveal outcomes, silent-vs-email, gap topics, question selection and order, answer shuffling, luck U(-12, +12), zone center and pivot timing, wheel, negotiation. (The probe, bluff and background-check rolls left with D9.)
+- Rolls that use it: posting generation, ghost flags, reveal outcomes, silent-vs-email, gap topics, question selection and order, answer shuffling, luck U(-12, +12), zone center and pivot timing, wheel. (The probe, bluff and background-check rolls left with D9, and the negotiation roll with D-27.)
 - Show luck: odds bands on cards, the zone width before the needle, the wheel wedge.
 - Some things take turns instead of rolling, so they cost no dice: Dana's VS stat and move follow `times_met_dana` (S07).
 
@@ -1264,7 +1257,7 @@ Port the simulation to GDScript (`tests/test_balance.gd`) once the loop exists, 
 | Committee wheel NETWORK bonus | +22.5 pp | +7.5 pp | +2.5 pp |
 | Dana's opener | "Three internships. Why didn't they keep you? ...Budget freeze. Right. Same." | "A fresh grad. The ATS wants 3 years. I want to hear what you built." | "Our ATS hates 'no degree'. I don't. Show me what you shipped." |
 | Offer salary | x1.10 | x1.00 | x0.90 |
-| Negotiation odds | 77.5% | 62.5% | 57.5% |
+| Negotiation odds (Negotiate removed, D-27) | was 77.5% | was 62.5% | was 57.5% |
 | Commute on the offer / Dream score | 20 min each way | 45 min | 95 min (an office job costs up to 15 Dream points) |
 | Plan B line | "Your old internship mentor liked your post." | "Your diploma now holds up the ring light." | "Your course is called 'Self-Taught, Self-Employed'." |
 | Phase 2 hooks | work-day energy 9 on office days; mentor events | work-day energy 8; student-loan payday deductions | work-day energy 6 on office days (10 remote); lone_wolf teamwork events; fastest skill growth |
@@ -1299,7 +1292,7 @@ Simulated outcome differences are in section 5.12.
 | PTO line | "Unlimited*" (*average taken: 4) | 20 days | 15 days |
 | Perks (2 shown) | ping-pong, kombucha tap | Pizza Friday (Fridays subject to change), free snacks (1 banana/week) | great insurance, RSUs with a 1-year cliff |
 | Fine print pool | equity, runway, on-call | probation, on-call, perks | non-compete, RTO, IP clause, laptop |
-| Negotiation gain | +5-8% and equity "doubled" | +5-8% | +5-8% ("paid as a sign-on bonus") |
+| Negotiation gain (Negotiate removed, D-27) | was +5-8% and equity "doubled" | was +5-8% | was +5-8% ("paid as a sign-on bonus") |
 | Dream score tendency | wins remote and commute, loses salary | balanced | wins salary, loses remote and commute |
 | Phase 2 hooks (stored now) | fast skill growth, overtime and pivot events, can fold | legacy-code events, steady raises, a mentor | meetings drain energy, slow promotions, layoff waves |
 
@@ -1319,7 +1312,7 @@ Simulated outcome differences are in section 5.12.
 ### 8.2 Corrected lessons (don't teach myths)
 - **ATS:** knockouts auto-reject; keyword percentages don't. Keyword match only shifts the odds that a human skim goes your way. Tip: "ATS rarely auto-rejects on keywords; knockout questions do. Use the posting's real terms for skills you have." (Source consulted: enhancv.com/blog/does-ats-reject-resumes/.)
 - **Referral:** "gets a human to read it", not "skips the ATS".
-- **Negotiation:** "rarely backfires", not "never".
+- **Negotiation:** "rarely backfires", not "never". (No mechanic teaches it since Negotiate was removed, D-27.)
 - **Buzzwords:** never rewarded, at any tier.
 - **Non-competes:** "enforceability varies by country and state".
 
@@ -1341,7 +1334,7 @@ Simulated outcome differences are in section 5.12.
 | Bad answer to harsh feedback (`eq_harsh_review`) | `tip_take_feedback` |
 | Bad closer answer | `tip_ask_questions` |
 | Specific ethics questions | each question's own tip (e.g. `tip_secrets`, `tip_ai_tools`, `tip_small_changes`) |
-| Offer opens | `tip_negotiate` (Negotiate shipped) or `tip_total_comp` |
+| Offer opens | `tip_total_comp` (`tip_negotiate` has no trigger since Negotiate was removed, D-27) |
 | Startup offer | `tip_equity_lottery` |
 | Fine print opened | `tip_fine_print` |
 | Hired card | `tip_written_offer` |
@@ -1412,7 +1405,7 @@ Relaxed Timing (Answer Meter input fixed at 0.9), Reduced Motion (also stops car
 
 ### 10.2 SHOULD (in this order once MUST works)
 1. Research on the card back (ghost flag, red flags, real salary, insider "Why us?"). *First SHOULD to build: balance and teaching lean on it.*
-2. One-tap Negotiate.
+2. One-tap Negotiate (removed 2026-10-07, DECISIONS D-27).
 3. Network action (referrals, Self-Taught lone-wolf fix); 3 site tabs that filter the same deck, one modifier each (MegaBoard: all tiers, ghost-job rate +5 pp; HumbleBrag: Big and Mid only, invite odds x1.1; LaunchPadd: startups only).
 4. Static top-down room hub with 4 hotspots in the lower 60%, ghosts and ramen cups.
 5. Hard-mode morning commute strip (2 s bus parallax, "-4 energy").
@@ -1424,7 +1417,7 @@ Relaxed Timing (Answer Meter input fixed at 0.9), Reduced Motion (also stops car
 11. Dana's per-company one-liners and the "laid off too" running gag; video-call frame for startup interviews; per-company background prop swaps.
 
 ### 10.3 LATER
-The Work loop (Phase 2) with walking top-down characters and an office map; cosmetic customization; take-home CRUNCH mash mini-game; Keyword Grab / Buzzword Catch; BigOhNo multiple-choice quiz; meetups, doomscroll, specialize, career fair, side projects; cash, burn, fares and gig shifts; emotional damage, reps and prep bonuses; the 8 extra interviewers; stacked offers, live exploding timers, full haggling, rescinds; scam and unpaid-intern traps (as rent-cost events); best Dream score per background (D10); Android build; Play closed testing (reportedly 12 testers x 14 days for new personal accounts; verify); App Store release (TestFlight starts with the release candidate, 2.10); iPad-native layout (any window size, 2.10); achievements, cloud save, localization.
+The Work loop (Phase 2) with walking top-down characters and an office map; cosmetic customization; take-home CRUNCH mash mini-game; Keyword Grab / Buzzword Catch; BigOhNo multiple-choice quiz; meetups, doomscroll, specialize, career fair, side projects; cash, burn, fares and gig shifts; emotional damage, reps and prep bonuses; the 8 extra interviewers; stacked offers, live exploding timers, rescinds (full haggling left with Negotiate, D-27); scam and unpaid-intern traps (as rent-cost events); best Dream score per background (D10); Android build; Play closed testing (reportedly 12 testers x 14 days for new personal accounts; verify); App Store release (TestFlight starts with the release candidate, 2.10); iPad-native layout (any window size, 2.10); achievements, cloud save, localization.
 
 ### 10.4 Phase 2 hooks: state the MVP must already store
 `RunState` (saved) must hold, even if the MVP never reads some of it:
@@ -1433,7 +1426,7 @@ The Work loop (Phase 2) with walking top-down characters and an office map; cosm
 |---|---|
 | `background_id`, `player_name`, `knw`, `exp`, `net`, `lone_wolf`, `gap_topics` | the same character goes to work |
 | `commute_pips`, `commute_minutes` (copied from BackgroundData) | work-day energy on office days |
-| `employment`: `company_id`, `tier`, `job_title`, `salary`, `work_mode`, `office_days`, `perks`, `red_flags`, `equity_text`, `negotiated` | the job you took |
+| `employment`: `company_id`, `tier`, `job_title`, `salary`, `work_mode`, `office_days`, `perks`, `red_flags`, `equity_text`, `negotiated` (always false since D-27) | the job you took |
 | `day`, `rent_days_left`, `dream_score` | carry-over and ending comparisons |
 | `interviews_taken`, `times_met_dana`, `dana_last_company` | Dana cameos, "laid off too" gag |
 | `blacklist` (company ids), `applied` (template+company pairs) | "you declined us" events |
@@ -1459,7 +1452,7 @@ Code hooks: a generic Day Cycle where HUNT is one mode; `GameFlow.Phase` leaves 
 The minimum set is below; ARCHITECTURE 12.2 lists every suite as built (20 suites and 217 tests after the Step 7 review, 2026-09-29).
 - `test_odds.gd`: P_invite worked examples (16.8%, 12.3%, 30.7%, 19.0%), band thresholds, knockout logic.
 - `test_interview.gd`: S/h/Q/damage for the 5.8.7 example with a fixed luck value; wheel formula; Tired.
-- `test_offer.gd`: salary, negotiation cap, Dream score examples (68, 57, 49).
+- `test_offer.gd`: salary, negotiation cap, Dream score examples (68, 57, 49). (The negotiation test leaves with the negotiation code, D-27.)
 - `test_flow.gd`: legal transitions, Continue fallback, Retry resets the run.
 - `test_save.gd`: RunState round trip with a 64-bit RNG state (no writes to `user://`).
 - `test_content_lint.gd`: every id referenced exists; text budgets from 2.7, including the line caps after word-wrapping at 40 columns; banned brand list; ASCII only.
@@ -1585,8 +1578,8 @@ Replaced by nothing: its 14 `BalanceConfig` fields (`max_probes_per_interview`, 
 | `salary_mult` | 1.10 / 1.00 / 0.90 | BG |
 | `band_base` / `band_perf_weight` | 0.25 / 0.50 | B |
 | `salary_round` | 1000 | B |
-| `nego_base` / `nego_net_div` / `nego_leverage` / `nego_cap` | 0.55 / 200 / 0.15 / 0.85 | B |
-| `nego_gain_min` / `nego_gain_max` | 0.05 / 0.08 | B |
+| `nego_base` / `nego_net_div` / `nego_leverage` / `nego_cap` (removed by D-27; still in BalanceConfig until the next code change) | 0.55 / 200 / 0.15 / 0.85 | B |
+| `nego_gain_min` / `nego_gain_max` (removed by D-27, as above) | 0.05 / 0.08 | B |
 | `office_days` | 0 / 2 / 4 | T |
 | `dream_salary_target` | 150000 | B |
 | `dream_weights` (salary, remote, commute, flags, runway) | 40 / 25 / 15 / 10 / 10 | B |
@@ -1612,7 +1605,7 @@ D1-D8, plus the platform decision P1, were decided on 2026-09-26, and D9-D12 on 
 
 **D6 - Customization depth.** Decided (the default): **background + name dice** (second-person text, default name Alex); palette swaps and layered cosmetics are LATER. The protagonist's look follows the brief ("he") by default; the text never needs a pronoun. See 5.2.
 
-**D7 - Negotiation.** Decided (the default): **one-tap Negotiate, once, never rescinded**, the first SHOULD after Research. Rejected: Accept/Decline only; full haggling (LATER). See 5.9.3.
+**D7 - Negotiation.** Decided (the default): **one-tap Negotiate, once, never rescinded**, the first SHOULD after Research. Rejected: Accept/Decline only; full haggling (LATER). See 5.9.3. **Superseded by D-27 (2026-10-07): Negotiate is removed; the contract modal is Accept or Decline.**
 
 **D8 - How brutal are interviews.** Decided (the default): **(a) Doubt HP 118 / 128 / 132 for Playtest #1** (first-interview pass 37 / 22 / 15%, offers 100 / 95 / 87%, runs about 8 / 14 / 16 min). Afterwards move toward (b) +6 HP, harsher (offers 100 / 88 / 75%, runs about 11 / 16 / 20 min), or (c) -8 HP, gentler (offers 100 / 99 / 95%, runs about 6 / 10 / 12 min), depending on whether testers say "too easy" or "too random". See 5.12.
 
@@ -1625,3 +1618,11 @@ D1-D8, plus the platform decision P1, were decided on 2026-09-26, and D9-D12 on 
 **D12 - VS intro.** Decided (the developer's request, 2026-09-29: add a button, slow it down or show less): **the VS screen waits for a tap and shows less text** (one joke stat, one special move, taking turns). The details are agent defaults in `docs/DECISIONS.md`. See S07.
 
 **P1 - Platform.** Decided: **iPhone first**, built and deployed from the developer's MacBook (Xcode, free Personal Team signing); Android LATER, because there is no Android phone to test on. See 2.10.
+
+### Decisions after the merge (2026-10-07)
+
+**W9 - When M1 starts.** Decided (the developer): **M1, the career run's sim core (STEP-14), starts now**, ahead of Phase 1's open Steps 7-13; it's headless PC work that needs neither the iPhone nor the Phase 1 hunt. What happens to Steps 7-13 and which game `v0.5-mvp` ships is still open (MC-01). See 10.7.
+
+**D-26 - Phase 1's stats in the career run.** Decided (the developer, "follow the recommendations for now"): **KNOWLEDGE, EXPERIENCE and NETWORK stay at the background's starting values, and only the duel uses them** (knowledge P and the committee wheel). Study, callbacks and offers don't touch them. See 5.1.
+
+**D-27 - Negotiation.** Decided (the developer, superseding D7): **offer negotiation is removed**, both Phase 1's one-tap Negotiate and the Run Spec's (R-JOB-04). The contract modal is Accept or Decline, and the Handbook keeps 4 Edge tips. See 5.9.3.

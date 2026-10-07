@@ -128,6 +128,8 @@ That comes to about **67 hours to the grey-box** (about 4 weeks) and **about 165
 
 Art hours are the most uncertain. If you draw everything yourself, double Steps 9-11.
 
+**2026-10-07: the career run (Run Spec v1) is being merged into these docs, and M1 starts now** (DECISIONS W8, W9). M1, the career run's sim core, is tracked as STEP-14 and starts ahead of the open Steps 7-13; its milestones M1-M6 (STEP-14..STEP-19) get their own part of this roadmap when the merge is finished. What happens to Steps 7-13 is still open (MC-01). Where things stand: `docs/merge-report.md`.
+
 ---
 
 ## 4. The steps
@@ -548,7 +550,7 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 - **Kill the app on your iPhone at 5 moments** (swipe it away in the app switcher: mid-hunt, right after Sleep, mid-interview, on the offer, on the Hired card) and check Continue each time. It's an iPhone check, so it stays yours under W7. [`docs/KILL_TESTS.md`](KILL_TESTS.md) has the steps, what each Continue should show, and a row for your results.
 
 **Design huddle**
-- **D7:** should Negotiate be the second SHOULD?
+- **D7:** should Negotiate be the second SHOULD? (Answered 2026-10-07: Negotiate is removed, D-27.)
 - Is the Dream vs Reality footer funny or smug? (Answered 2026-09-29: neither clear nor funny, so it was rewritten: C4.)
 
 **Done when**
@@ -600,7 +602,7 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 
 **Tasks.** Build in this order:
 1. **Research** on the card back. It reveals ghosts, red flags and the real salary, and unlocks the insider "Why us?" answer. The balance and the teaching lean on it, so build it first and rerun the sim.
-2. One-tap **Negotiate**.
+2. One-tap **Negotiate** (removed 2026-10-07, DECISIONS D-27: the contract modal stays Accept or Decline).
 3. **Network** plus the 3 site tabs.
 4. The static top-down **room hub** with 4 hotspots.
 5. The Hard-mode **commute strip**.
@@ -614,7 +616,7 @@ Art hours are the most uncertain. If you draw everything yourself, double Steps 
 Stop at the timebox. Anything unbuilt goes to the cut list (section 11).
 
 **Done when**
-- [ ] Research and Negotiate have shipped and been tested on the iPhone.
+- [ ] Research has shipped and been tested on the iPhone. (Negotiate was removed: D-27.)
 - [ ] The sim has been rerun: GDD 5.12 predicts research pushes first-interview pass rates up by 10-15 points.
 - [ ] The cut list is updated.
 
@@ -862,7 +864,7 @@ Keep sources in `art_src/` (Godot ignores that folder) and export PNGs into the 
 | 2 | 3, then start 4 | tap-through of every screen; interview bars and choices |
 | 3 | finish 4, then 5 | a playable interview; the hunt started |
 | 4 | finish 5, then 6 and 7 | **`v0.1-greybox`**, and Playtest #1 done |
-| 5-6 | 8, 9 | Research and Negotiate; the interview at final quality |
+| 5-6 | 8, 9 | Research; the interview at final quality |
 | 7-8 | 10 | the art in place |
 | 9 | 11, 12 | the intro, audio and polish |
 | 10 | 13 | **`v0.5-mvp`** |
@@ -937,7 +939,7 @@ These aren't blocking. They're good conversations for later steps:
 7. The commute strip; show the text "-4 energy" instead.
 8. The top-down room hub; the DoomApply phone hub is enough.
 9. Network and the site tabs.
-10. Negotiate.
+10. Negotiate (already removed, D-27).
 11. Research. It's the last SHOULD to drop, because the balance leans on it. If it's cut, try GDD D8 option (c), gentler Doubt HP, and rerun the sim.
 12. *(MUST simplifications, only if desperate)* Build the intro from 2-3 illustrated slides plus text; use 1 recolored interview background for all 3 tiers; make the VS intro a static layout plus the slam.
 13. Cut content down to the GDD minimums: 15 knowledge, 10 ethics, 20 postings, 15 tips.

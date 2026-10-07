@@ -9,6 +9,10 @@
 # DECISIONS D9-D12, C2-C4, W7). CV editing and lying were removed (D9): MUST-07 and AC-DOD-05 are retired, not
 # deleted, and the statements that named the lie probe, BUSTED or the skippable VS intro follow the current docs.
 # The prior wording is in git at 8aaae75.
+# 2026-10-07: Run Spec v1 merge in progress (branch run-spec-v1-merge; docs/merge-report.md). So far only the
+# developer's three decisions of that day are indexed here: W9 (M1 starts now; a convention below), D-26 (Phase 1's
+# stats only feed the duel) and D-27 (Negotiate removed: D7 superseded, SHOULD-02 and AC-S08-2 retired, not deleted).
+# The Run Spec's requirements, decisions and the STEP-14..19 tasks are added when the merge is finished.
 schema_version: 1
 
 project:
@@ -118,6 +122,8 @@ preservation:
     # "The developer commits; Claude suggests the message and commits before script_patch or engine updates (ROADMAP 10, ARCHITECTURE 14.3)."
     - "Claude commits after each verified increment on a per-step branch (step-NN-<slug>, each branched from the previous step's branch) and pushes without asking; it still commits before script_patch or engine updates. The developer reviews and merges on GitHub in step order with merge commits (DECISIONS W1; ARCHITECTURE 14.3)."
     - "Dependency gate: a step may start when every earlier step is done or has only developer-owned criteria left (device, manual review; You-do exercises are suspended, W7); those steps stay in_progress/verifying until the developer confirms (DECISIONS W2)."
+    # 2026-10-07 (W9, the developer: "M1 should start now"): an exception to the gate above.
+    - "M1, the career run's sim core (STEP-14 once the merge adds it), starts ahead of the open Steps 7-13 (DECISIONS W9); the dependency gate still orders Steps 7-13 among themselves."
     - "While the developer is away, design huddles take the documented recommended default, logged in docs/DECISIONS.md as 'agent default, please review'; scope, tone and tip accuracy wait for the developer (DECISIONS W4)."
     - "Current mode (2026-09-27): PC only (P2); autonomous run from Step 2's PC part through Step 6, with a summary after each step (DECISIONS W5). Since 2026-09-29 the developer's review fixes are built on the Step 7 branch (step-07-dev-review); Phase 2 is not designed or built until the developer decides (docs/ideas_parking_lot.md)."
     - "The 2x rule: a task past twice its estimate stops and is cut or simplified (ROADMAP 1)."
@@ -178,7 +184,7 @@ decisions:
   - {id: D4, title: "Lying depth", status: superseded, superseded_by: [D9], answer: "the default", default: "(a) 3 CV lines x Honest/Polished/Lie + Come clean/Bluff + background check for degree lies", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
   - {id: D5, title: "Fail state", status: accepted, answer: "the default", default: "(a) one Plan B ending, grace day, one-tap retry", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
   - {id: D6, title: "Customization depth", status: accepted, answer: "the default; cosmetics LATER", default: "(a) background + name dice", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
-  - {id: D7, title: "Negotiation", status: accepted, answer: "the default: once, never rescinded", default: "(b) one-tap Negotiate, first SHOULD after Research", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
+  - {id: D7, title: "Negotiation", status: superseded, superseded_by: [D-27], superseded_on: "2026-10-07", answer: "the default: once, never rescinded", default: "(b) one-tap Negotiate, first SHOULD after Research", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
   - {id: D8, title: "Interview brutality (run length)", status: accepted, answer: "the default; revisit after Playtest #1 (Step 7)", default: "(a) Doubt HP 118/128/132 for playtest #1, then decide", decided: "2026-09-26", source: "GDD 12; docs/DECISIONS.md"}
   - {id: P1, title: "Platform", status: accepted, answer: "iPhone first, built and deployed from the developer's MacBook (Xcode, free Personal Team signing); Android LATER (no Android phone to test on)", decided: "2026-09-26", source: "GDD 12; GDD 2.10; docs/DECISIONS.md"}
   - {id: C1, title: "Parody names after a trademark web check", status: accepted, answer: "12 parody names renamed (e.g. SynergAI -> Hierarchai, HireBot 3000 -> Parsinator 3000); content ids unchanged; a real trademark search still runs before any public release", decided: "2026-09-26", source: "docs/DECISIONS.md; CONTENT 1.1, 4"}
@@ -190,6 +196,9 @@ decisions:
   - {id: C2, title: "Review-queue copy approved, 4 wording fixes", status: accepted, answer: "section 3 copy as written; Graduate perk says knowledge question; no doubled period after a company name; fine print never repeats a perk; GDD coach_sleep line matches the JSON", decided: "2026-09-29", source: "docs/DECISIONS.md; CONTENT 3.1, 13.3"}
   - {id: C3, title: "Choice questions in plain language", status: accepted, answer: "all 14 choice questions checked for non-tech players (11 reworded, 3 already plain kept); ids, kinds, tiers and tips unchanged (A49 later gave eq_harsh_review its own tip)", decided: "2026-09-29", source: "docs/DECISIONS.md; CONTENT 7"}
   - {id: C4, title: "New Hired-card copy", status: accepted, answer: "header YOUR JOB vs REMY'S VIDEO, the four video rows naming Remy's value, grade 1 All reality, no dream, footer 100 is the life in Remy's video. Nobody gets 100. Not even Remy.", decided: "2026-09-29", source: "docs/DECISIONS.md; GDD 5.9.5; CONTENT 14"}
+  # docs/DECISIONS.md, decided by the developer on 2026-10-07 during the Run Spec v1 merge (the D- series, A60).
+  - {id: D-26, title: "Phase 1 stats in the career run", status: accepted, answer: "KNOWLEDGE, EXPERIENCE and NETWORK stay at the background's starting values and only feed the duel (knowledge P, the committee wheel); Study, callbacks and offers do not touch them (for now)", decided: "2026-10-07", source: "GDD 5.1, 12; docs/DECISIONS.md; docs/merge-report.md MC-02"}
+  - {id: D-27, title: "Offer negotiation removed", status: accepted, supersedes: D7, answer: "no Negotiate anywhere: neither Phase 1's one-tap Negotiate (SHOULD, never built) nor the Run Spec's R-JOB-04 version; the contract modal is Accept or Decline; the Handbook keeps 4 Edge tips; the existing negotiation code leaves with the next code change", decided: "2026-10-07", source: "GDD 5.9.3, 10.2, 12; docs/DECISIONS.md"}
 
 invariants:
   # Global rules every task must keep. Full text and sources: .agent/rules/invariants.md
@@ -380,12 +389,17 @@ requirements:
     source: {file: docs/GDD.md, section: "10.2 item 1"}
     acceptance:
       - {id: AC-S08-1, statement: "Research has shipped and been tested on the iPhone.", verification: [device_observation, behavioral_test]}
+  # 2026-10-07 (DECISIONS D-27, the developer's call): Negotiate was removed. The requirement and its criterion stay,
+  # retired, so the ids and history remain readable; GDD 10.2 item 2 keeps its number.
   - id: SHOULD-02
-    title: "One-tap Negotiate"
+    title: "One-tap Negotiate (removed 2026-10-07, DECISIONS D-27)"
     risk: standard
+    relevance: retired
+    retired_on: "2026-10-07"
+    approval: "D-27 in docs/DECISIONS.md (developer, 2026-10-07)"
     source: {file: docs/GDD.md, section: "10.2 item 2"}
     acceptance:
-      - {id: AC-S08-2, statement: "Negotiate has shipped and been tested on the iPhone.", verification: [device_observation, behavioral_test]}
+      - {id: AC-S08-2, statement: "Negotiate has shipped and been tested on the iPhone.", verification: [device_observation, behavioral_test], relevance: retired, retired_on: "2026-10-07", reason: "D-27: Negotiate was removed; the contract modal is Accept or Decline (GDD 5.9.3; ROADMAP Step 8 task 2)"}
   - {id: SHOULD-03, title: "Network action and 3 site tabs", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 3"}, acceptance: [{id: AC-SH-03, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
   - {id: SHOULD-04, title: "Static top-down room hub", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 4"}, acceptance: [{id: AC-SH-04, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
   - {id: SHOULD-05, title: "Hard-mode commute strip", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 5"}, acceptance: [{id: AC-SH-05, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
@@ -510,7 +524,7 @@ tasks:
     requirement_ids: [MUST-01, REQ-TOOLCHAIN, REQ-DECISIONS]
     component_ids: [CMP-REPO, CMP-DOCS]
     # D4 stays: Step 0 answered it, and D9 superseded it on 2026-09-29, so the validator warns that D4 is no
-    # longer accepted. That warning is expected.
+    # longer accepted. That warning is expected. The same goes for D7, superseded by D-27 on 2026-10-07.
     decision_ids: [D1, D2, D3, D4, D5, D6, D7, D8, P1]
     depends_on: []
     acceptance_ids: [AC-S00-1, AC-S00-2, AC-S00-3]
@@ -586,7 +600,8 @@ tasks:
     # core/ (offer, hire, Dream rows, tips), ui/ (EndingArt, UiText, ProbeButton), tests/ and wrote docs/KILL_TESTS.md.
     component_ids: [CMP-ENDINGS, CMP-INTRO, CMP-CONTENT, CMP-AUTOLOAD, CMP-CORE, CMP-UI, CMP-TESTS, CMP-DOCS]
     # 2026-09-29: D9, C2 and C4 added; they changed what this step built (see amendments).
-    decision_ids: [D7, D9, C2, C4]
+    # 2026-10-07: D7 (this step's huddle) was superseded by D-27, which removed Negotiate.
+    decision_ids: [D-27, D9, C2, C4]
     depends_on: [STEP-05]
     acceptance_ids: [AC-S06-1, AC-S06-2, AC-S06-3, AC-S06-4]
     outputs: [docs/KILL_TESTS.md]
@@ -611,10 +626,12 @@ tasks:
     timebox_hours: 16
     requirement_ids: [SHOULD-01, SHOULD-02, SHOULD-03, SHOULD-04, SHOULD-05, SHOULD-06, SHOULD-07, SHOULD-08, SHOULD-09, SHOULD-10, SHOULD-11, REQ-BALANCE, REQ-SCOPE]
     component_ids: [CMP-HUNT, CMP-ENDINGS, CMP-INTERVIEW, CMP-UI]
-    decision_ids: [D7]
+    # 2026-10-07: D7 was superseded by D-27, which removed Negotiate (SHOULD-02, task 2).
+    decision_ids: [D-27]
     depends_on: [STEP-07]
-    acceptance_ids: [AC-S08-1, AC-S08-2, AC-S08-3, AC-S08-4]
-    note: "SHOULD-03..11 are timeboxed: each is either shipped or moved to the cut list; only AC-S08-1..4 gate completion."
+    acceptance_ids: [AC-S08-1, AC-S08-3, AC-S08-4]
+    retired_acceptance_ids: [AC-S08-2]  # 2026-10-07: Negotiate was removed (D-27)
+    note: "SHOULD-03..11 are timeboxed: each is either shipped or moved to the cut list; only AC-S08-1, AC-S08-3 and AC-S08-4 gate completion (AC-S08-2 retired with Negotiate, D-27)."
   - id: STEP-09
     title: "Art style lock and the vertical slice: the interview"
     source: {file: docs/ROADMAP.md, section: "Step 9"}

@@ -1,5 +1,7 @@
 # Review queue: what's waiting for you
 
+**2026-10-07: the Run Spec v1 merge is in progress** on branch `run-spec-v1-merge`. `docs/merge-report.md` says what's done, what's left and which questions are still yours. Decided so far: M1 starts now (W9), Phase 1's stats only feed the duel (D-26), and Negotiate is removed (D-27). The sections below are from 2026-09-29; the merge rewrites this file when it's finished.
+
 Written at the end of the Step 7 review run, 2026-09-29. Your v0.1 review is built on the branch `step-07-dev-review`: CV editing and lying are gone (D9), Ducky's coach marks close on a tap (D11), the VS screen waits for your tap and shows less text (D12), the choice questions and the Hired card are in plainer words (C3, C4), and the real HP and stat bars replaced the placeholders (W7). A review fix pass followed: leftovers of the CV removal, Ducky's offer tip (Q6), the VS fade, the Hired-card points, a few tips, and a debug button that replays the first run (A47-A51). **217 tests pass** (20 suites). Nothing was built for Phase 2. Tick items off here or delete this file when you're done.
 
 ## 1. Merge the work (5 minutes)
@@ -99,5 +101,5 @@ Suspended (W7): Claude built `hp_bar` (the 0.4 s white ghost bar) and `stat_bar`
 
 - **Step 7, Playtest #1** (needs people): 3-5 testers on your iPhone, and you stay silent (ROADMAP 7). Claude builds the Run Report screen and ports the GDD 5.12 simulation to `tests/test_balance.gd`. The sim has to be re-run after D9, because Quick Apply now sends the honest CV. Then the numbers get tuned (D8, ISSUE-09).
 - **Phase 2 is parked** until you choose its mechanic. Your ideas (small random events, a few minor career improvements, no cosmetics for now) are in `docs/ideas_parking_lot.md`. Nothing is built for it.
-- **Step 8, SHOULD features in GDD 10.2 order:** Research first, which is also the GDD's strongest balance lever, then Negotiate, and so on.
+- **Step 8, SHOULD features in GDD 10.2 order:** Research first, which is also the GDD's strongest balance lever, and so on. (Negotiate was removed on 2026-10-07: D-27.)
 - Every step's status is in `docs/task/README.md`. Evidence for everything Claude verified is in `.project/evidence/`; this review's is in `.project/evidence/STEP-07/2026-09-29-review/`.
