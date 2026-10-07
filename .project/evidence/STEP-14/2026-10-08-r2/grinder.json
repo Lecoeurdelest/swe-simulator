@@ -1,0 +1,42 @@
+{
+  "bot": "grinder",
+  "early_loss_share": 1.0,
+  "endings": {
+    "burnout": 10000
+  },
+  "guard_hits": 0,
+  "jobs_mean": 1.0,
+  "level_at_end": [
+    10000,
+    0,
+    0
+  ],
+  "median_day": 97,
+  "median_loss_day": 97,
+  "mid_in_job1_share": 0.0,
+  "ms_per_run": 2.4776,
+  "ms_total": 24776,
+  "p10_day": 86,
+  "p90_day": 108,
+  "params": {
+    "bg": "intern",
+    "bot": "grinder",
+    "first": 1,
+    "handbook": "none",
+    "run": 1,
+    "seeds": 10000
+  },
+  "rejected_inputs": 0,
+  "runs": 10000,
+  "stats_per_run": {
+    "auto_resolved": 0.326,
+    "events": 1.502,
+    "forced_leaves": 2.0,
+    "hours_changes": 1.0,
+    "incidents": 0.983,
+    "jobs": 1.0
+  },
+  "studio_hold_max": 0,
+  "win_rate": 0.0,
+  "wins": 0
+}

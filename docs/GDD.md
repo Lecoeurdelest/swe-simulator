@@ -13,10 +13,10 @@
 How to read this:
 - Every decision has a one-line **Why**.
 - Your (the developer's) decisions are marked **Decided (Dn)** and collected in section 12. D1-D8, plus the platform decision P1, were decided on 2026-09-26, and D9-D12 on 2026-09-29 after the grey-box review. The Run Spec's decisions keep its own ids, with a hyphen (D-01..D-25, P-01..P-08: D-12 is not D12); they are summarized at the end of section 12. `docs/DECISIONS.md` is the log for both series.
-- **Which material wins** (DECISIONS W8): on game design (run structure, systems, rules, numbers, events, endings) the Run Spec material wins over the Phase 1 material and over every earlier work-loop note. On pixel-art style, engine and language, code conventions, shipped UI conventions and existing characters, the original rules win. A conflict neither rule settles is listed in `docs/merge-report.md` with a proposed resolution; text marked **Open (MC-nn)** here is one of them, waiting for you.
+- **Which material wins** (DECISIONS W8): on game design (run structure, systems, rules, numbers, events, endings) the Run Spec material wins over the Phase 1 material and over every earlier work-loop note. On pixel-art style, engine and language, code conventions, shipped UI conventions and existing characters, the original rules win. A conflict neither rule settles is listed in `docs/merge-report.md` with a proposed resolution; text marked **Open (MC-nn)** here is one of them, waiting for you, and **Settled (MC-nn, D-nn)** is one you have answered (all of them were, on 2026-10-08: D-29..D-34).
 - The Run Spec's ids are kept everywhere: D-, P-, Q- (decisions and questions), R- (requirements), E01-E26 (events), S1-S5 (the Studio's conditions), O1-O9 (objectives), A-01..A-05 (assumptions) and M1-M6 (milestones).
 - Every number here is a starting value. Section 11 lists them all with the file that owns them. Section 5.12 shows what Phase 1's numbers produce in a 4,000-runs-per-background simulation; the career run's numbers (11.7) are set by the balancing harness (5.22).
-- **MUST / SHOULD / LATER** tags follow the cut line in section 10. The career run's tags are yours to set (10.7).
+- **MUST / SHOULD / LATER** tags follow the cut line in section 10. The career run's tags are set: build every MUST and SHOULD (D-36; 10.7).
 
 ---
 
@@ -28,7 +28,7 @@ How to read this:
 - **Your controls grow with your level.** A Junior has one control, the Hours slider; a Mid picks tickets and can push back; a Senior sets the quality bar and owns the Codebase (D-07, D-14, 5.17).
 - **Events.** About 25 decisions a year at the first job: scheduled ones on a 60-day calendar strip, telegraphed ones that arrive with rumors, random ones (incidents grow with the Codebase). Layoffs select for cost, not performance (5.19, P-03).
 - **Job hunt.** The DoomApply app on your phone: a board of 3-5 postings, each a node on your career's route map (P-02). Interviews are still the Dana duel, now fed by the work state, and offers are still the contract modal (D-03, 5.20).
-- **First run.** The Intern, converted to Junior, employed at Pivotly (a startup) on day 0. Job 1 ends in a telegraphed layoff on day 240, two months after a possible promotion: performance doesn't protect you (D-02, D-23, P-06).
+- **First run.** The Intern, converted to Junior, employed at Hierarchai (a startup) on day 0. Job 1 ends in a telegraphed layoff on day 240, two months after a possible promotion: performance doesn't protect you (D-02, D-23, P-06).
 - **Win and losses.** The Studio: Senior, remote, living in The Studio, Burnout 30 or less and 6 months of runway, all held for 90 days (P-05, 3.4). The hard losses are Plan B (the ClikClok career coach), Burnout, Career Change and Legacy System (3.3). Most runs end in a loss; skilled play wins 5-10% of the time (D-15).
 - **Between runs.** Every Ducky tip goes into the Handbook for good: options, a few small edges and lore. Each job in a run is harder than the last (floor depth, Scars), and each run a little easier than the last (the Handbook) (D-18, P-01, P-04, 5.21).
 - **Teaching.** Every failure shows the joke, then the cause, then one true career tip from Ducky the rubber duck.
@@ -100,7 +100,7 @@ By the end of one run a player should have met these real ideas, each through a 
 | Compare total compensation, including commute | The offer shows commute hours; the Dream vs Reality score counts them |
 | Rest matters | Arriving Tired speeds up the interview needle |
 
-**Run Spec v1 status:** the first six rows teach through the Phase 1 hunt (knockouts, tailoring, honest reframing, referrals, research, ghost jobs). The career run's board (5.20) has no place for them yet: Open (MC-07). The interview rows (think aloud, STAR, ask a question) stay with the duel, and the total-compensation row with the contract modal; the negotiation row left with Negotiate (D-27). "Rest matters" moves from energy to Burnout, which lowers your Composure (5.20).
+**Run Spec v1 status:** the first six rows teach through the Phase 1 hunt (knockouts, tailoring, honest reframing, referrals, research, ghost jobs). The career run's board (5.20) has no place for them: Settled (MC-07, D-34), keep the Run Spec's board for M1-M4 and consider ghost and knockout flags on postings at M6. The interview rows (think aloud, STAR, ask a question) stay with the duel, and the total-compensation row with the contract modal; the negotiation row left with Negotiate (D-27). "Rest matters" moves from energy to Burnout, which lowers your Composure (5.20).
 
 The career run adds these lessons, each through a rule (the event tips are in 5.19):
 
@@ -254,7 +254,7 @@ What the reference does, and the rule we take from it:
 - **Motion** stays horizontal: the Title's slow idle drift, the commute bus, sideways intro pans. Vertical movement appears only as intro tilts.
 - **Palette:** one master palette of about 32 colors (Endesga 32 from Lospec is a good starting point) plus at most 8 UI and brand accents. Tier mood comes from which ramps dominate: Big corp cool blue-greys and glass; Mid-size warm beige and fluorescent; Startup purple and teal neon over a dark warehouse.
 - **Detail level:** match the reference's density. Big readable shapes, 2-4 shade ramps, no noise textures.
-- **Art sourcing (D-21, D-25, 2026-10-05/07): no commissioned art.** Grey-box first. Reuse existing sprites and tiles first, and draw anything new yourself in this style: the hero pieces (player busts x3, Dana bust with 3 outfits and 4 expressions, 6 intro panels, 3 interview backgrounds) and the office diorama (2.11). CC0 pixel packs can fill gaps if they match the palette (check each license); whether a paid pack counts as the "art budget" D-21 rules out is Open (MC-16). AI-generated art: reference and mood boards only, never shipped. Double every art estimate you make. (Until D-21 this read: "draw or commission only the hero pieces ... Buy office props and UI frames from one itch.io pack family and palette-map them.")
+- **Art sourcing (D-21, D-25, 2026-10-05/07): no commissioned art.** Grey-box first. Reuse existing sprites and tiles first, and draw anything new yourself in this style: the hero pieces (player busts x3, Dana bust with 3 outfits and 4 expressions, 6 intro panels, 3 interview backgrounds) and the office diorama (2.11). CC0 pixel packs can fill gaps if they match the palette (check each license); whether a paid pack counts as the "art budget" D-21 rules out is Settled (MC-16, D-34): free or CC0 packs only, unless you OK one. AI-generated art: reference and mood boards only, never shipped. Double every art estimate you make. (Until D-21 this read: "draw or commission only the hero pieces ... Buy office props and UI frames from one itch.io pack family and palette-map them.")
 - **The career run keeps this style** (D-25): the office diorama uses the same pixel grid, palette and character proportions (2.11). Where the Run Spec and these rules differ on a detail, these rules win.
 
 ### 2.6 Asset sizes (at 270x480)
@@ -393,7 +393,7 @@ The work state's main view: the office, drawn in this section's pixel-art style.
 | Desk with monitor | normal, red, empty and unlit |
 | Desk lamp | on, off |
 | Server rack | 10 LED pixels, set in code |
-| Coworkers: 5 at Pivotly, palette swaps elsewhere | idle, walk |
+| Coworkers: 5 at Hierarchai, palette swaps elsewhere | idle, walk |
 | Your sprite | upright, slumped, head on the desk |
 | Home room | Shared room, One-bed, The Studio, Penthouse |
 
@@ -409,7 +409,7 @@ The Run Spec implies two more: a manager portrait for the review duel (P-08), at
 
 ```mermaid
 flowchart TD
-  T[Title] -->|run 1| R1[Intro, then day 0: Junior at Pivotly]
+  T[Title] -->|run 1| R1[Intro, then day 0: Junior at Hierarchai]
   T -->|run 2 and later| BS[Background select]
   BS --> U[Between jobs: salary 0, the same clock]
   R1 --> W[At work: the clock, Hours, events, reviews]
@@ -496,12 +496,12 @@ A run is one career: up to five jobs (floors), each left by a soft loss or a vol
 | | Run 1 | Run 2 and later |
 |---|---|---|
 | Background | The Intern, converted to Junior (P-06) | pick The Intern, The Graduate or The Self-Taught, as unlocked (5.21) |
-| Start | employed at Pivotly (Startup), day 0 | between jobs, with the DoomApply board open |
-| Floor 1 | always Pivotly, with 5 authored coworkers (5.18) | chosen from the board |
+| Start | employed at Hierarchai (Startup), day 0 | between jobs, with the DoomApply board open |
+| Floor 1 | always Hierarchai, with 5 authored coworkers (5.18) | chosen from the board |
 | Guaranteed layoff | yes, on day 240, telegraphed from about day 150 (R-RUN-02) | no; every exit is earned |
 | First review | day 180; a promotion to Mid is reachable (D-23) | on the archetype's cadence (5.18) |
 
-**Run 1's beats:** the influencer clip on day 0; the first rumor around day 150; the review and a possible promotion on day 180; more signs; Dana's invite around day 235; the layoff scene on day 240; then the DoomApply board. A promotion followed by a layoff 60 days later is deliberate: it teaches that performance doesn't protect you (O1). How the intro hands over to day 0 is Open (MC-11).
+**Run 1's beats:** the influencer clip on day 0; the first rumor around day 150; the review and a possible promotion on day 180; more signs; Dana's invite around day 235; the layoff scene on day 240; then the DoomApply board. A promotion followed by a layoff 60 days later is deliberate: it teaches that performance doesn't protect you (O1). How the intro hands over to day 0 is Settled (MC-11, D-34): a new last caption (CONTENT 16.6).
 
 **Exits from a job**
 
@@ -524,7 +524,7 @@ Losing job 5 by any route becomes a hard loss (D-16).
 | Career Change | hard loss | you lose job 5 | "You teach a bootcamp now. You show them the video." |
 | Legacy System | hard loss | day 2,160 (6 in-game years) without a win | "Six years. Same service. You are the legacy system." |
 
-Every ending card shows the career-long Dream vs Reality score; its formula is Open (MC-09). Phase 1's Hired card is no longer an ending (D-24): what Accept shows instead is Open (MC-08).
+Every ending card shows the career-long Dream vs Reality score; its formula is Settled (MC-09, D-34): the 5 rows, rebased to runway months and clauses, scored per job. Phase 1's Hired card is no longer an ending (D-24): what Accept shows instead is Settled (MC-08, D-34), the HIRED! stamp as a short beat, with `end_tbc` dropped.
 
 ### 3.4 Win condition: The Studio (Run Spec v1 section 4, R-WIN-01..08)
 
@@ -602,7 +602,7 @@ Transitions are a 0.2 s fade (SceneRouter) unless noted. Every screen has an on-
 
 **S03 Background select = customization** (MUST) - flat UI with portraits
 
-**Run Spec v1 status:** run 1 skips this screen (P-06), and runs 2 and later show only the unlocked backgrounds (5.21). The card's energy pips and rent-runway rows retire with the day loop (D-04); starting savings are `BackgroundData.start_savings_months` (0.5 / 0.4 / 0.4: A68), and the header that ends the intro is Open (MC-11).
+**Run Spec v1 status:** run 1 skips this screen (P-06), and runs 2 and later show only the unlocked backgrounds (5.21). The card's energy pips and rent-runway rows retire with the day loop (D-04); starting savings are `BackgroundData.start_savings_months` (1.0 / 0.8 / 0.8: A68, D-30), and the header that ends the intro is Settled (MC-11, D-34).
 
 ```
 +-------------------------------------------+
@@ -749,7 +749,7 @@ The screen is your phone and DoomApply is the job app: the influencer hooked you
 
 **S10 Offer modal** (MUST) - paper contract over the dimmed stage
 
-**Run Spec v1 status:** kept, behind the adapter (5.20): Accept or Decline (D-27). In the career run the salary comes from 5.15 (its display is Open, MC-10), the posting's clauses join the fine print (M1's clause ids are `on_call`, `remote_in_writing` and `unlimited_pto`: A72; the contract's wording is M3), and "Please decide before you sleep." names a retired mechanic (Open, MC-20).
+**Run Spec v1 status:** kept, behind the adapter (5.20): Accept or Decline (D-27). In the career run the salary comes from 5.15 (its display is Settled, MC-10, D-34: the contract shows the yearly figure), the posting's clauses join the fine print (M1's clause ids are `on_call`, `remote_in_writing` and `unlimited_pto`: A72; the contract's wording is M3), and "Please decide before you sleep." names a retired mechanic (Settled, MC-20, D-34: reword at M3).
 
 ```
 +-------------------------------------------+
@@ -784,7 +784,7 @@ The screen is your phone and DoomApply is the job app: the influencer hooked you
 
 **S11 Hired card** (MUST) - side-view illustration card, in two beats
 
-**Run Spec v1 status:** in the career run, accepting an offer leads to the next job, not an ending (D-24), and "TO BE CONTINUED - Phase 2" goes with the Phase 1/Phase 2 framing (W8). What Accept shows, and where the Dream vs Reality sheet goes, is Open (MC-08, MC-09).
+**Run Spec v1 status:** in the career run, accepting an offer leads to the next job, not an ending (D-24), and "TO BE CONTINUED - Phase 2" goes with the Phase 1/Phase 2 framing (W8). What Accept shows, and where the Dream vs Reality sheet goes, is Settled (MC-08, MC-09, D-34): a short HIRED! stamp beat, and the sheet moves to the ending cards, rebased and scored per job.
 - Beat 1: the "HIRED!" stamp (Press Start 2P 32) slams onto a 254x140 illustration; below it company, role and salary (3 lines) and the Hired line for that tier (up to 3 lines). Tap anywhere to continue.
 - Beat 2: the **Dream vs Reality** panel slides up over the illustration: the header "YOUR JOB vs REMY'S VIDEO" (`end_dream_header`), its 5 rows (section 5.9.5; label left, the four video rows with Remy's number in brackets, e.g. "Salary (Remy: $150k)"; points right out of the row's maximum, e.g. "18.9/40" (A48); one line each, tallying one by one), the score and grade, "100 is the life in Remy's video. Nobody gets 100. Not even Remy." (`end_dream_footer`, Decided C4), `tip_written_offer`, "TO BE CONTINUED - Phase 2: The Working Life" (`end_tbc`).
 - Buttons: `[ < Title ][ NEW RUN ]`, in beat 2. Leaving it deletes the run save.
@@ -803,7 +803,7 @@ The screen is your phone and DoomApply is the job app: the influencer hooked you
 
 ### 4.3 Scripted first run (FTUE)
 
-**Run Spec v1 status:** these coach marks teach the hunt, so they retire with it, except `coach_meter`, which still teaches the duel. The career run's first run is run 1's scripted year at Pivotly (3.3); its coach marks for the Hours slider, the speed control and the Studio chip are a spec gap (M2; proposed, Ducky notes on day 0 that close on a tap, as D11).
+**Run Spec v1 status:** these coach marks teach the hunt, so they retire with it, except `coach_meter`, which still teaches the duel. The career run's first run is run 1's scripted year at Hierarchai (3.3); its coach marks for the Hours slider, the speed control and the Studio chip are a spec gap (M2; proposed, Ducky notes on day 0 that close on a tap, as D11).
 
 Only on the first run. Coach marks are full-width Ducky sticky notes (40 columns, up to 4 lines) placed in the middle zone with an arrow toward one control. They never cover that control, the thumb band's buttons or the text they talk about (on the Jobs screen they sit over the card's header strip), and they take no input except their own tap.
 
@@ -829,7 +829,7 @@ Only on the first run. Coach marks are full-width Ducky sticky notes (40 columns
 
 ```mermaid
 flowchart LR
-  T[Title] -->|New game, run 1| I[Intro] --> WK[Work state: Pivotly, day 0]
+  T[Title] -->|New game, run 1| I[Intro] --> WK[Work state: Hierarchai, day 0]
   T -->|New game, later runs| B[Background select] --> WK
   T -->|Continue| WK
   WK -->|DoomApply| BD[The board]
@@ -868,7 +868,7 @@ The Run Spec names these screens; their layouts are designed at M2 under the tou
 | Review duel | the duel's UI with a manager portrait, 3 prompts (P-08) | S08's layout |
 | Layoff scene | the VS intro plays "DANA vs YOU", then no fight starts (5.19) | S07's layout, non-interactive; skippable after the first time |
 | Ending cards | 5 endings (3.3); the win plays a vertical ClikClok-style video (3.4) | S11 and S12's card layout |
-| Handbook | the collected tips, by kind (5.21) | S13's Career Notebook list grows into it (Open, MC-18) |
+| Handbook | the collected tips, by kind (5.21) | S13's Career Notebook list grows into it (Settled, MC-18, D-34) |
 
 Every screen keeps an on-screen Back (4.4), and pillar 2's "at most 3 main actions" holds on each.
 
@@ -882,10 +882,10 @@ Every screen keeps an on-screen Back (4.4), and pillar 2's "at most 3 main actio
 |---|---|---|
 | 5.0 Data model | the data each of 5.14-5.22 names; ARCHITECTURE 19.3 | adapted: new data files, the same rules (numbers in `.tres`, text in JSON) |
 | 5.1 Stats | 5.16 Work stats | KNOWLEDGE, EXPERIENCE and NETWORK only feed the duel (D-26); energy and rent runway retire |
-| 5.2 Backgrounds | 5.21 (unlocks) | adapted: run 1 is The Intern (P-06); the rest is Open (MC-03, MC-04) |
+| 5.2 Backgrounds | 5.21 (unlocks) | adapted: run 1 is The Intern (P-06); the rest is Settled (MC-03, D-32; MC-04, D-30) |
 | 5.3 Time and energy | 5.14 The clock | retired (D-04) |
 | 5.4 CV | 5.20 (no CV) | retired (D-05) |
-| 5.5 Companies and tiers | 5.18 Archetypes, 7.1 | adapted: the tiers keep feeding the duel through `ArchetypeData.duel_tier` (MC-05, A68); the company names are Open (MC-06) |
+| 5.5 Companies and tiers | 5.18 Archetypes, 7.1 | adapted: the tiers keep feeding the duel through `ArchetypeData.duel_tier` (MC-05, A68); the company names are Settled (MC-06, D-34) |
 | 5.6-5.7 Board, responses, Radar | 5.20 The job hunt | retired (R-JOB-01, R-JOB-02, P-02) |
 | 5.8 Interview | 5.20 (the adapter), 5.16 (the review duel) | kept, behind the adapter (R-JOB-03, R-JOB-06) |
 | 5.9 Offer and contract | 5.20 | kept, behind the adapter: Accept or Decline (D-27) |
@@ -939,7 +939,7 @@ Stat growth in the MVP: Study +5 KNOWLEDGE; Network (SHOULD) +5 NETWORK. EXPERIE
 
 ### 5.2 Backgrounds
 
-**Run Spec v1 status:** adapted. Run 1's background is fixed: The Intern, converted to Junior (P-06), so run 1 skips Background select. Runs 2 and later pick any unlocked background: The Graduate after run 1, The Self-Taught after the first Studio win or five runs (5.21). What a background changes in the career run is Open (MC-03): proposed, the duel's inputs (the stats for knowledge P and the wheel, Composure, the interview perks and flaws), starting savings (Open, MC-04: proposed, the rent runway below as months of expenses, 0.5 / 0.4 / 0.4) and the commute (the Dream score, MC-13). Energy per day, the rent runway in days, the referral tokens and the hunt's perks and flaws retire with the hunt (D-04, D-05).
+**Run Spec v1 status:** adapted. Run 1's background is fixed: The Intern, converted to Junior (P-06), so run 1 skips Background select. Runs 2 and later pick any unlocked background: The Graduate after run 1, The Self-Taught after the first Studio win or five runs (5.21). What a background changes in the career run is Settled (MC-03, D-32): the duel's inputs (the stats for knowledge P and the wheel, Composure, the interview perks and flaws), starting savings (MC-04, D-30: the rent runway below as months of expenses, doubled to 1.0 / 0.8 / 0.8) and the commute (the Dream score, MC-13). Energy per day, the rent runway in days, the referral tokens and the hunt's perks and flaws retire with the hunt (D-04, D-05).
 
 The difficulty screen is the character creator: the background is who you are. Full per-stage effects are in section 6; text is in CONTENT.md section 3.
 
@@ -958,7 +958,7 @@ The difficulty screen is the character creator: the background is who you are. F
 
 ### 5.3 Time and energy
 
-**Run Spec v1 status:** retired by D-04 when the career run is built. The macro clock (5.14) replaces the Morning / Day / Night day and its energy pips, so the pip costs, unspent pips and Sleep go. Study becomes a DoomApply action (R-JOB-05, 5.20). Tired loses its source: Open (MC-12), proposed, retire it, since Burnout already lowers Composure (R-JOB-03).
+**Run Spec v1 status:** retired by D-04 when the career run is built. The macro clock (5.14) replaces the Morning / Day / Night day and its energy pips, so the pip costs, unspent pips and Sleep go. Study becomes a DoomApply action (R-JOB-05, 5.20). Tired loses its source: Settled (MC-12, D-34), it is retired, since Burnout already lowers Composure (R-JOB-03).
 
 - A day = Morning (automatic) -> Day (spend pips) -> Night (Sleep). No real-time clock.
 - Energy pips per day = 10 - commute pips (1/2/4). The same rule becomes Phase-2 work-day energy on office days. *Why:* it implements "lives far = less energy per day" literally, in both modes.
@@ -999,7 +999,7 @@ The CV has 3 lines: **Education, Experience, Projects**. Each exists in two vers
 
 ### 5.5 Companies and tiers
 
-**Run Spec v1 status:** adapted. In the career run a job's rules come from its company's archetype: Startup, Agency or MegaCorp (P-07; 5.18, 7.1). The three tiers keep feeding the duel through the adapter: Doubt HP, difficulty, the needle, the question pool, Dana's title and outfit, the interview background. How the tiers map onto the archetypes is Open (MC-05): proposed, Startup = `startup`, Agency = `mid`, MegaCorp = `big`, ids unchanged. The Run Spec's placeholder company names (Pivotly, Outsourcery, Monolith) are Open (MC-06): proposed, reuse Hierarchai, Scope & Creep Digital and OmniGlobal Dynamics.
+**Run Spec v1 status:** adapted. In the career run a job's rules come from its company's archetype: Startup, Agency or MegaCorp (P-07; 5.18, 7.1). The three tiers keep feeding the duel through the adapter: Doubt HP, difficulty, the needle, the question pool, Dana's title and outfit, the interview background. How the tiers map onto the archetypes is Settled (MC-05, A68, D-34): the archetype ids are `startup`, `agency` and `megacorp`, each with a `duel_tier` of `startup`, `mid` or `big`; the tier ids are unchanged. The Run Spec's placeholder company names (Pivotly, Outsourcery, Monolith) are replaced (MC-06, D-34) by Hierarchai, Scope & Creep Digital and OmniGlobal Dynamics.
 
 Three tiers with deliberately different fantasies (full matrix in section 7):
 
@@ -1017,7 +1017,7 @@ Three tiers with deliberately different fantasies (full matrix in section 7):
 
 ### 5.6 Job board and applications
 
-**Run Spec v1 status:** retired when the career run is built: the DoomApply board of 3-5 postings and its callback formula (R-JOB-01, R-JOB-02, P-02; 5.20) replace the deck, the tags, knockouts, referrals and P_invite (RC-13). Where the hunt's satire goes (ghost jobs, knockouts, referrals, Research, the Unicorn) is Open (MC-07): proposed, keep R-JOB-01/02 for M1-M4 and consider ghost and knockout flags on postings at M6.
+**Run Spec v1 status:** retired when the career run is built: the DoomApply board of 3-5 postings and its callback formula (R-JOB-01, R-JOB-02, P-02; 5.20) replace the deck, the tags, knockouts, referrals and P_invite (RC-13). Where the hunt's satire goes (ghost jobs, knockouts, referrals, Research, the Unicorn) is Settled (MC-07, D-34): keep R-JOB-01/02 for M1-M4 and consider ghost and knockout flags on postings at M6.
 
 **Board.** Each morning 6 new cards are drawn (2 per tier) from the posting templates in CONTENT.md section 5. A template is tier-bound; unless it pins a company, it is paired with a random company of that tier. With the 6 MVP companies that gives **38 template+company pairs** (Startup 10, Mid 14, Big 14; the SHOULD Unicorn isn't dealt). Once a tier's MVP pairs run dry, the tier falls back to its non-MVP company, so the board never starves: 58 pairs with all 9 companies (agent default, ARCHITECTURE 7.1). The board holds at most 10 cards; the oldest drop off. A skipped card moves to the back of the deck. A template+company pair you applied to never reappears this run; pairs that dropped off unapplied can come back later labelled "Reposted".
 
@@ -1077,7 +1077,7 @@ Per pip, Tailor beats Quick at the same match (Graduate, Mid, M = 2/3: 6.5% vs 5
 
 ### 5.7 Responses, ghosting and the Recruiter Radar
 
-**Run Spec v1 status:** retired with 5.6 when the career run is built: a reply arrives 3-10 days after you apply (R-JOB-01), and there is no Radar and no day-2 guarantee (Open, MC-07). A declined offer still blacklists its company: Open (MC-19), proposed, keep.
+**Run Spec v1 status:** retired with 5.6 when the career run is built: a reply arrives 3-10 days after you apply (R-JOB-01), and there is no Radar and no day-2 guarantee (Settled, MC-07, D-34). A declined offer still blacklists its company: Settled (MC-19, D-34), kept.
 
 Outcomes are rolled **on the reveal morning** (not at send time) with the run's seeded RNG, in send order:
 
@@ -1186,7 +1186,7 @@ Replaced by nothing: every CV line is true (5.4), so Dana has nothing to probe a
 
 ### 5.9 Offer and contract
 
-**Run Spec v1 status:** kept, behind the adapter (R-JOB-04, R-JOB-06; 5.20). The contract modal is Accept or Decline, in Phase 1 and in the career run (D-27). In the career run the salary comes from the level x archetype table and floor depth (5.15, R-ARC-02), not from Composure (RC-08), and accepting while employed is a voluntary exit (Quit, 3.3). What Accept shows now that the Hired card isn't an ending is Open (MC-08). The Dream vs Reality score moves to every ending card, and its career-long formula is Open (MC-09); how the salary scale and its display change is Open (MC-10).
+**Run Spec v1 status:** kept, behind the adapter (R-JOB-04, R-JOB-06; 5.20). The contract modal is Accept or Decline, in Phase 1 and in the career run (D-27). In the career run the salary comes from the level x archetype table and floor depth (5.15, R-ARC-02), not from Composure (RC-08), and accepting while employed is a voluntary exit (Quit, 3.3). What Accept shows now that the Hired card isn't an ending is Settled (MC-08, D-34): a short HIRED! stamp beat. The Dream vs Reality score moves to every ending card, and its career-long formula is Settled (MC-09, D-34): the 5 rows, rebased and scored per job; how the salary scale and its display change is Settled (MC-10, D-34): the contract shows the yearly figure and the Dream target is rebased.
 
 #### 5.9.1 When it appears
 Immediately after a K.O. or committee win. One offer at a time; no stacking in the MVP. The "exploding offer" is flavor text: "Decide before you sleep."
@@ -1229,7 +1229,7 @@ Nobody realistically reaches 100. The card says so: "100 is the life in Remy's v
 
 ### 5.10 Fail state: Plan B
 
-**Run Spec v1 status:** adapted (D-19). Plan B becomes one of the career run's four hard losses, the "runway hits zero" loss (3.3). Its trigger becomes savings below zero for 30 days in a row (5.15), and the rent countdown, the HUD's rent warning and the grace day retire with the day loop (D-04, RC-06). The card stays (S12); copy that names rent ("Rent's due.") is Open (MC-20), proposed, reword at M3. "One mis-tap must never wipe 15 minutes of play" still holds: a choice that ends the run asks first (RC-33).
+**Run Spec v1 status:** adapted (D-19). Plan B becomes one of the career run's four hard losses, the "runway hits zero" loss (3.3). Its trigger becomes savings below zero for 30 days in a row (5.15), and the rent countdown, the HUD's rent warning and the grace day retire with the day loop (D-04, RC-06). The card stays (S12); copy that names rent ("Rent's due.") is Settled (MC-20, D-34): reword at M3. "One mis-tap must never wipe 15 minutes of play" still holds: a choice that ends the run asks first (RC-33).
 
 **Decided (D5):** one funny ending, never a punishment.
 - Each Sleep: rent days -1. At 3 days left the HUD turns red (and the music shifts, SHOULD).
@@ -1249,7 +1249,7 @@ Nobody realistically reaches 100. The card says so: "100 is the life in Remy's v
 
 ### 5.12 Balance targets and simulation results
 
-**Run Spec v1 status:** Phase 1's numbers, kept for Phase 1. The career run's balance comes from the R-BAL harness (5.22, RC-17). Whether Step 7 still ports this simulation is Open (MC-01): proposed, replace it with R-BAL (ISSUE-09 goes with it).
+**Run Spec v1 status:** Phase 1's numbers, kept for Phase 1. The career run's balance comes from the R-BAL harness (5.22, RC-17). Step 7 no longer ports this simulation: Settled (MC-01, D-33), R-BAL replaces it and ISSUE-09 goes with it.
 
 Simulated with the defaults in section 11: 4,000 runs per background. **These numbers predate D9** (2026-09-29), and the Step 6 agent playtest already ran harder than them (ISSUE-09): Step 7 re-simulates everything in `tests/test_balance.gd` before tuning. The "average player" bot kept a Polished CV for Quick Apply too (since D9 Quick Apply sends the honest CV, which lowers Quick odds and lets the Graduate and the Self-Taught fail "1+ years" filters on a Quick Apply), tailors when at least 2 tags match, uses referrals on Mid/Big, researches before 30% of interviews, studies once after each lost interview, taps with about 75 ms timing error, picks good/neutral/bad ethics answers 85/10/5%, and accepts the first offer. First run (day-2 guarantee on).
 
@@ -1310,7 +1310,7 @@ One clock runs the whole career: a macro clock of about one in-game day per seco
 
 ### 5.15 Money: runway, salary and lifestyle creep (Run Spec v1 section 5, R-ECO, R-ECO-05)
 
-Salary is fixed within a level and expenses grow on a clock, so standing still slowly drains your runway (D-10, O2). Money is in thousands of in-game dollars, k$ (A-05; how the screens show it is Open, MC-10). Every number is a starting value for the harness (5.22), not a final one (A-03).
+Salary is fixed within a level and expenses grow on a clock, so standing still slowly drains your runway (D-10, O2). Money is in thousands of in-game dollars, k$ (A-05; how the screens show it is Settled, MC-10, D-34: the contract shows the yearly figure). Every number is a starting value for the harness (5.22), not a final one (A-03).
 
 **Money flow (R-ECO)**
 
@@ -1323,7 +1323,7 @@ Salary is fixed within a level and expenses grow on a clock, so standing still s
 | Raises within a level | Meets +1%, Exceeds +3%: below expense growth on purpose |
 | Debt | savings may go negative; 30 days in a row below zero is the Plan B ending (3.3) |
 | Runway shown | savings / (rent + living costs), in months, one decimal: the "4.2 mo" chip, red under 2 (5.16) |
-| Starting savings | not in the Run Spec: the background's Phase 1 rent runway as months of expenses, `BackgroundData.start_savings_months` 0.5 / 0.4 / 0.4 (MC-04, A68; STEP-14 left it alone). The first rent and living costs (2.1 k$ in the Shared room) fall due on day 1, so a run that starts between jobs with 0.84-1.05 k$ is below zero at once and reaches Plan B on day 30 unless a first salary lands; run 1 (employed) dips for 24 days and recovers on day 25. The Emergency fund edge adds a month (5.21) |
+| Starting savings | not in the Run Spec: the background's Phase 1 rent runway as months of expenses, doubled by D-30, `BackgroundData.start_savings_months` 1.0 / 0.8 / 0.8 (MC-04, A68). The first rent and living costs (2.1 k$ in the Shared room) fall due on day 1: the Intern's month of savings pays them exactly, so run 1 never goes below zero before its first salary on day 25, while the Graduate's and the Self-Taught's 0.8 months (1.68 k$) leave them 0.42 k$ short until a salary lands. At the old 0.5 months 91% of Planner runs that start between jobs reached Plan B on day 30; at 1 month the median such run is day 720 (D-30). The Emergency fund edge adds a month (5.21) |
 
 **Salary, k$ a month** (the level's base x the archetype's multiplier)
 
@@ -1354,7 +1354,7 @@ r is subtracted from Burnout every day (5.16). An upgrade is offered after every
 
 **Severance**, when you're laid off: Startup 0-1 month (run 1: always 1), Agency 0.5 month, MegaCorp 2 months per 360 days of tenure. Fired or quit: none. Severance counts months of your salary: a Startup's 0, 0.5 or 1 is rolled with equal odds (run 1's layoff always pays the largest), and a MegaCorp's 2 months a year is prorated by the days of tenure (A64). Pay accrues daily, each payday pays the days since the last one (so a job that starts mid-month is paid for the days worked), and an exit pays out what has accrued (A63).
 
-**Sanity check** (the Run Spec's): a Junior coasting at Pivotly in a shared room starts with about 0.45 k$ spare a month (2.55 - 0.9 - 1.2) and runs a deficit during year 3, as living costs and rent rise faster than the raises. Coasting can never win anyway, because The Studio needs Senior.
+**Sanity check** (the Run Spec's): a Junior coasting at Hierarchai in a shared room starts with about 0.45 k$ spare a month (2.55 - 0.9 - 1.2) and runs a deficit during year 3, as living costs and rent rise faster than the raises. Coasting can never win anyway, because The Studio needs Senior.
 
 ### 5.16 Work stats, the Codebase and the review (Run Spec v1 section 6, R-STAT-01..04, R-CB-02)
 
@@ -1406,7 +1406,7 @@ p(incident per day) = 0.002 + 0.0006 x C
 
 **The review rating (R-STAT-04)**
 
-- The review is a 3-prompt duel on the Dana duel UI with a manager portrait (P-08); at Pivotly the manager is Kev (5.18). It is the scheduled event E02 (5.19).
+- The review is a 3-prompt duel on the Dana duel UI with a manager portrait (P-08); at Hierarchai the manager is Kev (5.18). It is the scheduled event E02 (5.19).
 - **Your Evidence HP** = 50 + MO/2 + 5 per on-time ticket since the last review, +10 with the brag-doc tip (an edge, 5.21).
 - **The manager's Calibration HP:** Startup 60, Agency 50, MegaCorp 80 (forced distribution).
 - **Your HP left decides the rating:** under 25% of your Evidence is Below, 25-70% Meets, over 70% Exceeds.
@@ -1451,9 +1451,9 @@ Agency grows with level: a Junior controls only their own hours, a Mid chooses t
 
 ### 5.18 Company archetypes and floor depth (Run Spec v1 section 8, P-01, P-07, R-ARC-02)
 
-Three archetypes set the rules of a job (D-17, P-07); floor depth, the job number 1-5, sets how hard it is (P-01). The company names are the Run Spec's placeholders: Open (MC-06).
+Three archetypes set the rules of a job (D-17, P-07); floor depth, the job number 1-5, sets how hard it is (P-01). The company names are Phase 1's, reused (MC-06, D-34): Hierarchai (Startup), Scope & Creep Digital (Agency) and OmniGlobal Dynamics (MegaCorp) head the table below, and each archetype draws its companies from its tier's three in `companies.json`.
 
-| | Pivotly (Startup) | Outsourcery (Agency) | Monolith (MegaCorp) |
+| | Hierarchai (Startup) | Scope & Creep Digital (Agency) | OmniGlobal Dynamics (MegaCorp) |
 |---|---|---|---|
 | Salary multiplier | x0.85 | x0.80 | x1.25 |
 | Remote postings | 60% | 10% | 25% |
@@ -1470,11 +1470,11 @@ Three archetypes set the rules of a job (D-17, P-07); floor depth, the job numbe
 | Calibration HP (5.16) | 60 | 50 | 80 |
 | Duels per offer (5.20) | 1 | 1 | 2 |
 
-A resizing cuts about 20% of the floor at a Startup, 15% at an Agency and 10% at a MegaCorp (rounded, at least one), and fires about every 270, 300 and 360 days, each rolled +/-60 days and shortened by the floor's event frequency (`ArchetypeData`: A72; an Agency's will follow its client churn, E11, from M4). Run 1's is fixed on day 240 (5.19). How Phase 1's tiers line up with the archetypes for the duel is Open (MC-05; 7.1).
+A resizing cuts about 20% of the floor at a Startup, 15% at an Agency and 10% at a MegaCorp (rounded, at least one), and fires about every 270, 300 and 360 days, each rolled +/-60 days and shortened by the floor's event frequency (`ArchetypeData`: A72; an Agency's will follow its client churn, E11, from M4). Run 1's is fixed on day 240 (5.19). How Phase 1's tiers line up with the archetypes for the duel is Settled (MC-05, A68, D-34; 7.1): each archetype has a `duel_tier`.
 
 **Floor depth (R-ARC-02, P-01).** Floor n multiplies event frequency by 1 + 0.15(n - 1), Dana's Doubt HP by 1 + 0.08(n - 1), and offer salaries by 1 + 0.04(n - 1). Deeper floors are harder to get into and busier to survive, but pay better. *Why:* three archetypes repeat across five jobs, so they can't carry the escalation alone. The table per floor is 6.1. "Event frequency" is read as the odds of the random events and of the telegraphed chains; scheduled events keep their cadence (a reading, listed with the spec gaps).
 
-**Pivotly's authored coworkers (run 1)**
+**Hierarchai's authored coworkers (run 1)**
 
 | Name | Role | Trait | Mechanical hook |
 |---|---|---|---|
@@ -1583,15 +1583,15 @@ p_callback = 0.35 x f_level x (1 - 0.15 n_short_tenure) x (1 + 0.1 n_references)
 |---|---|
 | Your Composure HP | base x (1 - Burnout/200); base = `BackgroundData.composure_max` (100 / 100 / 90) |
 | The Answer Meter's width | base x (1 + Skill/200) x (1 - Rust/200), where base is the NAILED IT half-width h of 5.8.4, never below its 0.06 floor (RC-25) |
-| Dana's Doubt HP | base x the floor multiplier 1 + 0.08 (floor - 1); base = `TierData.doubt_hp` (118 / 128 / 132) of the posting's tier (Open, MC-05) |
+| Dana's Doubt HP | base x the floor multiplier 1 + 0.08 (floor - 1); base = `TierData.doubt_hp` (118 / 128 / 132) of the posting's tier (Settled, MC-05, D-34: the archetype's `duel_tier`) |
 | Extra answer options | the Handbook's Option tips (5.21); which tips unlock which answers is a spec gap (M6) |
 
 - "Base" is always the duel's own value, unchanged by the career run: knowledge P (5.8.4) and the committee wheel (5.8.6) read KNOWLEDGE, EXPERIENCE and NETWORK at the background's starting values (D-26).
 - Scaling h changes only the tap window, not the Stat Score S, which is 75% of Q (13.4).
 - The interview is a scheduled event 3-7 days after the callback, shown on the calendar strip. Time pauses for it, and Rust resets to 0. One duel per offer; MegaCorp postings take two (the second starts at full Composure for your Burnout, 3-7 days after the first: A72).
-- Burnout lowering Composure takes over from Phase 1's Tired (Open, MC-12). Phase 1's no-repeat question pools still apply, and their dry-pool rule (A6) covers a long career's extra interviews.
+- Burnout lowering Composure takes over from Phase 1's Tired (Settled, MC-12, D-34). Phase 1's no-repeat question pools still apply, and their dry-pool rule (A6) covers a long career's extra interviews.
 
-**The offer (R-JOB-04, D-27).** The existing contract modal: Accept or Decline. There is no negotiation: the Run Spec's "Negotiate once" (0.30 + 0.05 x runway months, capped at 0.70, for +8% salary) was removed with Phase 1's one-tap Negotiate (D-27). Accepting while employed is a voluntary exit (Quit, 3.3). A declined offer's company is blacklisted for the run: Open (MC-19), proposed, keep. Whether more than one offer can be on the table is a spec gap (M3; proposed, one at a time, as Phase 1's 5.9.1).
+**The offer (R-JOB-04, D-27).** The existing contract modal: Accept or Decline. There is no negotiation: the Run Spec's "Negotiate once" (0.30 + 0.05 x runway months, capped at 0.70, for +8% salary) was removed with Phase 1's one-tap Negotiate (D-27). Accepting while employed is a voluntary exit (Quit, 3.3). A declined offer's company is blacklisted for the run: Settled (MC-19, D-34), kept. Whether more than one offer can be on the table is a spec gap (M3; proposed, one at a time, as Phase 1's 5.9.1).
 
 **Study (R-JOB-05).** A DoomApply action: Burnout +4, Rust -20, Skill +1. Three Studies while unemployed prevent the Resume Gap Scar (5.21). It no longer raises KNOWLEDGE (D-26).
 
@@ -1605,7 +1605,7 @@ OfferResult  {decision: "accept" or "decline", final_salary, clauses[]}
 ```
 
 - `rounds` is 5 for an interview and 3 for a review (5.16).
-- Since D-27, `final_salary` always equals the offered salary, and `runway_months` (the Run Spec's negotiation leverage) has no reader unless the career-long Dream score uses it (Open, MC-09).
+- Since D-27, `final_salary` always equals the offered salary, and `runway_months` (the Run Spec's negotiation leverage) has no reader unless the career-long Dream score uses it (Settled, MC-09, D-34).
 - `dream_reality_delta` waits for that formula too (MC-09), and `composure_left` no longer sets the salary (RC-08).
 - The real names of the duel's numbers, and which of them can be fed in today, are in 13.4; the adapter's code plan is ARCHITECTURE 19.5.
 
@@ -1646,7 +1646,7 @@ Scars make each job in a run harder than the last; the Handbook makes each run a
 The Run Spec's fifth edge, "Negotiate every offer" (negotiation chance +5%), left with negotiation (D-27), and its Option example "Landlords negotiate too (E04)" left with E04's negotiation (D-28).
 
 - Which kind each of the other tips is, and which tips unlock duel answers, are settled at M6; until then they count as Lore (a proposal, 8.6).
-- How the Handbook relates to Phase 1's Career Notebook, and whether Phase 1's 30 tips count, is Open (MC-18): proposed, the Handbook is the Notebook grown up, and every tip that fires is collected, Phase 1's as Lore.
+- How the Handbook relates to Phase 1's Career Notebook, and whether Phase 1's 30 tips count, is Settled (MC-18, D-34): the Handbook is the Notebook grown up, and every tip that fires is collected, Phase 1's as Lore.
 
 **Other unlocks:** The Graduate after run 1; The Self-Taught after the first Studio win or five runs; an ending gallery; Handbook completion shown as a percentage.
 
@@ -1667,25 +1667,25 @@ Tuning to a 5-10% win rate needs thousands of runs, so the sim runs without the 
 - The Run Spec puts the harness and the content lint "in CI". The repo has no CI, so they run with the headless runner before every commit that changes a tuning number or an event (RC-32).
 - Bots can't tap. The harness resolves an interview with the duel's own formulas and a modeled tap error, as 5.12's bot did, and resolves a review with a stand-in model until M3 designs its prompts (5.16).
 
-**Built in M1 (STEP-14, 2026-10-08).** The harness, the five bots and `DuelModel` are in `tests/harness/` (ARCHITECTURE 19.6; the policies are DECISIONS A76); `tools/headless/run_bots.sh` runs all five in parallel and `sweep.py` compares configurations. The first numbers, on 10,000 seeds per bot against the shipped data (the Intern, run 1, no Handbook; `.project/evidence/STEP-14/2026-10-08-r1/`), after the first tuning (A74):
+**Built in M1 (STEP-14, 2026-10-08).** The harness, the five bots and `DuelModel` are in `tests/harness/` (ARCHITECTURE 19.6; the policies are DECISIONS A76); `tools/headless/run_bots.sh` runs all five in parallel and `sweep.py` compares configurations. The numbers, on 10,000 seeds per bot against the shipped data (the Intern, run 1, no Handbook; `.project/evidence/STEP-14/2026-10-08-r2/`), after the first tuning (A74, accepted by D-29) and the starting-savings change (D-30). The first run (`2026-10-08-r1`, before D-30) had the Planner at 11.08%:
 
 | Bot | Target | Result |
 |---|---|---|
-| Planner | wins 5-10% (M1: within 5 points and at least 1%) | **11.08%**; 64% reach Mid in job 1 (D-23: 60% or more); median run day 810; losses 92% Plan B, 6% Legacy System, 1% Burnout |
-| Coaster | no wins; median loss before day 1,800 | 0 wins; median loss day 390 |
+| Planner | wins 5-10% (M1: within 5 points and at least 1%) | **12.79%**; 74% reach Mid in job 1 (D-23: 60% or more); median run day 861; losses 92.9% Plan B, 6.5% Legacy System, 0.6% Burnout |
+| Coaster | no wins; median loss before day 1,800 | 0 wins; median loss day 420 |
 | Grinder | mostly Burnout; under 2% wins | 0 wins; 100% Burnout |
-| Lifestyle | mostly Plan B | 0 wins; 99.5% Plan B |
-| Random | under 1% wins | 0 wins; 51% Burnout, 49% Plan B |
+| Lifestyle | mostly Plan B | 0 wins; 99.4% Plan B |
+| Random | under 1% wins | 0 wins; 53% Burnout, 47% Plan B |
 
-All five run 10,000 seeds in 419 seconds in parallel (the Planner 408 s, about 41 ms a run; the others 3-11 ms), so the exit "10,000 seeds in minutes" holds. Not met yet (A74; M4 retunes): the median run of 1,100-1,400 days (810 today), each hard loss at 10% or more of the losses, and a first hunt after run 1's layoff that kills about 27% of Planner runs. M1 has 10 of the 26 events, so these numbers will move when M4 and M6 add the rest.
+All five run 10,000 seeds in about 6 minutes in parallel (the Planner about 35 ms a run; the others 2-11 ms), so the exit "10,000 seeds in minutes" holds. Not met yet (A74, D-29; M4 retunes): the median run of 1,100-1,400 days (861 today) and each hard loss at 10% or more of the losses. About 11% of Planner runs now end by day 400, the first hunt after run 1's layoff (27% before D-30). M1 has 10 of the 26 events, so these numbers will move when M4 and M6 add the rest.
 
-**Telemetry (R-TEL-01):** the win rate by background, run length, the ending mix, Hours changes per job, the share of events auto-resolved, DoomApply use while employed, and quit points. The game is offline and collects nothing today, so how this works is Open (MC-15): proposed, a local run log and a debug report only.
+**Telemetry (R-TEL-01):** the win rate by background, run length, the ending mix, Hours changes per job, the share of events auto-resolved, DoomApply use while employed, and quit points. The game is offline and collects nothing today, so how this works is Settled (MC-15, D-34): a local run log and a debug report only.
 
 ---
 
 ## 6. Difficulty matrix: the background changes every stage
 
-**Run Spec v1 status:** Phase 1's matrix, as built. In the career run the background still changes the duel (the stats, Composure, the interview perks and flaws, Dana's opener) and the Plan B line. The hunt rows (energy, the CV and knockouts, referrals, the Radar, the interview cost) retire with 5.3-5.7, the negotiation row left with D-27, and the Phase 2 hooks row is superseded (W8). What else a background changes is Open (MC-03). The career run's main difficulty scalar is floor depth (6.1, P-01).
+**Run Spec v1 status:** Phase 1's matrix, as built. In the career run the background still changes the duel (the stats, Composure, the interview perks and flaws, Dana's opener) and the Plan B line. The hunt rows (energy, the CV and knockouts, referrals, the Radar, the interview cost) retire with 5.3-5.7, the negotiation row left with D-27, and the Phase 2 hooks row is superseded (W8). What else a background changes is Settled (MC-03, D-32): nothing; the duel's inputs, starting savings and the commute are all. The career run's main difficulty scalar is floor depth (6.1, P-01).
 
 | Stage | The Intern (Easy) | The Graduate (Medium) | The Self-Taught (Hard) |
 |---|---|---|---|
@@ -1732,8 +1732,8 @@ In the career run, difficulty grows with the job number, the floor (1-5): three 
 
 - The Doubt bases are Phase 1's tiers (startup / mid / big); which tier a posting's archetype uses is `ArchetypeData.duel_tier` (MC-05, A68).
 - "Event frequency" applies to the random events and the telegraphed chains; scheduled events keep their cadence (5.18).
-- Run 1's floor 1 is always Pivotly (3.3), and losing the job on floor 5, by any route, is the Career Change ending (D-16).
-- What else grows within a run: Scars, job by job (5.21), and expenses, day by day (5.15). The background's part is Open (MC-03).
+- Run 1's floor 1 is always Hierarchai (3.3), and losing the job on floor 5, by any route, is the Career Change ending (D-16).
+- What else grows within a run: Scars, job by job (5.21), and expenses, day by day (5.15). The background's part is Settled (MC-03, D-32).
 
 ---
 
@@ -1775,7 +1775,7 @@ The career run's companies come in three archetypes (5.18), while the duel still
 
 | Stage | Startup (`startup`) | Agency (`mid`) | MegaCorp (`big`) | Comes from |
 |---|---|---|---|---|
-| Company names | Pivotly, a placeholder (MC-06 proposes Hierarchai) | Outsourcery (MC-06: Scope & Creep Digital) | Monolith (MC-06: OmniGlobal Dynamics) | Open, MC-06 |
+| Company names | Hierarchai (MC-06) | Scope & Creep Digital (MC-06) | OmniGlobal Dynamics (MC-06) | Settled, MC-06, D-34 |
 | Remote postings | 60% | 10% | 25%, threatened by RTO | the archetype |
 | Salary, Junior / Mid / Senior (k$ a month, floor 1) | 2.55 / 3.57 / 5.10 | 2.40 / 3.36 / 4.80 | 3.75 / 5.25 / 7.50 | the archetype (5.15) |
 | Senior pay against the Studio's costs | barely covers it | doesn't cover it | covers it, with room to save | the archetype (3.4) |
@@ -1841,8 +1841,8 @@ Every knowledge question has a model answer (green), a hedged answer (yellow), a
 In the career run every failure still teaches (O7, pillar 4): an event that has a tip shows it after the joke and the cause, and the Handbook keeps it for good (5.21).
 - The rules of 8.1 hold for the event tips: joke, then consequence, then the tip; one tip per screen, at most 120 characters; tips only at natural pauses (after an event card's choice, after the review, the layoff scene and the ending cards; never while a choice or the needle is up); tips match the cause; and you sign off every tip before release (W4).
 - How often a recurring event shows its tip is a spec gap (M2; proposed, the first time it resolves in a run, like Phase 1's once-per-run tips, A15, and never twice in a row, 8.1 rule 4).
-- The Handbook lists the collected tips by kind (Option, Edge, Lore), with completion as a percentage (5.21). It grows out of S13's Career Notebook list: Open (MC-18).
-- The corrected lessons of 8.2 apply to the new tips too. The plain-language rule for non-tech players (C3) is applied at M6's Ducky writing pass: Open (MC-17), which also covers two overlaps with Phase 1's tips (E15's with `tip_secrets`, E26's with `tip_blameless`; proposed, reuse the two existing tips).
+- The Handbook lists the collected tips by kind (Option, Edge, Lore), with completion as a percentage (5.21). It grows out of S13's Career Notebook list: Settled (MC-18, D-34).
+- The corrected lessons of 8.2 apply to the new tips too. The plain-language rule for non-tech players (C3) is applied at M6's Ducky writing pass: Settled (MC-17, D-34), which also covers two overlaps with Phase 1's tips (E15's with `tip_secrets`, E26's with `tip_blameless`; reuse the two existing tips).
 
 ### 8.6 Where the event tips fire (texts in CONTENT 16.4)
 
@@ -1860,7 +1860,7 @@ In the career run every failure still teaches (O7, pillar 4): an event that has 
 | E12 Prod incident | `tip_escalate` (the Run Spec's own id) | Lore (proposed) |
 | E13 Phishing test | `tip_check_sender` | Lore (proposed) |
 | E14 Coworker clicks a scam | `tip_report_fast` | Lore (proposed) |
-| E15 Hardcoded secret | `tip_rotate_key`, or `tip_secrets` (Open, MC-17) | Lore (proposed) |
+| E15 Hardcoded secret | `tip_rotate_key`, or `tip_secrets` (Settled, MC-17, D-34: reuse `tip_secrets`) | Lore (proposed) |
 | E16 Stale PR | `tip_small_prs` | Lore (proposed) |
 | E17 Credit taken | `tip_write_it_down` | Lore (proposed) |
 | E18 Recruiter DM | `tip_take_the_call` | Edge |
@@ -1870,7 +1870,7 @@ In the career run every failure still teaches (O7, pillar 4): an event that has 
 | E23 Mentor offer | `tip_ask_mentorship` | Lore (proposed) |
 | E24 Overtime ask | `tip_overtime_loan` | Edge |
 | E25 Review request | `tip_review_design` | Lore (proposed) |
-| E26 Blame post-mortem | `tip_blameless_postmortem`, or `tip_blameless` (Open, MC-17) | Lore (proposed) |
+| E26 Blame post-mortem | `tip_blameless_postmortem`, or `tip_blameless` (Settled, MC-17, D-34: reuse `tip_blameless`) | Lore (proposed) |
 
 That is 23 tips. E01, E04 and E19 have none: an explicit none, which O7's content lint allows. E04's lost its tip with its negotiation (D-28); a new rent tip can come with M6's writing pass, with your sign-off (parked in `docs/ideas_parking_lot.md`). "Lore (proposed)" means the Run Spec doesn't give the kind: it is settled at M6 (5.21).
 
@@ -1932,7 +1932,7 @@ The grey-box milestones (M2-M4) have no diorama: their juice is the HUD's number
 
 ### 10.1 MUST (the MVP)
 
-**Run Spec v1 status:** Phase 1's MVP list, built in the v0.1 grey-box (Steps 1-6). When the career run is built, items 6-8 (the hunt) and item 13's Hired card and grace day retire (D-04, D-05, D-24); the rest carries over, behind the adapter where it is the duel or the contract (5.20). Which game `v0.5-mvp` ships is Open (MC-01): proposed, the career run. The career run's milestones are 10.7.
+**Run Spec v1 status:** Phase 1's MVP list, built in the v0.1 grey-box (Steps 1-6). When the career run is built, items 6-8 (the hunt) and item 13's Hired card and grace day retire (D-04, D-05, D-24); the rest carries over, behind the adapter where it is the duel or the contract (5.20). Which game `v0.5-mvp` ships is Settled (MC-01, D-33): the career run. The career run's milestones are 10.7.
 
 1. **Foundation:** section 2.3 settings; Device guard and safe area (section 2.2, 2.9); git (already installed; repo `swe-simulator`) plus `.gitignore` and `.gitattributes` **before the first commit**.
 2. **Debug build on your own iPhone in week 1 (from the MacBook)** (portrait lock, fonts, safe area, thumb reach, ScrollContainer release test, haptics).
@@ -1955,7 +1955,7 @@ The grey-box milestones (M2-M4) have no diorama: their juice is the HUD's number
 
 ### 10.2 SHOULD (in this order once MUST works)
 
-**Run Spec v1 status:** Phase 1's SHOULD list. Item 2 is removed (D-27). What happens to the hunt's SHOULDs (Research, Network and the site tabs, the commute strip, the morning events and the Unicorn) is Open (MC-01): proposed, park them, and keep drag-to-sign for M3. The career run's events (5.19) replace the morning event cards (RC-16).
+**Run Spec v1 status:** Phase 1's SHOULD list. Item 2 is removed (D-27). What happens to the hunt's SHOULDs (Research, Network and the site tabs, the commute strip, the morning events and the Unicorn) is Settled (MC-01, D-33): park them, and keep drag-to-sign for M3. The career run's events (5.19) replace the morning event cards (RC-16).
 
 1. Research on the card back (ghost flag, red flags, real salary, insider "Why us?"). *First SHOULD to build: balance and teaching lean on it.*
 2. One-tap Negotiate (removed 2026-10-07, DECISIONS D-27).
@@ -1977,7 +1977,7 @@ The Work loop (Phase 2) with walking top-down characters and an office map; cosm
 
 ### 10.4 Phase 2 hooks: state the MVP must already store
 
-**Run Spec v1 status:** superseded by the career run's own state (ARCHITECTURE 19.4), which is planned from the Run Spec rather than from these hooks. Of these fields the career run plans to read `background_id`, `player_name`, `knw`, `exp` and `net` (the duel, D-26), `lone_wolf` and `gap_topics` (the duel), `commute_minutes` (the Dream score: Open, MC-13), `times_met_dana` and `dana_last_company` (Dana's cameos), `blacklist` (Open, MC-19), and the RNG seed and state. `commute_pips`, `rent_days_left` and the day loop's fields retire (D-04); `negotiated` left with D-27's code cleanup; TierData's `meeting_load`, `layoff_risk` and `growth_mult` are superseded (RC-05); and the "laid off -> JOB_HUNT" entry point becomes the same clock with salary 0 (D-04).
+**Run Spec v1 status:** superseded by the career run's own state (ARCHITECTURE 19.4), which is planned from the Run Spec rather than from these hooks. Of these fields the career run plans to read `background_id`, `player_name`, `knw`, `exp` and `net` (the duel, D-26), `lone_wolf` and `gap_topics` (the duel), `commute_minutes` (the Dream score: Settled, MC-13, D-34), `times_met_dana` and `dana_last_company` (Dana's cameos), `blacklist` (Settled, MC-19, D-34), and the RNG seed and state. `commute_pips`, `rent_days_left` and the day loop's fields retire (D-04); `negotiated` left with D-27's code cleanup; TierData's `meeting_load`, `layoff_risk` and `growth_mult` are superseded (RC-05); and the "laid off -> JOB_HUNT" entry point becomes the same clock with salary 0 (D-04).
 
 `RunState` (saved) must hold, even if the MVP never reads some of it:
 
@@ -2028,15 +2028,15 @@ Build the simulation first and headless, prove it with bots, then put the cheape
 |---|---|---|---|
 | M1 | STEP-14 | the sim core, its constants, 10 events, the five bots | 10,000 seeds run in minutes; the Planner within 5 points of its band and winning at least 1% of seeds (A70). **Built 2026-10-08** (DECISIONS A62-A76; the numbers are in 5.22) |
 | M2 | STEP-15 | the grey-box UI: the phone shell, the calendar strip, the four numbers, the Hours slider, event cards, the speed control, save and resume; no diorama | three outside players finish job 1 and can say why they were laid off |
-| M3 | STEP-16 | run 1 end to end: Pivotly and its coworkers, the resizing chain, the review duel, the layoff scene, the board, the adapter | run 1 is playable from day 0 to the board |
+| M3 | STEP-16 | run 1 end to end: Hierarchai and its coworkers, the resizing chain, the review duel, the layoff scene, the board, the adapter | run 1 is playable from day 0 to the board |
 | M4 | STEP-17 | all systems: 3 archetypes, floor depth, the Mid and Senior controls, home tiers, Scars, the Studio hold, every ending | a full run is playable; the Planner wins 5-10% |
 | M5 | STEP-18 | the pixel-art office diorama, pause-and-zoom, the ending video | playtesters mention the empty desk or the lamp unprompted |
 | M6 | STEP-19 | the Handbook, events to about 40, a Ducky writing pass, tuning | the playtest gates pass (ROADMAP 7) |
 
-- **When:** M1 (STEP-14) starts now, ahead of Phase 1's open Steps 7-13 (W9): it is headless PC work that needs neither the iPhone nor the Phase 1 hunt. The rest of the order, and what happens to Steps 7-13, is Open (MC-01).
+- **When:** M1 (STEP-14) starts now, ahead of Phase 1's open Steps 7-13 (W9): it is headless PC work that needs neither the iPhone nor the Phase 1 hunt. The rest of the order is settled (MC-01, D-33): Steps 7-13 follow the career run, with the art and release steps after M4.
 - **M1 is the whole rule set, headless.** Its bots must play full careers, so the sim covers every system of 5.14-5.22 from the start; M2-M4 put them on screen. Its 10 events are chosen at STEP-14's huddle (ROADMAP 12 proposes them).
 - **The requirement ids (R-...) are stable**, so each milestone splits cleanly into tasks (`project.yaml`).
-- **Scope tags:** the career run isn't tagged MUST / SHOULD / LATER yet. The tags are yours (W4); `docs/merge-report.md` lists a proposal among your open questions.
+- **Scope tags (D-36, 2026-10-08):** build every MUST and every SHOULD. MUST = M1-M4 plus the Handbook (D-08's "something persists" needs it); SHOULD = M5 (the diorama, pause-and-zoom, the ending video), the events beyond the first 26 and the Ducky writing pass; LATER = telemetry beyond a local run log (MC-15).
 - **"Events to about 40"** (M6) means about 14 beyond the 26 of 5.19. None of them is written yet.
 
 ---
@@ -2197,7 +2197,7 @@ Every Run Spec number, with the file that owns it (ARCHITECTURE 19.3). **Built i
 | `home_recovery` (Burnout a day, same order) | 0 / 0.10 / 0.25 / 0.35 | W |
 | `move_cost_months` (of the new rent) | 1 | W |
 | `severance_months` | 0-1 (run 1: 1) / 0.5 / 2 per 360 days of tenure | A |
-| `start_savings_months` | 0.5 / 0.4 / 0.4 (MC-04, A68) | BG |
+| `start_savings_months` | 1.0 / 0.8 / 0.8 (MC-04, A68, D-30) | BG |
 
 **Work stats (5.16)**
 
@@ -2398,7 +2398,7 @@ The P- rows were the spec's proposals; you accepted all eight on 2026-10-07 for 
 
 ### Decisions after the merge (2026-10-07)
 
-**W9 - When M1 starts.** Decided (the developer): **M1, the career run's sim core (STEP-14), starts now**, ahead of Phase 1's open Steps 7-13; it's headless PC work that needs neither the iPhone nor the Phase 1 hunt. What happens to Steps 7-13 and which game `v0.5-mvp` ships is still open (MC-01). See 10.7.
+**W9 - When M1 starts.** Decided (the developer): **M1, the career run's sim core (STEP-14), starts now**, ahead of Phase 1's open Steps 7-13; it's headless PC work that needs neither the iPhone nor the Phase 1 hunt. What happens to Steps 7-13 and which game `v0.5-mvp` ships was settled afterwards (MC-01, D-33). See 10.7.
 
 **D-26 - Phase 1's stats in the career run.** Decided (the developer, "follow the recommendations for now"): **KNOWLEDGE, EXPERIENCE and NETWORK stay at the background's starting values, and only the duel uses them** (knowledge P and the committee wheel). Study, callbacks and offers don't touch them. See 5.1.
 
@@ -2420,13 +2420,13 @@ Each design objective maps to the requirements that carry it, a test that proves
 | O2 Standing still is never safe | R-ECO, R-WIN-01 | the Coaster bot: no wins, a median loss before day 1,800 | the Coaster's loss day |
 | O3 Junior eye level, not a manager sim | R-CTL-01, R-CTL-02, R-CTL-03 | UI audit: the Junior screen has exactly one continuous control | Hours changes per job, target 2+ |
 | O4 Hard but winnable | R-BAL-01 | the Planner wins 5-10% over 10,000 seeds | the live win rate by background |
-| O5 The Codebase is the core | R-CB-02, R-CTL-03 | sim: incidents a year at Codebase 80 are at least 3x those at 20 (fails with E12's cooldown: Open, MC-23) | incidents per run |
+| O5 The Codebase is the core | R-CB-02, R-CTL-03 | sim: incidents a year at Codebase 80 are at least 3x those at 20 (it failed with the spec's 20-day cooldown; E12's is 5 days: Settled, MC-23, A69, D-34) | incidents per run |
 | O6 Success in tech is the win | R-WIN-01..R-WIN-08 | unit tests: the win fires only with all five conditions held 90 days | the mix of winning routes by archetype chain |
 | O7 Every failure teaches | R-HB-01, R-EVT-05 | content lint: every event has a tip or an explicit none | Handbook completion per player |
 | O8 Fits mobile sessions | R-CLK, R-TEL-01 | kill the app mid-run; the state restores identically (`docs/KILL_TESTS.md`) | session length, target 5-12 min |
 | O9 No commissioned art, one pixel style | R-DIO-01 | asset audit: every new sprite matches the shipped pixel grid and palette; nothing commissioned | art spend, target 0 |
 
-The metrics need telemetry, which is Open (MC-15); until then they come from playtests and the local run log.
+The metrics need telemetry, which MC-15 settled as a local run log and a debug report only (D-34); they come from playtests and that log.
 
 ### 13.2 Assumptions (A-01..A-05), checked against the repo
 
@@ -2438,7 +2438,7 @@ These are the Run Spec's assumptions, not agent defaults (DECISIONS header). Che
 | A-02 | The sim core can be written in the existing build's language and run headless | build the harness as a separate console target of the same code | **holds:** GDScript runs headless in Godot 4.7.2 (`godot --headless --script`, A56) |
 | A-03 | Every number is a starting value | the harness sets the real ones | **holds:** 11.7 lists them all, and the harness tunes them (5.22) |
 | A-04 | 30-day months, 360-day years | change freely; nothing depends on it | **holds:** `days_per_month` and `days_per_year` (11.7) |
-| A-05 | Money is in in-game thousands of dollars | any currency label works | **holds** for the sim (k$); how the screens show money, next to Phase 1's "$71,000/year", is Open (MC-10) |
+| A-05 | Money is in in-game thousands of dollars | any currency label works | **holds** for the sim (k$); how the screens show money, next to Phase 1's "$71,000/year", is Settled (MC-10, D-34): the contract shows the yearly figure |
 
 ### 13.3 The spec's open questions (Q-01..Q-07), answered
 
@@ -2476,4 +2476,4 @@ The Run Spec's risks are rows 13-19 of the ROADMAP's risk register (ROADMAP 8): 
 
 ### 13.6 Open conflicts and spec gaps
 
-Every conflict between the Run Spec and the original docs is in `docs/merge-report.md`: those resolved by your precedence rules or your own decisions (RC-nn), and those still waiting for you (MC-nn), each with a proposed resolution. Text marked **Open (MC-nn)** in this document is one of them. The same report lists the spec gaps, the rules the Run Spec leaves undefined, each with the milestone that settles it and a proposed default.
+Every conflict between the Run Spec and the original docs is in `docs/merge-report.md`: those resolved by your precedence rules or your own decisions (RC-nn), and those that waited for you (MC-nn), each with a proposed resolution; you accepted them on 2026-10-08 (D-33, D-34), so the text now reads **Settled (MC-nn, D-nn)**. The same report lists the spec gaps, the rules the Run Spec leaves undefined, each with the milestone that settles it and a proposed default.

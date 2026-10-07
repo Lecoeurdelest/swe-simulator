@@ -1,15 +1,15 @@
 # Run Spec v1 merge report
 
-**Status: DONE (the documentation merge), 2026-10-07.** Branch `run-spec-v1-merge` is pushed and ready for a pull request: https://github.com/Lecoeurdelest/swe-simulator/pull/new/run-spec-v1-merge. The Run Spec is folded into the existing docs and their sections, keeping its ids; every conflict is either resolved by your precedence rules or decisions (RC-01..RC-35) or waiting for you with a proposed resolution (MC-nn); every rule the spec leaves undefined is listed as a spec gap with a proposed default. **No code, scene, `.tres`, JSON or asset file changed.** What's still yours is listed at the end ("Your open questions") and in `docs/REVIEW_QUEUE.md` section 0.
+**Status: DONE (the documentation merge, 2026-10-07), merged, and every open conflict answered (2026-10-08).** Branch `run-spec-v1-merge` is merged into `main`. The Run Spec is folded into the existing docs and their sections, keeping its ids; every conflict is either resolved by your precedence rules or decisions (RC-01..RC-35) or was waiting for you with a proposed resolution (MC-nn) and was accepted on 2026-10-08 (D-29..D-34); every rule the spec leaves undefined is listed as a spec gap with a proposed default. **The merge itself changed no code, scene, `.tres`, JSON or asset file.** Your open questions at the end are all answered; what still waits for you is in `docs/REVIEW_QUEUE.md`.
 
 Sources: `docs/run-spec-v1.md` (the spec, archived read-only; its body is byte-identical to the original, sha256 `f64ea13ca5c739cef5ab4a68ae6cad3aefcac03f9856308fb95e2fbd3b5106af`), `docs/swe-simulator-handoff.md` and `docs/swe-simulator-godot-access.md` (both moved from the repo root, A59). `phase2_draft_options.md` wasn't available and wasn't used. Precedence: DECISIONS W8.
 
 ## Start here (the next session)
 
-1. `git switch run-spec-v1-merge && git pull` (or `git switch main && git pull` once you've merged the pull request).
-2. **M1 (STEP-14), the career run's sim core, is next** (W9): branch `step-14-sim-core` from this branch, or from `main` after the merge (A61), and follow `.project/bundles/STEP-14.md`. M1 runs headless (the commands are in `.agent/AGENTS.md`).
-3. M1's huddle settles the M1 spec gaps below and MC-04, MC-05, MC-22 and MC-23. If you're away, Claude takes the proposed defaults and logs them as agent defaults (W4); scope, tone and tips wait for you. **Held on 2026-10-08: A62-A72 in `docs/DECISIONS.md`; they wait for your review.**
-4. D-27's negotiation code goes with M1, the next code change (ROADMAP 12, Step 14 task 6).
+1. `git switch main && git pull`: the merge and M1 (PR #8) are in `main`.
+2. **M2 (STEP-15), the grey-box UI, is next** (ROADMAP 12): branch `step-15-greybox-ui`, and its huddle settles the M2 spec gaps below (the commands are in `.agent/AGENTS.md`).
+3. Every MC item is answered (D-29..D-34) and the scope is set (D-36): build every MUST and SHOULD. M1's huddle was held on 2026-10-08 (A62-A72, accepted by D-35).
+4. D-27's negotiation code left with M1, its own commit (ROADMAP 12, Step 14 task 6).
 
 ## The decisions of 2026-10-07, and where they were applied
 
@@ -117,9 +117,9 @@ Also in GDD 13.4; the adapter's plan is ARCHITECTURE 19.5.
 | RC-34 | The layoff scene "skippable after the first time" vs an on-screen Back everywhere and no auto-advance | W8 (shipped UI conventions: GDD 4.4, D12, A19) | taps advance its beats, Back opens Pause, a hold-to-skip pill from the second viewing (GDD 5.19) |
 | RC-35 | Saving at every event and on backgrounding vs saving after every committed action | W8 (code conventions) | both: every event, every input, entering a live phase, pause, focus out and close (GDD 5.11, 5.14; ARCHITECTURE 19.4) |
 
-## Open conflicts: proposed resolutions waiting for you
+## The conflicts that waited for you: all answered
 
-The docs mark each one **Open (MC-nn)** where it matters. MC-02 and MC-21 are answered (D-26, D-28).
+The docs marked each one **Open (MC-nn)**; since 2026-10-08 they read **Settled (MC-nn, D-nn)**. MC-02 and MC-21 were answered on 2026-10-07 (D-26, D-28). Every row below was accepted as proposed on 2026-10-08 ("For the questions, please go with recommended, i accept them"): MC-01 (the rest) is D-33, MC-03 is D-32, MC-04 is D-30 (with the numbers the harness gave: starting savings of about one month, not the proposed 0.5), and MC-05..MC-23 are D-34. The table keeps the question and the proposal as they were asked.
 
 | ID | Conflict | Proposed |
 |---|---|---|
@@ -195,13 +195,15 @@ Each is marked "a spec gap" where the docs meet it. The proposed defaults are su
 
 **Clarified while merging (readings, not decisions):** home recovery is r = 0.10 / 0.25 / 0.35, subtracted (the spec's table shows the minus sign); "~10 scheduled events a year" counts events with choices; the Studio hold is shown as the Filming bar; E14's "ticket -20%" is the current ticket's progress (E20 and E25 say "speed" when they mean speed); the Resume Gap's "-10% per stack" follows R-JOB-02's stack pattern, (1 - 0.10 n); the diorama's vertical scroll is content scrolling like Mail's list, not a gesture action (GDD 2.8 rule 5). (The gap about the negotiation cap went away with D-27.)
 
-## Your open questions
+## Your open questions: answered on 2026-10-08
 
-1. **The open conflicts** (the table above), each with a proposed resolution: MC-01 (the rest), MC-03..MC-20, MC-22 and MC-23. M1 needs four first: MC-04 (starting savings, with the day-31 caution), MC-05 (the archetype ids), MC-22 (INV-09's wording) and MC-23 (E12's cooldown against O5).
-2. **Scope tags for the career run** (W4; GDD 10.7). A starting point: MUST = M1-M4 plus the Handbook (D-08's "something persists" needs it); SHOULD = M5 (the diorama, pause-and-zoom, the ending video), the events beyond the first 26, the Ducky writing pass; LATER = telemetry beyond a local run log (MC-15).
-3. **Tone sign-off** on the drafts in CONTENT 16: Pivotly's coworkers, the event cards, the burnout warnings, the endings (especially the Burnout ending's line, "You took the leave. You didn't come back."), and Dana's layoff lines.
-4. **Tip accuracy** for the 23 event tips (CONTENT 16.4): the Run Spec's own lines, made ASCII and American.
-5. **Three proposed invariants:** INV-21 (the sim core is pure and deterministic), INV-22 (no time passes while the app is closed), INV-23 (a Junior has exactly one continuous control). The wording is in `docs/REVIEW_QUEUE.md` 0.4. Add them?
-6. **The headless test runner:** commit it into the repo (for example `tools/headless/`) at the start of M1, so it stops living in a temporary folder?
-7. **M1's huddle:** which 10 events (proposed above), whether M1's exit should also need at least 1% Planner wins, and the other M1 spec gaps.
-8. **Skim** the merge's agent defaults A52-A61 and the new RC-32..RC-35.
+Each item below was answered; the answer is the D- row named after it.
+
+1. **The open conflicts** (the table above), each with a proposed resolution: MC-01 (the rest), MC-03..MC-20, MC-22 and MC-23. Accepted as proposed (D-30, D-32, D-33, D-34). M1 needed four first: MC-04 (starting savings, with the day-31 caution), MC-05 (the archetype ids), MC-22 (INV-09's wording) and MC-23 (E12's cooldown against O5).
+2. **Scope tags for the career run** (W4; GDD 10.7). Answered: build every MUST and SHOULD (D-36). The starting point was: MUST = M1-M4 plus the Handbook (D-08's "something persists" needs it); SHOULD = M5 (the diorama, pause-and-zoom, the ending video), the events beyond the first 26, the Ducky writing pass; LATER = telemetry beyond a local run log (MC-15).
+3. **Tone sign-off** (answered: signed off, D-37) on the drafts in CONTENT 16: Pivotly's coworkers, the event cards, the burnout warnings, the endings (especially the Burnout ending's line, "You took the leave. You didn't come back."), and Dana's layoff lines.
+4. **Tip accuracy** (answered: signed off, D-37) for the 23 event tips (CONTENT 16.4): the Run Spec's own lines, made ASCII and American.
+5. **Three proposed invariants:** INV-21 (the sim core is pure and deterministic), INV-22 (no time passes while the app is closed), INV-23 (a Junior has exactly one continuous control). Added (D-38) to `.agent/rules/invariants.md`.
+6. **The headless test runner:** committed into the repo as `tools/headless/` at the start of M1 (A71, accepted by D-35).
+7. **M1's huddle:** held on 2026-10-08 (A62-A72): the 10 events, the 1% exit, and the other M1 spec gaps; accepted by D-35.
+8. **Skim** the merge's agent defaults A52-A61 and the new RC-32..RC-35: not asked again; they stand unless you object.

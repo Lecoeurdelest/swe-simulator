@@ -1,0 +1,63 @@
+{
+  "bot": "planner",
+  "early_loss_share": 0.301,
+  "endings": {
+    "burnout": 33,
+    "legacy": 89,
+    "plan_b": 1528,
+    "studio": 350
+  },
+  "guard_hits": 0,
+  "jobs_mean": 1.5515,
+  "level_at_end": [
+    1071,
+    151,
+    778
+  ],
+  "median_day": 720,
+  "median_loss_day": 720,
+  "mid_in_job1_share": 0.4265,
+  "ms_per_run": 26.618,
+  "ms_total": 53236,
+  "p10_day": 60,
+  "p90_day": 1650,
+  "params": {
+    "bg": "intern",
+    "bot": "planner",
+    "first": 1,
+    "handbook": "none",
+    "run": 2,
+    "seeds": 2000
+  },
+  "rejected_inputs": 0,
+  "runs": 2000,
+  "stats_per_run": {
+    "applies": 31.555,
+    "applies_employed": 8.205,
+    "auto_resolved": 0.093,
+    "declined": 0.33,
+    "events": 29.639,
+    "exit_fired": 0.347,
+    "exit_layoff": 0.557,
+    "exit_quit": 0.168,
+    "forced_leaves": 0.047,
+    "hours_changes": 117.341,
+    "incidents": 18.099,
+    "interviews": 10.944,
+    "interviews_failed": 9.016,
+    "jobs": 1.552,
+    "layoffs": 0.557,
+    "moves": 0.685,
+    "offers": 1.881,
+    "promotions": 0.78,
+    "rating_below": 0.902,
+    "rating_exceeds": 1.195,
+    "rating_meets": 1.099,
+    "resizings_survived": 1.593,
+    "reviews": 3.2,
+    "studies": 5.701
+  },
+  "studio_hold_max": 90,
+  "win_rate": 0.175,
+  "wins": 350
+}

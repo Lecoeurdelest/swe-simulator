@@ -99,7 +99,7 @@ preservation:
       disposition: preserve
     - id: ART-MERGE-REPORT
       path: docs/merge-report.md
-      role: the Run Spec merge's record - where each part went, the conflicts resolved (RC-nn) and open (MC-nn) with proposed resolutions, the spec gaps with proposed defaults
+      role: the Run Spec merge's record - where each part went, the conflicts resolved (RC-nn) and the MC-nn items the developer answered on 2026-10-08 (D-29..D-34), the spec gaps with proposed defaults
       disposition: preserve
     - id: ART-HANDOFF
       path: docs/swe-simulator-handoff.md
@@ -157,7 +157,7 @@ preservation:
     - "Claude commits after each verified increment on a per-step branch (step-NN-<slug>, each branched from the previous step's branch) and pushes without asking; it still commits before script_patch or engine updates. The developer reviews and merges on GitHub in step order with merge commits (DECISIONS W1; ARCHITECTURE 14.3)."
     - "Dependency gate: a step may start when every earlier step is done or has only developer-owned criteria left (device, manual review; You-do exercises are suspended, W7); those steps stay in_progress/verifying until the developer confirms (DECISIONS W2)."
     # 2026-10-07 (W9, the developer: "M1 should start now"): an exception to the gate above.
-    - "M1, the career run's sim core (STEP-14), starts ahead of the open Steps 7-13 (DECISIONS W9); the dependency gate still orders Steps 7-13 among themselves. Where STEP-15..19 sit against Steps 7-13 is open (MC-01)."
+    - "M1, the career run's sim core (STEP-14), starts ahead of the open Steps 7-13 (DECISIONS W9); the dependency gate still orders Steps 7-13 among themselves. Where STEP-15..19 sit against Steps 7-13 is settled (MC-01, D-33): the art and release steps come after M4."
     - "While the developer is away, design huddles take the documented recommended default, logged in docs/DECISIONS.md as 'agent default, please review'; scope, tone and tip accuracy wait for the developer (DECISIONS W4)."
     # 2026-10-07: the last sentence was "Phase 2 is not designed or built until the developer decides
     # (docs/ideas_parking_lot.md)"; the Run Spec v1 is that design now (W8).
@@ -244,6 +244,16 @@ decisions:
   - {id: D-26, title: "Phase 1 stats in the career run", status: accepted, answer: "KNOWLEDGE, EXPERIENCE and NETWORK stay at the background's starting values and only feed the duel (knowledge P, the committee wheel); Study, callbacks and offers do not touch them (for now)", decided: "2026-10-07", source: "GDD 5.1, 12; docs/DECISIONS.md; docs/merge-report.md MC-02"}
   - {id: D-27, title: "Offer negotiation removed", status: accepted, supersedes: D7, answer: "no Negotiate anywhere: neither Phase 1's one-tap Negotiate (SHOULD, never built) nor the Run Spec's R-JOB-04 version; the contract modal is Accept or Decline; the Handbook keeps 4 Edge tips; the existing negotiation code leaves with the next code change", decided: "2026-10-07", source: "GDD 5.9.3, 10.2, 12; docs/DECISIONS.md"}
   - {id: D-28, title: "Lease negotiation removed", status: accepted, answer: "E04 (lease renewal) is accept the +10% rent or move down a tier; its negotiate choice and the Landlords negotiate too tip go; E04 has no Ducky tip for now; no negotiation is left in the game", decided: "2026-10-07", source: "GDD 12; docs/DECISIONS.md; docs/merge-report.md MC-21"}
+  - {id: D-29, title: "The first tuning is accepted (A74)", status: accepted, answer: "ticket_deadline_mult 1.5, review_standin_damage 0.37 and floor_doubt_step 0.16 stay; the median run and the loss mix are left for M4", decided: "2026-10-08", source: "docs/DECISIONS.md; docs/REVIEW_QUEUE.md 0.6"}
+  - {id: D-30, title: "MC-04: starting savings are about one month of expenses", status: accepted, answer: "BackgroundData.start_savings_months 1.0 (Intern) / 0.8 (Graduate, Self-Taught); was 0.5 / 0.4 / 0.4", decided: "2026-10-08", source: "GDD 11.7; docs/DECISIONS.md; docs/merge-report.md MC-04"}
+  - {id: D-31, title: "The Handbook's strength is left until M6", status: accepted, answer: "no change now; the full Handbook roughly doubles the Planner's wins (D-18 intends about 15% of total power)", decided: "2026-10-08", source: "GDD 5.21; docs/DECISIONS.md"}
+  - {id: D-32, title: "MC-03: what a background changes in the career run", status: accepted, answer: "the duel's inputs, starting savings and the commute (the Dream score) only; the harder backgrounds' win rates are revisited at M4", decided: "2026-10-08", source: "GDD 5.2, 6; docs/DECISIONS.md; docs/merge-report.md MC-03"}
+  - {id: D-33, title: "MC-01 (the rest): Steps 7-13 follow the career run", status: accepted, answer: "Playtest #1 folds into the M2 gate; R-BAL replaces Step 7's Phase 1 balance sim (ISSUE-09 goes with it); drag-to-sign moves to M3 and the other hunt SHOULDs are parked; the art and release steps (9-13) come after M4; v0.5-mvp ships the career run", decided: "2026-10-08", source: "ROADMAP 12; docs/DECISIONS.md; docs/merge-report.md MC-01"}
+  - {id: D-34, title: "The other proposed resolutions of the merge report are accepted", status: accepted, answer: "MC-05, MC-06 (Hierarchai, Scope & Creep Digital, OmniGlobal Dynamics), MC-07..MC-20, MC-22 and MC-23 as proposed", decided: "2026-10-08", source: "docs/DECISIONS.md; docs/merge-report.md"}
+  - {id: D-35, title: "The agent defaults A62-A76 are accepted", status: accepted, answer: "yes; none changed scope, tone or a tip", decided: "2026-10-08", source: "docs/DECISIONS.md"}
+  - {id: D-36, title: "Scope of the career run: build every MUST and SHOULD", status: accepted, answer: "MUST = M1-M4 plus the Handbook; SHOULD = M5, the events beyond 26 and the Ducky writing pass; LATER = telemetry beyond a local run log", decided: "2026-10-08", source: "GDD 10.7; docs/DECISIONS.md"}
+  - {id: D-37, title: "Tone and tip accuracy signed off for CONTENT 16's drafts and the 23 event tips", status: accepted, answer: "signed off, including the Burnout ending's line; later edits come back to the developer", decided: "2026-10-08", source: "CONTENT 16; GDD 8.1; docs/DECISIONS.md"}
+  - {id: D-38, title: "INV-21..23 are added", status: accepted, answer: "the sim core is pure and deterministic; no time passes while the app is closed; a Junior has exactly one continuous control", decided: "2026-10-08", source: ".agent/rules/invariants.md; docs/DECISIONS.md"}
   # docs/DECISIONS.md, the Run Spec v1 rows (merged 2026-10-07, W8). D-01..D-25 are the spec's decision log
   # (basis Yours = the developer stated it; Unchallenged = the spec proposed it and nobody objected, so it can be
   # reopened). P-01..P-08 were the spec's proposals, accepted on 2026-10-07 by the developer's instruction for the
@@ -311,6 +321,9 @@ invariants:
   - INV-18
   - INV-19  # added 2026-09-27 with the developer's approval: the portrait layout rule from .agent/AGENTS.md
   - INV-20  # added 2026-10-07 at the developer's request (the merge brief): the art rule (D-21, D-25)
+  - INV-21  # added 2026-10-08 (D-38): the sim core is pure and deterministic
+  - INV-22  # added 2026-10-08 (D-38): no time passes while the app is closed
+  - INV-23  # added 2026-10-08 (D-38): a Junior has exactly one continuous control
 
 requirements:
   # ---------- GDD 10.1 MUST (ids keep the GDD numbering) ----------
@@ -478,7 +491,7 @@ requirements:
     risk: standard
     source: {file: docs/GDD.md, section: "10.2 item 1"}
     acceptance:
-      - {id: AC-S08-1, statement: "Research has shipped and been tested on the iPhone.", verification: [device_observation, behavioral_test]}
+      - {id: AC-S08-1, statement: "Research has shipped and been tested on the iPhone.", verification: [device_observation, behavioral_test], relevance: retired, retired_on: "2026-10-08", reason: "D-33: Research is parked"}
   # 2026-10-07 (DECISIONS D-27, the developer's call): Negotiate was removed. The requirement and its criterion stay,
   # retired, so the ids and history remain readable; GDD 10.2 item 2 keeps its number.
   - id: SHOULD-02
@@ -493,7 +506,7 @@ requirements:
   - {id: SHOULD-03, title: "Network action and 3 site tabs", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 3"}, acceptance: [{id: AC-SH-03, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
   - {id: SHOULD-04, title: "Static top-down room hub", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 4"}, acceptance: [{id: AC-SH-04, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
   - {id: SHOULD-05, title: "Hard-mode commute strip", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 5"}, acceptance: [{id: AC-SH-05, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
-  - {id: SHOULD-06, title: "Drag-to-sign (the background-check screen left with lying, D9)", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 6"}, acceptance: [{id: AC-SH-06, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
+  - {id: SHOULD-06, title: "Drag-to-sign (the background-check screen left with lying, D9)", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 6"}, acceptance: [{id: AC-SH-06, statement: "Shipped in M3 (STEP-16), or recorded on the cut list (D-33).", verification: [document_check]}]}
   - {id: SHOULD-07, title: "Parallax and idle animations", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 7"}, acceptance: [{id: AC-SH-07, statement: "Shipped within Step 8 or Step 9, or recorded on the cut list.", verification: [document_check]}]}
   - {id: SHOULD-08, title: "Morning event cards and the Unicorn posting", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 8"}, acceptance: [{id: AC-SH-08, statement: "Shipped within the Step 8 timebox, or recorded on the cut list.", verification: [document_check]}]}
   - {id: SHOULD-09, title: "Career Notebook and Settings", risk: standard, timeboxed: true, source: {file: docs/GDD.md, section: "10.2 item 9"}, acceptance: [{id: AC-SH-09, statement: "Shipped within the Step 8 timebox, or recorded on the cut list (Relaxed Timing is kept either way).", verification: [document_check]}]}
@@ -525,8 +538,8 @@ requirements:
     source: {file: docs/GDD.md, section: "1.2; 1.3"}
     acceptance:
       - {id: AC-S05-5, statement: "The developer laughed at least once during the hunt grey-box.", verification: [manual_review]}
-      # 2026-10-07: the career run's tone sign-off at M3 (ROADMAP 12, Step 16).
-      - {id: AC-S16-3, statement: "The developer has signed off the tone of Pivotly's coworkers and the layoff scene (GDD 1.3, W4).", verification: [manual_review]}
+      # 2026-10-07: the career run's tone sign-off at M3 (ROADMAP 12, Step 16). 2026-10-08 (D-37): the drafts' tone is signed off; the built scene is checked again.
+      - {id: AC-S16-3, statement: "The developer has signed off the tone of Hierarchai's coworkers and the layoff scene (GDD 1.3, W4).", verification: [manual_review]}
   - id: REQ-DECISIONS
     title: "Decision log: D1-D8 and P1 answered, one line each with a reason"
     risk: standard
@@ -550,21 +563,21 @@ requirements:
     risk: standard
     source: {file: docs/ROADMAP.md, section: "7; Step 7"}
     acceptance:
-      - {id: AC-S07-1, statement: "3 of 5 testers finish a loop without help.", verification: [manual_review]}
-      - {id: AC-S07-4, statement: "There is a ranked fix list, and its top 3 are fixed.", verification: [document_check]}
+      - {id: AC-S07-1, statement: "3 of 5 testers finish a loop without help.", verification: [manual_review], relevance: retired, retired_on: "2026-10-08", reason: "D-33: Playtest #1 folds into the M2 gate (AC-S15-1)"}
+      - {id: AC-S07-4, statement: "There is a ranked fix list, and its top 3 are fixed.", verification: [document_check], relevance: retired, retired_on: "2026-10-08", reason: "D-33: Playtest #1 folds into the M2 gate"}
   - id: REQ-EDU
     title: "Players leave with a real career tip"
     risk: standard
     source: {file: docs/GDD.md, section: "1.4; 8"}
     acceptance:
-      - {id: AC-S07-3, statement: "Each tester can name one career tip afterwards.", verification: [manual_review]}
+      - {id: AC-S07-3, statement: "Each tester can name one career tip afterwards.", verification: [manual_review], relevance: retired, retired_on: "2026-10-08", reason: "D-33: Playtest #1 folds into the M2 gate"}
   - id: REQ-BALANCE
     title: "Balance simulation within the GDD 5.12 bands (or the D8 bands)"
     risk: standard
     source: {file: docs/GDD.md, section: "5.12; 10.6; ARCHITECTURE 12.4"}
     acceptance:
-      - {id: AC-S07-2, statement: "test_balance is green against the GDD 5.12 bands, or the new ones chosen for D8 and written in DECISIONS.md.", verification: [behavioral_test]}
-      - {id: AC-S08-3, statement: "The sim has been rerun after Research; research pushes first-interview pass rates up by 10-15 points.", verification: [behavioral_test]}
+      - {id: AC-S07-2, statement: "test_balance is green against the GDD 5.12 bands, or the new ones chosen for D8 and written in DECISIONS.md.", verification: [behavioral_test], relevance: retired, retired_on: "2026-10-08", reason: "D-33: the R-BAL harness (STEP-14) replaces the Phase 1 balance sim; ISSUE-09 goes with it"}
+      - {id: AC-S08-3, statement: "The sim has been rerun after Research; research pushes first-interview pass rates up by 10-15 points.", verification: [behavioral_test], relevance: retired, retired_on: "2026-10-08", reason: "D-33: Research is parked, so there is no rerun to check"}
   - id: REQ-SCOPE
     title: "Scope by priority and time; the cut list stays current"
     risk: standard
@@ -881,7 +894,7 @@ requirements:
     acceptance:
       - {id: AC-S14-7, statement: "The Coaster never wins, and its median loss comes before day 1,800 (O2).", verification: [behavioral_test]}
   - id: R-TEL-01
-    title: "Telemetry - what the run reports (how is open, MC-15)"
+    title: "Telemetry - what the run reports (a local run log and a debug report only: MC-15, D-34)"
     risk: standard
     source: {file: docs/GDD.md, section: "5.22"}
     acceptance:
@@ -1004,31 +1017,32 @@ tasks:
     # 2026-09-29: the developer's v0.1 review was built first on this step's branch (step-07-dev-review, ISSUE-10),
     # so its components and decisions are added here.
     component_ids: [CMP-TESTS, CMP-DEV, CMP-DATA, CMP-HUNT, CMP-INTERVIEW, CMP-ENDINGS, CMP-CONTENT, CMP-CORE, CMP-AUTOLOAD, CMP-UI, CMP-DOCS]
-    decision_ids: [D8, D9, D10, D11, D12, C2, C3, C4]
+    decision_ids: [D8, D9, D10, D11, D12, C2, C3, C4, D-33]
     depends_on: [STEP-06]
     acceptance_ids: [AC-S07-1, AC-S07-2, AC-S07-3, AC-S07-4]
+    note: "Superseded on 2026-10-08 by D-33 (MC-01): Playtest #1 is the M2 gate (STEP-15) and the balance sim is the R-BAL harness (STEP-14), so AC-S07-1..4 are retired; the developer-review work this step did (PR #6) stays done."
     amendments: ["2026-09-29 the developer's review of the v0.1 grey-box, built on branch step-07-dev-review before Playtest #1: CV editing and lying removed (D9, d8db453); plain-language choice questions, the Hired-card copy and 4 wording fixes (C2-C4, 5c0f968); coach marks close on a tap (D11, e255e6f); the VS intro waits for a tap (D12, 501def5); the real HP and stat bars (W7, 8aaae75); docs and tracking synced in the commit after 8aaae75. Review fix pass (f89cf09..62c2a68, agent defaults A47-A51): D9 leftovers removed; the offer's Ducky tip fades in after the paper lands and closes on a tap; the VS clip starts after the scene fade; Hired-card rows show points out of the row maximum; tip fixes and tip_take_feedback; a debug-only Reset first run on the title. Phase 2 is parked (docs/ideas_parking_lot.md, DECISIONS P3)"]
   - id: STEP-08
     title: "SHOULD features, in GDD 10.2 order"
     source: {file: docs/ROADMAP.md, section: "Step 8"}
     hours: 16
     timebox_hours: 16
-    requirement_ids: [SHOULD-01, SHOULD-02, SHOULD-03, SHOULD-04, SHOULD-05, SHOULD-06, SHOULD-07, SHOULD-08, SHOULD-09, SHOULD-10, SHOULD-11, REQ-BALANCE, REQ-SCOPE]
+    requirement_ids: [SHOULD-01, SHOULD-02, SHOULD-03, SHOULD-04, SHOULD-05, SHOULD-07, SHOULD-08, SHOULD-09, SHOULD-10, SHOULD-11, REQ-BALANCE, REQ-SCOPE]
     component_ids: [CMP-HUNT, CMP-ENDINGS, CMP-INTERVIEW, CMP-UI]
     # 2026-10-07: D7 was superseded by D-27, which removed Negotiate (SHOULD-02, task 2).
-    decision_ids: [D-27]
-    depends_on: [STEP-07]
-    acceptance_ids: [AC-S08-1, AC-S08-3, AC-S08-4]
-    retired_acceptance_ids: [AC-S08-2]  # 2026-10-07: Negotiate was removed (D-27)
-    note: "SHOULD-03..11 are timeboxed: each is either shipped or moved to the cut list; only AC-S08-1, AC-S08-3 and AC-S08-4 gate completion (AC-S08-2 retired with Negotiate, D-27)."
+    decision_ids: [D-27, D-33]
+    depends_on: [STEP-17]  # 2026-10-08 (D-33): the rest of Step 8 runs after M4, with Steps 9-12
+    acceptance_ids: [AC-S08-4]
+    retired_acceptance_ids: [AC-S08-2, AC-S08-1, AC-S08-3]  # AC-S08-2: Negotiate was removed (D-27); AC-S08-1 and AC-S08-3: Research is parked (D-33, 2026-10-08)
+    note: "SHOULD-03..11 are timeboxed: each is either shipped or moved to the cut list; only AC-S08-4 gates completion (AC-S08-2 retired with Negotiate, D-27; AC-S08-1 and AC-S08-3 retired with Research, which D-33 parks along with Network, the commute strip, the morning events and the Unicorn; drag-to-sign, SHOULD-06, moves to STEP-16)."
   - id: STEP-09
     title: "Art style lock and the vertical slice: the interview"
     source: {file: docs/ROADMAP.md, section: "Step 9"}
     hours: 20
     requirement_ids: [REQ-ART, REQ-PERF]
     component_ids: [CMP-ART, CMP-INTERVIEW, CMP-AUDIO]
-    decision_ids: []
-    depends_on: [STEP-07]
+    decision_ids: [D-33]
+    depends_on: [STEP-17]  # 2026-10-08 (D-33): the art and release steps come after M4
     acceptance_ids: [AC-S09-1, AC-S09-2, AC-S09-3]
   - id: STEP-10
     title: "Art production for the rest"
@@ -1063,8 +1077,8 @@ tasks:
     hours: 10
     requirement_ids: [REQ-REL, REQ-PERF, MUST-02, MUST-03, MUST-04, MUST-05, MUST-06, MUST-07, MUST-08, MUST-09, MUST-10, MUST-11, MUST-12, MUST-13, MUST-14, MUST-15, MUST-16, MUST-17, MUST-18, REQ-LICENSE]
     component_ids: [CMP-EXPORT, CMP-DOCS]
-    decision_ids: [P1, AD-13, C1]
-    depends_on: [STEP-08, STEP-12]
+    decision_ids: [P1, AD-13, C1, D-33]
+    depends_on: [STEP-08, STEP-12, STEP-19]  # 2026-10-08 (D-33): v0.5-mvp ships the career run
     acceptance_ids: [AC-S13-1, AC-S13-2, AC-S13-3, AC-DOD-01, AC-DOD-02, AC-DOD-03, AC-DOD-04, AC-DOD-06, AC-DOD-07, AC-DOD-08, AC-DOD-09, AC-DOD-10, AC-DOD-11, AC-MUST-14, AC-DOD-12, AC-DOD-13, AC-DOD-14, AC-DOD-15, AC-DOD-16, AC-DOD-17, AC-DOD-18]
     retired_acceptance_ids: [AC-DOD-05]  # 2026-09-29: the CV screen was removed (D9)
     note: "The release candidate goes out through TestFlight: join the paid Apple Developer Program at the start of the step (ROADMAP Step 13; ARCHITECTURE 13.1). Android and Google Play stay LATER (ARCHITECTURE 13.2)."
@@ -1073,7 +1087,7 @@ tasks:
   # ---------- The career run: M1-M6 (Run Spec v1; ROADMAP 12), tracked as STEP-14..STEP-19 (A53) ----------
   # Branches step-14-sim-core .. step-19-content-tuning. hours = the developer's estimate, agent_hours = Claude's
   # (both written at the merge, revised at each kickoff). STEP-14 has no dependency: it starts ahead of the open
-  # Steps 7-13 (W9); where STEP-15..19 sit against them is open (MC-01).
+  # Steps 7-13 (W9); where STEP-15..19 sit against them is settled (MC-01, D-33).
   - id: STEP-14
     title: "M1: the sim core, headless"
     source: {file: docs/ROADMAP.md, section: "12, Step 14"}
@@ -1096,7 +1110,7 @@ tasks:
     branch: step-15-greybox-ui
     requirement_ids: [R-CLK, R-STAT-01, R-CTL-01, R-EVT-01, R-EVT-02, R-RUN-02]
     component_ids: [CMP-WORK, CMP-CORE, CMP-AUTOLOAD, CMP-UI, CMP-TESTS, CMP-DOCS]
-    decision_ids: [D-01, D-04, D-07, D-13, D-14]
+    decision_ids: [D-01, D-04, D-07, D-13, D-14, D-33]
     depends_on: [STEP-14]
     acceptance_ids: [AC-S15-1, AC-S15-2, AC-S15-3, AC-CLK-1, AC-STAT01-1, AC-EVT01-2, AC-EVT02-2]
     outputs: ["features/work/", docs/KILL_TESTS.md]
@@ -1108,11 +1122,11 @@ tasks:
     hours: 6
     agent_hours: 20
     branch: step-16-run-one
-    requirement_ids: [R-RUN-02, R-STAT-04, R-JOB-01, R-JOB-03, R-JOB-04, R-JOB-06, REQ-TONE]
+    requirement_ids: [R-RUN-02, R-STAT-04, R-JOB-01, R-JOB-03, R-JOB-04, R-JOB-06, REQ-TONE, SHOULD-06]
     component_ids: [CMP-WORK, CMP-SIM, CMP-WORKDATA, CMP-INTERVIEW, CMP-ENDINGS, CMP-CONTENT, CMP-TESTS]
-    decision_ids: [D-02, D-03, D-05, D-22, D-23, D-26, D-27, P-02, P-06, P-08, Q-02]
+    decision_ids: [D-02, D-03, D-05, D-22, D-23, D-26, D-27, D-33, P-02, P-06, P-08, Q-02]
     depends_on: [STEP-15]
-    acceptance_ids: [AC-S16-1, AC-S16-2, AC-S16-3, AC-STAT04-2, AC-JOB01-1, AC-JOB03-1, AC-JOB04-1]
+    acceptance_ids: [AC-S16-1, AC-S16-2, AC-S16-3, AC-STAT04-2, AC-JOB01-1, AC-JOB03-1, AC-JOB04-1, AC-SH-06]
     outputs: ["features/layoff/", data/content/coworkers.json, tests/test_adapter.gd]
     milestone: "M3 (Run Spec v1)"
   - id: STEP-17
