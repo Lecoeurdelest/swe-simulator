@@ -95,12 +95,6 @@ extends Resource
 @export var band_base: float = 0.25
 @export var band_perf_weight: float = 0.50
 @export var salary_round: int = 1000
-@export var nego_base: float = 0.55
-@export var nego_net_div: float = 200.0
-@export var nego_leverage: float = 0.15
-@export var nego_cap: float = 0.85
-@export var nego_gain_min: float = 0.05
-@export var nego_gain_max: float = 0.08
 @export var dream_salary_target: int = 150000
 @export var dream_w_salary: float = 40.0      # GDD "dream_weights" 40 / 25 / 15 / 10 / 10
 @export var dream_w_remote: float = 25.0

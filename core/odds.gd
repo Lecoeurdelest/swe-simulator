@@ -181,14 +181,6 @@ static func offer_salary(cfg: BalanceConfig, tier: TierData, bg: BackgroundData,
 	return round_to(raw, cfg.salary_round)
 
 
-static func negotiate_p(cfg: BalanceConfig, net: int, other_invite_waiting: bool) -> float:
-	return minf(cfg.nego_cap, cfg.nego_base + net / cfg.nego_net_div + (cfg.nego_leverage if other_invite_waiting else 0.0))
-
-
-static func negotiated_salary(cfg: BalanceConfig, salary: int, rng: RandomNumberGenerator) -> int:
-	return round_to(salary * (1.0 + rng.randf_range(cfg.nego_gain_min, cfg.nego_gain_max)), cfg.salary_round)
-
-
 static func dream_score(cfg: BalanceConfig, salary: int, office_days: int, commute_minutes: int, red_flags: int, rent_days_left: int, runway_days: int) -> int:
 	var weekly_commute_h := office_days * 2.0 * commute_minutes / 60.0
 	var pts := cfg.dream_w_salary * minf(1.0, float(salary) / cfg.dream_salary_target)

@@ -129,11 +129,6 @@
     "more": "Flag slips early. Surprises are worse than bad news.",
     "triggers": "eq_impossible_deadline, kq_estimate"
   },
-  "tip_negotiate": {
-    "short": "A polite counter with a number and a reason is normal. It rarely backfires.",
-    "more": "Know your market rate first. The usual worst case is 'this is our best offer'. Tight deadline? Asking for a few more days is normal.",
-    "triggers": "offer opens (Negotiate shipped)"
-  },
   "tip_total_comp": {
     "short": "Compare total pay: salary, bonus, equity, benefits and commute. 3 hours a day on a bus is a pay cut.",
     "more": "Ask about office days, on-call and real working hours too. Tight deadline? Asking for a few more days is normal.",

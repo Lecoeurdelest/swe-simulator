@@ -1036,6 +1036,7 @@ The hours are estimates written at the merge; each step's kickoff revises them, 
 4. **The harness and the five bots** (Claude): `tests/harness/run_harness.gd` and `tests/harness/bots/` (ARCHITECTURE 19.6), run headless on a copy of the repo (A56; the commands are in `.agent/AGENTS.md`). Every run's report goes to `.project/evidence/STEP-14/<run>/`.
 5. **First tuning** (Claude, then you): tune `WorkConfig` and `ArchetypeData` only, until the Planner is within 5 points of its band, and write down what changed and why.
 6. **D-27's cleanup** (Claude), as its own commit, since D-27 gave it to the next code change: remove `Odds.negotiate_p`, `Odds.negotiated_salary`, BalanceConfig's `nego_*` fields, the offer's `negotiated` flag, `test_offer`'s negotiation test and the unused strings (CONTENT 16.7), then sync GDD 11.6, ARCHITECTURE 6.2, 7.1 and 17, and `test_data_files`.
+   **Done 2026-10-08**, in its own commit (`refactor(offer): remove negotiation code (D-27)`): the code, the six strings and the docs are synced, section 17's five changed blocks included; 216 tests pass headless, one fewer than before because the negotiation test went.
 
 **Claude and godot-ai do:** all of the above. M1 needs no editor: the headless runner and `test_run` (or its headless twin) are enough.
 

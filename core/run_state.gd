@@ -68,7 +68,7 @@ var dana_last_company: String = ""
 
 # --- offer, job, result ---
 # the offer on the table (make_offer): {company_id, template_id, tier, job_title, salary, work_mode, office_days,
-#   commute {id, args}, perks [ids], fine_print, equity_text, negotiated}; texts are emails.json ids, job_title the posting's title
+#   commute {id, args}, perks [ids], fine_print, equity_text}; texts are emails.json ids, job_title the posting's title
 var offer: Dictionary = {}
 var employment: Dictionary = {}       # the accepted offer + red_flags (hire(); Phase 2 reads this)
 var dream_score: int = -1
@@ -326,7 +326,6 @@ func make_offer(cfg: BalanceConfig, tier: TierData, bg: BackgroundData, content:
 		"commute": offer_commute(tier.office_days, commute_minutes),
 		"perks": perks, "fine_print": str(fine_print[0]) if not fine_print.is_empty() else "",
 		"equity_text": "offer_equity" if tier_id == EQUITY_TIER else "",
-		"negotiated": false,
 	}
 	return offer.duplicate(true)
 

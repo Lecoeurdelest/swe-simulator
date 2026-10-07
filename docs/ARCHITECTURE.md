@@ -467,6 +467,8 @@ There are three `@tool` Resource classes (code in section 17.5). **Every field i
 
 Removed on 2026-09-29 with lying (DECISIONS D9): TierData's `lie_probe_chance`, `bluff_detect` and `background_check`, and BalanceConfig's whole "Lying (11.5)" group (`max_probes_per_interview`, the `bluff_*` fields, `busted_doubt` / `busted_comp`, `come_clean_doubt` / `come_clean_comp`). The Step 7 review also removed BalanceConfig's `vs_min_view_s` (section 11.5). `test_data_files` expects none of them.
 
+Removed on 2026-10-08, the code cleanup of Negotiate (DECISIONS D-27, 2026-10-07): BalanceConfig's six `nego_*` fields (`nego_base`, `nego_net_div`, `nego_leverage`, `nego_cap`, `nego_gain_min`, `nego_gain_max`), together with `Odds.negotiate_p` and `Odds.negotiated_salary`. `test_data_files` expects none of them, and GDD 11.6 has no rows for them.
+
 - **`BackgroundData`**: one per background. Script defaults are the Graduate values.
 
 | Field | `intern.tres` | `graduate.tres` | `self_taught.tres` |
@@ -569,11 +571,11 @@ The career run's planned JSON (`work_events.json`, `coworkers.json`) and its two
 
 The comments in section 17.2 give the shapes of the list entries: a board card `{uid, template_id, company_id, tier, posted_days_ago, applicants, is_ghost, reposted}`; an application `{uid, template_id, company_id, tier, day_sent, reveal_day, p, hits, relevant, knockout, knockout_reason {id, args}, is_ghost, referral, tailored, status}`, where status goes pending -> invited | rejected | silent (-> ghosted) and invited -> interview | expired; an invite `{uid, app_uid, company_id, template_id, tier, day_received, kind, mail_id}`, where kind is rolled, radar, guarantee or profile.
 
-The offer (GDD 5.9, S10) is `{company_id, template_id, tier, job_title, salary, work_mode, office_days, commute {id, args}, perks, fine_print, equity_text, negotiated}`, plain data only (INV-07), so the paper can be drawn again after a resume:
+The offer (GDD 5.9, S10) is `{company_id, template_id, tier, job_title, salary, work_mode, office_days, commute {id, args}, perks, fine_print, equity_text}`, plain data only (INV-07), so the paper can be drawn again after a resume:
 - `job_title` is the posting's `title` as the JSON has it; the screen `tr()`s it.
 - `salary` is `Odds.offer_salary` (yearly dollars) and `office_days` is `tier.office_days`.
 - Every other text is an `emails.json` id: `work_mode` is `offer_mode_<tier>`; `commute.id` is `offer_commute_remote` (no office days) or `offer_commute_office`, with `commute.args` = `{office_days, commute_min, hours}` and the weekly hours as one-decimal text ("12.7"); `perks` holds 2 `perk_*` ids and `fine_print` 1 `fp_*` id, all listed for the offer's tier. The fine print comes from `fine_print_pool(emails, tier_id, perks)` (Step 7 review): the tier's `fp_*` ids minus any `fp_<x>` whose `perk_<x>` was dealt on the same paper, so a startup never lists "Unlimited PTO*" twice (today `perk_unlimited_pto` / `fp_unlimited_pto` is the only such pair; a thematic overlap such as `perk_pizza` with `fp_perks` is allowed as a joke); `equity_text` is `offer_equity` at startups, else `""`.
-- `negotiated` stays false: Negotiate was removed on 2026-10-07 (DECISIONS D-27). The field, `Odds.negotiate_p`, `Odds.negotiated_salary`, BalanceConfig's `nego_*` fields and `test_offer`'s negotiation test leave with the next code change (section 17 still shows them, because it copies the code as it is).
+- **Removed on 2026-10-08 (DECISIONS D-27):** the offer's `negotiated` flag, with `Odds.negotiate_p`, `Odds.negotiated_salary`, BalanceConfig's `nego_*` fields and `test_offer`'s negotiation test (Negotiate was removed on 2026-10-07). **Old saves still load**, with no `VERSION` bump (the D9 precedent above, DECISIONS A23): an old offer, and the `employment` copied from it, keeps a `negotiated: false` inside its dictionary, and nothing reads it.
 
 **Rule methods** (section 17.2). They take their data as arguments: `cfg` (BalanceConfig), `tiers` (`{"startup": TierData, "mid": ..., "big": ...}`), `bg` (this run's BackgroundData), `rng` (the run RNG) and `content` (the parsed `postings`, `companies`, `cv_lines` and `emails` JSON, keyed by file name; `GameState._hunt_content()` builds it).
 - **Character and CV:** `set_background(cfg, bg)`, `cv_sent(cv_lines, tailored)` (your background's true CV: Quick Apply sends every line Honest, Tailor & Apply sends every line as its Polished version, an honest reframing, for that one application; returns the lines, tags, degree and `passes_years` actually sent), `stat(id)`, `spend_energy(pips)`, `new_uid()`. `set_cv_level` and `cv_line` were removed with the CV screen (D9).
@@ -619,7 +621,7 @@ The offer (GDD 5.9, S10) is `{company_id, template_id, tier, job_title, salary, 
 
 **Step 6 agent defaults** (please review; `test_offer`, `test_endings` and `test_flow` pin them; the build logs in `.project/evidence/STEP-06/2026-09-27-r1/` list the screen-level ones):
 - **Startup equity is its own contract field** ("Equity: 0.0001%", under the salary). S10 has no Equity line, and `fp_equity` is one of the startup fine-print picks, so a startup contract can mention equity twice.
-- **The offer's one tip:** a startup offer (it carries the equity) shows `tip_equity_lottery`; every other offer `tip_total_comp`. `tip_negotiate` has no trigger: Negotiate was removed (D-27).
+- **The offer's one tip:** a startup offer (it carries the equity) shows `tip_equity_lottery`; every other offer `tip_total_comp`. `tip_negotiate` was removed with Negotiate (D-27).
 - **The Plan B tip matches the cause:** no invite all run -> `tip_tailor_over_spray`; invites that led nowhere -> `tip_rejection_numbers`.
 - **The Dream vs Reality rows** are `Odds.dream_breakdown`: `dream_score`'s five terms, unrounded, added in the same order, so the card's rounded sum is always `dream_score`. The grade bands are `Odds.DREAM_GRADE_MINS` (40 / 60 / 80), fixed GDD 5.9.5 rules rather than tuning.
 - **A run counts once** (settings `run_count`, which `first_run` reads) when its save is deleted: entering Plan B, or leaving the Hired card. Not on Accept, because a kill on the Hired card resumes at the offer. A run abandoned with New game is never counted.
@@ -1032,7 +1034,7 @@ Offer (Control, full rect)   offer.gd
 | `test_save.gd` | `save` | 4 | RunState <-> JSON round trip; 64-bit RNG state (2^53 + 1 and negative); seed-then-state replay; since the Step 7 review, a save from before D9 still loads and the next save drops the removed keys | Step 1, grew in the Step 7 review (section 17.13) |
 | `test_odds.gd` | `odds` | 8 | P_invite worked examples (16.8%, 12.3%, 30.7%, 19.0%), clamps, bands, knockouts, relevance, determinism | Step 1 (section 17.13) |
 | `test_interview.gd` | `interview` | 3 | the GDD 5.8.7 walkthrough with fixed luck (Doubt 105.5, 68.6, then about 13.1; wheel 68%), Tired, input bands (the bluff odds test went with D9) | Step 1 (section 17.13) |
-| `test_offer.gd` | `offer` | 14 | salary $71,000, negotiation 77.5 / 62.5% with the 85% cap (this test leaves with the negotiation code, D-27), Dream scores 68 / 57 / 49; since Step 6 the whole offer (GDD 5.9, S10): `make_offer` fills every field as plain data, 2 different perks and 1 fine print listed for the tier, the same checkpoint builds the same contract, a startup offer is remote with equity, the contract fits the paper at every tier, the commute hours, the offer surviving a save, the offer's tip, `decline_ends_run` only at 0 rent, and Accept after a Hired-card kill hiring the same job; since the Step 7 review, the fine print never repeating a perk | Step 1, grew in Step 6 and the Step 7 review (section 17.13) |
+| `test_offer.gd` | `offer` | 13 | salary $71,000, Dream scores 68 / 57 / 49 (the negotiation test, 77.5 / 62.5% with the 85% cap, went with D-27); since Step 6 the whole offer (GDD 5.9, S10): `make_offer` fills every field as plain data, 2 different perks and 1 fine print listed for the tier, the same checkpoint builds the same contract, a startup offer is remote with equity, the contract fits the paper at every tier, the commute hours, the offer surviving a save, the offer's tip, `decline_ends_run` only at 0 rent, and Accept after a Hired-card kill hiring the same job; since the Step 7 review, the fine print never repeating a perk | Step 1, grew in Step 6 and the Step 7 review (section 17.13) |
 | `test_data_files.gd` | `data_files` | 4 | the 7 `.tres` files hold exactly the GDD section 11 defaults, and the derived values (9 / 8 / 6 energy; only the Self-Taught is a lone wolf). Changing a tuned value means updating GDD 11 and this test in the same commit | Step 3 |
 | `test_content_lint.gd` | `content_lint` | 33 | see 12.3 | Step 4, grows each step |
 | `test_interview_plan.gd` | `interview_plan` | 15 | `InterviewPlan` (GDD 5.8.2): prompt order and tier filtering, no opener-only picks, no repeats across interviews, the warm-up (first interview of the first run only, an unpicked difficulty-1 question that leaves the real picks unchanged), same seed same picks, dry pools, the prompts a checkpoint plays, and a resume or an early or late tap replaying the same luck; since the Step 7 review Dana's VS plate taking turns (the probe-question test went with D9) | Step 4 |
@@ -1052,7 +1054,7 @@ Offer (Control, full rect)   offer.gd
 | `test_intro.gd` | `intro` | 4 | `CutscenePlan`: panels in `order`, not id order; what is not a panel is skipped; `pan_path` from the picture's size; the real `cutscene.json` plays as GDD S02 says (6 panels in order 1-6, at most 40 s of pans, exactly one title card) | Step 6 |
 | `test_balance.gd` | `balance` | | the GDD 5.12 simulation, ported | Step 7 |
 
-The 5 Step-1 files had 24 tests, all passing against the section-17 code (verified: scratch run, and in this repo on 2026-09-26 after the portrait change). At the end of Step 5 there were 19 suites and 200 tests. At the end of Step 6 there were 21 suites and 225 tests (2026-09-27, `.project/evidence/STEP-06/2026-09-27-r1/test_run.json`). The Step 7 review removed the 2 lie-probe suites (204 tests in 19 suites after D9) and added `bars`: there are now **20 suites and 217 tests**, all passing (2026-09-29, headless and in the editor; `.project/evidence/STEP-07/2026-09-29-review/`). The suites that load data read the real `.tres` with `load()` and the JSON with `FileAccess`, never through `Content` (INV-12).
+The 5 Step-1 files had 24 tests, all passing against the section-17 code (verified: scratch run, and in this repo on 2026-09-26 after the portrait change). At the end of Step 5 there were 19 suites and 200 tests. At the end of Step 6 there were 21 suites and 225 tests (2026-09-27, `.project/evidence/STEP-06/2026-09-27-r1/test_run.json`). The Step 7 review removed the 2 lie-probe suites (204 tests in 19 suites after D9) and added `bars`: there are now **20 suites and 217 tests**, all passing (2026-09-29, headless and in the editor; `.project/evidence/STEP-07/2026-09-29-review/`). D-27's code cleanup (2026-10-08) removed `test_offer`'s negotiation test: 216 tests in 20 suites, all passing headless. The suites that load data read the real `.tres` with `load()` and the JSON with `FileAccess`, never through `Content` (INV-12).
 
 ### 12.3 `test_content_lint.gd` checks
 
@@ -1510,7 +1512,7 @@ var dana_last_company: String = ""
 
 # --- offer, job, result ---
 # the offer on the table (make_offer): {company_id, template_id, tier, job_title, salary, work_mode, office_days,
-#   commute {id, args}, perks [ids], fine_print, equity_text, negotiated}; texts are emails.json ids, job_title the posting's title
+#   commute {id, args}, perks [ids], fine_print, equity_text}; texts are emails.json ids, job_title the posting's title
 var offer: Dictionary = {}
 var employment: Dictionary = {}       # the accepted offer + red_flags (hire(); Phase 2 reads this)
 var dream_score: int = -1
@@ -1768,7 +1770,6 @@ func make_offer(cfg: BalanceConfig, tier: TierData, bg: BackgroundData, content:
 		"commute": offer_commute(tier.office_days, commute_minutes),
 		"perks": perks, "fine_print": str(fine_print[0]) if not fine_print.is_empty() else "",
 		"equity_text": "offer_equity" if tier_id == EQUITY_TIER else "",
-		"negotiated": false,
 	}
 	return offer.duplicate(true)
 
@@ -2474,14 +2475,6 @@ static func offer_salary(cfg: BalanceConfig, tier: TierData, bg: BackgroundData,
 	return round_to(raw, cfg.salary_round)
 
 
-static func negotiate_p(cfg: BalanceConfig, net: int, other_invite_waiting: bool) -> float:
-	return minf(cfg.nego_cap, cfg.nego_base + net / cfg.nego_net_div + (cfg.nego_leverage if other_invite_waiting else 0.0))
-
-
-static func negotiated_salary(cfg: BalanceConfig, salary: int, rng: RandomNumberGenerator) -> int:
-	return round_to(salary * (1.0 + rng.randf_range(cfg.nego_gain_min, cfg.nego_gain_max)), cfg.salary_round)
-
-
 static func dream_score(cfg: BalanceConfig, salary: int, office_days: int, commute_minutes: int, red_flags: int, rent_days_left: int, runway_days: int) -> int:
 	var weekly_commute_h := office_days * 2.0 * commute_minutes / 60.0
 	var pts := cfg.dream_w_salary * minf(1.0, float(salary) / cfg.dream_salary_target)
@@ -2785,12 +2778,6 @@ extends Resource
 @export var band_base: float = 0.25
 @export var band_perf_weight: float = 0.50
 @export var salary_round: int = 1000
-@export var nego_base: float = 0.55
-@export var nego_net_div: float = 200.0
-@export var nego_leverage: float = 0.15
-@export var nego_cap: float = 0.85
-@export var nego_gain_min: float = 0.05
-@export var nego_gain_max: float = 0.08
 @export var dream_salary_target: int = 150000
 @export var dream_w_salary: float = 40.0      # GDD "dream_weights" 40 / 25 / 15 / 10 / 10
 @export var dream_w_remote: float = 25.0
@@ -4204,7 +4191,7 @@ func test_input_quality_bands() -> void:
 ```gdscript
 @tool
 extends McpTestSuite
-## GDD 5.9: salary, negotiation, Dream vs Reality examples; the whole offer RunState.make_offer builds
+## GDD 5.9: salary, Dream vs Reality examples; the whole offer RunState.make_offer builds
 ## from the interview checkpoint (S10), its tip, the grace-day Decline, and the Accept that a kill on
 ## the Hired card replays (5.11). Pure: tiers and backgrounds from the .tres, the JSON read with
 ## FileAccess, saves through JSON strings, never user:// or an autoload (INV-12).
@@ -4282,12 +4269,6 @@ func test_salary_example() -> void:
 	assert_eq(Odds.offer_salary(cfg, startup, intern, 96.925, 100.0), 71000)
 
 
-func test_negotiation_odds() -> void:
-	assert_true(absf(Odds.negotiate_p(cfg, 45, false) - 0.775) < 0.0001, "Intern")
-	assert_true(absf(Odds.negotiate_p(cfg, 15, false) - 0.625) < 0.0001, "Graduate")
-	assert_true(absf(Odds.negotiate_p(cfg, 45, true) - 0.85) < 0.0001, "capped at 85%")
-
-
 func test_dream_score_examples() -> void:
 	assert_eq(Odds.dream_score(cfg, 71000, 0, 20, 2, 13, 15), 68, "Intern at Hierarchai")
 	assert_eq(Odds.dream_score(cfg, 126000, 4, 20, 2, 11, 15), 57, "Intern at OmniGlobal")
@@ -4312,7 +4293,6 @@ func test_make_offer_builds_the_whole_contract() -> void:
 	assert_eq((made["perks"] as Array).size(), RunState.OFFER_PERKS)
 	assert_true(str(made["fine_print"]).begins_with("fp_"), "one fine-print id")
 	assert_eq(made["equity_text"], "", "no equity off startups")
-	assert_eq(made["negotiated"], false)
 	_assert_plain(made, "offer")
 
 
@@ -4824,8 +4804,7 @@ static func coach_invite(run: RunState) -> bool:
 
 
 ## The offer's one tip (GDD S10, 8.1 rule 2, 8.3): a startup offer, which carries the joke equity ->
-## tip_equity_lottery; any other -> tip_total_comp (its trigger: an offer with a commute). Negotiate
-## is SHOULD, so tip_negotiate never shows yet.
+## tip_equity_lottery; any other -> tip_total_comp (its trigger: an offer with a commute).
 static func offer(run: RunState) -> String:
 	return "tip_equity_lottery" if str(run.offer.get("equity_text", "")) != "" else "tip_total_comp"
 
@@ -5108,7 +5087,7 @@ Nothing retires before MC-01 says the career run replaces the Phase 1 flow. Then
 - `features/phase2_stub/` (the Hired card as an ending), once MC-08 is answered; the enum value stays (INV-10);
 - TierData's unused `meeting_load`, `layoff_risk` and `growth_mult` (RC-05).
 
-D-27's negotiation code goes with the next code change, whatever MC-01 decides: `Odds.negotiate_p`, `Odds.negotiated_salary`, BalanceConfig's `nego_*` fields, the offer's `negotiated` flag, `test_offer`'s negotiation test and the unused strings (CONTENT 16.7). Each retired file's block leaves section 17 in the same commit, through the usual sync.
+D-27's negotiation code did not wait for MC-01: it left in its own commit on 2026-10-08 (ROADMAP 12, Step 14 task 6): `Odds.negotiate_p`, `Odds.negotiated_salary`, BalanceConfig's `nego_*` fields, the offer's `negotiated` flag, `test_offer`'s negotiation test and the unused strings (CONTENT 16.7). Section 17 was re-synced in that commit. Each retired file's block leaves section 17 in the same commit, through the usual sync.
 
 ### 19.10 Tests (planned)
 

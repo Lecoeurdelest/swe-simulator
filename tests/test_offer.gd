@@ -1,6 +1,6 @@
 @tool
 extends McpTestSuite
-## GDD 5.9: salary, negotiation, Dream vs Reality examples; the whole offer RunState.make_offer builds
+## GDD 5.9: salary, Dream vs Reality examples; the whole offer RunState.make_offer builds
 ## from the interview checkpoint (S10), its tip, the grace-day Decline, and the Accept that a kill on
 ## the Hired card replays (5.11). Pure: tiers and backgrounds from the .tres, the JSON read with
 ## FileAccess, saves through JSON strings, never user:// or an autoload (INV-12).
@@ -78,12 +78,6 @@ func test_salary_example() -> void:
 	assert_eq(Odds.offer_salary(cfg, startup, intern, 96.925, 100.0), 71000)
 
 
-func test_negotiation_odds() -> void:
-	assert_true(absf(Odds.negotiate_p(cfg, 45, false) - 0.775) < 0.0001, "Intern")
-	assert_true(absf(Odds.negotiate_p(cfg, 15, false) - 0.625) < 0.0001, "Graduate")
-	assert_true(absf(Odds.negotiate_p(cfg, 45, true) - 0.85) < 0.0001, "capped at 85%")
-
-
 func test_dream_score_examples() -> void:
 	assert_eq(Odds.dream_score(cfg, 71000, 0, 20, 2, 13, 15), 68, "Intern at Hierarchai")
 	assert_eq(Odds.dream_score(cfg, 126000, 4, 20, 2, 11, 15), 57, "Intern at OmniGlobal")
@@ -108,7 +102,6 @@ func test_make_offer_builds_the_whole_contract() -> void:
 	assert_eq((made["perks"] as Array).size(), RunState.OFFER_PERKS)
 	assert_true(str(made["fine_print"]).begins_with("fp_"), "one fine-print id")
 	assert_eq(made["equity_text"], "", "no equity off startups")
-	assert_eq(made["negotiated"], false)
 	_assert_plain(made, "offer")
 
 

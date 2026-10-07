@@ -2,7 +2,7 @@
 
 Companion to `docs/GDD.md`. Every player-facing string for the MVP, with the stable ids the GDD's data model uses (GDD section 5.0). Each section names the JSON file it becomes.
 
-Status: v1.2, 2026-10-07 (v1.1: 2026-09-29; v1.0: 2026-09-26). v1.2 adds section 16, the career run's draft strings (Run Spec v1, DECISIONS W8), and Run Spec v1 notes in sections 1.1, 3, 14 and 15. v1.1 follows the developer's review of the v0.1 grey-box: the CV screen and lying are gone (DECISIONS D9), the choice questions are in plain language for non-tech players (C3), the Hired card is clearer (C4), and the copy the review queue listed is approved, with its 4 wording fixes (C2). Everything here is still a first draft for playtesting. You (the developer) own the jokes and sign off every career tip before release. 2026-10-07: Negotiate was removed (DECISIONS D-27), so its strings have no use (sections 8.2, 10.1, 11 and 13.1 say which); they leave the JSON with the next code change. The career run's strings (Run Spec v1) are section 16: drafts, not in the JSON yet.
+Status: v1.2, 2026-10-07 (v1.1: 2026-09-29; v1.0: 2026-09-26). v1.2 adds section 16, the career run's draft strings (Run Spec v1, DECISIONS W8), and Run Spec v1 notes in sections 1.1, 3, 14 and 15. v1.1 follows the developer's review of the v0.1 grey-box: the CV screen and lying are gone (DECISIONS D9), the choice questions are in plain language for non-tech players (C3), the Hired card is clearer (C4), and the copy the review queue listed is approved, with its 4 wording fixes (C2). Everything here is still a first draft for playtesting. You (the developer) own the jokes and sign off every career tip before release. 2026-10-07: Negotiate was removed (DECISIONS D-27), so its strings went too (sections 8.2, 10.1, 11 and 13.1 say which; they left the JSON in the code cleanup of 2026-10-08). The career run's strings (Run Spec v1) are section 16: drafts, not in the JSON yet.
 
 ---
 
@@ -24,7 +24,7 @@ Status: v1.2, 2026-10-07 (v1.1: 2026-09-29; v1.0: 2026-09-26). v1.2 adds section
 | Email body | 240 (7) |
 | Player name | 10 (1) |
 
-- **MVP amounts:** 9 companies (6 flagged `mvp`), 20 posting templates (+1 SHOULD), 18 CV lines, 13 choice questions (+ the Research opener), 22 knowledge questions, 31 tips, 10 rejection lines.
+- **MVP amounts:** 9 companies (6 flagged `mvp`), 20 posting templates (+1 SHOULD), 18 CV lines, 13 choice questions (+ the Research opener), 22 knowledge questions, 30 tips, 10 rejection lines.
 - **Refreshable jokes:** topical 2026 AI-hype lines live in `news.json` and `events.json` so they can be updated without code changes.
 
 ---
@@ -506,10 +506,8 @@ Background-specific openers are in section 3 (`dana_opener`); company one-liners
 | `bark_dana_other_candidates` | We've decided to move forward with other candidates. |
 | `bark_dana_composure_zero` | Let's stop here. Get some rest. Seriously. Apply again. |
 | `bark_dana_decline` | No worries! (Our ATS will remember this.) |
-| `bark_dana_nego_win` | I asked. They said yes. Don't get used to it. |
-| `bark_dana_nego_lose` | This is our best and final. I did try. |
 
-Dana's four lie-probe lines (the probe intro, Come clean, a won bluff, BUSTED) were removed with lying on 2026-09-29 (DECISIONS D9). `bark_dana_nego_win` and `bark_dana_nego_lose` have no use since Negotiate was removed on 2026-10-07 (D-27); they leave `barks.json` with the next code change.
+Dana's four lie-probe lines (the probe intro, Come clean, a won bluff, BUSTED) were removed with lying on 2026-09-29 (DECISIONS D9). Her two negotiation lines, `bark_dana_nego_win` and `bark_dana_nego_lose`, were removed with Negotiate (2026-10-07, D-27) and left `barks.json` in the code cleanup of 2026-10-08.
 
 ### 8.3 VS screen and announcer
 
@@ -810,7 +808,6 @@ On screen, `ducky` lines are prefixed with `ducky_real_answer` ("Real answer:").
 | `ui_start_day` | Start day |
 | `ui_accept` | ACCEPT |
 | `ui_decline` | Decline |
-| `ui_negotiate` | Negotiate |
 | `ui_decline_confirm` | Decline this offer? Rent keeps ticking. |
 | `ui_decline_confirm_grace` | Decline this offer? Rent is due today, so this ends the run. |
 | `ui_ready` | Ready? Tap to continue. |
@@ -853,7 +850,7 @@ The hub's bottom dock (GDD 4.2 S04) uses `ui_tab_*` plus `ui_sleep`; dock labels
 
 **Approved (DECISIONS C2, 2026-09-29):** the developer approved all the copy the review queue listed ("go with it"): every line above that was added with no source text, the grammatical variants and the labels copied from the GDD mockups. The CV screen's labels (the CV dock tab, the degree and "1+ yrs" chips, Lie risk, Honest / Polished / Lie, and the row labels), and the Come clean and Bluff buttons, were removed with it (D9).
 
-**Unused since 2026-10-07 (DECISIONS D-27):** `ui_negotiate`, because Negotiate was removed. It leaves `barks.json` with the next code change.
+**Removed 2026-10-07 (DECISIONS D-27):** `ui_negotiate`, because Negotiate was removed. It left `barks.json` in the code cleanup of 2026-10-08.
 
 A primary button shows its label in capitals (`UiText.primary()` upper-cases it, as the GDD 4.2 mockups do: `[ CONTINUE ]`, `[ NEW RUN ]`), and a Back-style button puts "< " in front (`UiText.back()`). Write the text here in its normal case. (Agent default, please review.)
 
@@ -905,13 +902,12 @@ Fields: `id, short (<=120, on screen), more (Notebook extra), triggers`. GDD 8.3
 | `tip_privacy` | Customer data is off-limits without a business reason. Access is logged. | Snooping is a fast way to lose a job and to hurt real people. | `eq_celebrity_orders` |
 | `tip_focus_time` | Protect focus time: decline meetings you aren't needed in and ask for notes. | Say what you're working on and when you'll be free. | `eq_meeting_overload` |
 | `tip_scope` | When a deadline is impossible, offer a smaller first version and write down the risks. | Flag slips early. Surprises are worse than bad news. | `eq_impossible_deadline`, `kq_estimate` |
-| `tip_negotiate` | A polite counter with a number and a reason is normal. It rarely backfires. | Know your market rate first. The usual worst case is 'this is our best offer'. Tight deadline? Asking for a few more days is normal. | none: Negotiate was removed (D-27) |
 | `tip_total_comp` | Compare total pay: salary, bonus, equity, benefits and commute. 3 hours a day on a bus is a pay cut. | Ask about office days, on-call and real working hours too. Tight deadline? Asking for a few more days is normal. | offer with a commute, `eq_rto` |
 | `tip_equity_lottery` | Treat startup equity like a lottery ticket. Ask the percentage and the vesting schedule. | A 1-year cliff means you get nothing if you leave or are laid off before 12 months. Also ask the strike price and how long you'd have to buy vested options after leaving. | startup offer |
 | `tip_fine_print` | Read non-compete, IP and probation clauses. Enforceability varies by country and state. Unsure? Ask a lawyer. | Ask HR what a clause covers and get the answer in writing before you sign. Whether it's enforceable is a question for an employment lawyer or legal aid. | fine print opened |
 | `tip_written_offer` | Don't stop other applications until you have a signed, written offer. | Check that it lists the start date, pay and work mode. | Hired card |
 
-Changed 2026-09-29: the tips for the plain-language choice questions (`tip_small_changes`, `tip_blameless`, `tip_secrets`, `tip_teamwork_without_job`, `tip_star_stories`, `tip_ask_questions`) lost their jargon (DECISIONS C3); tip accuracy is still yours to sign off. The two lying tips ("I don't know" beats a bluff; don't lie on a CV) were removed with lying (D9). `tip_keywords_honest` has no trigger in the MVP (it was the CV screen's), and `tip_quantify_impact` and `tip_projects_count` now come the night after a Tailor & Apply (GDD 8.3). Changed again in the review fix pass (DECISIONS A49, A50; please check their accuracy): `tip_star_stories` names the 5 topics before the structure; `tip_small_changes` lost the "how weekends die" hyperbole (GDD 1.3: the joke belongs to Dana's reaction); `tip_teamwork_without_job` says "team coding events", because most coding contests are solo; and `tip_take_feedback` is new: `eq_harsh_review`'s bad answer used to show `tip_teamwork_without_job`, which didn't match the cause (GDD 8.1 rule 4), so that tip has no trigger in the MVP now. Changed 2026-10-07: `tip_negotiate` has no trigger, because Negotiate was removed (DECISIONS D-27).
+Changed 2026-09-29: the tips for the plain-language choice questions (`tip_small_changes`, `tip_blameless`, `tip_secrets`, `tip_teamwork_without_job`, `tip_star_stories`, `tip_ask_questions`) lost their jargon (DECISIONS C3); tip accuracy is still yours to sign off. The two lying tips ("I don't know" beats a bluff; don't lie on a CV) were removed with lying (D9). `tip_keywords_honest` has no trigger in the MVP (it was the CV screen's), and `tip_quantify_impact` and `tip_projects_count` now come the night after a Tailor & Apply (GDD 8.3). Changed again in the review fix pass (DECISIONS A49, A50; please check their accuracy): `tip_star_stories` names the 5 topics before the structure; `tip_small_changes` lost the "how weekends die" hyperbole (GDD 1.3: the joke belongs to Dana's reaction); `tip_teamwork_without_job` says "team coding events", because most coding contests are solo; and `tip_take_feedback` is new: `eq_harsh_review`'s bad answer used to show `tip_teamwork_without_job`, which didn't match the cause (GDD 8.1 rule 4), so that tip has no trigger in the MVP now. Removed 2026-10-07: `tip_negotiate`, because Negotiate was removed (DECISIONS D-27); it left `tips.json` in the code cleanup of 2026-10-08.
 
 ---
 
@@ -1004,10 +1000,8 @@ The template's first line is `offer_title`; the salary value (without its "Salar
 | `offer_label_perks` | Perks: |
 | `offer_label_fine_print` | Fine print: |
 | `offer_deadline` | Please decide before you sleep. |
-| `offer_equity_doubled` | Equity doubled! 0.0001% -> 0.0002%. |
-| `offer_signon` | Paid as a sign-on bonus. (Big corps love a one-time thing.) |
 
-`offer_equity_doubled` and `offer_signon` were Negotiate's success lines; they have no use since Negotiate was removed (2026-10-07, DECISIONS D-27) and leave `emails.json` with the next code change.
+`offer_equity_doubled` and `offer_signon` were Negotiate's success lines; they were removed with Negotiate (2026-10-07, DECISIONS D-27) and left `emails.json` in the code cleanup of 2026-10-08.
 
 ### 13.2 Perks (2 shown per offer)
 
@@ -1314,4 +1308,4 @@ The Run Spec's own tip texts, made ASCII and American ("favorite", "practice"). 
 - **Kept:** the duel's (sections 7-9), the offer's (13; `offer_deadline`, "Please decide before you sleep.", is Open, MC-20), the Plan B card's (14) and `coach_meter` (10.2).
 - **Retired with the hunt** when the career run is built (MC-01 decides when): the hunt's UI lines in 10.1 (energy, rent, the Radar, the deck, Mail), its coach lines in 10.2, the emails (12) and the morning events (15.1).
 - **Waiting for MC-08 and MC-09:** `end_hired_*`, the Dream rows and `end_tbc`.
-- **Already unused** (D-27): `tip_negotiate`, `bark_dana_nego_win`, `bark_dana_nego_lose`, `ui_negotiate`, `offer_equity_doubled`, `offer_signon`.
+- **Removed** (D-27; they left the JSON in the code cleanup of 2026-10-08): `tip_negotiate`, `bark_dana_nego_win`, `bark_dana_nego_lose`, `ui_negotiate`, `offer_equity_doubled`, `offer_signon`.

@@ -42,9 +42,7 @@ var balance_expected: Dictionary = {
 	"committee_close_bonus": 0.20, "committee_net_div": 200.0, "committee_cap": 0.85,
 	"input_lock_ms": 250, "vs_duration_s": 2.0, "typewriter_cps": 40.0,
 	# 11.6 Offer and endings
-	"band_base": 0.25, "band_perf_weight": 0.50, "salary_round": 1000,
-	"nego_base": 0.55, "nego_net_div": 200.0, "nego_leverage": 0.15, "nego_cap": 0.85,
-	"nego_gain_min": 0.05, "nego_gain_max": 0.08, "dream_salary_target": 150000,
+	"band_base": 0.25, "band_perf_weight": 0.50, "salary_round": 1000, "dream_salary_target": 150000,
 	"dream_w_salary": 40.0, "dream_w_remote": 25.0, "dream_w_commute": 15.0,
 	"dream_w_flags": 10.0, "dream_w_runway": 10.0,
 	"dream_commute_zero_h": 10.0, "dream_flag_penalty": 5.0, "grace_day": true,

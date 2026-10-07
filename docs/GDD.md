@@ -1646,7 +1646,7 @@ Scars make each job in a run harder than the last; the Handbook makes each run a
 The Run Spec's fifth edge, "Negotiate every offer" (negotiation chance +5%), left with negotiation (D-27), and its Option example "Landlords negotiate too (E04)" left with E04's negotiation (D-28).
 
 - Which kind each of the other tips is, and which tips unlock duel answers, are settled at M6; until then they count as Lore (a proposal, 8.6).
-- How the Handbook relates to Phase 1's Career Notebook, and whether Phase 1's 31 tips count, is Open (MC-18): proposed, the Handbook is the Notebook grown up, and every tip that fires is collected, Phase 1's as Lore.
+- How the Handbook relates to Phase 1's Career Notebook, and whether Phase 1's 30 tips count, is Open (MC-18): proposed, the Handbook is the Notebook grown up, and every tip that fires is collected, Phase 1's as Lore.
 
 **Other unlocks:** The Graduate after run 1; The Self-Taught after the first Studio win or five runs; an ending gallery; Handbook completion shown as a percentage.
 
@@ -1813,7 +1813,7 @@ The career run's companies come in three archetypes (5.18), while the duel still
 | Bad answer to harsh feedback (`eq_harsh_review`) | `tip_take_feedback` |
 | Bad closer answer | `tip_ask_questions` |
 | Specific ethics questions | each question's own tip (e.g. `tip_secrets`, `tip_ai_tools`, `tip_small_changes`) |
-| Offer opens | `tip_total_comp` (`tip_negotiate` has no trigger since Negotiate was removed, D-27) |
+| Offer opens | `tip_total_comp` (`tip_negotiate` was removed with Negotiate, D-27) |
 | Startup offer | `tip_equity_lottery` |
 | Fine print opened | `tip_fine_print` |
 | Hired card | `tip_written_offer` |
@@ -1965,7 +1965,7 @@ The Work loop (Phase 2) with walking top-down characters and an office map; cosm
 
 ### 10.4 Phase 2 hooks: state the MVP must already store
 
-**Run Spec v1 status:** superseded by the career run's own state (ARCHITECTURE 19.4), which is planned from the Run Spec rather than from these hooks. Of these fields the career run plans to read `background_id`, `player_name`, `knw`, `exp` and `net` (the duel, D-26), `lone_wolf` and `gap_topics` (the duel), `commute_minutes` (the Dream score: Open, MC-13), `times_met_dana` and `dana_last_company` (Dana's cameos), `blacklist` (Open, MC-19), and the RNG seed and state. `commute_pips`, `rent_days_left` and the day loop's fields retire (D-04); `negotiated` leaves with D-27's code change; TierData's `meeting_load`, `layoff_risk` and `growth_mult` are superseded (RC-05); and the "laid off -> JOB_HUNT" entry point becomes the same clock with salary 0 (D-04).
+**Run Spec v1 status:** superseded by the career run's own state (ARCHITECTURE 19.4), which is planned from the Run Spec rather than from these hooks. Of these fields the career run plans to read `background_id`, `player_name`, `knw`, `exp` and `net` (the duel, D-26), `lone_wolf` and `gap_topics` (the duel), `commute_minutes` (the Dream score: Open, MC-13), `times_met_dana` and `dana_last_company` (Dana's cameos), `blacklist` (Open, MC-19), and the RNG seed and state. `commute_pips`, `rent_days_left` and the day loop's fields retire (D-04); `negotiated` left with D-27's code cleanup; TierData's `meeting_load`, `layoff_risk` and `growth_mult` are superseded (RC-05); and the "laid off -> JOB_HUNT" entry point becomes the same clock with salary 0 (D-04).
 
 `RunState` (saved) must hold, even if the MVP never reads some of it:
 
@@ -1973,7 +1973,7 @@ The Work loop (Phase 2) with walking top-down characters and an office map; cosm
 |---|---|
 | `background_id`, `player_name`, `knw`, `exp`, `net`, `lone_wolf`, `gap_topics` | the same character goes to work |
 | `commute_pips`, `commute_minutes` (copied from BackgroundData) | work-day energy on office days |
-| `employment`: `company_id`, `tier`, `job_title`, `salary`, `work_mode`, `office_days`, `perks`, `red_flags`, `equity_text`, `negotiated` (always false since D-27) | the job you took |
+| `employment`: `company_id`, `tier`, `job_title`, `salary`, `work_mode`, `office_days`, `perks`, `red_flags`, `equity_text` | the job you took |
 | `day`, `rent_days_left`, `dream_score` | carry-over and ending comparisons |
 | `interviews_taken`, `times_met_dana`, `dana_last_company` | Dana cameos, "laid off too" gag |
 | `blacklist` (company ids), `applied` (template+company pairs) | "you declined us" events |
@@ -2002,7 +2002,7 @@ Code hooks: a generic Day Cycle where HUNT is one mode; `GameFlow.Phase` leaves 
 The minimum set is below; ARCHITECTURE 12.2 lists every suite as built (20 suites and 217 tests after the Step 7 review, 2026-09-29).
 - `test_odds.gd`: P_invite worked examples (16.8%, 12.3%, 30.7%, 19.0%), band thresholds, knockout logic.
 - `test_interview.gd`: S/h/Q/damage for the 5.8.7 example with a fixed luck value; wheel formula; Tired.
-- `test_offer.gd`: salary, negotiation cap, Dream score examples (68, 57, 49). (The negotiation test leaves with the negotiation code, D-27.)
+- `test_offer.gd`: salary, Dream score examples (68, 57, 49). (Its negotiation cap test went with the negotiation code, D-27.)
 - `test_flow.gd`: legal transitions, Continue fallback, Retry resets the run.
 - `test_save.gd`: RunState round trip with a 64-bit RNG state (no writes to `user://`).
 - `test_content_lint.gd`: every id referenced exists; text budgets from 2.7, including the line caps after word-wrapping at 40 columns; banned brand list; ASCII only.
@@ -2147,8 +2147,6 @@ Replaced by nothing: its 14 `BalanceConfig` fields (`max_probes_per_interview`, 
 | `salary_mult` | 1.10 / 1.00 / 0.90 | BG |
 | `band_base` / `band_perf_weight` | 0.25 / 0.50 | B |
 | `salary_round` | 1000 | B |
-| `nego_base` / `nego_net_div` / `nego_leverage` / `nego_cap` (removed by D-27; still in BalanceConfig until the next code change) | 0.55 / 200 / 0.15 / 0.85 | B |
-| `nego_gain_min` / `nego_gain_max` (removed by D-27, as above) | 0.05 / 0.08 | B |
 | `office_days` | 0 / 2 / 4 | T |
 | `dream_salary_target` | 150000 | B |
 | `dream_weights` (salary, remote, commute, flags, runway) | 40 / 25 / 15 / 10 / 10 | B |
