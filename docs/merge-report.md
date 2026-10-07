@@ -1,6 +1,6 @@
 # Run Spec v1 merge report
 
-**Status: IN PROGRESS.** Branch `run-spec-v1-merge` (pushed). Don't merge it yet: the GDD points at sections that are still to be written (see "What's left"). Last updated 2026-10-07, after your answers to MC-01, MC-02 and MC-21 and the Negotiate removal; second session: "What's left" item 1 (the GDD) is done.
+**Status: IN PROGRESS.** Branch `run-spec-v1-merge` (pushed). Don't merge it yet: the GDD points at sections that are still to be written (see "What's left"). Last updated 2026-10-07, after your answers to MC-01, MC-02 and MC-21 and the Negotiate removal; second session: "What's left" items 1-5 are done.
 
 Sources: `docs/run-spec-v1.md` (the spec, archived read-only; original sha256 `f64ea13ca5c739cef5ab4a68ae6cad3aefcac03f9856308fb95e2fbd3b5106af`), `docs/swe-simulator-handoff.md` and `docs/swe-simulator-godot-access.md` (both moved from the repo root, A59). `phase2_draft_options.md` wasn't available and wasn't used. No code or asset was changed.
 
@@ -40,10 +40,10 @@ Sources: `docs/run-spec-v1.md` (the spec, archived read-only; original sha256 `f
    - the section 5 map and a "Run Spec v1 status" line on 5.0 and 5.2-5.13 (5.1 is done);
    - new 5.14 clock (R-CLK), 5.15 money (R-ECO, R-ECO-05), 5.16 work stats (R-STAT-01..04, R-CB-02), 5.17 controls (R-CTL-01..04), 5.18 archetypes and floor depth (P-01, P-07, R-ARC-02, Pivotly's coworkers), 5.19 events (R-EVT-01..05, the E01-E26 table in ASCII with **E04 without its negotiate choice and tip** (D-28), R-RUN-02, the layoff scene), 5.20 job hunt and adapter (R-JOB-01..06, **with D-27**), 5.21 Scars and Handbook (R-SCAR-01, R-HB-01, **4 Edge tips, 23 v1 tips, no E04 Option example**), 5.22 harness (R-BAL, R-TEL-01);
    - a status line on 6 and new 6.1 (floor depth); a status line on 7 and new 7.1 (tiers and archetypes); 8.5 (Handbook) and 8.6 (event tips); 9.5 (career-run juice); status lines on 10.1-10.5 and new 10.7 (scope, M1-M6, W9); 11.7 (every spec number with a planned owner, **no nego rows**); at the end of 12, a summary of D-01..D-25 and P-01..P-08 above "Decisions after the merge"; new 13 (O1-O9, A-01..A-05 checked, Q-01..Q-07, 13.4 the duel's real stat names, a risks pointer, an open-conflicts pointer).
-2. **CONTENT** v1.2: new section 16 (draft strings: names, the Hours labels, E01-E26 cards with `evt_eNN_*` ids and tip ids, ending lines, the layoff line, the Burnout warnings), plus notes in 1.1, 3, 14 and 15.
-3. **ARCHITECTURE** v1.5: new section 19 (sim core, the `WorkConfig` and `ArchetypeData` data files, phases and save, the adapter with the Q-02 names and D-26, the run log, the harness, the diorama, what retires); pointers in 0, 4.1, 6.3, 11.8 and 12; section 17 stays as is (no code changed).
-4. **ROADMAP** v1.3: new section 12 (STEP-14..19 = M1-M6, with STEP-14 next per W9); notes on Steps 7-11; the art pipeline (D-21); the playtest gates in 7; the spec's risks as rows 13-19 in 8; the decision ranges in 1.
-5. REVIEW_QUEUE (rewrite: section 0 with the open MC items), ideas_parking_lot (the Phase 2 entry is picked up by the Run Spec), a KILL_TESTS note (O8), invariants INV-20 (the art rule) and possibly INV-21..23 (sim purity, no time while closed, one Junior control).
+2. **CONTENT (done, second session)** v1.2: new section 16 (draft strings: names, the Hours labels, E01-E26 cards with `evt_eNN_*` ids and tip ids, ending lines, the layoff line, the Burnout warnings), plus notes in 1.1, 3, 14 and 15.
+3. **ARCHITECTURE (done, second session)** v1.5: new section 19 (sim core, the `WorkConfig` and `ArchetypeData` data files, phases and save, the adapter with the Q-02 names and D-26, the run log, the harness, the diorama, what retires); pointers in 0, 4.1, 6.3, 11.8 and 12; section 17 stays as is (no code changed).
+4. **ROADMAP (done, second session)** v1.3: new section 12 (STEP-14..19 = M1-M6, with STEP-14 next per W9); notes on Steps 7-11; the art pipeline (D-21); the playtest gates in 7; the spec's risks as rows 13-19 in 8; the decision ranges in 1.
+5. **Done, second session:** REVIEW_QUEUE (rewrite: section 0 with the open MC items), ideas_parking_lot (the Phase 2 entry is picked up by the Run Spec), a KILL_TESTS note (O8), invariants INV-20 (the art rule) and possibly INV-21..23 (sim purity, no time while closed, one Junior control: proposed to you in REVIEW_QUEUE 0.4, not added).
 6. **`.agent/AGENTS.md` (= CLAUDE.md):** the precedence rules (W8), the art rule (GDD 2.5, 2.11; D-21, D-25), and the build, run and test commands from `docs/swe-simulator-godot-access.md` (the MCP loop with `autosave=false`, the headless commands and runner, the plan-tracking commands with `python` and `PYTHONIOENCODING=utf-8`); update the decision ranges and the task-id note (STEP-00..19).
 7. project.yaml (the R-* requirements with criteria, the D-01..D-25 and P-01..P-08 decisions, STEP-14..19 with their milestones, a BASE-RUNSPEC baseline, the new docs as artifacts, the authority order); state.json (STEP-14..19; STEP-14 ready); bundles (update STEP-07's out-of-scope note, which still says Phase 2 is parked; write STEP-14's); render and validate.
 8. Finish this report.
@@ -66,8 +66,8 @@ RC-01 the day loop, energy pips, rent countdown, grace day and Tired-from-pips: 
 |---|---|---|
 | MC-01 (rest) | M1 starts now (W9). Still open: what happens to Steps 7-13 meanwhile, and which game `v0.5-mvp` ships | fold Playtest #1 into the M2 gate; replace Step 7's Phase 1 hunt sim with R-BAL (ISSUE-09 goes with it); keep drag-to-sign for M3 and park the hunt SHOULDs (Research, Network, site tabs, commute strip, morning events); the art and release steps after M4; `v0.5-mvp` = the career run |
 | MC-03 | What a background changes in the work state | the duel's inputs, starting savings and commute (the Dream score) only |
-| MC-04 | Starting savings (not in the spec) | the background's Phase 1 runway days as months of expenses (0.5 / 0.4 / 0.4) |
-| MC-05 | Archetypes vs Phase 1 tiers | Startup = `startup`, Agency = `mid`, MegaCorp = `big`; ids unchanged |
+| MC-04 | Starting savings (not in the spec) | the background's Phase 1 runway days as months of expenses (0.5 / 0.4 / 0.4). A caution found while merging: the first rent and living costs (2.1 k$ in the Shared room) fall due on day 1, so a run that starts between jobs with 0.84 k$ is below zero at once and reaches Plan B around day 31 unless a first salary lands; run 1 (employed) dips for 24 days and recovers on day 25. Let the M1 harness compare a few starting amounts before you pick |
+| MC-05 | Archetypes vs Phase 1 tiers | Startup = `startup`, Agency = `mid`, MegaCorp = `big`; ids unchanged. Note: only one of the three mid-size companies, Scope & Creep Digital, is an agency (GDD 7.1) |
 | MC-06 | The placeholder company names (Pivotly, Outsourcery, Monolith) | use existing parody companies that fit: Hierarchai, Scope & Creep Digital, OmniGlobal Dynamics; otherwise a C1-style name check |
 | MC-07 | Phase 1's hunt satire (ghost jobs, knockouts, the Radar, referrals, Research, the Unicorn) has no place on the new board | keep R-JOB-01/02 for M1-M4; consider ghost and knockout posting flags at M6 |
 | MC-08 | What Accept shows now that the Hired card isn't an ending | keep the HIRED! stamp as a short beat; drop `end_tbc` |
@@ -93,7 +93,8 @@ Each is marked "a spec gap" where the docs meet it. The proposed defaults are su
 | Gap | Where | Milestone | Proposed default |
 |---|---|---|---|
 | Starting Skill, MO, Rapport and Burnout | GDD 5.16 | M1 | Skill 0; MO 0 (a Bad Reference sets -20); Rapport 50; Burnout 0 |
-| Whether day 0 is a month's first day (so the first rent is due at once) | GDD 5.15 | M1 | yes: run 1's first salary then comes on day 24 |
+| How the days line up with months | GDD 5.15 | M1 | day 0 is the start and day 1 the first day of month 1, so the first rent and living costs are due on day 1 and the first salary on day 25 |
+| A partial first month's salary (a job that starts mid-month) | GDD 5.15 | M1 | prorated by the days worked |
 | How a promotion inside a job changes your salary | GDD 5.15 | M1 | the new level's table value at this job's floor, or the current salary if that is higher |
 | Whether a move starts a new lease at the tier's list price | GDD 5.15 | M1 | yes, with the 360-day lease restarting on the move-in day |
 | How a Startup's 0-1 month severance is picked; whether MegaCorp's "2 months per 360 days" is prorated | GDD 5.15 | M1 | rolled 0, 0.5 or 1 month with equal odds; prorated by the days of tenure |
