@@ -12,7 +12,7 @@ Every task keeps these. Each one restates a rule from the docs; the source wins 
 | INV-06 | The save is written only while the run is live (`JOB_HUNT`, `INTERVIEW`, `OFFER`): after every committed action, on entering those phases, and on pause / focus out / close. Written via temp file + rename. Deleted on entering `GAME_OVER` and on leaving `PHASE2_STUB`. | ARCHITECTURE 8; GDD 5.11 |
 | INV-07 | `RunState` holds plain data only (String/int/float/bool, Array, Dictionary). Never a Resource, Node or StringName. | ARCHITECTURE 17.2 |
 | INV-08 | Never modify a loaded `.tres` at runtime; copy values into `RunState`. | ARCHITECTURE 18.2 #1 |
-| INV-09 | No `if difficulty == HARD` anywhere; difficulty is only numbers from `BackgroundData`. | ARCHITECTURE 18.2 #11 |
+| INV-09 | No `if difficulty == HARD` and no `if archetype == ...` anywhere; difficulty, floor and archetype effects are only numbers and fields in the `.tres` data (`BackgroundData`, `WorkConfig`, `ArchetypeData`). | ARCHITECTURE 18.2 #11; DECISIONS A69 (MC-22) |
 | INV-10 | The `Phase` enum is append-only. | ARCHITECTURE 4.1, 18.2 #12 |
 | INV-11 | Load nothing from `user://` except our own JSON save and `settings.cfg`; never `.tres`/`.res`. | ARCHITECTURE 8, 18.2 #13 |
 | INV-12 | Tests are `@tool`, `extends McpTestSuite`, make at least one assertion, and never touch autoloads or `user://`. | ARCHITECTURE 12.1, 18.2 #14 |

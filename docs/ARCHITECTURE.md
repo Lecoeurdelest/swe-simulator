@@ -4957,7 +4957,7 @@ static func pan_path(picture: Vector2, frame: Vector2) -> Array[Vector2]:
 8. **Case-mismatched `res://` paths.** They work on Windows and macOS and break on phones. Never hand-type paths: drag them in or use `uid://`.
 9. **JSON surprises.** Floats instead of ints; 64-bit values losing precision.
 10. **The global RNG, `Array.shuffle()` or `pick_random()` in gameplay.**
-11. **`if difficulty == HARD` anywhere.** Difficulty is only ever numbers from `BackgroundData`.
+11. **`if difficulty == HARD` or `if archetype == ...` anywhere.** Difficulty, floor depth and archetype effects are only ever numbers and fields in the `.tres` data (`BackgroundData`, `WorkConfig`, `ArchetypeData`; DECISIONS A69, MC-22).
 12. **Reordering the `Phase` enum**, which breaks saves. Only append.
 13. **Loading anything but our own JSON or `settings.cfg` from `user://`.**
 14. **Tests that touch autoloads or `user://`, lack `@tool`, or make zero assertions.**

@@ -872,7 +872,7 @@ requirements:
     risk: standard
     source: {file: docs/GDD.md, section: "5.22; 13.1 O4"}
     acceptance:
-      - {id: AC-S14-2, statement: "The Planner wins within 5 points of its 5-10% band at M1, and the other bots' numbers are recorded.", verification: [behavioral_test]}
+      - {id: AC-S14-2, statement: "The Planner wins within 5 points of its 5-10% band at M1 and at least 1% of seeds (100 of 10,000: A70), and the other bots' numbers are recorded.", verification: [behavioral_test]}
       - {id: AC-S17-2, statement: "The Planner wins 5-10% over 10,000 seeds (D-15, O4).", verification: [behavioral_test]}
   - id: R-BAL-02
     title: "The Coaster never wins"

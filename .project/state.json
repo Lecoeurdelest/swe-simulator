@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "model": "project.yaml",
-  "updated": "2026-10-07",
+  "updated": "2026-10-08",
   "tasks": {
     "STEP-00": {
       "execution": "done",
@@ -157,15 +157,15 @@
     "STEP-12": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-10 and STEP-11.", "criteria": {}, "history": []},
     "STEP-13": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-08 and STEP-12. TestFlight release candidate (paid Apple Developer Program from the start of the step); Android and Google Play stay LATER.", "criteria": {}, "history": []},
     "STEP-14": {
-      "execution": "ready",
+      "execution": "in_progress",
       "relevance": "current",
-      "detail": "Next step (W9): M1, the career run's sim core, headless, with the five bots and the harness (ROADMAP 12). Ready once the Run Spec merge is finished: branch step-14-sim-core from run-spec-v1-merge, or from main once the merge's pull request is merged (A61). Needs no editor and no iPhone. Context bundle: .project/bundles/STEP-14.md; its huddle: the 10 events, the M1 spec gaps, MC-04, MC-05, MC-22 and MC-23.",
+      "detail": "Started 2026-10-08 on branch step-14-sim-core (from main at 8dddea2, the merged Run Spec pull request #7). M1, the career run's sim core, headless, with the five bots and the harness (ROADMAP 12); needs no editor and no iPhone. The design huddle is held: the developer said \"take the proposed defaults\", logged as agent defaults A62-A72 (please review). Context bundle: .project/bundles/STEP-14.md.",
       "criteria": {
         "AC-S14-1": {"status": "pending", "by": "agent", "note": "The harness's speed: 10,000 seeds per bot in minutes, recorded with the evidence (ARCHITECTURE 19.6)."},
-        "AC-S14-2": {"status": "pending", "by": "agent", "note": "M1's bar is within 5 points of the 5-10% band; the 5-10% itself is M4's (AC-S17-2). Whether 0% wins should pass is in the M1 huddle."},
+        "AC-S14-2": {"status": "pending", "by": "agent", "note": "M1's bar is within 5 points of the 5-10% band (0-15%) and at least 1% of seeds (A70); the 5-10% itself is M4's (AC-S17-2)."},
         "AC-S14-3": {"status": "pending", "by": "agent", "note": "test_sim_replay plus every suite (ARCHITECTURE 19.10)."},
         "AC-S14-4": {"status": "pending", "by": "agent", "note": "O1: test_sim_events."},
-        "AC-S14-5": {"status": "pending", "by": "agent", "note": "O5: waits for MC-23 (E12's cooldown), since the spec's 20-day cooldown fails the 3x test."},
+        "AC-S14-5": {"status": "pending", "by": "agent", "note": "O5: E12's cooldown is 5 days (A69, MC-23), since the spec's 20-day cooldown fails the 3x test; the harness confirms it."},
         "AC-S14-6": {"status": "pending", "by": "agent", "note": "O6: test_sim_endings."},
         "AC-S14-7": {"status": "pending", "by": "agent", "note": "O2: the Coaster bot in the harness."},
         "AC-ECO-1": {"status": "pending", "by": "agent", "note": "An M1 rule check: a test_sim_* suite or test_content_lint (ARCHITECTURE 19.10)."},
@@ -189,7 +189,7 @@
         "AC-WIN05-1": {"status": "pending", "by": "agent", "note": "An M1 rule check: a test_sim_* suite or test_content_lint (ARCHITECTURE 19.10)."},
         "AC-WIN08-1": {"status": "pending", "by": "agent", "note": "An M1 rule check: a test_sim_* suite or test_content_lint (ARCHITECTURE 19.10)."}
       },
-      "history": [{"date": "2026-10-07", "to": "ready", "reason": "Added with the Run Spec v1 merge (A53). No dependency: M1 starts ahead of the open Steps 7-13 (W9)."}]
+      "history": [{"date": "2026-10-07", "to": "ready", "reason": "Added with the Run Spec v1 merge (A53). No dependency: M1 starts ahead of the open Steps 7-13 (W9)."}, {"date": "2026-10-08", "to": "in_progress", "reason": "Branch step-14-sim-core cut from main. The design huddle is held; the developer's answer was \"take the proposed defaults\" (A62-A72, agent defaults). Next: the headless runner into tools/headless (A71), then the data, the sim, the tests, the harness and the bots."}]
     },
     "STEP-15": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-14. M2's gate needs three outside players (ROADMAP 7). Where it sits against Steps 7-13 is open (MC-01).", "criteria": {}, "history": []},
     "STEP-16": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-15. Where it sits against Steps 7-13 is open (MC-01).", "criteria": {}, "history": []},

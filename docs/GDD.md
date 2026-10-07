@@ -2014,7 +2014,7 @@ Build the simulation first and headless, prove it with bots, then put the cheape
 
 | # | Task | Build | Exit criterion |
 |---|---|---|---|
-| M1 | STEP-14 | the sim core, its constants, 10 events, the five bots | 10,000 seeds run in minutes; the Planner within 5 points of its band |
+| M1 | STEP-14 | the sim core, its constants, 10 events, the five bots | 10,000 seeds run in minutes; the Planner within 5 points of its band and winning at least 1% of seeds (A70) |
 | M2 | STEP-15 | the grey-box UI: the phone shell, the calendar strip, the four numbers, the Hours slider, event cards, the speed control, save and resume; no diorama | three outside players finish job 1 and can say why they were laid off |
 | M3 | STEP-16 | run 1 end to end: Pivotly and its coworkers, the resizing chain, the review duel, the layoff scene, the board, the adapter | run 1 is playable from day 0 to the board |
 | M4 | STEP-17 | all systems: 3 archetypes, floor depth, the Mid and Senior controls, home tiers, Scars, the Studio hold, every ending | a full run is playable; the Planner wins 5-10% |

@@ -5,7 +5,7 @@ State: `ready`. No dependency: M1 starts ahead of Phase 1's open Steps 7-13 (W9)
 
 ## Objective
 
-The whole career run's rules, headless: a pure, deterministic step function over a plain-data state (ARCHITECTURE 19.2), its constants in `.tres` (GDD 11.7), the huddle's 10 events in JSON, and five bots in a headless harness (GDD 5.22, ARCHITECTURE 19.6). The bots play whole careers, so every system of GDD 5.14-5.22 is in the sim from the start; M2-M4 put them on screen. Exit (GDD 10.7): 10,000 seeds per bot run in minutes, and the Planner wins within 5 points of its 5-10% band.
+The whole career run's rules, headless: a pure, deterministic step function over a plain-data state (ARCHITECTURE 19.2), its constants in `.tres` (GDD 11.7), the huddle's 10 events in JSON, and five bots in a headless harness (GDD 5.22, ARCHITECTURE 19.6). The bots play whole careers, so every system of GDD 5.14-5.22 is in the sim from the start; M2-M4 put them on screen. Exit (GDD 10.7): 10,000 seeds per bot run in minutes, and the Planner wins within 5 points of its 5-10% band and at least 1% of seeds (A70).
 
 ## Out of scope
 
@@ -19,7 +19,7 @@ The whole career run's rules, headless: a pure, deterministic step function over
 | ID | Statement | Method | Owner | Status |
 |---|---|---|---|---|
 | AC-S14-1 | 10,000 seeds per bot run headless in minutes; the time is in the evidence (R-BAL) | behavioral_test | agent | pending |
-| AC-S14-2 | The Planner wins within 5 points of its 5-10% band; the other bots' numbers recorded (R-BAL-01) | behavioral_test | agent | pending |
+| AC-S14-2 | The Planner wins within 5 points of its 5-10% band and at least 1% of seeds (A70); the other bots' numbers recorded (R-BAL-01) | behavioral_test | agent | pending |
 | AC-S14-3 | The same seed and inputs replay the same run; every suite passes (R-CLK) | behavioral_test | agent | pending |
 | AC-S14-4 | MO has no effect on layoff selection (O1, R-EVT-03) | behavioral_test | agent | pending |
 | AC-S14-5 | Incidents at Codebase 80 at least 3x those at 20 (O5, R-CB-02), once MC-23 settles E12's cooldown | behavioral_test | agent | pending |
@@ -42,11 +42,11 @@ AD-14 (the architecture), D-01, D-04, D-06, D-08..D-13, D-15..D-18, D-20, D-23, 
 
 ## Design huddle
 
-Bring each with a recommended default (the proposals are in `docs/merge-report.md`'s spec-gap table and its MC table):
+**Held 2026-10-08:** the developer said "take the proposed defaults", so every item below is settled as an agent default, A62-A72 in `docs/DECISIONS.md` (please review). The agenda is kept as it was. Bring each with a recommended default (the proposals are in `docs/merge-report.md`'s spec-gap table and its MC table):
 1. **Which 10 events:** proposed E01, E02, E04, E07, E08, E12, E18, E20, E21, E24, so each bot's strategy meets the event it is built around.
 2. **The M1 spec gaps:** starting Skill, MO, Rapport and Burnout; the day numbering and a partial first month's salary; a promotion's salary; leases and moves; severance; ticket deadlines and sizes; the random events' odds; the exhausted choices; owning a service (E12); E04 in the Shared room; how the harness resolves duels.
 3. **MC-04** (starting savings: note the day-31 Plan B caution), **MC-05** (the archetype ids), **MC-22** (INV-09's wording) and **MC-23** (E12's cooldown against O5).
-4. **M1's exit at 0%:** add "and the Planner wins at least 1%"?
+4. **M1's exit at 0%:** add "and the Planner wins at least 1%"? (Yes: A70.)
 5. **The headless runner:** commit it into the repo (for example `tools/headless/`) instead of recreating it each session?
 
 ## Tasks (ROADMAP 12, Step 14)

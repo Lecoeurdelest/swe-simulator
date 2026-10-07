@@ -1025,7 +1025,7 @@ The hours are estimates written at the merge; each step's kickoff revises them, 
 
 ### Step 14 (M1): the sim core, headless
 
-- **Goal:** the whole career run's rules run headless, deterministic and fast, and five bots play it: 10,000 seeds in minutes, with the Planner within 5 points of its 5-10% band.
+- **Goal:** the whole career run's rules run headless, deterministic and fast, and five bots play it: 10,000 seeds in minutes, with the Planner within 5 points of its 5-10% band and winning at least 1% of seeds (A70).
 - **Best practice:** simulate before you build screens. Balance is a property of the rules, and a harness finds a broken number in seconds, long before a playtest would.
 - **Status:** the next step (W9), ready to start once this merge is finished.
 
@@ -1045,9 +1045,11 @@ The hours are estimates written at the merge; each step's kickoff revises them, 
 - MC-23 (E12's cooldown against O5), MC-05 (the archetype ids), MC-04 (starting savings) and MC-22 (INV-09's wording).
 - M1's exit also passes at 0% wins: add "and wins at least 1%"?
 
+**Held 2026-10-08.** The developer answered "take the proposed defaults", so Claude logged them as agent defaults A62-A72 in `docs/DECISIONS.md`: the 10 events (A62), the M1 gaps (A63-A67), MC-04 and MC-05 (A68), MC-22 and MC-23 (A69), the 1% exit (A70), the committed headless runner (A71), and the M3 and M4 rules the bots need early (A72). All are "please review".
+
 **Done when** (`project.yaml` gives each one an id, and lists M1's rule checks)
 - [ ] 10,000 seeds per bot run headless in minutes (the time is recorded in the evidence).
-- [ ] The Planner wins within 5 points of its 5-10% band, and the other bots' numbers are recorded.
+- [ ] The Planner wins within 5 points of its 5-10% band and at least 1% of seeds (100 of 10,000: A70), and the other bots' numbers are recorded.
 - [ ] The Coaster never wins, and its median loss comes before day 1,800 (O2).
 - [ ] The objectives' sim tests pass: Manager Opinion has no effect on layoff selection (O1); incidents at Codebase 80 are at least 3x those at 20 (O5, once MC-23 settles E12's cooldown); the win fires only with all five conditions held 90 days (O6).
 - [ ] The same seed and inputs replay the same run (`test_sim_replay`), and every suite passes, including each M1 rule check `project.yaml` lists.
