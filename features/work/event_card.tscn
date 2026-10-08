@@ -1,0 +1,76 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://features/work/event_card.gd" id="1_card"]
+[ext_resource type="Script" path="res://ui/components/safe_area_margin.gd" id="2_safe"]
+
+[node name="EventCard" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_card")
+
+[node name="Dimmer" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.07, 0.07, 0.1, 0.6)
+
+[node name="SafeArea" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_safe")
+
+[node name="Column" type="VBoxContainer" parent="SafeArea"]
+custom_minimum_size = Vector2(254, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+alignment = 2
+
+[node name="Sheet" type="PanelContainer" parent="SafeArea/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Rows" type="VBoxContainer" parent="SafeArea/Column/Sheet"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="TitleRow" type="HBoxContainer" parent="SafeArea/Column/Sheet/Rows"]
+layout_mode = 2
+alignment = 2
+
+[node name="Title" type="Label" parent="SafeArea/Column/Sheet/Rows/TitleRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"HeaderLabel"
+text = "REVIEW"
+
+[node name="MenuButton" type="Button" parent="SafeArea/Column/Sheet/Rows/TitleRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 2
+focus_mode = 0
+text = "="
+
+[node name="Text" type="Label" parent="SafeArea/Column/Sheet/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Review day. Your manager has a form, a template and 15 minutes."
+autowrap_mode = 3
+
+[node name="Buttons" type="VBoxContainer" parent="SafeArea/Column/Sheet/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6

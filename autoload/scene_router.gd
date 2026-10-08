@@ -14,6 +14,8 @@ const SCENES: Dictionary = {
 	GameFlow.Phase.OFFER: "res://features/offer/offer.tscn",
 	GameFlow.Phase.PHASE2_STUB: "res://features/phase2_stub/phase2_stub.tscn",
 	GameFlow.Phase.GAME_OVER: "res://features/game_over/game_over.tscn",
+	GameFlow.Phase.WORK: "res://features/work/work.tscn",
+	GameFlow.Phase.LAYOFF: "res://features/layoff/layoff.tscn",
 }
 
 var busy: bool = false

@@ -1,0 +1,363 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://features/work/work.gd" id="1_work"]
+[ext_resource type="Script" path="res://ui/components/safe_area_margin.gd" id="2_safe"]
+[ext_resource type="PackedScene" path="res://ui/components/hp_bar.tscn" id="3_hp"]
+[ext_resource type="Script" path="res://features/work/codebase_rack.gd" id="4_rack"]
+[ext_resource type="Script" path="res://features/work/calendar_strip.gd" id="5_strip"]
+[ext_resource type="PackedScene" path="res://features/job_hunt/coach_mark.tscn" id="6_coach"]
+[ext_resource type="Script" path="res://features/job_hunt/dock_button.gd" id="7_dock"]
+[ext_resource type="PackedScene" path="res://features/work/event_card.tscn" id="8_card"]
+[ext_resource type="PackedScene" path="res://ui/components/pause_menu.tscn" id="9_pause"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_chip"]
+bg_color = Color(0.13, 0.15, 0.24, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.54509807, 0.60784316, 0.7058824, 1)
+content_margin_left = 3.0
+content_margin_top = 0.0
+content_margin_right = 3.0
+content_margin_bottom = 0.0
+
+[node name="Work" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_work")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.11, 0.12, 0.17, 1)
+
+[node name="SafeArea" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_safe")
+
+[node name="Column" type="VBoxContainer" parent="SafeArea"]
+custom_minimum_size = Vector2(254, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="TopBand" type="VBoxContainer" parent="SafeArea/Column"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 3
+
+[node name="RowA" type="HBoxContainer" parent="SafeArea/Column/TopBand"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="NextLabel" type="Label" parent="SafeArea/Column/TopBand/RowA"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Day 0 - Rent in 1d"
+clip_text = true
+
+[node name="StudioChip" type="PanelContainer" parent="SafeArea/Column/TopBand/RowA"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_chip")
+
+[node name="StudioLabel" type="Label" parent="SafeArea/Column/TopBand/RowA/StudioChip"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Studio 0/5"
+
+[node name="RowB" type="HBoxContainer" parent="SafeArea/Column/TopBand"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="RunwayChip" type="PanelContainer" parent="SafeArea/Column/TopBand/RowB"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_chip")
+
+[node name="RunwayLabel" type="Label" parent="SafeArea/Column/TopBand/RowB/RunwayChip"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "2.1 mo"
+
+[node name="BurnoutLabel" type="Label" parent="SafeArea/Column/TopBand/RowB"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "BURNOUT"
+
+[node name="BurnoutBar" parent="SafeArea/Column/TopBand/RowB" instance=ExtResource("3_hp")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 8)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+
+[node name="RowC" type="HBoxContainer" parent="SafeArea/Column/TopBand"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="TicketLabel" type="Label" parent="SafeArea/Column/TopBand/RowC"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "TICKET"
+
+[node name="TicketBar" parent="SafeArea/Column/TopBand/RowC" instance=ExtResource("3_hp")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 8)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+
+[node name="TicketDays" type="Label" parent="SafeArea/Column/TopBand/RowC"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(24, 0)
+layout_mode = 2
+text = "10d"
+horizontal_alignment = 2
+
+[node name="CodebaseLabel" type="Label" parent="SafeArea/Column/TopBand/RowC"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "CODEBASE"
+
+[node name="Rack" type="Control" parent="SafeArea/Column/TopBand/RowC"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(58, 8)
+layout_mode = 2
+size_flags_vertical = 4
+script = ExtResource("4_rack")
+
+[node name="Strip" type="Control" parent="SafeArea/Column/TopBand"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+script = ExtResource("5_strip")
+
+[node name="Body" type="PanelContainer" parent="SafeArea/Column"]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="BodyRows" type="VBoxContainer" parent="SafeArea/Column/Body"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="JobLabel" type="Label" parent="SafeArea/Column/Body/BodyRows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "Junior at Hierarchai"
+clip_text = true
+
+[node name="Feed" type="Label" parent="SafeArea/Column/Body/BodyRows"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Ticket shipped on time."
+autowrap_mode = 3
+
+[node name="Coach" parent="SafeArea/Column" instance=ExtResource("6_coach")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ThumbBand" type="VBoxContainer" parent="SafeArea/Column"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="HoursLabel" type="Label" parent="SafeArea/Column/ThumbBand"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Hours: Reasonable"
+
+[node name="Hours" type="HBoxContainer" parent="SafeArea/Column/ThumbBand"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Hours1" type="Button" parent="SafeArea/Column/ThumbBand/Hours"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(46, 34)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_type_variation = &"SelectorButton"
+toggle_mode = true
+text = "1"
+
+[node name="Hours2" type="Button" parent="SafeArea/Column/ThumbBand/Hours"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(46, 34)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_type_variation = &"SelectorButton"
+toggle_mode = true
+text = "2"
+
+[node name="Hours3" type="Button" parent="SafeArea/Column/ThumbBand/Hours"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(46, 34)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_type_variation = &"SelectorButton"
+toggle_mode = true
+text = "3"
+
+[node name="Hours4" type="Button" parent="SafeArea/Column/ThumbBand/Hours"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(46, 34)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_type_variation = &"SelectorButton"
+toggle_mode = true
+text = "4"
+
+[node name="Hours5" type="Button" parent="SafeArea/Column/ThumbBand/Hours"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(46, 34)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_type_variation = &"SelectorButton"
+toggle_mode = true
+text = "5"
+
+[node name="Dock" type="HBoxContainer" parent="SafeArea/Column/ThumbBand"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="JobsDock" type="Button" parent="SafeArea/Column/ThumbBand/Dock"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 40)
+layout_mode = 2
+focus_mode = 0
+theme_type_variation = &"DockButton"
+text = "Jobs"
+script = ExtResource("7_dock")
+
+[node name="HomeDock" type="Button" parent="SafeArea/Column/ThumbBand/Dock"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 40)
+layout_mode = 2
+focus_mode = 0
+theme_type_variation = &"DockButton"
+text = "Home"
+script = ExtResource("7_dock")
+
+[node name="VideoDock" type="Button" parent="SafeArea/Column/ThumbBand/Dock"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 40)
+layout_mode = 2
+focus_mode = 0
+theme_type_variation = &"DockButton"
+text = "Video"
+script = ExtResource("7_dock")
+
+[node name="DuckyDock" type="Button" parent="SafeArea/Column/ThumbBand/Dock"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 40)
+layout_mode = 2
+focus_mode = 0
+theme_type_variation = &"DockButton"
+text = "Ducky"
+script = ExtResource("7_dock")
+
+[node name="ActionBar" type="HBoxContainer" parent="SafeArea/Column/ThumbBand"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="BackButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 36)
+layout_mode = 2
+focus_mode = 0
+text = "< Back"
+
+[node name="Speed" type="HBoxContainer" parent="SafeArea/Column/ThumbBand/ActionBar"]
+custom_minimum_size = Vector2(168, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Speed0" type="Button" parent="SafeArea/Column/ThumbBand/ActionBar/Speed"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(44, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_type_variation = &"SelectorButton"
+toggle_mode = true
+text = "Pause"
+
+[node name="Speed1" type="Button" parent="SafeArea/Column/ThumbBand/ActionBar/Speed"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_type_variation = &"SelectorButton"
+toggle_mode = true
+text = "1x"
+
+[node name="Speed2" type="Button" parent="SafeArea/Column/ThumbBand/ActionBar/Speed"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_type_variation = &"SelectorButton"
+toggle_mode = true
+text = "2x"
+
+[node name="Speed3" type="Button" parent="SafeArea/Column/ThumbBand/ActionBar/Speed"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_type_variation = &"SelectorButton"
+toggle_mode = true
+text = "4x"
+
+[node name="ModalLayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="EventCard" parent="ModalLayer" instance=ExtResource("8_card")]
+unique_name_in_owner = true
+
+[node name="PauseMenu" parent="ModalLayer" instance=ExtResource("9_pause")]
+unique_name_in_owner = true

@@ -803,7 +803,7 @@ The screen is your phone and DoomApply is the job app: the influencer hooked you
 
 ### 4.3 Scripted first run (FTUE)
 
-**Run Spec v1 status:** these coach marks teach the hunt, so they retire with it, except `coach_meter`, which still teaches the duel. The career run's first run is run 1's scripted year at Hierarchai (3.3); its coach marks for the Hours slider, the speed control and the Studio chip are a spec gap (M2; proposed, Ducky notes on day 0 that close on a tap, as D11).
+**Run Spec v1 status:** these coach marks teach the hunt, so they retire with it, except `coach_meter`, which still teaches the duel. The career run's first run is run 1's scripted year at Hierarchai (3.3); its coach marks for the Hours slider, the speed control and the Studio chip are three Ducky notes that close on a tap, as D11 (settled at M2's huddle: A84).
 
 Only on the first run. Coach marks are full-width Ducky sticky notes (40 columns, up to 4 lines) placed in the middle zone with an arrow toward one control. They never cover that control, the thumb band's buttons or the text they talk about (on the Jobs screen they sit over the card's header strip), and they take no input except their own tap.
 
@@ -871,6 +871,8 @@ The Run Spec names these screens; their layouts are designed at M2 under the tou
 | Handbook | the collected tips, by kind (5.21) | S13's Career Notebook list grows into it (Settled, MC-18, D-34) |
 
 Every screen keeps an on-screen Back (4.4), and pillar 2's "at most 3 main actions" holds on each.
+
+**The work state as built at M2 (STEP-15; DECISIONS A78-A87; ARCHITECTURE 19.7).** The top band shows Day and what is next on the calendar, the Studio chip, the Runway chip, the Burnout bar, the Ticket bar with its days left, the Codebase's 10 LEDs and the 60-day strip. The Body is a grey box with the job line and the last five news lines. The thumb band holds the Hours notches, the dock (four apps that say "not in this build yet") and Back beside the speed control. An event, a review, a Mid's ticket pick and every notice (a rumor, a burnout beat, the auto-resolve line, a review's result, a tip) come up as a card over the screen; the clock waits for each, and the choices wake after the 250 ms lock. The layoff is a plain four-beat scene. Reviews, interviews and offers use stand-ins until M3, and there is no board: after the layoff the run waits between jobs, and Plan B ends it.
 
 ---
 
@@ -1241,7 +1243,7 @@ Nobody realistically reaches 100. The card says so: "100 is the life in Remy's v
 
 **Run Spec v1 status:** adapted (R-CLK, D-13). No time passes while the app is closed. The career run saves at every event, after every player input and when the app goes to background (RC-35), so a kill loses at most the days since the last of those. Its save is one serialized sim state plus the run log (ARCHITECTURE 19.4). An interrupted duel still resumes at its start with the same seed and the same questions.
 
-- One slot, JSON at `user://save_v1.json`, written to a temp file then renamed. 64-bit RNG seed/state are stored as strings. Never load `.tres`/`.res` from `user://`.
+- One slot, JSON at `user://save_v1.json`, written to a temp file then renamed. 64-bit RNG seed/state are stored as strings. Never load `.tres`/`.res` from `user://`. The career run's save is `{version: 2, phase, sim, ui}` (the sim exactly, every float as hex, and the screen's own state: ARCHITECTURE 19.4); Continue waits, paused.
 - **Save after every committed action** (apply, skip, research, study, sleep, start day, tapping a coach mark closed, starting an interview, the interview result, offer decision) and on `APPLICATION_PAUSED` / `FOCUS_OUT`.
 - An interrupted interview resumes **at its start with the same seed and the same questions**, so quitting can't re-roll it. That is why nothing is saved per prompt: Doubt and Composure live only in the interview scene (ARCHITECTURE 8).
 - Flow rules (tech-verified fixes): don't save when entering TITLE, BACKGROUND_SELECT or GAME_OVER; delete the save on entering GAME_OVER and on leaving PHASE2_STUB; Retry creates a fresh RunState; Continue falls back to a new game if the saved phase can't legally follow TITLE.
@@ -1840,7 +1842,7 @@ Every knowledge question has a model answer (green), a hedged answer (yellow), a
 
 In the career run every failure still teaches (O7, pillar 4): an event that has a tip shows it after the joke and the cause, and the Handbook keeps it for good (5.21).
 - The rules of 8.1 hold for the event tips: joke, then consequence, then the tip; one tip per screen, at most 120 characters; tips only at natural pauses (after an event card's choice, after the review, the layoff scene and the ending cards; never while a choice or the needle is up); tips match the cause; and you sign off every tip before release (W4).
-- How often a recurring event shows its tip is a spec gap (M2; proposed, the first time it resolves in a run, like Phase 1's once-per-run tips, A15, and never twice in a row, 8.1 rule 4).
+- How often a recurring event shows its tip: the first time it resolves in a run, like Phase 1's once-per-run tips (A15), as a Ducky card after the choice (settled at M2's huddle: A84).
 - The Handbook lists the collected tips by kind (Option, Edge, Lore), with completion as a percentage (5.21). It grows out of S13's Career Notebook list: Settled (MC-18, D-34).
 - The corrected lessons of 8.2 apply to the new tips too. The plain-language rule for non-tech players (C3) is applied at M6's Ducky writing pass: Settled (MC-17, D-34), which also covers two overlaps with Phase 1's tips (E15's with `tip_secrets`, E26's with `tip_blameless`; reuse the two existing tips).
 
@@ -2027,7 +2029,7 @@ Build the simulation first and headless, prove it with bots, then put the cheape
 | # | Task | Build | Exit criterion |
 |---|---|---|---|
 | M1 | STEP-14 | the sim core, its constants, 10 events, the five bots | 10,000 seeds run in minutes; the Planner within 5 points of its band and winning at least 1% of seeds (A70). **Built 2026-10-08** (DECISIONS A62-A76; the numbers are in 5.22) |
-| M2 | STEP-15 | the grey-box UI: the phone shell, the calendar strip, the four numbers, the Hours slider, event cards, the speed control, save and resume; no diorama | three outside players finish job 1 and can say why they were laid off |
+| M2 | STEP-15 | the grey-box UI: the phone shell, the calendar strip, the four numbers, the Hours slider, event cards, the speed control, save and resume; no diorama. **Built 2026-10-08** (DECISIONS A78-A87; the gate waits for people) | three outside players finish job 1 and can say why they were laid off |
 | M3 | STEP-16 | run 1 end to end: Hierarchai and its coworkers, the resizing chain, the review duel, the layoff scene, the board, the adapter | run 1 is playable from day 0 to the board |
 | M4 | STEP-17 | all systems: 3 archetypes, floor depth, the Mid and Senior controls, home tiers, Scars, the Studio hold, every ending | a full run is playable; the Planner wins 5-10% |
 | M5 | STEP-18 | the pixel-art office diorama, pause-and-zoom, the ending video | playtesters mention the empty desk or the lamp unprompted |

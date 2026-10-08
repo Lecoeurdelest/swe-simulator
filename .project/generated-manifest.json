@@ -3,22 +3,22 @@
   "generator": ".project/render.py",
   "template_version": "task-index/1",
   "inputs": {
-    "docs/GDD.md": "28ffe25294b7f824ae1750a21125895048273bae77dbdb207a74803a29634300",
-    "docs/CONTENT.md": "df94f091999d3ae02613ffd230b83329ba62c4678b1249dcbea6b45a66e0f6eb",
-    "docs/ARCHITECTURE.md": "953418a2c72b023708f5420bfe3a8ce1856be3506a0ce3d53c2e2e14cdaa0d10",
-    "docs/ROADMAP.md": "59c54fe4fb02b45b21f066420fb1e28011aae67e4e19a8d7d04e724e1a49b256",
-    "docs/DECISIONS.md": "2ae8e4f64a87e7daeead23f3fb6111a059288fd2b130f7a7d470539b649463ae",
-    "project.yaml": "557316e0f3cc95e418b9af84cab71569e074e5fcc84ece5fb0a6c5659a1b16c5",
-    ".project/state.json": "8c4fe6fddf0b94bc91b633bfab7b445c210e54fcfdc0262892df679c66fc0041"
+    "docs/GDD.md": "d497c5b66816593880828cc5b7ef8142322f6120b99f2f9d99fe4747311af493",
+    "docs/CONTENT.md": "f57029bcbc5845903576be0b6951dc541fd62726848b05b9ed34c95b8f46d912",
+    "docs/ARCHITECTURE.md": "f7ac252fe12f4046ac5162ec12142c73a113cfef35819d7eb774040843c4a93f",
+    "docs/ROADMAP.md": "942a18161d3105b65f34d6c8bc759ac286bd8b3d43af8199a612d2e1634ab01d",
+    "docs/DECISIONS.md": "a011600e08bfa7a5554212804262b03811db726d58ab185d8bfbd05566ace3a1",
+    "project.yaml": "efcfe2a18272a7269c90eccb44e47661a88a9a7a02b9392459ad2ae1ecf65b80",
+    ".project/state.json": "c15cf61f157d42d180bb0bec6e65b026a00c3239a483cfc2d9068f4a959e92f9"
   },
   "outputs": {
     "docs/task/README.md": {
       "owner": "generated",
-      "sha256": "08bba13fb9f349120913a369691530b08126c8d00c18e2be7d9449d5f430b77e"
+      "sha256": "42b747601837bb57c2bc991b96b8ea59d237d06bf20139f26c9c43df214bcaa7"
     },
     "project.yaml": {
       "owner": "generated-by-agent from docs/*.md; regenerate on doc change",
-      "sha256": "557316e0f3cc95e418b9af84cab71569e074e5fcc84ece5fb0a6c5659a1b16c5"
+      "sha256": "efcfe2a18272a7269c90eccb44e47661a88a9a7a02b9392459ad2ae1ecf65b80"
     }
   },
   "hand_owned": [
@@ -36,6 +36,7 @@
     ".project/bundles/STEP-01.md",
     ".project/bundles/STEP-02.md",
     ".project/bundles/STEP-07.md",
-    ".project/bundles/STEP-14.md"
+    ".project/bundles/STEP-14.md",
+    ".project/bundles/STEP-15.md"
   ]
 }

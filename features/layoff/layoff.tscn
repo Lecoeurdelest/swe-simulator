@@ -1,0 +1,128 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://features/layoff/layoff.gd" id="1_layoff"]
+[ext_resource type="Script" path="res://ui/components/safe_area_margin.gd" id="2_safe"]
+[ext_resource type="PackedScene" path="res://ui/components/pause_menu.tscn" id="3_pause"]
+
+[node name="Layoff" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_layoff")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.07, 0.07, 0.1, 1)
+
+[node name="TapPad" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SafeArea" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_safe")
+
+[node name="Column" type="VBoxContainer" parent="SafeArea"]
+custom_minimum_size = Vector2(254, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Body" type="VBoxContainer" parent="SafeArea/Column"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Title" type="Label" parent="SafeArea/Column/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "DANA VS YOU"
+horizontal_alignment = 1
+
+[node name="DanaPanel" type="PanelContainer" parent="SafeArea/Column/Body"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Lines" type="VBoxContainer" parent="SafeArea/Column/Body/DanaPanel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="DanaLine" type="Label" parent="SafeArea/Column/Body/DanaPanel/Lines"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "We're reshaping how we're shaped."
+autowrap_mode = 3
+
+[node name="DanaLine2" type="Label" parent="SafeArea/Column/Body/DanaPanel/Lines"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Your badge stops at 5 PM."
+autowrap_mode = 3
+
+[node name="Severance" type="Label" parent="SafeArea/Column/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Severance: $2.55k"
+horizontal_alignment = 1
+
+[node name="Revoked" type="Label" parent="SafeArea/Column/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ACCESS REVOKED"
+horizontal_alignment = 1
+
+[node name="Hint" type="Label" parent="SafeArea/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Tap to continue"
+horizontal_alignment = 1
+
+[node name="ActionBar" type="HBoxContainer" parent="SafeArea/Column"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BackButton" type="Button" parent="SafeArea/Column/ActionBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 36)
+layout_mode = 2
+text = "< Back"
+
+[node name="NextButton" type="Button" parent="SafeArea/Column/ActionBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(168, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"PrimaryButton"
+text = "CONTINUE"
+
+[node name="ModalLayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="PauseMenu" parent="ModalLayer" instance=ExtResource("3_pause")]
+unique_name_in_owner = true

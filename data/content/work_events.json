@@ -72,6 +72,7 @@
     },
     "pause": true,
     "focus": "meeting_room",
+    "text": "Everyone is whispering about layoffs. Now might be a good time to prepare.",
     "choices": [
       {"id": "update_profile", "text": "Update your profile", "effects": {"action": "board_early"}},
       {"id": "ask_priya", "text": "Ask Priya what she's heard", "effects": {"action": "ask_priya"}},

@@ -53,6 +53,11 @@ static func money(amount: int) -> String:
 	return ("-" if amount < 0 else "") + "$" + grouped
 
 
+## Thousands of in-game dollars (k$, GDD 5.15) with two decimals: 2.55 -> "$2.55k", -0.4 -> "-$0.40k".
+static func money_k(amount: float) -> String:
+	return ("-" if amount < -0.004 else "") + "$%.2fk" % absf(amount)
+
+
 ## Content text with its {placeholders} filled (String.format), except that a value ending in "."
 ## swallows a "." right after its placeholder, so a name that ends a sentence never doubles it:
 ## ("Welcome to {company}. Hi.", {"company": "Engagement Farms Inc."}) -> "Welcome to Engagement

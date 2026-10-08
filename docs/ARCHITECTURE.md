@@ -351,10 +351,10 @@ So there is one split:
 ### 4.1 Phases and transitions
 
 ```
-enum Phase { TITLE, INTRO, BACKGROUND_SELECT, JOB_HUNT, INTERVIEW, OFFER, PHASE2_STUB, GAME_OVER }
+enum Phase { TITLE, INTRO, BACKGROUND_SELECT, JOB_HUNT, INTERVIEW, OFFER, PHASE2_STUB, GAME_OVER, WORK, LAYOFF }
 ```
 
-**Append new phases at the end only**, for example `WORK` in Phase 2. Saves store the phase as an int, so reordering the enum breaks every existing save. The career run's planned phases (`WORK`, `LAYOFF`) and transitions are in section 19.4.
+**Append new phases at the end only.** Saves store the phase as an int, so reordering the enum breaks every existing save. `WORK` and `LAYOFF` are the career run's (M2): their transitions are the last rows below and in section 19.4.
 
 | From | To | Trigger (the GameState verb) |
 |---|---|---|
@@ -372,6 +372,11 @@ enum Phase { TITLE, INTRO, BACKGROUND_SELECT, JOB_HUNT, INTERVIEW, OFFER, PHASE2
 | PHASE2_STUB | TITLE / BACKGROUND_SELECT | `quit_to_title()` / `retry()` ("New run") |
 | GAME_OVER | TITLE / BACKGROUND_SELECT | `quit_to_title()` / `retry()` |
 | BACKGROUND_SELECT, JOB_HUNT, INTERVIEW, OFFER | TITLE | `quit_to_title()`: Back or Pause, then "Quit to title" |
+| TITLE | WORK / LAYOFF | `continue_game()` with a career save (the saved phase), or `start_new_game()` for run 1 once the intro has been seen (`_begin_career`) |
+| INTRO | WORK | `finish_intro()` after a new game's intro (run 1); a replayed intro goes to BACKGROUND_SELECT |
+| BACKGROUND_SELECT | WORK | `choose_background()` in the career flow (runs 2 and later) |
+| WORK | LAYOFF / GAME_OVER / TITLE | the `career_*` verbs when a layoff is next (`wants_layoff_scene`); the sim's ending; `quit_to_title()` |
+| LAYOFF | WORK / TITLE | `career_acknowledge()` (the scene's last OK); `quit_to_title()` |
 
 **The last row is four transitions added to the required list.** They are needed because:
 - GDD S13 Pause (MUST) has "Quit to Title".
@@ -656,15 +661,15 @@ The offer (GDD 5.9, S10) is `{company_id, template_id, tier, job_title, salary, 
 | Rule | Detail |
 |---|---|
 | Format | One slot: JSON at `user://save_v1.json`, app-private on Android and iOS. `SaveIO.write` writes `.tmp`, then renames it; if the rename fails, it removes the old file and renames again |
-| When it's written | **Only while the run is live** (`JOB_HUNT`, `INTERVIEW`, `OFFER`). Three triggers: after every committed action (`_commit()`); on every change into those phases; and on `NOTIFICATION_APPLICATION_PAUSED`, `APPLICATION_FOCUS_OUT` and `WM_CLOSE_REQUEST` |
+| When it's written | **Only while the run is live** (`JOB_HUNT`, `INTERVIEW`, `OFFER`, and the career run's `WORK` and `LAYOFF`). Three triggers: after every committed action (`_commit()`); on every change into those phases; and on `NOTIFICATION_APPLICATION_PAUSED`, `APPLICATION_FOCUS_OUT` and `WM_CLOSE_REQUEST` |
 | Never written on | entering TITLE, INTRO, BACKGROUND_SELECT, PHASE2_STUB or GAME_OVER |
 | Deleted when | **entering GAME_OVER**, and **leaving PHASE2_STUB** (Title or New run). `change_phase()` deletes it and counts the finished run in the same place (`run_count`, below) |
 | Accept and the Hired card | Accept writes **no** save: PHASE2_STUB is never saved, so the file on disk stays the OFFER one. Killing the app on the Hired card resumes at the offer with the same contract, and accepting again hires the same job (section 7.2) |
 | Committed actions | apply, tailor, skip, research, study, network, closing a first-run coach mark (`close_coach_mark`, Step 7 review), sleep, start day, start interview, interview result (a win saves the whole offer with the OFFER phase), an offer decision that stays in the run (Decline: saved with JOB_HUNT). The CV change and the rescind were removed on 2026-09-29 (DECISIONS D9), and negotiate on 2026-10-07 (D-27) |
 | Interview | `start_interview()` checks today's slot and the energy, takes the invite out of Mail, pays, then freezes a **checkpoint** in `run.interview`: `invite_uid`, `company_id`, `template_id`, `tier`, `seed`, `question_ids` (in prompt order), `warmup_id` (`""` except on the first interview of the first run) and `tired`. (An old save's `probe_line` is never read, section 7.1.) `change_phase(INTERVIEW)` saves it. Doubt, Composure and the prompt index live in the scene, so a resume **restarts that interview with the same seed and the same questions** (GDD 5.11). Saves during the interview rewrite the same checkpoint, which is harmless. `finish_interview()` clears it |
-| Continue | `SaveIO.read()`. Then `GameFlow.can_resume(saved.phase)` must be true, or it falls back to `start_new_game()`. Then set the seed, then the state, then `change_phase(saved)` |
+| Continue | `SaveIO.kind()` says which run the slot holds. Phase 1's: `SaveIO.read()`, then `GameFlow.can_resume(saved.phase)` must be true, or it falls back to `start_new_game()`; then set the seed, then the state, then `change_phase(saved)`. A career run's: `WorkSession.from_save` (section 19.4), paused |
 | Retry / New run | `retry()` builds a **fresh `RunState`** and remembers `preselect_background` |
-| Versioning | `RunState.VERSION = 1`. When the format changes, bump it and migrate the dictionary at the top of `from_dict` |
+| Versioning | `RunState.VERSION = 1`. When the format changes, bump it and migrate the dictionary at the top of `from_dict`. The career run's save is `version: 2` (`SaveIO.CAREER_VERSION`, `{version, phase, sim, ui}`: section 19.4) |
 | JSON gotchas | numbers come back as floats (`from_dict` turns whole ones back into ints, recursively); no Vector2 or Color; 64-bit values travel as strings |
 | Security | **Never load `.tres` or `.res` from `user://`**: a resource file can carry a script that runs on load. `JSON.to_native` defaults to `allow_objects=false` (verified 4.7.2), and we use `JSON.parse_string` anyway |
 | Settings | `user://settings.cfg` (ConfigFile), separate from the run, written only by the game. `[meta]` holds `intro_seen` (set by `finish_intro()`), `run_count` (a run counts once, when `change_phase()` deletes its save: Plan B or leaving the Hired card; `first_run` is `run_count == 0`, read through `GameState.next_run_is_first()`; the debug-only title button "Reset first run" sets it back to 0), `last_background` (Background select preselects it), and later `tips_unlocked` (SHOULD) and `best_dream_<bg>` (LATER, DECISIONS D10); neither is written yet. `[options]` holds `haptics`, `relaxed_timing`, `reduced_motion`, `text_speed` (40 / 80 / 0 = instant) and `music_db` / `sfx_db` (SHOULD) |
@@ -1403,21 +1408,25 @@ extends RefCounted
 ## Which phase may follow which, and when the run save is written or deleted (GDD 4.1, 5.11).
 ## Pure data: tested by tests/test_flow.gd. Only GameState.change_phase() changes the phase.
 
-enum Phase { TITLE, INTRO, BACKGROUND_SELECT, JOB_HUNT, INTERVIEW, OFFER, PHASE2_STUB, GAME_OVER }
+## Append new phases at the end only: saves store the phase as an int (INV-10). WORK and LAYOFF are the career run's.
+enum Phase { TITLE, INTRO, BACKGROUND_SELECT, JOB_HUNT, INTERVIEW, OFFER, PHASE2_STUB, GAME_OVER, WORK, LAYOFF }
 
 const TRANSITIONS: Dictionary = {
-	Phase.TITLE: [Phase.INTRO, Phase.BACKGROUND_SELECT, Phase.JOB_HUNT, Phase.INTERVIEW, Phase.OFFER],
-	Phase.INTRO: [Phase.BACKGROUND_SELECT],
-	Phase.BACKGROUND_SELECT: [Phase.JOB_HUNT, Phase.TITLE],
+	Phase.TITLE: [Phase.INTRO, Phase.BACKGROUND_SELECT, Phase.JOB_HUNT, Phase.INTERVIEW, Phase.OFFER, Phase.WORK, Phase.LAYOFF],
+	Phase.INTRO: [Phase.BACKGROUND_SELECT, Phase.WORK],
+	Phase.BACKGROUND_SELECT: [Phase.JOB_HUNT, Phase.WORK, Phase.TITLE],
 	Phase.JOB_HUNT: [Phase.INTERVIEW, Phase.GAME_OVER, Phase.TITLE],
 	Phase.INTERVIEW: [Phase.OFFER, Phase.JOB_HUNT, Phase.TITLE],
 	Phase.OFFER: [Phase.PHASE2_STUB, Phase.JOB_HUNT, Phase.GAME_OVER, Phase.TITLE],
 	Phase.PHASE2_STUB: [Phase.TITLE, Phase.BACKGROUND_SELECT],
 	Phase.GAME_OVER: [Phase.TITLE, Phase.BACKGROUND_SELECT],
+	# The career run (ARCHITECTURE 19.4). M3 adds WORK -> INTERVIEW and OFFER -> WORK with the adapter.
+	Phase.WORK: [Phase.LAYOFF, Phase.GAME_OVER, Phase.TITLE],
+	Phase.LAYOFF: [Phase.WORK, Phase.TITLE],
 }
 
 ## A run is "live" only in these phases; they are the only phases ever written to the save.
-const SAVED_PHASES: Array[Phase] = [Phase.JOB_HUNT, Phase.INTERVIEW, Phase.OFFER]
+const SAVED_PHASES: Array[Phase] = [Phase.JOB_HUNT, Phase.INTERVIEW, Phase.OFFER, Phase.WORK, Phase.LAYOFF]
 
 
 static func can_transition(from: Phase, to: Phase) -> bool:
@@ -2251,35 +2260,84 @@ extends RefCounted
 ## The one run save: JSON in user:// (app-private on Android and iOS), written to a temp file,
 ## then renamed, so a crash mid-write never leaves half a save.
 ## Never load .tres/.res from user://: a resource file can carry a script that runs on load.
+##
+## Two kinds share the slot (ARCHITECTURE 19.4): Phase 1's hunt run (RunState.to_dict, version 1) and the career
+## run's ({version: 2, phase, sim, ui}: WorkSession.to_save). kind_of() tells them apart; a hunt save never reads as a
+## career one, so Continue can route to the right flow.
 
 const PATH := "user://save_v1.json"
+const KIND_NONE := ""
+const KIND_HUNT := "hunt"
+const KIND_CAREER := "career"
+const CAREER_VERSION := 2
 
 
 static func exists(path: String = PATH) -> bool:
 	return FileAccess.file_exists(path)
 
 
+## Phase 1's run (RunState). false when the slot holds nothing writable.
 static func write(run: RunState, path: String = PATH) -> bool:
+	return write_text(JSON.stringify(run.to_dict(), "\t"), path)
+
+
+## The career run: WorkSession.to_save(phase).
+static func write_career(payload: Dictionary, path: String = PATH) -> bool:
+	return write_text(encode(payload), path)
+
+
+static func encode(payload: Dictionary) -> String:
+	return JSON.stringify(payload, "\t")
+
+
+## Temp file, then rename. Some platforms refuse to rename over an existing file, so remove it and retry.
+static func write_text(text: String, path: String) -> bool:
 	var tmp := path + ".tmp"
 	var f := FileAccess.open(tmp, FileAccess.WRITE)
 	if f == null:
 		push_error("Save failed: %s" % error_string(FileAccess.get_open_error()))
 		return false
-	f.store_string(JSON.stringify(run.to_dict(), "\t"))
+	f.store_string(text)
 	f.close()
 	var err := DirAccess.rename_absolute(tmp, path)
-	if err != OK:  # some platforms refuse to rename over an existing file
+	if err != OK:
 		DirAccess.remove_absolute(path)
 		err = DirAccess.rename_absolute(tmp, path)
 	return err == OK
 
 
-static func read(path: String = PATH) -> RunState:
+## The save file as parsed JSON ({} when there is none or it is unreadable).
+static func peek(path: String = PATH) -> Dictionary:
 	if not exists(path):
-		return null
-	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
-	if not (data is Dictionary):
+		return {}
+	return decode(FileAccess.get_file_as_string(path))
+
+
+static func decode(text: String) -> Dictionary:
+	var json := JSON.new()   # not parse_string: that prints an engine error for a bad file
+	if json.parse(text) != OK or not (json.data is Dictionary):
 		push_warning("Save file unreadable; ignoring it.")
+		return {}
+	return json.data
+
+
+## "career" for a version-2 save with a sim, "hunt" for any other save, "" for nothing.
+static func kind_of(data: Dictionary) -> String:
+	if data.is_empty():
+		return KIND_NONE
+	if int(data.get("version", 1)) >= CAREER_VERSION and data.has("sim"):
+		return KIND_CAREER
+	return KIND_HUNT
+
+
+static func kind(path: String = PATH) -> String:
+	return kind_of(peek(path))
+
+
+## Phase 1's run, or null when the slot is empty, unreadable or holds a career run.
+static func read(path: String = PATH) -> RunState:
+	var data := peek(path)
+	if kind_of(data) != KIND_HUNT:
 		return null
 	return RunState.from_dict(data)
 
@@ -3113,8 +3171,9 @@ static func load_json(path: String) -> Dictionary:
 ```gdscript
 extends Node
 ## Autoload "GameState" (no class_name: it would clash with the autoload name).
-## Owns the RunState, the run's RNG, the phase and the settings file.
-## Scenes read `run` and call verbs. Only change_phase() changes the phase.
+## Owns the RunState, the run's RNG, the phase and the settings file. The career run (M2) lives in `session`, a
+## WorkSession: `run` then only holds the phase and the background, and the career_* verbs below drive the session.
+## Scenes read `run` / `session` and call verbs. Only change_phase() changes the phase.
 ## Every verb that commits a player action ends with _commit() (save + HUD refresh).
 
 signal phase_changed(from: GameFlow.Phase, to: GameFlow.Phase)
@@ -3125,6 +3184,11 @@ const SETTINGS_PATH := "user://settings.cfg"
 var run: RunState = RunState.new()
 var rng := RandomNumberGenerator.new()
 var settings := ConfigFile.new()
+## The career run on screen (ARCHITECTURE 19.4, 19.7): null in Phase 1's hunt and outside a run.
+var session: WorkSession = null
+## New game starts the career run. Only the Title's debug button turns this off, for Phase 1's hunt (until M4 retires it).
+var career_flow: bool = true
+var _intro_starts_career: bool = false   # the intro in front of us is a new game's, not a replay
 ## Background select focuses this card: the last background played (settings meta "last_background",
 ## GDD S03), "" before the first run (The Graduate then).
 var preselect_background: String = ""
@@ -3138,6 +3202,10 @@ func _ready() -> void:
 func _notification(what: int) -> void:
 	match what:
 		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT:
+			if session != null:
+				session.clock.speed = WorkClock.PAUSE   # no time passes while the app is away (D-13, INV-22)
+				session.clock.hold()
+				run_changed.emit()                      # the speed control shows Pause when you come back
 			save()
 			if run.phase == GameFlow.Phase.INTERVIEW:
 				get_tree().paused = true  # interview.gd shows "Ready? Tap to continue", then unpauses
@@ -3169,9 +3237,13 @@ func reset_first_run() -> void:
 
 # ---------- saving ----------
 
-## Writes only while a run is live (JOB_HUNT / INTERVIEW / OFFER); a no-op otherwise.
+## Writes only while a run is live (JOB_HUNT / INTERVIEW / OFFER, WORK / LAYOFF); a no-op otherwise. The career run saves
+## the session ({version: 2, phase, sim, ui}), Phase 1's hunt the RunState.
 func save() -> void:
 	if not GameFlow.is_saved(run.phase):
+		return
+	if session != null and _is_career_phase(run.phase):
+		SaveIO.write_career(session.to_save(run.phase))
 		return
 	run.rng_state = str(rng.state)
 	SaveIO.write(run)
@@ -3197,39 +3269,97 @@ func change_phase(to: GameFlow.Phase) -> void:
 	phase_changed.emit(from, to)
 
 
+## The career run (DECISIONS A78): run 1 is the Intern at the authored job, after the intro the first time; later runs pick
+## a background first. Phase 1's hunt is only reachable through start_hunt_game().
 func start_new_game() -> void:  # Title: "Tap to start"
 	run = RunState.new()
+	session = null
+	career_flow = true
+	_intro_starts_career = false
+	if not next_run_is_first():
+		change_phase(GameFlow.Phase.BACKGROUND_SELECT)
+	elif setting("meta", "intro_seen", false):
+		_begin_career(1, "intern", "", new_run_seed())
+	else:
+		_intro_starts_career = true
+		change_phase(GameFlow.Phase.INTRO)
+
+
+## Debug builds only (the Title's "Old hunt" button): Phase 1's job hunt, as v0.1 shipped it, until M4 retires it.
+func start_hunt_game() -> void:
+	run = RunState.new()
+	session = null
+	career_flow = false
+	_intro_starts_career = false
 	var intro_seen: bool = setting("meta", "intro_seen", false)
 	change_phase(GameFlow.Phase.BACKGROUND_SELECT if intro_seen else GameFlow.Phase.INTRO)
 
 
 func replay_intro() -> void:  # Title: "Replay intro"
 	run = RunState.new()
+	session = null
+	career_flow = true
+	_intro_starts_career = false
 	change_phase(GameFlow.Phase.INTRO)
 
 
 func finish_intro() -> void:  # the intro ended, or Skip, or Android Back
 	set_setting("meta", "intro_seen", true)
-	change_phase(GameFlow.Phase.BACKGROUND_SELECT)
+	if career_flow and _intro_starts_career:
+		_intro_starts_career = false
+		_begin_career(1, "intern", "", new_run_seed())
+	else:
+		change_phase(GameFlow.Phase.BACKGROUND_SELECT)
 
 
+## Continue resumes whichever run the slot holds: a career run (version 2) or Phase 1's hunt. Never a dead button.
 func continue_game() -> void:
+	match SaveIO.kind():
+		SaveIO.KIND_CAREER:
+			if _resume_career():
+				return
+		SaveIO.KIND_HUNT:
+			if _resume_hunt():
+				return
+	start_new_game()
+
+
+func _resume_hunt() -> bool:
 	var loaded := SaveIO.read()
 	if loaded == null or not GameFlow.can_resume(loaded.phase):
-		start_new_game()  # never leave Continue dead
-		return
+		return false
 	var resume_at := loaded.phase
+	session = null
+	career_flow = false
 	run = loaded
 	run.phase = GameFlow.Phase.TITLE
 	rng.seed = run.rng_seed.to_int()   # seed first: setting seed resets state
 	rng.state = run.rng_state.to_int()
 	change_phase(resume_at)
+	return true
+
+
+func _resume_career() -> bool:
+	var data := SaveIO.peek()
+	var resume_at := int(data.get("phase", GameFlow.Phase.WORK)) as GameFlow.Phase
+	if not _is_career_phase(resume_at) or not GameFlow.can_resume(resume_at):
+		return false
+	var bg_id := str((data.get("sim", {}) as Dictionary).get("bg_id", "intern"))
+	session = WorkSession.from_save(data, SimContext.load_default(bg_id))   # the clock starts paused (KILL_TESTS 6)
+	career_flow = true
+	_intro_starts_career = false
+	run = RunState.new()
+	run.background_id = bg_id
+	run.player_name = session.player_name
+	change_phase(resume_at)
+	return true
 
 
 ## Plan B "Retry" and Hired "New run": a brand-new RunState, same background preselected.
 func retry() -> void:
 	var from := run.phase
 	preselect_background = run.background_id
+	session = null
 	run = RunState.new()
 	run.phase = from  # keeps the transition legal; leaving PHASE2_STUB deletes the save
 	change_phase(GameFlow.Phase.BACKGROUND_SELECT)
@@ -3237,13 +3367,20 @@ func retry() -> void:
 
 ## Pause "Quit to title", Background select Back, ending "Title". The save survives for Continue.
 func quit_to_title() -> void:
+	if session != null:
+		save()   # a career run resumes where you left it, not at its last eventful day
 	change_phase(GameFlow.Phase.TITLE)
+	session = null
 
 
 func choose_background(bg_id: String, player_name: String, run_seed: int = 0) -> void:
-	_init_run(bg_id, player_name, run_seed if run_seed != 0 else new_run_seed())
+	var chosen_seed := run_seed if run_seed != 0 else new_run_seed()
 	preselect_background = bg_id
 	set_setting("meta", "last_background", bg_id)
+	if career_flow:
+		_begin_career(int(setting("meta", "run_count", 0)) + 1, bg_id, player_name, chosen_seed)
+		return
+	_init_run(bg_id, player_name, chosen_seed)
 	change_phase(GameFlow.Phase.JOB_HUNT)
 
 
@@ -3265,6 +3402,21 @@ func preview_gap_topics(bg_id: String, run_seed: int) -> Array:
 	var preview := RandomNumberGenerator.new()
 	preview.seed = run_seed
 	return Odds.pick(preview, _gap_pool(), bg.gap_topics_count)
+
+
+## Debug only: set a career run up in place so `project_run mode="custom"` can launch the work or layoff scene alone.
+## No change_phase() and no signal, so SceneRouter never replaces the scene you launched. to_layoff plays run 1 to the
+## layoff scene (answering whatever comes, the simplest way).
+func debug_career_quick_start(to_layoff: bool = false, run_seed: int = 20261009) -> void:
+	run = RunState.new()
+	run.background_id = "intern"
+	run.player_name = "Alex"
+	career_flow = true
+	session = WorkSession.start(SimContext.load_default("intern"), 1, run_seed, [], "Alex", true)
+	run.phase = GameFlow.Phase.WORK
+	if to_layoff:
+		session.play_to_layoff()
+		run.phase = GameFlow.Phase.LAYOFF
 
 
 ## Debug only: set a run up in place so `project_run mode="custom"` can launch one feature scene.
@@ -3324,6 +3476,131 @@ func _init_run(bg_id: String, player_name: String, run_seed: int) -> void:
 
 func _gap_pool() -> Array:
 	return Content.entries("naming").get("_gap_topic_pool", [])
+
+
+# ---------- the career run (M2; ARCHITECTURE 19.4, 19.7) ----------
+## The WORK scene calls these; the rules are the sim's (WorkSession -> Sim). Every answer is applied without a tick, so
+## time moves only in career_tick(), which the scene calls once a day while nothing is open. Each answer saves.
+
+func _is_career_phase(phase: GameFlow.Phase) -> bool:
+	return phase == GameFlow.Phase.WORK or phase == GameFlow.Phase.LAYOFF
+
+
+## A new career run: the sim's first state, the Handbook's collected tips, then the work state (which saves).
+func _begin_career(run_number: int, bg_id: String, player_name: String, run_seed: int) -> void:
+	var from := run.phase
+	var first := next_run_is_first()
+	session = WorkSession.start(SimContext.load_default(bg_id), run_number, run_seed, collected_tips(), player_name, first)
+	run = RunState.new()
+	run.phase = from   # keeps the transition legal, like retry()
+	run.background_id = bg_id
+	run.player_name = player_name
+	change_phase(GameFlow.Phase.WORK)
+
+
+## The tips the player has collected over all runs (the Handbook, GDD 5.21), as ids.
+func collected_tips() -> Array:
+	return Array(setting("meta", "handbook", []))
+
+
+## One day (the clock). Saves when something happened worth keeping: a card, a payday, a shipped ticket.
+func career_tick() -> void:
+	if session == null:
+		return
+	var events := session.tick()
+	_after_career(events, _career_events_worth_a_save(events))   # refreshes the screen after every day, saves on the notable ones
+
+
+func career_set_speed(position: int) -> void:
+	if session != null:
+		session.clock.set_speed(position, session.ctx.cfg)
+		run_changed.emit()
+
+
+func career_set_hours(notch: int) -> void:
+	_career_answer(func() -> Array: return session.set_hours(notch))
+
+
+func career_choose(choice_id: String) -> void:
+	_career_answer(func() -> Array: return session.choose(choice_id))
+
+
+func career_pick_ticket(pick: String) -> void:
+	_career_answer(func() -> Array: return session.pick_ticket(pick))
+
+
+func career_resolve_review() -> void:
+	_career_answer(func() -> Array: return session.resolve_review())
+
+
+func career_fail_interview() -> void:
+	_career_answer(func() -> Array: return session.fail_interview())
+
+
+func career_decline_offer() -> void:
+	_career_answer(func() -> Array: return session.decline_offer())
+
+
+## OK on the layoff scene or the forced leave.
+func career_acknowledge() -> void:
+	_career_answer(func() -> Array: return session.acknowledge())
+
+
+## OK on a notice. Not an input to the sim: only the screen's own state changes.
+func career_dismiss_notice() -> void:
+	if session == null:
+		return
+	session.dismiss_notice()
+	_after_career([], true)
+
+
+func career_close_coach(coach_id: String) -> void:
+	if session != null:
+		session.close_coach(coach_id)
+		_commit()
+
+
+func _career_answer(answer: Callable) -> void:
+	if session == null:
+		return
+	_after_career(answer.call(), true)
+
+
+## After any step or answer: an ending leaves the run, the layoff scene is its own phase, and the save keeps what
+## happened (the run log and the screen's state travel with it).
+func _after_career(events: Array, save_now: bool) -> void:
+	if session.is_over():
+		_finish_career()
+		return
+	if run.phase == GameFlow.Phase.WORK and session.wants_layoff_scene():
+		session.clock.set_speed(WorkClock.PAUSE, session.ctx.cfg)   # the scene is a beat of its own: the clock waits after it
+		change_phase(GameFlow.Phase.LAYOFF)   # saves
+		return
+	if run.phase == GameFlow.Phase.LAYOFF and not WorkCards.is_layoff_pending(session.sim):
+		change_phase(GameFlow.Phase.WORK)     # saves
+		return
+	if save_now or session.is_blocked():
+		_commit()
+	else:
+		run_changed.emit()
+
+
+func _career_events_worth_a_save(events: Array) -> bool:
+	for e: Dictionary in events:
+		if String(e.get("kind", "")) in ["payday", "rent", "ticket_shipped", "job_ended", "event", "review"]:
+			return true
+	return false
+
+
+## The sim ended the run: the tips it showed join the Handbook, then the ending card. Entering GAME_OVER deletes the save
+## and counts the run (change_phase).
+func _finish_career() -> void:
+	var tips: Array = collected_tips()
+	for tip: Variant in session.sim.tips_seen:
+		if not tips.has(tip):
+			tips.append(tip)
+	set_setting("meta", "handbook", tips)
+	change_phase(GameFlow.Phase.GAME_OVER)
 
 
 # ---------- job hunt verbs (each committed action ends with _commit()) ----------
@@ -3661,6 +3938,8 @@ const SCENES: Dictionary = {
 	GameFlow.Phase.OFFER: "res://features/offer/offer.tscn",
 	GameFlow.Phase.PHASE2_STUB: "res://features/phase2_stub/phase2_stub.tscn",
 	GameFlow.Phase.GAME_OVER: "res://features/game_over/game_over.tscn",
+	GameFlow.Phase.WORK: "res://features/work/work.tscn",
+	GameFlow.Phase.LAYOFF: "res://features/layoff/layoff.tscn",
 }
 
 var busy: bool = false
@@ -3871,6 +4150,7 @@ const BLINK_SEC := 0.5
 ## Debug-only labels, English on purpose (not player text, so not in CONTENT.md).
 const DEBUG_DEVICE_CHECK := "Device check"
 const DEBUG_FIRST_RUN := "Reset first run"
+const DEBUG_HUNT := "Old hunt"   # Phase 1's job hunt, until M4 retires it (DECISIONS A78)
 
 var _has_save: bool = false
 var _device_check: Control = null
@@ -3883,6 +4163,7 @@ var _device_check: Control = null
 @onready var _new_game_button: Button = %NewGameButton
 @onready var _continue_button: Button = %ContinueButton
 @onready var _replay_intro_button: Button = %ReplayIntroButton
+@onready var _hunt_button: Button = %HuntButton
 @onready var _debug_row: Control = %DebugRow
 @onready var _device_check_button: Button = %DeviceCheckButton
 @onready var _first_run_button: Button = %FirstRunButton
@@ -3898,6 +4179,8 @@ func _ready() -> void:
 	_new_game_button.text = Content.text("barks", "ui_new_game")
 	_continue_button.text = UiText.primary(Content.text("barks", "ui_continue"))
 	_replay_intro_button.text = Content.text("barks", "ui_replay_intro")
+	_hunt_button.text = DEBUG_HUNT
+	_hunt_button.visible = OS.is_debug_build()
 	_device_check_button.text = DEBUG_DEVICE_CHECK
 	_first_run_button.text = DEBUG_FIRST_RUN
 	_has_save = SaveIO.exists()
@@ -3913,6 +4196,7 @@ func _ready() -> void:
 	_new_game_button.pressed.connect(GameState.start_new_game)
 	_continue_button.pressed.connect(GameState.continue_game)
 	_replay_intro_button.pressed.connect(GameState.replay_intro)
+	_hunt_button.pressed.connect(GameState.start_hunt_game)
 	_device_check_button.pressed.connect(_open_device_check)
 	_first_run_button.pressed.connect(_reset_first_run)
 	_quit_dialog.confirmed.connect(get_tree().quit)
@@ -4010,6 +4294,16 @@ const LEGAL: Array[Array] = [
 	[GameFlow.Phase.JOB_HUNT, GameFlow.Phase.TITLE],
 	[GameFlow.Phase.INTERVIEW, GameFlow.Phase.TITLE],
 	[GameFlow.Phase.OFFER, GameFlow.Phase.TITLE],
+	# The career run (ARCHITECTURE 19.4): New game and Continue reach WORK; the layoff scene is its own phase.
+	[GameFlow.Phase.TITLE, GameFlow.Phase.WORK],
+	[GameFlow.Phase.TITLE, GameFlow.Phase.LAYOFF],
+	[GameFlow.Phase.INTRO, GameFlow.Phase.WORK],
+	[GameFlow.Phase.BACKGROUND_SELECT, GameFlow.Phase.WORK],
+	[GameFlow.Phase.WORK, GameFlow.Phase.LAYOFF],
+	[GameFlow.Phase.WORK, GameFlow.Phase.GAME_OVER],
+	[GameFlow.Phase.WORK, GameFlow.Phase.TITLE],
+	[GameFlow.Phase.LAYOFF, GameFlow.Phase.WORK],
+	[GameFlow.Phase.LAYOFF, GameFlow.Phase.TITLE],
 ]
 
 const ILLEGAL: Array[Array] = [
@@ -4019,8 +4313,16 @@ const ILLEGAL: Array[Array] = [
 	[GameFlow.Phase.INTRO, GameFlow.Phase.OFFER],
 	[GameFlow.Phase.JOB_HUNT, GameFlow.Phase.OFFER],
 	[GameFlow.Phase.GAME_OVER, GameFlow.Phase.JOB_HUNT],
+	[GameFlow.Phase.GAME_OVER, GameFlow.Phase.WORK],
+	[GameFlow.Phase.WORK, GameFlow.Phase.WORK],
+	[GameFlow.Phase.WORK, GameFlow.Phase.INTERVIEW],    # M3 adds these with the adapter
+	[GameFlow.Phase.WORK, GameFlow.Phase.OFFER],
+	[GameFlow.Phase.LAYOFF, GameFlow.Phase.GAME_OVER],
+	[GameFlow.Phase.INTRO, GameFlow.Phase.LAYOFF],
 ]
 
+## The phases a run is live in: Phase 1's hunt, and the career run's work state and layoff scene.
+const LIVE: Array[int] = [GameFlow.Phase.JOB_HUNT, GameFlow.Phase.INTERVIEW, GameFlow.Phase.OFFER, GameFlow.Phase.WORK, GameFlow.Phase.LAYOFF]
 const ROUTER_PATH := "res://autoload/scene_router.gd"
 const FEATURES_DIR := "res://features/"
 
@@ -4043,7 +4345,7 @@ func test_illegal_jumps_are_blocked() -> void:
 
 func test_only_live_run_phases_are_saved() -> void:
 	for phase: int in GameFlow.Phase.values():
-		var live := phase in [GameFlow.Phase.JOB_HUNT, GameFlow.Phase.INTERVIEW, GameFlow.Phase.OFFER]
+		var live := phase in LIVE
 		assert_eq(GameFlow.is_saved(phase), live, "is_saved(%s)" % GameFlow.Phase.find_key(phase))
 
 
@@ -4054,6 +4356,9 @@ func test_save_deleted_on_plan_b_and_after_hired() -> void:
 	assert_true(GameFlow.deletes_save(GameFlow.Phase.PHASE2_STUB, GameFlow.Phase.BACKGROUND_SELECT))
 	assert_false(GameFlow.deletes_save(GameFlow.Phase.OFFER, GameFlow.Phase.PHASE2_STUB), "killed on the Hired card: Continue still works")
 	assert_false(GameFlow.deletes_save(GameFlow.Phase.JOB_HUNT, GameFlow.Phase.TITLE), "Quit to title keeps the run")
+	assert_true(GameFlow.deletes_save(GameFlow.Phase.WORK, GameFlow.Phase.GAME_OVER), "an ending deletes the career save (KILL_TESTS 11)")
+	assert_false(GameFlow.deletes_save(GameFlow.Phase.WORK, GameFlow.Phase.TITLE), "Quit to title keeps the career run")
+	assert_false(GameFlow.deletes_save(GameFlow.Phase.WORK, GameFlow.Phase.LAYOFF), "the layoff scene is part of the run")
 
 
 ## GameState counts a finished run (settings meta run_count) exactly when change_phase() deletes the
@@ -4090,7 +4395,7 @@ func test_run_count_moves_only_with_the_save_deletion() -> void:
 
 func test_continue_only_resumes_live_runs() -> void:
 	for phase: int in GameFlow.Phase.values():
-		var live := phase in [GameFlow.Phase.JOB_HUNT, GameFlow.Phase.INTERVIEW, GameFlow.Phase.OFFER]
+		var live := phase in LIVE
 		assert_eq(GameFlow.can_resume(phase), live, "can_resume(%s)" % GameFlow.Phase.find_key(phase))
 
 
@@ -4221,6 +4526,19 @@ func test_a_save_from_before_d9_still_loads() -> void:
 	var saved := back.to_dict()
 	for key: String in REMOVED_KEYS:
 		assert_false(saved.has(key), "%s is dropped by the next save" % key)
+
+
+## The career run shares the slot with Phase 1's save (ARCHITECTURE 19.4): version 2 with a sim is a career save, anything
+## else that parses is a hunt save, and nothing is nothing. Pure string work: no file is written.
+func test_the_slot_tells_hunt_and_career_saves_apart() -> void:
+	assert_eq(SaveIO.kind_of({}), SaveIO.KIND_NONE)
+	assert_eq(SaveIO.kind_of(RunState.new().to_dict()), SaveIO.KIND_HUNT, "Phase 1's save has no sim")
+	assert_eq(SaveIO.kind_of({"version": 1, "phase": 3}), SaveIO.KIND_HUNT)
+	assert_eq(SaveIO.kind_of({"version": 2, "phase": 8}), SaveIO.KIND_HUNT, "version 2 without a sim is not a career save")
+	assert_eq(SaveIO.kind_of({"version": 2, "phase": 8, "sim": {}}), SaveIO.KIND_CAREER)
+	var text := SaveIO.encode({"version": 2, "phase": 8, "sim": {"day": 5}})
+	assert_eq(SaveIO.kind_of(SaveIO.decode(text)), SaveIO.KIND_CAREER, "through JSON and back")
+	assert_eq(SaveIO.decode("{ this is not json"), {}, "garbage reads as no save")
 ```
 
 `test_odds.gd` (the example test):
@@ -4880,6 +5198,11 @@ static func money(amount: int) -> String:
 	return ("-" if amount < 0 else "") + "$" + grouped
 
 
+## Thousands of in-game dollars (k$, GDD 5.15) with two decimals: 2.55 -> "$2.55k", -0.4 -> "-$0.40k".
+static func money_k(amount: float) -> String:
+	return ("-" if amount < -0.004 else "") + "$%.2fk" % absf(amount)
+
+
 ## Content text with its {placeholders} filled (String.format), except that a value ending in "."
 ## swallows a "." right after its placeholder, so a name that ends a sentence never doubles it:
 ## ("Welcome to {company}. Hi.", {"company": "Engagement Farms Inc."}) -> "Welcome to Engagement
@@ -5290,6 +5613,15 @@ func to_save() -> Dictionary:
 
 static func from_save(data: Dictionary) -> SimState:
 	return from_dict(_decode(data))
+
+
+## The same exact encoding for any plain-data value (WorkSession's saved UI state goes through it too).
+static func encode_value(v: Variant) -> Variant:
+	return _encode(v)
+
+
+static func decode_value(v: Variant) -> Variant:
+	return _decode(v)
 
 
 static func _encode(v: Variant) -> Variant:
@@ -5943,6 +6275,21 @@ static func step(state: SimState, inputs: Array, ctx: SimContext) -> Array:
 	return events
 
 
+## Apply the inputs and do not tick: how the work state changes the Hours or answers a card while the clock is paused
+## (the clock driver ticks with step(state, [], ctx)). The run log stores the day each input was sent on, and replay()
+## batches the inputs of a day with the tick that follows them, so a run played this way replays to the same state (O8).
+static func apply_inputs(state: SimState, inputs: Array, ctx: SimContext) -> Array:
+	var events: Array = []
+	if state.ended:
+		return events
+	ctx.rng.seed = state.rng_seed
+	ctx.rng.state = state.rng_state
+	for input: Dictionary in inputs:
+		_apply_input(state, ctx, input, events)
+	state.rng_state = ctx.rng.state
+	return events
+
+
 ## Replays a run from its log: the same seed and inputs give the same run (O8). Only the accepted inputs matter
 ## (SimState.log entries with "k" == "in", each with the day it was sent on); the days between them tick on their own.
 ## The run is replayed to until_day, or to the last day the log mentions.
@@ -6460,10 +6807,11 @@ static func _resize(s: SimState, ctx: SimContext, ch: Dictionary, events: Array)
 			return
 	var first_job := s.run_number == 1 and s.jobs_held == 1
 	var months := WorkOdds.severance_months(cfg, arch, s.day - s.job_start, first_job, ctx.rng)
+	var severance := months * s.job_salary   # k$: the scene shows it, and _end_job clears the salary
 	s.bump("layoffs")
 	_end_job(s, ctx, "layoff", events, months)
 	if not s.ended:
-		s.queue.append({"kind": "layoff_scene", "severance_months": months})
+		s.queue.append({"kind": "layoff_scene", "severance_months": months, "severance": severance})
 
 
 ## Plan the next resizing chain of this job: run 1's authored five signs and the fixed day, or a rumor 10-30 days
@@ -6979,6 +7327,1192 @@ static func _log(s: SimState, ctx: SimContext, kind: String, data: Dictionary) -
 	s.log.append(entry)
 ```
 
+### 17.19 The work state's core: pure classes in core/ (Step 15)
+
+`core/work_clock.gd`:
+
+```gdscript
+@tool
+class_name WorkClock
+extends RefCounted
+## The work state's clock (GDD 5.14, DECISIONS D-01, D-13; INV-22): frame time in, whole days out. Pause is 0 days a
+## second; 1x, 2x and 4x are WorkConfig.speeds (days per second). It never reads the wall clock: the scene hands it
+## its frame delta, and only while nothing is open over the work state (a card, an app, Pause). It rules nothing;
+## Sim.step does, one call per day.
+
+## One hitch (a dropped frame, the editor stalling) must never fast-forward a month.
+const MAX_DAYS_PER_FRAME := 4
+const PAUSE := 0
+
+## 0 is Pause; 1.. picks WorkConfig.speeds[speed - 1].
+var speed: int = PAUSE
+var _carry: float = 0.0
+
+
+## The speed control's position count: Pause plus one per WorkConfig speed.
+static func speed_count(cfg: WorkConfig) -> int:
+	return cfg.speeds.size() + 1
+
+
+## Days per second at this position (0 for Pause or an unknown position).
+func days_per_second(cfg: WorkConfig) -> float:
+	if speed <= PAUSE or speed > cfg.speeds.size():
+		return 0.0
+	return float(cfg.speeds[speed - 1])
+
+
+func set_speed(position: int, cfg: WorkConfig) -> void:
+	speed = clampi(position, PAUSE, cfg.speeds.size())
+	_carry = 0.0
+
+
+func is_running() -> bool:
+	return speed > PAUSE
+
+
+## The whole days to run for this frame. The fraction carries to the next frame, so 1x is one day a second on
+## average whatever the frame rate; at most MAX_DAYS_PER_FRAME come out at once.
+func advance(cfg: WorkConfig, delta: float) -> int:
+	var rate := days_per_second(cfg)
+	if rate <= 0.0 or delta <= 0.0:
+		return 0
+	_carry += delta * rate
+	var whole := int(_carry)
+	_carry -= float(whole)   # only the fraction carries: the days over the cap are dropped, not queued
+	return mini(whole, MAX_DAYS_PER_FRAME)
+
+
+## A card, an app or Pause opened: the half-built day is thrown away, so the clock restarts from zero when it comes back.
+func hold() -> void:
+	_carry = 0.0
+```
+
+`core/work_hud.gd`:
+
+```gdscript
+@tool
+class_name WorkHud
+extends RefCounted
+## What the work state's top band shows, as numbers and text ids (GDD 5.16, 4.6): the four numbers (Runway, Burnout,
+## Ticket, the Codebase's 10 LEDs), the Studio chip and the 60-day calendar strip. Pure, like WorkOdds: it reads a
+## SimState and changes nothing, so the scene only draws what it is told (INV-03) and a test can check each number.
+
+const LED_COUNT := 10
+const LED_STEP := 10.0   # one LED turns red per 10 Codebase points
+
+const CAL_IDS: Dictionary = {
+	"payday": "ui_cal_payday", "rent": "ui_cal_rent", "review": "ui_cal_review",
+	"interview": "ui_cal_interview", "deadline": "ui_cal_deadline", "lease": "ui_cal_lease",
+}
+const LEVEL_IDS: PackedStringArray = ["ui_level_junior", "ui_level_mid", "ui_level_senior"]
+const HOME_IDS: PackedStringArray = ["ui_home_shared", "ui_home_one_bed", "ui_home_studio", "ui_home_penthouse"]
+
+
+## Rent plus living costs for a month, in k$ (what the Runway chip divides by).
+static func monthly_bills(s: SimState) -> float:
+	return s.rent + s.living_cost * s.living_mult
+
+
+## Months of bills the savings cover, never below zero.
+static func runway_months(s: SimState) -> float:
+	return maxf(0.0, WorkOdds.runway_months(s.savings, s.rent, s.living_cost * s.living_mult))
+
+
+## The chip turns red under runway_red_months. The number always shows too, so colour is never the only signal.
+static func runway_is_red(s: SimState, cfg: WorkConfig) -> bool:
+	return runway_months(s) < cfg.runway_red_months
+
+
+## "4.2": the {months} of ui_runway.
+static func runway_text(s: SimState) -> String:
+	return "%.1f" % runway_months(s)
+
+
+## Burnout as a 0..1 bar fill.
+static func burnout_frac(s: SimState, cfg: WorkConfig) -> float:
+	return clampf(s.burnout / cfg.burnout_max, 0.0, 1.0)
+
+
+## The server rack: how many of the 10 LEDs are red (one per 10 Codebase points).
+static func codebase_red_leds(s: SimState) -> int:
+	return clampi(floori(s.codebase / LED_STEP), 0, LED_COUNT)
+
+
+## The ticket's progress as a 0..1 bar fill. Between jobs there is no ticket.
+static func ticket_frac(s: SimState) -> float:
+	if not s.employed:
+		return 0.0
+	return clampf(s.ticket_progress / 100.0, 0.0, 1.0)
+
+
+## Days to the ticket's deadline; negative when it is late. 0 between jobs.
+static func ticket_days_left(s: SimState) -> int:
+	return s.ticket_deadline - s.day if s.employed else 0
+
+
+static func ticket_is_late(s: SimState) -> bool:
+	return s.employed and s.day > s.ticket_deadline
+
+
+## How many of the Studio's five conditions hold now (the chip's "Studio 3/5").
+static func studio_count(s: SimState, cfg: WorkConfig) -> int:
+	return WorkOdds.studio_count(cfg, s.level, s.job_remote, s.home, s.burnout, s.savings, s.living_cost * s.living_mult)
+
+
+static func hours_label_id(notch: int) -> String:
+	return "ui_hours_%d" % clampi(notch, 1, 5)
+
+
+static func level_label_id(level: int) -> String:
+	return LEVEL_IDS[clampi(level, 0, LEVEL_IDS.size() - 1)]
+
+
+static func home_label_id(home: int) -> String:
+	return HOME_IDS[clampi(home, 0, HOME_IDS.size() - 1)]
+
+
+## The speed control's label id for a position: 0 is Pause, then one per WorkConfig speed ("1x", "2x", "4x").
+static func speed_label_id(position: int, cfg: WorkConfig) -> String:
+	if position <= WorkClock.PAUSE or position > cfg.speeds.size():
+		return "ui_speed_pause"
+	return "ui_speed_%d" % cfg.speeds[position - 1]
+
+
+## The calendar strip (GDD 5.14): what is coming in the next calendar_days days, as {offset, kind, label_id} with
+## offset 1..calendar_days from today. Several things on one day stay as separate entries.
+static func calendar(ctx: SimContext, s: SimState) -> Array:
+	var out: Array = []
+	for item: Dictionary in EventPlan.calendar(ctx, s, ctx.cfg.calendar_days):
+		var kind: String = item["kind"]
+		out.append({"offset": int(item["day"]) - s.day, "kind": kind, "label_id": String(CAL_IDS.get(kind, ""))})
+	return out
+
+
+## The next thing on the calendar (for a text line under the strip), or {} when the strip is empty.
+static func next_on_calendar(ctx: SimContext, s: SimState) -> Dictionary:
+	var items := calendar(ctx, s)
+	return items[0] if not items.is_empty() else {}
+```
+
+`core/work_cards.gd`:
+
+```gdscript
+@tool
+class_name WorkCards
+extends RefCounted
+## What the work state shows over the clock (GDD 4.6, 5.19; ARCHITECTURE 19.7), built from the sim's events and its
+## queue as plain data. Pure, like WorkHud: the scene only draws these dictionaries and sends the player's answer back.
+## A card carries ids and numbers, never text, so the words stay in the JSON (INV-15) and a test can check each one.
+##
+## Notices: something to read, with OK. The clock waits until it is dismissed (INV-22). Styles: info, warning and
+##   ducky (a tip). Fields by what they name: "literal" (a line the data already carries, a rumor), "id" (a barks id),
+##   "event" (a work_events entry), "tip", plus the numbers its text needs.
+## Feed lines: one quiet line in the Body (payday, rent, a shipped ticket, a rumor), no pause.
+## Head cards: the sim's queue head, which the player must answer: an event with choices, a review, a Mid's ticket
+##   pick, the forced leave. The layoff scene is the LAYOFF phase's, and an interview or an offer waits for M3's adapter.
+
+const INFO := "info"
+const WARNING := "warning"
+const DUCKY := "ducky"
+
+const K_EVENT := "event"
+const K_REVIEW := "review"
+const K_PICK := "ticket_pick"
+const K_LEAVE := "forced_leave"
+const K_DUEL := "duel"
+const K_OFFER := "offer"
+
+const BURNOUT_WARN_IDS: PackedStringArray = ["ui_burnout_warn_60", "ui_burnout_warn_70", "ui_burnout_warn_75"]
+const FEED_MAX := 8
+
+
+static func notice(style: String, fields: Dictionary) -> Dictionary:
+	var out: Dictionary = {"kind": "notice", "style": style}
+	out.merge(fields)
+	return out
+
+
+## The notices a step's (or an input's) events leave to read, in order.
+static func notices_from(events: Array, s: SimState, ctx: SimContext) -> Array:
+	var out: Array = []
+	for e: Dictionary in events:
+		match String(e.get("kind", "")):
+			"rumor":
+				out.append(notice(INFO, {"literal": String(e["text"])}))
+			"burnout_warning":
+				out.append(notice(WARNING, {"id": BURNOUT_WARN_IDS[clampi(int(e["level"]), 0, BURNOUT_WARN_IDS.size() - 1)]}))
+			"auto_resolved":
+				out.append(notice(WARNING, {"id": "ui_auto_resolved", "event": String(e["id"]), "choice": String(e["choice"])}))
+			"review_result":
+				out.append(notice(INFO, {
+					"event": Sim.EVT_REVIEW, "rating": WorkOdds.RATINGS[int(e["rating"])],
+					"raise_pct": roundi(float(e["raise"]) * 100.0), "promoted": bool(e["promoted"]), "level": s.level}))
+			"pip_started":
+				out.append(notice(WARNING, {"id": "ui_pip"}))
+			"tip":
+				out.append(notice(DUCKY, {"tip": String(e["id"])}))
+			"resizing_survived":
+				out.append(notice(INFO, {"id": "ui_resizing_survived", "n": int(e["cuts"])}))
+			"event":
+				if (e.get("choices", []) as Array).is_empty():  # no choices: it only needs reading, if it pauses at all
+					var evt: Dictionary = ctx.events.get(String(e["id"]), {})
+					if bool(evt.get("pause", false)):
+						out.append(notice(INFO, {"event": String(e["id"])}))
+	return out
+
+
+## The quiet lines a step's events leave in the Body: {day, file, id, field, args, literal} (a line is its literal text, or
+## the text at file/id/field with its args).
+static func feed_from(events: Array, s: SimState) -> Array:
+	var out: Array = []
+	for e: Dictionary in events:
+		match String(e.get("kind", "")):
+			"payday":
+				out.append(line(s.day, "work_events", "evt_e01_payday", "text", {"money_k": float(e["amount"])}))
+			"rent":
+				out.append(line(s.day, "work_events", "evt_e01_payday", "text_rent", {"money_k": float(e["amount"])}))
+			"ticket_shipped":
+				out.append(line(s.day, "barks", "ui_feed_shipped" if bool(e["on_time"]) else "ui_feed_late", "", {}))
+			"rumor":
+				out.append({"day": s.day, "literal": String(e["text"])})
+			"resizing_survived":
+				out.append(line(s.day, "barks", "ui_resizing_survived", "", {"n": int(e["cuts"])}))
+	return out
+
+
+static func line(day: int, file: String, id: String, field: String, args: Dictionary) -> Dictionary:
+	return {"day": day, "file": file, "id": id, "field": field, "args": args}
+
+
+## The card the sim is waiting on, or {} when time can run (or when only the LAYOFF phase's scene is waiting).
+static func head(s: SimState, ctx: SimContext) -> Dictionary:
+	var item := s.pending()
+	match String(item.get("kind", "")):
+		"event":
+			var evt_id := String(item["id"])
+			return {"kind": K_EVENT, "event": evt_id, "choices": (item["choices"] as Array).duplicate(),
+				"args": event_args(evt_id, s, ctx)}
+		"review":
+			return {"kind": K_REVIEW, "event": Sim.EVT_REVIEW}
+		"ticket_pick":
+			return {"kind": K_PICK, "choices": Array(Sim.PICK_NAMES)}
+		"forced_leave":
+			return {"kind": K_LEAVE, "days": int(item["days"])}
+		"duel":
+			return {"kind": K_DUEL}
+		"offer":
+			return {"kind": K_OFFER}
+	return {}
+
+
+## Numbers an event's text may name: {money} is what its first money choice costs, {home} the next home tier up.
+static func event_args(evt_id: String, s: SimState, ctx: SimContext) -> Dictionary:
+	var money := 0.0
+	var evt: Dictionary = ctx.events.get(evt_id, {})
+	for choice: Dictionary in evt.get("choices", []):
+		var eff: Dictionary = choice.get("effects", {})
+		if eff.has("savings"):
+			money = absf(float(eff["savings"]))
+			break
+	return {"money_k": money, "home": mini(s.home + 1, ctx.cfg.home_rent_k.size() - 1)}
+
+
+## True when the sim's queue head is the layoff scene (the LAYOFF phase shows it).
+static func is_layoff_pending(s: SimState) -> bool:
+	return String(s.pending().get("kind", "")) == "layoff_scene"
+```
+
+`core/work_session.gd`:
+
+```gdscript
+@tool
+class_name WorkSession
+extends RefCounted
+## One career run as the work state plays it (ARCHITECTURE 19.4, 19.7): the sim's state and context, the clock, the
+## notices the player has yet to read, the quiet feed in the Body and the first-run coach marks. Pure, like Sim: no
+## nodes, no autoloads and no wall clock (INV-03, INV-21, INV-22), so a test can play a whole job through it and a save
+## round trip is checkable. GameState owns one, saves it and changes phases; the scene shows it and calls GameState
+## verbs, which land here.
+##
+## Every player answer goes through Sim.apply_inputs, which does not tick: time moves only when tick() is called,
+## which the scene does once a day while nothing is open. tick() refuses while a notice or a card is waiting.
+
+const SAVE_VERSION := 2
+const REVIEW_SEED_MIX := 7919
+const COACH_SPEED := "coach_speed"
+const COACH_HOURS := "coach_hours"
+const COACH_STUDIO := "coach_studio"
+const COACH_HOURS_FROM_DAY := 1    # once the clock has started
+const COACH_STUDIO_FROM_DAY := 8
+
+var sim: SimState
+var ctx: SimContext
+var clock: WorkClock = WorkClock.new()
+var notices: Array = []         # to read, in order; the clock waits for each
+var feed: Array = []            # the Body's quiet lines, newest last
+var player_name: String = ""
+var first_run: bool = false     # the first coach marks teach a run that has not been played before
+var coach_closed: Array = []
+
+
+static func start(context: SimContext, run_number: int, run_seed: int, handbook: Array, name: String, first: bool) -> WorkSession:
+	var session := WorkSession.new()
+	session.ctx = context
+	session.sim = Sim.new_run(context, run_number, run_seed, handbook)
+	session.player_name = name
+	session.first_run = first
+	return session
+
+
+## What to_save wrote ({version, phase, sim, ui}). The context has to be the one built for the run's background.
+static func from_save(data: Dictionary, context: SimContext) -> WorkSession:
+	var session := WorkSession.new()
+	session.ctx = context
+	session.sim = SimState.from_save(data.get("sim", {}))
+	var ui: Dictionary = SimState.decode_value(data.get("ui", {}))
+	session.notices = (ui.get("notices", []) as Array).duplicate(true)
+	session.feed = (ui.get("feed", []) as Array).duplicate(true)
+	session.player_name = String(ui.get("name", ""))
+	session.first_run = bool(ui.get("first_run", false))
+	session.coach_closed = (ui.get("coach_closed", []) as Array).duplicate()
+	return session
+
+
+## The save of record for this run: the sim exactly (SimState.to_save) and the screen's own state, encoded the same way so
+## a float cannot come back one digit off. The clock's speed is not saved: Continue always waits, paused (KILL_TESTS 6).
+func to_save(phase: int) -> Dictionary:
+	return {
+		"version": SAVE_VERSION,
+		"phase": phase,
+		"sim": sim.to_save(),
+		"ui": SimState.encode_value({
+			"notices": notices.duplicate(true), "feed": feed.duplicate(true), "name": player_name,
+			"first_run": first_run, "coach_closed": coach_closed.duplicate(),
+		}),
+	}
+
+
+# ---------- what blocks the clock ----------
+
+## Something is open over the work state: a notice to read, or a card the sim waits on. The clock does not run (INV-22).
+func is_blocked() -> bool:
+	return not notices.is_empty() or sim.is_waiting()
+
+
+## The card on top: the first notice, else the sim's queue head ({} when the layoff scene or nothing is waiting).
+func current_card() -> Dictionary:
+	if not notices.is_empty():
+		return notices[0]
+	return WorkCards.head(sim, ctx)
+
+
+## The layoff scene waits for the LAYOFF phase once the notices before it are read.
+func wants_layoff_scene() -> bool:
+	return notices.is_empty() and WorkCards.is_layoff_pending(sim)
+
+
+func is_over() -> bool:
+	return sim.ended
+
+
+# ---------- time ----------
+
+## One day. Does nothing while a notice or a card is open, or after an ending. Returns the sim's events.
+func tick() -> Array:
+	if is_blocked() or sim.ended:
+		return []
+	var events: Array = Sim.step(sim, [], ctx)
+	_take(events)
+	return events
+
+
+## Apply one input without ticking. Returns the sim's events (an input_rejected one when it did not apply).
+func apply(input: Dictionary) -> Array:
+	var events: Array = Sim.apply_inputs(sim, [input], ctx)
+	_take(events)
+	return events
+
+
+func _take(events: Array) -> void:
+	notices.append_array(WorkCards.notices_from(events, sim, ctx))
+	feed.append_array(WorkCards.feed_from(events, sim))
+	while feed.size() > WorkCards.FEED_MAX:
+		feed.pop_front()
+
+
+# ---------- the player's answers ----------
+
+func set_hours(notch: int) -> Array:
+	return apply({"kind": Sim.IN_SET_HOURS, "notch": notch})
+
+
+func choose(choice_id: String) -> Array:
+	return apply({"kind": Sim.IN_CHOOSE, "choice": choice_id})
+
+
+func pick_ticket(pick: String) -> Array:
+	return apply({"kind": Sim.IN_TICKET_PICK, "pick": pick})
+
+
+## The layoff scene's or the forced leave's OK.
+func acknowledge() -> Array:
+	return apply({"kind": Sim.IN_ACK})
+
+
+## M2's review: the stand-in of GDD 5.16 (A67) on its own dice, seeded from the run seed and the day, so the sim's stream
+## is never touched. M3 replaces this with the 3-prompt duel.
+func resolve_review() -> Array:
+	var item := sim.pending()
+	if String(item.get("kind", "")) != "review":
+		return []
+	var rng := RandomNumberGenerator.new()
+	rng.seed = sim.rng_seed ^ (sim.day * REVIEW_SEED_MIX)
+	var left := WorkOdds.review_standin_left(ctx.cfg, float(item["calibration"]), float(item["evidence"]), rng)
+	return apply({"kind": Sim.IN_REVIEW_RESULT, "evidence_left": left})
+
+
+## M2's stub for an interview day (the duel arrives with M3's adapter): the interview goes badly.
+func fail_interview() -> Array:
+	return apply({"kind": Sim.IN_DUEL_RESULT, "passed": false, "composure_left": 0.0})
+
+
+## M2's stub for an offer (nothing can win an interview yet): decline it.
+func decline_offer() -> Array:
+	return apply({"kind": Sim.IN_ANSWER_OFFER, "accept": false})
+
+
+## Answer whatever is open in the simplest way: read a notice, take an event's first choice (careful: the last one that
+## is not a quit, which is usually the cheaper one), resolve the review, pick a Feature ticket, acknowledge, skip an
+## interview, decline an offer. For tests, the debug quick start and autoplay.
+func answer_simply(careful: bool = false) -> void:
+	var card := current_card()
+	match String(card.get("kind", "")):
+		"notice":
+			dismiss_notice()
+		WorkCards.K_EVENT:
+			choose(_pick_choice(card["choices"] as Array, careful))
+		WorkCards.K_REVIEW:
+			resolve_review()
+		WorkCards.K_PICK:
+			pick_ticket("feature")
+		WorkCards.K_LEAVE:
+			acknowledge()
+		WorkCards.K_DUEL:
+			fail_interview()
+		WorkCards.K_OFFER:
+			decline_offer()
+		_:
+			acknowledge()   # whatever else the sim waits on (the layoff scene belongs to the LAYOFF phase)
+
+
+static func _pick_choice(choices: Array, careful: bool) -> String:
+	if careful:
+		for i: int in range(choices.size() - 1, -1, -1):
+			if not String(choices[i]).contains("quit"):
+				return String(choices[i])
+	return String(choices[0])
+
+
+## Play on, answering every card carefully on the quietest Hours, until the layoff scene is next (or the run ends). Run
+## 1's is on day 240. For the debug quick start: a patient player at notch 3 burns out long before then.
+func play_to_layoff(max_steps: int = 20000) -> void:
+	set_hours(1)
+	var steps := 0
+	while not wants_layoff_scene() and not sim.ended and steps < max_steps:
+		steps += 1
+		if is_blocked():
+			answer_simply(true)
+		else:
+			tick()
+
+
+## OK on the first notice.
+func dismiss_notice() -> void:
+	if not notices.is_empty():
+		notices.pop_front()
+		clock.hold()
+
+
+# ---------- the first-run coach marks (GDD 4.3, spec gap settled at M2's huddle) ----------
+
+## The coach mark to show now, or "" for none: one at a time, in order, on the first run only, never over a card. A
+## mark is done when you do what it asks (start the clock, move the Hours) or tap it closed (D11).
+func coach_id() -> String:
+	if not first_run or is_blocked():
+		return ""
+	var hours_moved := int(sim.stats.get("hours_changes", 0)) > 0
+	if not coach_closed.has(COACH_SPEED) and sim.day == 0 and not clock.is_running():
+		return COACH_SPEED
+	if not coach_closed.has(COACH_HOURS) and not hours_moved and sim.day >= COACH_HOURS_FROM_DAY:
+		return COACH_HOURS
+	if not coach_closed.has(COACH_STUDIO) and sim.day >= COACH_STUDIO_FROM_DAY and (hours_moved or coach_closed.has(COACH_HOURS)):
+		return COACH_STUDIO
+	return ""
+
+
+func close_coach(id: String) -> void:
+	if not id.is_empty() and not coach_closed.has(id):
+		coach_closed.append(id)
+```
+
+### 17.20 The work state's and the layoff scene's screens: features/work/ and features/layoff/ (Step 15)
+
+`features/work/work.gd`:
+
+```gdscript
+extends Control
+## The work state (GDD 4.5, 4.6, 5.14; ARCHITECTURE 19.7): the career run on one screen, the cheapest it can be. From the
+## top: the information band (Day and what is next, the Studio chip, Runway, Burnout, the Ticket and the Codebase's
+## 10 LEDs, the 60-day calendar strip), the Body (a grey box with the job and the latest news until M5's diorama), and
+## the thumb band: the Hours notches, the dock and Back beside the speed control. Cards (events, reviews, notices) come up
+## over it in the ModalLayer and stop the clock. Rules live in the sim: this scene shows `GameState.session` and calls
+## GameState's career_* verbs (INV-01, INV-03). The clock is `_process`: whole days, only while nothing is open (INV-22).
+
+const FEED_SHOWN := 5
+const BURNOUT_COLOR := Color(0.99607843, 0.68235296, 0.20392157)        # the PrimaryButton amber
+const DANGER_COLOR := Color(0.89411765, 0.23137255, 0.26666668)          # the warning red (late ticket, red runway)
+const TICKET_COLOR := Color(0.16, 0.68, 1.0)
+const PICK_LABELS: Dictionary = {"feature": "ui_pick_feature", "bugfix": "ui_pick_bugfix", "paydown": "ui_pick_paydown"}
+const APP_STUB_ID := "app_stub"
+
+var _hours_buttons: Array[Button] = []
+var _speed_buttons: Array[Button] = []
+var _shown_signature := ""       # what the card sheet shows now, so a refresh never reopens (and re-locks) it
+var _shown_card: Dictionary = {}
+var _stub_open := false          # a dock app's "not in this build" card is open
+
+@onready var _next_label: Label = %NextLabel
+@onready var _studio_label: Label = %StudioLabel
+@onready var _runway_label: Label = %RunwayLabel
+@onready var _burnout_label: Label = %BurnoutLabel
+@onready var _burnout_bar: HpBar = %BurnoutBar
+@onready var _ticket_label: Label = %TicketLabel
+@onready var _ticket_bar: HpBar = %TicketBar
+@onready var _ticket_days: Label = %TicketDays
+@onready var _codebase_label: Label = %CodebaseLabel
+@onready var _rack: CodebaseRack = %Rack
+@onready var _strip: CalendarStrip = %Strip
+@onready var _job_label: Label = %JobLabel
+@onready var _feed: Label = %Feed
+@onready var _coach: CoachMark = %Coach
+@onready var _hours_label: Label = %HoursLabel
+@onready var _back_button: Button = %BackButton
+@onready var _dock_buttons: Array[Button] = [%JobsDock, %HomeDock, %VideoDock, %DuckyDock]
+@onready var _card: EventCard = %EventCard
+@onready var _pause: PauseMenu = %PauseMenu
+
+
+func _ready() -> void:
+	if OS.is_debug_build() and GameState.session == null:
+		GameState.debug_career_quick_start(false)   # project_run mode="custom": a fresh run 1 on day 0
+	var cfg := GameState.session.ctx.cfg
+	_hours_buttons.assign([%Hours1, %Hours2, %Hours3, %Hours4, %Hours5])
+	_speed_buttons.assign([%Speed0, %Speed1, %Speed2, %Speed3])
+	_burnout_bar.max_value = cfg.burnout_max
+	_burnout_bar.fill_color = BURNOUT_COLOR
+	_ticket_bar.max_value = 100.0
+	_ticket_bar.fill_color = TICKET_COLOR
+	_burnout_label.text = Content.text("barks", "ui_burnout")
+	_ticket_label.text = Content.text("barks", "ui_ticket")
+	_codebase_label.text = Content.text("barks", "ui_codebase")
+	_back_button.text = UiText.back(Content.text("barks", "ui_back"))
+	for dock_id: Array in [[0, "ui_tab_jobs"], [1, "ui_tab_home"], [2, "ui_tab_video"], [3, "ui_tab_ducky"]]:
+		_dock_buttons[dock_id[0]].text = Content.text("barks", dock_id[1])
+		_dock_buttons[dock_id[0]].pressed.connect(_open_stub_app)
+	var hours_group := ButtonGroup.new()
+	for i: int in _hours_buttons.size():
+		_hours_buttons[i].button_group = hours_group
+		_hours_buttons[i].pressed.connect(_on_hours_pressed.bind(i + 1))
+	var speed_group := ButtonGroup.new()
+	for i: int in _speed_buttons.size():
+		_speed_buttons[i].button_group = speed_group
+		_speed_buttons[i].text = Content.text("barks", WorkHud.speed_label_id(i, cfg))
+		_speed_buttons[i].pressed.connect(_on_speed_pressed.bind(i))
+	_back_button.pressed.connect(Device.handle_back)
+	_card.answered.connect(_on_card_answered)
+	_coach.closed.connect(GameState.career_close_coach)
+	_pause.quit_to_title_pressed.connect(GameState.quit_to_title)
+	GameState.run_changed.connect(_refresh)
+	_refresh()
+
+
+## The clock (D-01, D-13; INV-22): whole days, one `career_tick` each, only while nothing is open over the work state
+## and the scene is not changing. A tick that opens a card or leaves for another phase ends the frame's days.
+func _process(delta: float) -> void:
+	var session := GameState.session
+	if session == null or GameState.run.phase != GameFlow.Phase.WORK:
+		return
+	if session.is_blocked() or _card.is_open() or _stub_open or _pause.is_open() or SceneRouter.busy:
+		session.clock.hold()
+		return
+	for _day: int in session.clock.advance(session.ctx.cfg, delta):
+		GameState.career_tick()
+		if GameState.run.phase != GameFlow.Phase.WORK or session.is_blocked():
+			break
+
+
+## Back (the action bar's, Esc, Android): close a dock app's card, resume from Pause, else open Pause. A card
+## the player must answer stays; its "=" opens Pause too.
+func handle_back() -> bool:
+	if _pause.is_open():
+		return _pause.handle_back()
+	if _stub_open:
+		_close_stub_app()
+		return true
+	GameState.save()   # opening Pause keeps the quiet days since the last save, in case the app is killed from here
+	_pause.open()
+	return true
+
+
+# ---------- showing the run ----------
+
+func _refresh() -> void:
+	var session := GameState.session
+	if session == null or GameState.run.phase != GameFlow.Phase.WORK:
+		return
+	var s := session.sim
+	var ctx := session.ctx
+	_refresh_top_band(s, ctx)
+	_refresh_body(s)
+	_refresh_controls(session)
+	_refresh_card(session)
+	_refresh_coach(session)
+
+
+func _refresh_top_band(s: SimState, ctx: SimContext) -> void:
+	var cfg := ctx.cfg
+	var next := WorkHud.next_on_calendar(ctx, s)
+	if next.is_empty():
+		_next_label.text = Content.text("barks", "ui_day", {"day": s.day})
+	else:
+		_next_label.text = Content.text("barks", "ui_next", {
+			"day": s.day, "what": Content.text("barks", String(next["label_id"])), "days": int(next["offset"])})
+	_studio_label.text = Content.text("barks", "ui_studio_chip", {"n": WorkHud.studio_count(s, cfg)})
+	_runway_label.text = Content.text("barks", "ui_runway", {"months": WorkHud.runway_text(s)})
+	_tint(_runway_label, DANGER_COLOR if WorkHud.runway_is_red(s, cfg) else Color.WHITE)
+	_burnout_bar.value = s.burnout
+	_burnout_bar.fill_color = DANGER_COLOR if s.burnout >= cfg.auto_resolve_from else BURNOUT_COLOR
+	_ticket_bar.value = WorkHud.ticket_frac(s) * 100.0
+	if s.employed:
+		_ticket_days.text = "%dd" % WorkHud.ticket_days_left(s)
+		_tint(_ticket_days, DANGER_COLOR if WorkHud.ticket_is_late(s) else Color.WHITE)
+	else:
+		_ticket_days.text = "-"
+		_tint(_ticket_days, Color.WHITE)
+	_rack.red = WorkHud.codebase_red_leds(s)
+	_strip.set_items(WorkHud.calendar(ctx, s), cfg.calendar_days)
+
+
+func _refresh_body(s: SimState) -> void:
+	if s.employed:
+		var company := Content.field("companies", s.job_company, "name")
+		_job_label.text = Content.text("barks", "ui_job_line", {
+			"level": Content.text("barks", WorkHud.level_label_id(s.level)), "company": company})
+	else:
+		_job_label.text = Content.text("barks", "ui_between_jobs")
+	var lines: PackedStringArray = []
+	var feed := GameState.session.feed
+	for line: Dictionary in feed.slice(maxi(feed.size() - FEED_SHOWN, 0)):
+		lines.append("D%d  %s" % [int(line["day"]), _feed_text(line)])
+	_feed.text = "\n".join(lines)
+
+
+func _refresh_controls(session: WorkSession) -> void:
+	var s := session.sim
+	_hours_label.text = "%s: %s" % [Content.text("barks", "ui_hours"), Content.text("barks", WorkHud.hours_label_id(s.hours))]
+	var locked := s.day <= s.hours_lock_until
+	for i: int in _hours_buttons.size():
+		_hours_buttons[i].set_pressed_no_signal(i + 1 == s.hours)
+		_hours_buttons[i].disabled = locked
+	for i: int in _speed_buttons.size():
+		_speed_buttons[i].set_pressed_no_signal(i == session.clock.speed)
+
+
+func _refresh_card(session: WorkSession) -> void:
+	if _stub_open:
+		return
+	var card := session.current_card()
+	if card.is_empty():
+		_shown_signature = ""
+		_shown_card = {}
+		_card.hide_card()
+		return
+	var signature := JSON.stringify(card)
+	if signature == _shown_signature and _card.is_open():
+		return
+	_shown_signature = signature
+	_shown_card = card
+	_card.show_card(_card_view(card))
+
+
+func _refresh_coach(session: WorkSession) -> void:
+	var id := "" if _stub_open else session.coach_id()
+	match id:
+		WorkSession.COACH_SPEED:
+			_coach.point(id, Content.text("barks", id), _speed_buttons[1])
+		WorkSession.COACH_HOURS:
+			_coach.point(id, Content.text("barks", id), _hours_buttons[2])
+		WorkSession.COACH_STUDIO:
+			_coach.point(id, Content.text("barks", id), null)
+		_:
+			_coach.clear()
+
+
+# ---------- the player's controls ----------
+
+func _on_hours_pressed(notch: int) -> void:
+	GameState.career_set_hours(notch)
+
+
+func _on_speed_pressed(position: int) -> void:
+	GameState.career_set_speed(position)
+
+
+func _open_stub_app() -> void:
+	if _stub_open or _card.is_open():
+		return
+	_stub_open = true
+	_card.show_card({"title": "", "text": Content.text("barks", "ui_app_stub"),
+		"buttons": [{"id": APP_STUB_ID, "text": UiText.primary(Content.text("barks", "ui_ok")), "primary": true}]})
+
+
+func _close_stub_app() -> void:
+	_stub_open = false
+	_card.hide_card()
+	_refresh()
+
+
+# ---------- cards ----------
+
+## A card's button was pressed. The sheet closes first, so a next card that looks exactly like this one (two burnout
+## warnings in a row) still opens fresh and re-arms its lock.
+func _on_card_answered(button_id: String) -> void:
+	if _stub_open:
+		_close_stub_app()
+		return
+	var card := _shown_card
+	_shown_signature = ""
+	_shown_card = {}
+	_card.hide_card()
+	match String(card.get("kind", "")):
+		"notice":
+			GameState.career_dismiss_notice()
+		WorkCards.K_EVENT:
+			GameState.career_choose(button_id)
+		WorkCards.K_REVIEW:
+			GameState.career_resolve_review()
+		WorkCards.K_PICK:
+			GameState.career_pick_ticket(button_id)
+		WorkCards.K_LEAVE:
+			GameState.career_acknowledge()
+		WorkCards.K_DUEL:
+			GameState.career_fail_interview()
+		WorkCards.K_OFFER:
+			GameState.career_decline_offer()
+
+
+## The words for a card: {title, text, buttons: [{id, text, primary}]}. Cards carry ids and numbers (WorkCards); the
+## text comes from the JSON here.
+func _card_view(card: Dictionary) -> Dictionary:
+	var ok := [{"id": "ok", "text": UiText.primary(Content.text("barks", "ui_ok")), "primary": true}]
+	match String(card.get("kind", "")):
+		"notice":
+			return _notice_view(card, ok)
+		WorkCards.K_EVENT:
+			return _event_view(card)
+		WorkCards.K_REVIEW:
+			return {"title": Content.text("barks", "ui_cal_review").to_upper(),
+				"text": Content.field("work_events", String(card["event"]), "text"),
+				"buttons": [{"id": "start", "text": UiText.primary(Content.text("barks", "ui_review_start")), "primary": true}]}
+		WorkCards.K_PICK:
+			var buttons: Array = []
+			for pick: String in card["choices"]:
+				var label := Content.text("barks", String(PICK_LABELS[pick]))
+				if pick == "paydown":
+					label = "%s - %s" % [label, Content.text("barks", "ui_pick_paydown_note")]
+				buttons.append({"id": pick, "text": label, "primary": false})
+			return {"title": "", "text": Content.text("barks", "ui_pick_prompt"), "buttons": buttons}
+		WorkCards.K_LEAVE:
+			return {"title": "", "text": Content.text("barks", "ui_forced_leave"), "buttons": ok}
+		WorkCards.K_DUEL:
+			return {"title": "", "text": Content.text("barks", "ui_duel_stub"), "buttons": ok}
+		WorkCards.K_OFFER:
+			return {"title": "", "text": Content.text("barks", "ui_offer_stub"), "buttons": ok}
+	return {"title": "", "text": "", "buttons": ok}
+
+
+func _notice_view(card: Dictionary, ok: Array) -> Dictionary:
+	var style := String(card.get("style", WorkCards.INFO))
+	if style == WorkCards.DUCKY:
+		return {"title": Content.text("naming", "mascot"), "text": Content.field("tips", String(card["tip"]), "short"), "buttons": ok}
+	var text := ""
+	if card.has("literal"):
+		text = tr(String(card["literal"]))
+	elif String(card.get("id", "")) == "ui_auto_resolved":
+		text = Content.text("barks", "ui_auto_resolved", {"choice": _choice_label(String(card["event"]), String(card["choice"]))})
+	elif card.has("rating"):
+		text = _review_result_text(card)
+	elif card.has("id"):
+		text = Content.text("barks", String(card["id"]), {"n": int(card.get("n", 0))})
+	elif card.has("event"):
+		text = Content.field("work_events", String(card["event"]), "text")
+	return {"title": "", "text": text, "buttons": ok}
+
+
+func _event_view(card: Dictionary) -> Dictionary:
+	var evt_id := String(card["event"])
+	var args := _text_args(card.get("args", {}))
+	var evt: Dictionary = Content.entry("work_events", evt_id)
+	var buttons: Array = []
+	for choice_id: String in card["choices"]:
+		for choice: Dictionary in evt.get("choices", []):
+			if String(choice["id"]) == choice_id:
+				buttons.append({"id": choice_id, "text": UiText.fill(tr(String(choice["text"])), args), "primary": false})
+	return {"title": "", "text": UiText.fill(tr(String(evt.get("text", evt_id))), args), "buttons": buttons}
+
+
+func _review_result_text(card: Dictionary) -> String:
+	var results: Dictionary = (Content.entry("work_events", String(card["event"])) as Dictionary).get("results", {})
+	var text := UiText.fill(tr(String(results.get(String(card["rating"]), ""))), {"n": int(card["raise_pct"])})
+	if bool(card.get("promoted", false)):
+		text += "\n" + Content.text("barks", "ui_promoted", {"level": Content.text("barks", WorkHud.level_label_id(int(card["level"])))})
+	return text
+
+
+## A choice's label for the "Burnout picked: ..." line; "nothing" for an event that was skipped.
+func _choice_label(evt_id: String, choice_id: String) -> String:
+	var evt: Dictionary = Content.entry("work_events", evt_id)
+	for choice: Dictionary in evt.get("choices", []):
+		if String(choice["id"]) == choice_id:
+			return tr(String(choice["text"]))
+	return Content.text("barks", "ui_choice_none")
+
+
+## The placeholders an event's text may use: {money} (k$) and {home} (the next tier up).
+func _text_args(raw: Dictionary) -> Dictionary:
+	return {
+		"money": UiText.money_k(float(raw.get("money_k", 0.0))),
+		"home": Content.text("barks", WorkHud.home_label_id(int(raw.get("home", 0)))),
+		"coworker": "",
+	}
+
+
+func _feed_text(line: Dictionary) -> String:
+	if line.has("literal"):
+		return tr(String(line["literal"]))
+	var args: Dictionary = line.get("args", {})
+	var fill := {"money": UiText.money_k(float(args.get("money_k", 0.0))), "n": int(args.get("n", 0))}
+	if String(line.get("field", "")).is_empty():
+		return Content.text(String(line["file"]), String(line["id"]), fill)
+	return Content.field(String(line["file"]), String(line["id"]), String(line["field"]), fill)
+
+
+func _tint(label: Label, color: Color) -> void:
+	if color == Color.WHITE:
+		label.remove_theme_color_override(&"font_color")
+	else:
+		label.add_theme_color_override(&"font_color", color)
+```
+
+`features/work/event_card.gd`:
+
+```gdscript
+class_name EventCard
+extends Control
+## The card over the work state (GDD 4.6, 5.19; ARCHITECTURE 19.7, 10.1): a sheet at the bottom of the screen with a
+## text and at most three full-width 254x36 buttons, in the screen's ModalLayer. Its buttons wake 250 ms after it
+## opens (GDD 2.8 rule 7), so the tap that closed the last card cannot answer this one. The dimmer behind it blocks
+## every tap. It shows what it is told (show_card) and reports which button was pressed (`answered`); the screen
+## decides what that means. The sheet's "=" opens Pause, so Back stays on the screen while a card is open (GDD 4.4).
+
+signal answered(button_id: String)
+
+const MENU_MARK := "="    # stands in for the menu icon until the art pass
+const SLIDE_SEC := 0.14   # the sheet slides up into the thumb band (GDD 4.6; the camera's step-in is M5)
+const SLIDE_PX := 36.0
+
+var _fade: Tween
+var _lock: Tween
+
+@onready var _sheet: PanelContainer = %Sheet
+@onready var _title: Label = %Title
+@onready var _text: Label = %Text
+@onready var _buttons: VBoxContainer = %Buttons
+@onready var _menu_button: Button = %MenuButton
+
+
+func _ready() -> void:
+	hide()
+	_menu_button.text = MENU_MARK
+	_menu_button.pressed.connect(Device.handle_back)
+
+
+func is_open() -> bool:
+	return visible
+
+
+## view: {title: String, text: String, buttons: [{id: String, text: String, primary: bool}]}. An empty title hides the
+## title line. The buttons are disabled for input_lock_ms.
+func show_card(view: Dictionary) -> void:
+	for child: Node in _buttons.get_children():
+		_buttons.remove_child(child)
+		child.queue_free()
+	var title := String(view.get("title", ""))
+	_title.text = title
+	_title.visible = not title.is_empty()
+	_text.text = String(view.get("text", ""))
+	for spec: Dictionary in view.get("buttons", []):
+		var button := Button.new()
+		button.custom_minimum_size = Vector2(0, 36)
+		button.focus_mode = Control.FOCUS_NONE
+		button.text = String(spec["text"])
+		if bool(spec.get("primary", false)):
+			button.theme_type_variation = &"PrimaryButton"
+		button.disabled = true
+		button.pressed.connect(_on_pressed.bind(String(spec["id"])))
+		_buttons.add_child(button)
+	_sheet.modulate.a = 0.0   # hidden until the container has laid it out, then it slides up from below
+	show()
+	_start_lock()
+	await get_tree().process_frame
+	if visible:
+		_slide_in()
+
+
+func hide_card() -> void:
+	hide()
+	if _fade != null:
+		_fade.kill()
+	if _lock != null:
+		_lock.kill()
+
+
+## True while the lock is on: the screen and the tests can tell a card that is not yet answerable.
+func is_locked() -> bool:
+	for child: Node in _buttons.get_children():
+		if child is Button and (child as Button).disabled:
+			return true
+	return false
+
+
+## The labels of the buttons now showing (for the screen's checks and the tests).
+func button_texts() -> PackedStringArray:
+	var out := PackedStringArray()
+	for child: Node in _buttons.get_children():
+		if child is Button:
+			out.append((child as Button).text)
+	return out
+
+
+func _on_pressed(button_id: String) -> void:
+	_set_buttons_disabled(true)   # one answer per card: a double tap cannot answer twice
+	answered.emit(button_id)
+
+
+func _slide_in() -> void:
+	if _fade != null:
+		_fade.kill()
+	var final_y := _sheet.position.y   # where the container put it
+	_sheet.position.y = final_y + SLIDE_PX
+	_sheet.modulate.a = 1.0
+	_fade = create_tween()
+	_fade.tween_property(_sheet, "position:y", final_y, SLIDE_SEC).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+
+func _start_lock() -> void:
+	if _lock != null:
+		_lock.kill()
+	_lock = create_tween()
+	_lock.tween_interval(Content.balance.input_lock_ms / 1000.0)
+	_lock.tween_callback(_set_buttons_disabled.bind(false))
+
+
+func _set_buttons_disabled(off: bool) -> void:
+	for child: Node in _buttons.get_children():
+		if child is Button:
+			(child as Button).disabled = off
+```
+
+`features/work/codebase_rack.gd`:
+
+```gdscript
+@tool
+class_name CodebaseRack
+extends Control
+## The Codebase as a server rack of 10 LEDs (GDD 5.16, R-STAT-01): one turns red per 10 points. Display only. Flat
+## grey-box colors until M5's art pass. Green is never the only signal: the red ones fill from the left, so the count
+## reads by position as well as by color.
+
+const LED := Vector2(4, 8)
+const GAP := 2
+const GOOD_COLOR := Color(0.38, 0.78, 0.35)
+const RED_COLOR := Color(0.89411765, 0.23137255, 0.26666668)
+
+@export var red: int = 0:
+	set(count):
+		red = clampi(count, 0, WorkHud.LED_COUNT)
+		queue_redraw()
+
+
+func _init() -> void:
+	mouse_filter = MOUSE_FILTER_IGNORE
+
+
+func _get_minimum_size() -> Vector2:
+	return Vector2(WorkHud.LED_COUNT * LED.x + (WorkHud.LED_COUNT - 1) * GAP, LED.y)
+
+
+func _draw() -> void:
+	var top := floorf((size.y - LED.y) * 0.5)
+	for i: int in WorkHud.LED_COUNT:
+		var color := RED_COLOR if i < red else GOOD_COLOR
+		draw_rect(Rect2(Vector2(i * (LED.x + GAP), top), LED), color)
+```
+
+`features/work/calendar_strip.gd`:
+
+```gdscript
+@tool
+class_name CalendarStrip
+extends Control
+## The calendar strip (GDD 5.14, 4.6): the next 60 days as a line with a tick for each thing coming: paydays, rent,
+## the review, the lease, a ticket's deadline, an interview. Today is the left end. Information only. Each kind has
+## its own tick height as well as its own color, so color is never the only signal (GDD 2.7). Flat grey-box look.
+
+const HEIGHT := 12.0
+const BASE_COLOR := Color(0.54509807, 0.60784316, 0.7058824)
+const KINDS: Dictionary = {   # kind -> [tick height, color]
+	"payday": [12.0, Color(0.38, 0.78, 0.35)],
+	"rent": [6.0, Color(0.89411765, 0.23137255, 0.26666668)],
+	"review": [12.0, Color(0.99607843, 0.68235296, 0.20392157)],
+	"lease": [8.0, Color(0.74, 0.5, 0.9)],
+	"deadline": [10.0, Color(1.0, 0.55, 0.2)],
+	"interview": [12.0, Color(0.16, 0.68, 1.0)],
+}
+
+var _items: Array = []
+var _days: int = 60
+
+
+func _init() -> void:
+	mouse_filter = MOUSE_FILTER_IGNORE
+	custom_minimum_size = Vector2(0, HEIGHT)
+
+
+## items are WorkHud.calendar(): {offset, kind, label_id}; days is the strip's length (WorkConfig.calendar_days).
+func set_items(items: Array, days: int) -> void:
+	_items = items
+	_days = maxi(days, 1)
+	queue_redraw()
+
+
+## The x of a tick: offset 1..days across the strip's width, whole pixels.
+static func tick_x(offset: int, days: int, width: float) -> float:
+	return floorf(clampf(float(offset) / float(maxi(days, 1)), 0.0, 1.0) * (width - 2.0))
+
+
+func _draw() -> void:
+	draw_rect(Rect2(0.0, HEIGHT - 2.0, size.x, 1.0), BASE_COLOR)
+	for item: Dictionary in _items:
+		var spec: Array = KINDS.get(String(item["kind"]), [6.0, BASE_COLOR])
+		var h: float = spec[0]
+		draw_rect(Rect2(tick_x(int(item["offset"]), _days, size.x), HEIGHT - 1.0 - h, 2.0, h), spec[1])
+```
+
+`features/layoff/layoff.gd`:
+
+```gdscript
+extends Control
+## The layoff scene (GDD 5.19, D-22; ARCHITECTURE 19.7): "DANA VS YOU", and then no fight starts. Dana reads the
+## euphemism, the severance appears, your access is revoked. Non-interactive: its four beats advance on taps like the
+## intro's captions (no auto-advance: D12, A19, RC-34), Back opens Pause, and the last OK hands the sim its
+## acknowledgement (GameState.career_acknowledge), which sends the run back to WORK. This is M2's plain version; M3
+## gives it the VS intro's look and the hold-to-skip pill from the second viewing.
+
+const BEATS := 4
+const REVOKED_COLOR := Color(0.89411765, 0.23137255, 0.26666668)   # the warning red of the hub's rent line
+
+var _beat := -1
+var _locked := true     # the 250 ms input lock after each beat (GDD 2.8 rule 7)
+var _leaving := false
+
+@onready var _title: Label = %Title
+@onready var _line: Label = %DanaLine
+@onready var _line2: Label = %DanaLine2
+@onready var _severance: Label = %Severance
+@onready var _revoked: Label = %Revoked
+@onready var _hint: Label = %Hint
+@onready var _tap_pad: Control = %TapPad
+@onready var _back_button: Button = %BackButton
+@onready var _next_button: Button = %NextButton
+@onready var _pause: PauseMenu = %PauseMenu
+
+
+func _ready() -> void:
+	if OS.is_debug_build() and GameState.session == null:
+		GameState.debug_career_quick_start(true)   # project_run mode="custom": a run that has just been laid off
+	var pending := GameState.session.sim.pending() if GameState.session != null else {}
+	_title.text = Content.text("barks", "vs_layoff_title")
+	_line.text = Content.text("barks", "bark_dana_layoff")
+	_line2.text = Content.text("barks", "bark_dana_layoff_2")
+	_severance.text = Content.text("barks", "ui_severance", {"money": UiText.money_k(float(pending.get("severance", 0.0)))})
+	_revoked.text = Content.text("barks", "ui_access_revoked")
+	_revoked.add_theme_color_override(&"font_color", REVOKED_COLOR)
+	_hint.text = Content.text("barks", "ui_tap_to_continue")
+	_back_button.text = UiText.back(Content.text("barks", "ui_back"))
+	_back_button.pressed.connect(Device.handle_back)
+	_next_button.pressed.connect(_advance)
+	_tap_pad.gui_input.connect(_on_tap_input)
+	_pause.quit_to_title_pressed.connect(GameState.quit_to_title)
+	for beat: Control in [_line2, _severance, _revoked]:
+		beat.hide()
+	_advance_to(0)
+
+
+## Back opens Pause (RC-34); a second Back resumes.
+func handle_back() -> bool:
+	if _pause.is_open():
+		return _pause.handle_back()
+	GameState.save()
+	_pause.open()
+	return true
+
+
+## A tap anywhere advances, on release like a button.
+func _on_tap_input(event: InputEvent) -> void:
+	var mb := event as InputEventMouseButton   # touches arrive as emulated mouse events
+	if mb != null and mb.button_index == MOUSE_BUTTON_LEFT and not mb.pressed:
+		_advance()
+
+
+func _advance() -> void:
+	if _locked or _leaving or _pause.is_open():
+		return
+	if _beat >= BEATS - 1:
+		_leaving = true
+		_next_button.disabled = true
+		GameState.career_acknowledge()
+		return
+	_advance_to(_beat + 1)
+
+
+func _advance_to(beat: int) -> void:
+	_beat = beat
+	match beat:
+		1:
+			_line2.show()
+		2:
+			_severance.show()
+		3:
+			_revoked.show()
+	var last := beat >= BEATS - 1
+	_next_button.text = UiText.primary(Content.text("barks", "ui_ok" if last else "ui_continue"))
+	_hint.visible = not last
+	_locked = true
+	await get_tree().create_timer(Content.balance.input_lock_ms / 1000.0).timeout
+	_locked = false
+```
+
 ---
 
 ## 18. Unverified items and pitfalls
@@ -7029,7 +8563,7 @@ static func _log(s: SimState, ctx: SimContext, kind: String, data: Dictionary) -
 
 ## 19. The career run's code (Run Spec v1; M1 built, M2-M6 planned)
 
-**M1 (STEP-14, 2026-10-08) built 19.1-19.3 and 19.6, and the sim suites of 19.10; 19.4, 19.5, 19.7 and 19.8 are still plans for M2-M5.** The plan was written during the Run Spec v1 merge (2026-10-07); where the build differs, the text below says what was built. It follows every rule of sections 1-18 and every invariant. The built classes are in section 17 (17.5 for the two Resource classes, 17.18 for the sim core). The design is GDD 5.14-5.22.
+**M1 (STEP-14, 2026-10-08) built 19.1-19.3 and 19.6, and the sim suites of 19.10; M2 (STEP-15) built 19.4 and 19.7 and their suites; 19.5 and 19.8 are still plans for M3 and M5.** The plan was written during the Run Spec v1 merge (2026-10-07); where the build differs, the text below says what was built. It follows every rule of sections 1-18 and every invariant. The built classes are in section 17 (17.5 for the two Resource classes, 17.18 for the sim core). The design is GDD 5.14-5.22.
 
 ### 19.1 The shape (Run Spec v1 section 13)
 
@@ -7118,14 +8652,15 @@ The Run Spec's E12 example as JSON, as built (GDD 5.19; its 20-day cooldown is 5
 - **As built, an event may also carry:** `requires` (on the event or on a choice: `employed`, `remote`, `rto`, `home_min`, `tip`, `clause`, `not_flag`, `deadline_or_incident_days`), `results` (E02's three ratings, with `{n}` for the raise), `final_threat` (the Studio hold's 3x weight), a `text_rent` beside E01's text, and for a telegraphed event a `telegraph` with a `rumor` or, for run 1's resizing, `run1_signs` and `run1_fire_day`. A choice's `effects` use `mo`, `burnout`, `codebase`, `skill`, `rust`, `savings`, `living_mult`, `commute_burnout`, `speed_mod {mult, days}`, `hours_lock {notch, days}`, `flags`, `work_mode` and a named `action` (`lease_accept`, `lease_move_down`, `home_upgrade`, `board_early`, `ask_priya`, `quit_job`, `recruiter_call`). `exhausted_choice` names a choice, or is `"none"` for E07's prep. `ducky.joke` and `cause` exist only for E12 until M6; every event has a `ducky.tip`, a tip id or `"none"` (O7). `coworkers.json` holds `cw_*` entries (name, role, line, level) and `_coworker_pool`.
 - `test_data_files` checks the new `.tres` against GDD 11.7, and `test_content_lint` checks every event's shape, its tips and its text budgets, and the coworkers (19.10).
 
-### 19.4 Phases, save and meta (M2)
+### 19.4 Phases, save and meta (M2, built)
 
-- **New phases are appended** to `GameFlow.Phase` (INV-10, 4.1). Proposed: `WORK` (the work state, at a job or between jobs: one clock, D-04) and `LAYOFF` (the layoff scene). The job interview and the review both use `INTERVIEW` (the request says which, 19.5), and the career run's endings use `GAME_OVER` with an ending id (the Plan B card's layout, GDD S12). `PHASE2_STUB` stays in the enum, unused once the career run's Accept beat exists (MC-08, D-34; RC-04).
-- **Transitions** (proposed; `test_flow` grows with them): TITLE -> INTRO (run 1), BACKGROUND_SELECT (runs 2 and later) or WORK (Continue); INTRO -> WORK (run 1; MC-11, D-34) or BACKGROUND_SELECT; BACKGROUND_SELECT -> WORK; WORK -> INTERVIEW, LAYOFF or GAME_OVER; INTERVIEW -> OFFER or WORK; OFFER -> WORK; LAYOFF -> WORK; GAME_OVER -> TITLE or BACKGROUND_SELECT; and the quit-to-title rows of 4.1.
-- **The save** (proposed): the same one slot (`user://save_v1.json`, temp file then rename: section 8) with `{version: 2, phase, sim}`, where `sim` is **`SimState.to_save()`** (A75), the run log and the interview checkpoint included. Not `to_dict` through plain JSON numbers: Godot's JSON parser does not read every double back exactly (`123456789.12345679` comes back one step off), and a save that differs in the last digit resumes into a different future. `test_sim_replay` proves a `to_save` round trip is bit for bit and lives the same days. What Continue does with a Phase 1 save is decided at M2's huddle (D-33 made the career run the shipped game).
-- **When it's written** (RC-35, GDD 5.11): only while the run is live (`WORK`, `INTERVIEW`, `OFFER`, `LAYOFF`: INV-06's list grows with the new phases); after every input (each is a committed action), on every event shown and every event resolved, on entering a live phase, and on `APPLICATION_PAUSED`, `FOCUS_OUT` and `WM_CLOSE_REQUEST`. It is deleted on entering `GAME_OVER`, where the run counts in `run_count`, as today.
-- **No time while closed** (D-13): the clock moves only in the `WORK` scene's `_process`, only while no card, app or modal is open, and the sim never reads the wall clock. Pausing on `APPLICATION_PAUSED` and `FOCUS_OUT` (section 9) stops it.
-- **Meta between runs**, in `settings.cfg`'s `[meta]` (section 8; proposed keys): `run_count` (exists), `handbook` (the collected tip ids), `endings_seen` (the gallery), `studio_wins` (the Self-Taught's unlock) and `last_background`. INV-11 holds: nothing but our JSON save and `settings.cfg` is read from `user://`.
+- **New phases are appended** to `GameFlow.Phase` (INV-10, 4.1): `WORK` (the work state, at a job or between jobs: one clock, D-04) and `LAYOFF` (the layoff scene). Both are live phases. The job interview and the review both use `INTERVIEW` (the request says which, 19.5; M3), and the career run's endings use `GAME_OVER` with an ending id (the Plan B card's layout, GDD S12). `PHASE2_STUB` stays in the enum, unused once the career run's Accept beat exists (MC-08, D-34; RC-04).
+- **Transitions as built** (`test_flow`): TITLE -> INTRO (run 1, the first time), WORK (run 1 once the intro has been seen, and Continue), BACKGROUND_SELECT (runs 2 and later) or LAYOFF (Continue during the scene); INTRO -> WORK (run 1) or BACKGROUND_SELECT (a replayed intro); BACKGROUND_SELECT -> WORK; WORK -> LAYOFF, GAME_OVER or TITLE; LAYOFF -> WORK or TITLE; GAME_OVER -> TITLE or BACKGROUND_SELECT; and the quit-to-title rows of 4.1. M3 adds WORK -> INTERVIEW and OFFER -> WORK with the adapter.
+- **Where New game goes** (A78): `GameState.start_new_game()` begins the career run (`career_flow`). Phase 1's hunt is reachable only through `start_hunt_game()`, the Title's debug-only "Old hunt" button, until M4 retires it (19.9). Continue resumes whichever run the slot holds.
+- **The save** (A79): the same one slot (`user://save_v1.json`, temp file then rename: section 8). `SaveIO.kind_of()` tells a career save, `{version: 2, phase, sim, ui}`, from Phase 1's (`RunState.to_dict`, version 1). `sim` is **`SimState.to_save()`** (A75), the run log included: every float as its raw 64 bits in hex, because Godot's JSON parser does not read every double back exactly (`123456789.12345679` comes back one step off) and a save that differs in the last digit resumes into a different future. `ui` is the screen's own state through the same codec: the notices not yet read, the feed, the player's name, `first_run` and the closed coach marks. The clock's speed is not saved: Continue waits, paused (KILL_TESTS 6). `test_work_session` proves a round trip is bit for bit and lives the same days.
+- **When it's written** (RC-35, GDD 5.11): only in the live phases; after every answer (each is a committed action), when a notice is dismissed, on a card, a payday, a rent, a shipped ticket or a job's end (`GameState.career_tick` decides), on entering a live phase, and on `APPLICATION_PAUSED`, `FOCUS_OUT` and `WM_CLOSE_REQUEST`. Not on every tick. It is deleted on entering `GAME_OVER`, where the run counts in `run_count` and the tips it showed join `meta.handbook`, as today.
+- **No time while closed** (D-13, INV-22): the clock moves only in the `WORK` scene's `_process`, in whole days (`WorkClock`), and only while nothing is open over it: no notice or card (`WorkSession.is_blocked`), no dock app, no Pause, no scene change. `APPLICATION_PAUSED` and `FOCUS_OUT` set the speed to Pause. The sim never reads the wall clock.
+- **Meta between runs**, in `settings.cfg`'s `[meta]` (section 8): `run_count` (exists) and `handbook` (the collected tip ids, merged when a run ends; M6 shows them). The proposed `endings_seen` and `studio_wins` wait for the milestones that use them; `last_background` exists. INV-11 holds: nothing but our JSON save and `settings.cfg` is read from `user://`.
 
 ### 19.5 The adapter (M3; R-JOB-06, GDD 5.20, 13.4)
 
@@ -7157,12 +8692,14 @@ python tools/headless/sweep.py --seeds 1000 "base=" "a=ticket_deadline_mult:1.3"
 - **Before a tuning commit** (RC-32): the harness for every bot plus the test suites, headless; the report goes to `.project/evidence/STEP-NN/<run>/`.
 - **The smoke test in `test_run`** is `tests/test_sim_smoke.gd`: 60 seeds per bot through `HarnessRunner`, asserting no crash, no refused input, known endings, determinism and the loose bands (the Coaster never wins, the Random bot rarely does).
 
-### 19.7 The work state's UI (M2)
+### 19.7 The work state's UI (M2, built)
 
-- **One scene,** `features/work/work.tscn`, the phone shell on section 10.1's skeleton. TopBand (information only): the four numbers, the Studio chip, the calendar strip and the ticket bar. Body (it takes the extra height): a grey box until M5's diorama. ThumbBand: the Hours notches (five buttons of 34x34 or more, like the S03 selector: A58), the speed control and the dock (DoomApply, Home, ClikClok, the Handbook: 4 slots of 60x40, as the hub's dock).
-- **Apps are panels** inside the scene, not scenes, as the hub's Mail and Study are (11.4). The event card is a component in the ModalLayer: its choices are 254x36 buttons behind the 250 ms lock (10.3).
-- **The clock driver:** the scene's `_process` adds up `delta x speed` and calls a `GameState` verb (proposed: `advance_days(n)`), which runs `Sim.step` and saves (19.4). Scenes only call verbs (INV-01, INV-03); the sim holds the rules.
-- Every screen keeps an on-screen Back (section 9): the work state's opens Pause. The layoff scene (`features/layoff/`) follows RC-34: taps advance its beats, Back opens Pause, and the hold-to-skip pill (11.2) shows from the second viewing.
+- **One scene,** `features/work/work.tscn`, the phone shell on section 10.1's skeleton. TopBand (information only): "Day N - what is next" and the Studio chip, the Runway chip, the Burnout bar, the Ticket bar with its days left and the Codebase's 10 LEDs, and the 60-day calendar strip. Body (it takes the extra height): a grey box with the job line and the last five feed lines, until M5's diorama. Then the first-run coach note, and the ThumbBand: the Hours label and five notches (34 px or more, like the S03 selector: A58), the dock (four 60x40 slots) and the action bar, Back at 80 px beside the speed control (Pause, 1x, 2x, 4x) in the primary's 168 px.
+- **Cards** are the `EventCard` component in the ModalLayer (10.1): a sheet at the bottom with the card's text and at most three full-width 254x36 buttons that wake after the 250 ms lock (`input_lock_ms`, 10.3), over a dimmer that blocks every tap. Its "=" opens Pause, so Back stays on screen. A card carries ids and numbers, never text (`WorkCards`): the scene looks the words up in the JSON. **Notices** (a rumor, a burnout beat, the auto-resolve line, a review's result, a tip) have one OK. The sim's queue head is an event with its choices, a review, a Mid's ticket pick or the forced leave; an interview or an offer is M2's stub (the adapter is M3). The layoff scene is its own phase (`features/layoff/`: four taps, Back opens Pause).
+- **The apps are cards for now:** the dock's four slots open "not in this build yet" and stop the clock, as a real app will (GDD 4.5).
+- **The clock driver** is the scene's `_process`: `WorkClock.advance(cfg, delta)` gives whole days (at most four a frame) and each one is `GameState.career_tick()`, which steps the sim, refreshes the screen and saves what is worth keeping. A tick that opens a card, or leaves for another phase, ends the frame's days. Answers are `GameState.career_*` verbs (INV-01, INV-03), which apply one input without a tick (`Sim.apply_inputs`) and save.
+- **The pure classes** (17.19): `WorkClock`, `WorkHud` (what the top band shows), `WorkCards` (notices, feed lines and the head card, from the sim's events and queue) and `WorkSession` (the run as the screen plays it: the sim, the clock, the notices, the feed, the coach marks and the exact save). `GameState.session` holds one. The screens' scripts are in 17.20.
+- Every screen keeps an on-screen Back (section 9): the work state's opens Pause. The layoff scene follows RC-34: taps advance its beats and Back opens Pause; the hold-to-skip pill (11.2) comes with M3.
 
 ### 19.8 The diorama (M5; GDD 2.11)
 
@@ -7181,7 +8718,7 @@ Nothing retires until the career run replaces the Phase 1 flow (MC-01, D-33: tha
 
 D-27's negotiation code did not wait for MC-01: it left in its own commit on 2026-10-08 (ROADMAP 12, Step 14 task 6): `Odds.negotiate_p`, `Odds.negotiated_salary`, BalanceConfig's `nego_*` fields, the offer's `negotiated` flag, `test_offer`'s negotiation test and the unused strings (CONTENT 16.7). Section 17 was re-synced in that commit. Each retired file's block leaves section 17 in the same commit, through the usual sync.
 
-### 19.10 Tests (M1 built: 125 tests in six suites; the adapter's is M3)
+### 19.10 Tests (M1: 126 tests in six suites; M2: 34 in four more, and 4 in suites that grew; the adapter's is M3)
 
 | Suite | Tests | Covers |
 |---|---|---|
@@ -7192,6 +8729,10 @@ D-27's negotiation code did not wait for MC-01: it left in its own commit on 202
 | `test_sim_replay.gd` | 11 | the same seed and inputs give the same run; a run replays from its log; a `to_save` round trip mid-run is bit for bit and lives the same days (O8); seeds and RNG states are strings (INV-05); the state is plain data (INV-07) |
 | `test_sim_smoke.gd` | 8 | the harness's small version (19.6): 60 seeds per bot, clean and deterministic, the Coaster never wins |
 | `test_data_files.gd`, `test_content_lint.gd` (grown) | 7, 36 | the new `.tres` equal GDD 11.7; in `work_events.json`, the ids, tiers, trigger kinds, the text budgets, ASCII, the banned brands, at most 3 choices, known requirements and effects, a tip or an explicit none for every event (O7), and every exhausted choice names one of its event's choices; the coworkers |
+| `test_work_clock.gd` | 6 | Pause runs no day; 1x is a day a second whatever the frame rate; 2x and 4x follow `WorkConfig.speeds`; a hitch never fast-forwards a month; a card throws away the half-built day; the speed position is clamped |
+| `test_work_hud.gd` | 6 | the top band's numbers: Runway in months and red under two, Burnout, the Codebase's 10 LEDs, the Ticket and its deadline, the Studio chip, the label ids and the calendar strip |
+| `test_work_cards.gd` | 11 | the notices and feed lines the sim's events leave, the head card for each queue kind, the layoff scene not being a card, an event's `{money}` and `{home}`, and the severance a layoff card carries |
+| `test_work_session.gd` | 11 | the clock waits paused; `tick()` refuses while a notice or a card is open (INV-22); answers never burn a day; a whole job plays through to the layoff on day 240 with its five signs and its review; the save round trip is exact and lives the same days (KILL_TESTS 6-8); a run played with inputs between ticks replays from its log; the review stand-in's own dice; the interview and offer stubs; the coach marks; the feed |
 | `test_adapter.gd` (M3) | - | a DuelRequest's numbers reach the interview's start values; the 0.06 floor; a Phase 1 checkpoint still works |
 
 `tests/sim_fixture.gd` (`SimFixture`) builds the context the sim suites share: the Run Spec's numbers (`WorkConfig.new()` and archetypes built by hand), so tuning the `.tres` never breaks a worked example.

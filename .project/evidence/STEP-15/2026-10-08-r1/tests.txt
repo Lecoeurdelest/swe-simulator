@@ -1,0 +1,17 @@
+STEP-15 test evidence, 2026-10-08 06:31, branch step-15-greybox-ui (after commit c860a4b; the event card's slide-in and the docs uncommitted)
+command: bash tools/headless/run_tests.sh
+RESULT passed=387 failed=0 total=387 suites=30 ms=20244
+command: bash tools/headless/run_tests.sh parse
+CHECK files=125 failed=0
+command: python tools/headless/sync_arch17.py .
+RESULT blocks=39 differing=0
+work_clock: passed=6 failed=0 total=6 suites=1
+work_hud: passed=6 failed=0 total=6 suites=1
+work_cards: passed=11 failed=0 total=11 suites=1
+work_session: passed=11 failed=0 total=11 suites=1
+flow: passed=10 failed=0 total=10 suites=1
+save: passed=5 failed=0 total=5 suites=1
+ui_text: passed=15 failed=0 total=15 suites=1
+sim_rules: passed=48 failed=0 total=48 suites=1
+sim_replay: passed=11 failed=0 total=11 suites=1
+content_lint: passed=38 failed=0 total=38 suites=1

@@ -610,3 +610,18 @@ func test_inputs_that_make_no_sense_are_refused_not_fatal() -> void:
 		{"kind": Sim.IN_MOVE_HOME, "tier": 0}, {"kind": Sim.IN_APPLY, "posting": -5}], c)
 	assert_eq(SimFixture.count(events, "input_rejected"), 5)
 	assert_eq(s.stats.get("rejected", 0), 5)
+
+
+func test_apply_inputs_changes_the_state_without_a_tick() -> void:  # ARCHITECTURE 19.7: the work state's answers
+	var c := SimFixture.ctx(true)
+	var s := SimFixture.fresh(c)
+	var events := Sim.apply_inputs(s, [{"kind": Sim.IN_SET_HOURS, "notch": 5}], c)
+	assert_eq(s.day, 0, "no day passed")
+	assert_eq(s.hours, 5)
+	assert_eq(SimFixture.count(events, "input_rejected"), 0)
+	var refused := Sim.apply_inputs(s, [{"kind": Sim.IN_CHOOSE, "choice": "x"}], c)
+	assert_eq(SimFixture.count(refused, "input_rejected"), 1, "an answer to nothing is refused")
+	assert_eq(int(s.stats.get("rejected", 0)), 1)
+	s.ended = true
+	assert_true(Sim.apply_inputs(s, [{"kind": Sim.IN_SET_HOURS, "notch": 1}], c).is_empty(), "nothing applies after an ending")
+	assert_eq(s.hours, 5)

@@ -21,17 +21,17 @@ Start a fresh run (New game on the title) and play it through the 5 moments in o
 | 4 | **On the offer:** while the paper contract shows. | The same contract: company, role, salary, work mode, commute, both perks and the fine print unchanged. ACCEPT and Decline work. |
 | 5 | **On the Hired card:** after ACCEPT, while HIRED! or the Dream vs Reality tally shows. | The **offer** again (the Hired card is never saved), with the same contract. ACCEPT gives the same Hired card and the same Dream score. Then leave it with `< Title` or NEW RUN: the title no longer shows CONTINUE (the save is cleared). |
 
-## The career run (Run Spec v1, planned for M2)
+## The career run (Run Spec v1, built in M2)
 
-O8 asks for this: kill the app mid-run, and the state restores identically (GDD 13.1). The career run saves at every event, after every player input and when the app goes to background (GDD 5.11, RC-35), so "identically" means the state of the last save, and M1 proved the restore itself: a `SimState.to_save()` round trip is bit for bit and lives the same days (`test_sim_replay`; the save must be `to_save`, not plain JSON numbers, because Godot's JSON parser can read a double back one unit in the last place off: DECISIONS A75). On the iPhone a kill comes after the pause notification, so nothing is lost; the desktop's harsher stop can lose the days since the last save, never a choice. These moments join the checklist when M2 builds the work state (ROADMAP Step 15), and M3 adds the duel and the scene:
+O8 asks for this: kill the app mid-run, and the state restores identically (GDD 13.1). The career run saves at every event, after every player input and when the app goes to background (GDD 5.11, RC-35), so "identically" means the state of the last save, and M1 proved the restore itself: a `SimState.to_save()` round trip is bit for bit and lives the same days (`test_sim_replay`; the save must be `to_save`, not plain JSON numbers, because Godot's JSON parser can read a double back one unit in the last place off: DECISIONS A75). On the iPhone a kill comes after the pause notification, so nothing is lost; the desktop's harsher stop can lose the days since the last save, never a choice. M2 built the work state (ROADMAP Step 15), and moments 6, 7, 8 and 11 were killed on the desktop on 2026-10-08 (the results table below); M3 adds the duel and the scene's moments:
 
 | # | Kill when | Expected after CONTINUE |
 |---|---|---|
-| 6 | the clock running, no card open | the same day (on the desktop: the day of the last event or input), the same numbers, the same Hours notch; the clock waits, paused, until you start it (proposed) |
+| 6 | the clock running, no card open | the same day (on the desktop: the day of the last event or input), the same numbers, the same Hours notch; the clock waits, paused, until you start it |
 | 7 | an event card open, before you choose | the same card with the same choices; an auto-resolve isn't rolled again |
 | 8 | right after a choice | the choice made, its effects applied once |
 | 9 | mid-review duel (M3) | the same review from its start, with the same prompts (as moment 3) |
-| 10 | during the layoff scene (M3) | the scene again from its start; the job is lost and the severance paid only once |
+| 10 | during the layoff scene (a plain version in M2, the full scene in M3) | the scene again from its start; the job is lost and the severance paid only once |
 | 11 | on an ending card | no CONTINUE: the save was deleted on entering the ending |
 
 ## If one fails
@@ -44,3 +44,10 @@ Write down the moment, what you saw and what you expected, and leave the phone a
 |---|---|---|---|---|---|---|---|
 | 2026-09-27 | Windows PC, desktop kill (Claude) | pass | pass | pass | pass | pass | `.project/evidence/STEP-06/2026-09-27-r1/kill_tests_log.md` |
 | | iPhone (developer) | | | | | | |
+
+The career run's moments (6-11):
+
+| Date | Device | 6 | 7 | 8 | 9 | 10 | 11 | Notes |
+|---|---|---|---|---|---|---|---|---|
+| 2026-10-08 | Windows PC, desktop kill (Claude) | pass | pass | pass | M3 | not killed | pass | `.project/evidence/STEP-15/2026-10-08-r1/kill_tests_log.md`; 10 passes through a full run played through `GameState` (WORK, LAYOFF, WORK, GAME_OVER) but was not killed inside the scene |
+| | iPhone (developer) | | | | | | | |
