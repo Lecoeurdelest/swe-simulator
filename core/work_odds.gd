@@ -156,6 +156,18 @@ static func review_standin_left(cfg: WorkConfig, calibration: float, evidence_to
 	return clampf(evidence_total - damage, 0.0, evidence_total)
 
 
+## What the manager's Calibration lands on your Evidence in one round of the review duel (GDD 5.16, D-39, A94): the
+## stand-in's damage spread over the review's prompts, times 0.4 for a good answer, 1.0 for an okay one (kind "neutral")
+## and 1.8 for a joke (kind "bad"). Three okay answers cost exactly what the stand-in costs on average.
+static func review_hit(cfg: WorkConfig, calibration: float, kind: String) -> float:
+	var mult := cfg.review_hit_okay
+	if kind == "good":
+		mult = cfg.review_hit_good
+	elif kind == "bad":
+		mult = cfg.review_hit_joke
+	return calibration * cfg.review_standin_damage / float(cfg.review_prompts) * mult
+
+
 ## The raise a rating earns, as a fraction of salary.
 static func raise_for(cfg: WorkConfig, rating_id: int) -> float:
 	if rating_id == EXCEEDS:

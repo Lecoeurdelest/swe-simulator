@@ -1,0 +1,206 @@
+{
+  "rq_ship": {
+    "prompt": "What did you ship this quarter?",
+    "answers": [
+      {
+        "kind": "good",
+        "text": "Two features, one fix. Notes attached."
+      },
+      {
+        "kind": "neutral",
+        "text": "Lots of small things. Hard to list."
+      },
+      {
+        "kind": "bad",
+        "text": "I was busy. Very, very busy."
+      }
+    ]
+  },
+  "rq_credit": {
+    "prompt": "A teammate says the demo was mostly theirs.",
+    "answers": [
+      {
+        "kind": "good",
+        "text": "True in part. I will name who did what."
+      },
+      {
+        "kind": "neutral",
+        "text": "We worked on it together."
+      },
+      {
+        "kind": "bad",
+        "text": "Ask anyone. Actually, do not ask anyone."
+      }
+    ]
+  },
+  "rq_weak": {
+    "prompt": "What is one thing you could improve?",
+    "answers": [
+      {
+        "kind": "good",
+        "text": "I wait too long to ask for help."
+      },
+      {
+        "kind": "neutral",
+        "text": "I care too much. It's a problem."
+      },
+      {
+        "kind": "bad",
+        "text": "Nothing. Next question."
+      }
+    ]
+  },
+  "rq_feedback": {
+    "prompt": "Last month I said your changes were too big.",
+    "answers": [
+      {
+        "kind": "good",
+        "text": "I split them now. Reviews are faster."
+      },
+      {
+        "kind": "neutral",
+        "text": "I'll try to keep them smaller."
+      },
+      {
+        "kind": "bad",
+        "text": "They're big because the work is big."
+      }
+    ]
+  },
+  "rq_outage": {
+    "prompt": "You were on call during the outage.",
+    "answers": [
+      {
+        "kind": "good",
+        "text": "I escalated early and wrote it up."
+      },
+      {
+        "kind": "neutral",
+        "text": "I fixed it. Long night."
+      },
+      {
+        "kind": "bad",
+        "text": "What outage?"
+      }
+    ]
+  },
+  "rq_goal": {
+    "prompt": "Where do you want to be in a year?",
+    "answers": [
+      {
+        "kind": "good",
+        "text": "Owning a project from start to finish."
+      },
+      {
+        "kind": "neutral",
+        "text": "Here. Maybe with a nicer chair."
+      },
+      {
+        "kind": "bad",
+        "text": "Your job. No offense."
+      }
+    ]
+  },
+  "rq_late": {
+    "prompt": "The ticket was late again.",
+    "answers": [
+      {
+        "kind": "good",
+        "text": "I flagged the risk on day 3, in writing."
+      },
+      {
+        "kind": "neutral",
+        "text": "It was bigger than we thought."
+      },
+      {
+        "kind": "bad",
+        "text": "Deadlines are a social construct."
+      }
+    ]
+  },
+  "rq_help": {
+    "prompt": "A teammate says you rarely help with reviews.",
+    "answers": [
+      {
+        "kind": "good",
+        "text": "Fair. I will block time for it daily."
+      },
+      {
+        "kind": "neutral",
+        "text": "I help when I have time."
+      },
+      {
+        "kind": "bad",
+        "text": "Tell them to read faster."
+      }
+    ]
+  },
+  "rq_curve": {
+    "prompt": "Why should I rate you above the curve?",
+    "answers": [
+      {
+        "kind": "good",
+        "text": "Here are my results and who they helped."
+      },
+      {
+        "kind": "neutral",
+        "text": "I work hard and I'm nice."
+      },
+      {
+        "kind": "bad",
+        "text": "Because I said so. In writing. To HR."
+      }
+    ]
+  },
+  "rq_meeting": {
+    "prompt": "You skipped the planning meeting.",
+    "answers": [
+      {
+        "kind": "good",
+        "text": "I had a conflict and sent notes ahead."
+      },
+      {
+        "kind": "neutral",
+        "text": "I thought it was optional."
+      },
+      {
+        "kind": "bad",
+        "text": "I attended in spirit."
+      }
+    ]
+  },
+  "rq_scope": {
+    "prompt": "The client wants one more small feature.",
+    "answers": [
+      {
+        "kind": "good",
+        "text": "I will size it and say what moves."
+      },
+      {
+        "kind": "neutral",
+        "text": "Sure, we'll fit it in."
+      },
+      {
+        "kind": "bad",
+        "text": "Yes. Also a pony. Also my weekend."
+      }
+    ]
+  },
+  "rq_docs": {
+    "prompt": "Nobody can find your design doc.",
+    "answers": [
+      {
+        "kind": "good",
+        "text": "It's linked in the ticket now. Sorry."
+      },
+      {
+        "kind": "neutral",
+        "text": "It's somewhere. I think."
+      },
+      {
+        "kind": "bad",
+        "text": "Docs are for people with time."
+      }
+    ]
+  }
+}

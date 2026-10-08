@@ -2228,6 +2228,7 @@ Every Run Spec number, with the file that owns it (ARCHITECTURE 19.3). **Built i
 | Constant | Default | Owner |
 |---|---|---|
 | `review_prompts` | 3 | W |
+| `review_hit_good` / `review_hit_okay` / `review_hit_joke` (the share of the manager's chip a round takes from your Evidence, D-39) | 0.4 / 1.0 / 1.8 | W |
 | `evidence_base` / `evidence_mo_div` / `evidence_per_ticket` | 50 / 2 / 5 | W |
 | `calibration_hp` | 60 / 50 / 80 | A |
 | `rating_below_max` / `rating_exceeds_min` (of your Evidence) | 0.25 / 0.70 | W |

@@ -104,6 +104,11 @@ static func review_checkpoint(item: Dictionary, s: SimState, ctx: SimContext, se
 		"question_ids": ids, "warmup_id": "", "rounds": ids.size(), "archetype": String(arch.id),
 		"evidence": float(item["evidence"]), "calibration": float(item["calibration"]),
 		"manager": manager_name(s, ctx),
+		"hits": {
+			"good": WorkOdds.review_hit(ctx.cfg, float(item["calibration"]), "good"),
+			"neutral": WorkOdds.review_hit(ctx.cfg, float(item["calibration"]), "neutral"),
+			"bad": WorkOdds.review_hit(ctx.cfg, float(item["calibration"]), "bad"),
+		},
 	}
 
 

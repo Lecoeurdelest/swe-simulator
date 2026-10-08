@@ -12,6 +12,9 @@ extends Control
 ## The career run feeds this screen through the adapter (DuelAdapter, GDD 5.20): its checkpoint may carry Composure,
 ## Doubt HP and the Answer Meter's width multiplier, and the screen reads them when they are there, so a Phase 1
 ## checkpoint plays as it always did. The finish goes to GameState.finish_interview either way.
+## The review (GDD 5.16, D-39) is this screen in another mode: the checkpoint's kind says "review", the bars are your
+## Evidence and the manager's Calibration, three choice prompts from the review pool each cost Evidence by how well you
+## answered, and it ends with the rating (GameState.finish_review) instead of a K.O., a wheel or a rejection.
 
 signal _line_shown
 signal _advanced
@@ -39,6 +42,8 @@ const VAGUE_COLOR := Color(1.0, 0.639, 0.0)
 const EDGE_COLOR := Color(0.761, 0.765, 0.78)
 const REACTIONS: Dictionary = {&"green": "great", &"yellow": "ok", &"red": "bad"}  # bark_dana_<kind>_<1-3>
 const REACTION_VARIANTS := 3
+const REVIEW_REACTIONS: Dictionary = {"good": "good", "neutral": "ok", "bad": "bad"}   # bark_kev_<good|ok|bad>_<1-3>
+const MANAGER_COLOR := Color(0.55, 0.38, 0.24)   # the manager's placeholder portrait until the art pass (P-08, GDD 2.5)
 
 var _cfg: BalanceConfig
 var _tier: TierData
@@ -50,6 +55,9 @@ var _doubt := 0.0
 var _doubt_max := 0.0               # Dana's Doubt at the start: the committee band is a share of it
 var _composure := 0.0
 var _zone_mult := 1.0               # the work state's multiplier on the meter's half-width (Skill, Rust)
+var _review := false                # the 3-prompt review duel: your Evidence against the manager's Calibration (D-39)
+var _manager := ""                  # the manager's name, for the dialogue box and the portrait's plate
+var _hits: Dictionary = {}          # answer kind -> what one round costs your Evidence (the checkpoint's)
 var _tired := false
 var _textbook_used := false
 var _worst_q := INF
@@ -114,6 +122,7 @@ func _ready() -> void:
 		_debug_quick_start()
 	_cfg = Content.balance
 	var run: RunState = GameState.run
+	_review = str(run.interview.get("kind", "")) == DuelAdapter.KIND_REVIEW
 	_tier = Content.tier(str(run.interview.get("tier", "")))
 	_bg = Content.background(run.background_id)
 	_hunt_buttons.assign([_back_to_hunt_button])
@@ -186,6 +195,9 @@ func _gui_input(event: InputEvent) -> void:
 
 func _run() -> void:
 	var iv: Dictionary = GameState.run.interview
+	if _review:
+		await _run_review(iv)
+		return
 	_rng = InterviewPlan.interview_rng(str(iv.get("seed", "0")))
 	_tired = bool(iv.get("tired", false))
 	var start := DuelAdapter.start_values(iv, _tier, _bg)
@@ -237,6 +249,78 @@ func _wait(sig: Signal) -> Variant:
 	if flow != _flow:
 		await _parked
 	return value
+
+
+## The review (GDD 5.16, D-39): the manager opens, three choice prompts follow, and the rating ends it. The bars are the
+## interview's: COMPOSURE is your Evidence, DOUBT the manager's Calibration, which moves with your answers like Doubt does
+## but cannot be emptied in three prompts, so it decides nothing (A94). What decides the rating is the Evidence left.
+func _run_review(iv: Dictionary) -> void:
+	_rng = InterviewPlan.interview_rng(str(iv.get("seed", "0")))
+	_manager = str(iv.get("manager", ""))
+	_hits = (iv.get("hits", {}) as Dictionary).duplicate()
+	_composure = float(iv["evidence"])
+	_doubt = float(iv["calibration"])
+	_doubt_max = _doubt
+	_composure_bar.max_value = _composure
+	_doubt_bar.max_value = _doubt
+	_update_bars()
+	_prompts = InterviewPlan.prompts(iv.get("question_ids", []), Content.entries("questions_review"))
+	_show_manager()
+	_round_label.text = Content.text("barks", "ui_round", {"n": 1, "total": _prompts.size()})
+	await _say_manager(Content.text("barks", "bark_kev_open"))
+	for i: int in _prompts.size():
+		_round_label.text = Content.text("barks", "ui_round", {"n": i + 1, "total": _prompts.size()})
+		await _ask_review_prompt(i + 1, str(_prompts[i]["id"]))
+	await _review_end()
+
+
+## The manager's portrait is a labelled placeholder on the same grid as Dana's bust (GDD 2.5): a colour block with the name.
+func _show_manager() -> void:
+	var bust := %DanaBust as ColorRect
+	bust.color = MANAGER_COLOR
+	var plate := Label.new()
+	plate.text = _manager.to_upper()
+	plate.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	plate.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)   # the desk covers the bust's foot
+	bust.add_child(plate)
+
+
+## One prompt: the manager asks, you pick one of three shuffled answers, the manager's chip lands on your Evidence by
+## how well you answered (good 0.4 of it, okay all of it, a joke 1.8), and he reacts.
+func _ask_review_prompt(n: int, id: String) -> void:
+	var question: Dictionary = Content.entry("questions_review", id)
+	var answers := Odds.shuffled(_rng, question.get("answers", []))
+	_manager_speaks()
+	await _type(Content.field("questions_review", id, "prompt"))
+	var index := await _pick(answers)
+	var kind := str((answers[index] as Dictionary).get("kind", "neutral"))
+	_composure -= float(_hits.get(kind, 0.0))
+	_doubt = clampf(_doubt + Odds.ethics_doubt_delta(_cfg, StringName(kind), false, 1.0), 0.0, _doubt_max)
+	_update_bars()
+	_manager_speaks()
+	await _say(Content.text("barks", "bark_kev_%s_%d" % [REVIEW_REACTIONS.get(kind, "ok"), posmod(n - 1, REACTION_VARIANTS) + 1]))
+
+
+## The rating banner over the stage, the manager's closing line, then the sim gets the Evidence you have left.
+func _review_end() -> void:
+	_begin_ending()
+	var left := maxf(_composure, 0.0)
+	var rating := WorkOdds.rating(GameState.session.ctx.cfg, float(GameState.run.interview["evidence"]), left)
+	var rating_id: String = WorkOdds.RATINGS[rating]
+	_show_banner(Content.text("barks", "vs_review_" + rating_id), BANNER_BIG)
+	await _say_manager(Content.text("barks", "bark_kev_close_" + rating_id))
+	GameState.finish_review(left)
+
+
+func _manager_speaks() -> void:
+	_name_tab.text = _manager.to_upper()
+	_name_tab.remove_theme_color_override(&"font_color")
+
+
+func _say_manager(text: String) -> void:
+	_manager_speaks()
+	await _say(text)
 
 
 ## CONTENT 8.1: the greeting (or "greet again" from the second interview of a run), then the
@@ -677,8 +761,8 @@ func _fit_layout() -> void:
 # ---------- small helpers ----------
 
 func _set_static_text() -> void:
-	_composure_label.text = Content.text("barks", "ui_composure")
-	_doubt_label.text = Content.text("barks", "ui_doubt")
+	_composure_label.text = Content.text("barks", "ui_evidence" if _review else "ui_composure")
+	_doubt_label.text = Content.text("barks", "ui_calibration" if _review else "ui_doubt")
 	_hint_label.text = Content.text("barks", "meter_hint")
 	_tired_label.text = Content.text("barks", "ui_tired")
 	_back_to_hunt_button.text = Content.text("barks", "ui_back_to_work" if GameState.career_flow else "ui_back_to_hunt")
@@ -800,7 +884,7 @@ func _setup_debug_panel() -> void:
 
 
 func _show_debug_panel() -> void:
-	if _debug_enabled and not _ending:
+	if _debug_enabled and not _ending and not _review:
 		_debug_layer.show()
 
 

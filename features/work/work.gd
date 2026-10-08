@@ -270,7 +270,7 @@ func _on_card_answered(button_id: String) -> void:
 		WorkCards.K_EVENT:
 			GameState.career_choose(button_id)
 		WorkCards.K_REVIEW:
-			GameState.career_resolve_review()
+			GameState.career_begin_duel()
 		WorkCards.K_PICK:
 			GameState.career_pick_ticket(button_id)
 		WorkCards.K_LEAVE:

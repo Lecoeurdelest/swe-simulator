@@ -9,7 +9,7 @@ const BALANCE_PATH := "res://data/balance/balance_config.tres"
 const JSON_FILES: PackedStringArray = [
 	"naming", "backgrounds", "tiers", "companies", "postings", "cv_lines",
 	"questions_choice", "questions_knowledge", "barks", "emails", "tips",
-	"endings", "events", "cutscene", "names", "news", "work_events", "coworkers",
+	"endings", "events", "cutscene", "names", "news", "work_events", "coworkers", "questions_review",
 ]
 
 var balance: BalanceConfig

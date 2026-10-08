@@ -41,7 +41,7 @@ If this doc and the GDD disagree on a rule or a number, the GDD wins; fix this d
    - The rules live in six pure `@tool` classes: `GameFlow`, `RunState`, `SaveIO`, `Odds`, plus `InterviewPlan` (Step 4) and `HuntTips` (Step 5). `UiText` (Step 4, label styling) and `CutscenePlan` (Step 6, the intro's play order) are pure helpers, not rule classes.
 6. **Where data lives:**
    - Numbers you tune are in **11 `.tres` files**: 1 BalanceConfig, 3 BackgroundData, 3 TierData (all the hiring odds), and the career run's 1 WorkConfig and 3 ArchetypeData (since Step 14).
-   - All text is in **18 JSON files keyed by id** (the career run's `work_events` and `coworkers` joined the 16 in Step 14). Companies are JSON only; there is no company `.tres`.
+   - All text is in **19 JSON files keyed by id** (the career run's `work_events` and `coworkers` joined the 16 in Step 14). Companies are JSON only; there is no company `.tres`.
 7. **Randomness:** there is one seeded RNG per run. Each interview gets its own RNG, seeded from a checkpoint, so a resume replays the same interview; the offer's contract is picked on another one seeded from the same checkpoint (section 7.2). 64-bit seeds and states are saved as **strings**.
 8. **One JSON save** in `user://`.
    - It is written only while a run is live (hunt, interview, offer).
@@ -247,7 +247,7 @@ res://
 │  ├─ balance/balance_config.tres
 │  ├─ backgrounds/                 intern.tres, graduate.tres, self_taught.tres
 │  ├─ tiers/                       startup.tres, mid.tres, big.tres
-│  └─ content/                     the 18 JSON files (section 6.3)
+│  └─ content/                     the 19 JSON files (section 6.3)
 ├─ features/                       every screen has <name>.tscn + <name>.gd; the extras are listed
 │  ├─ title/                       title.tscn + title.gd  (main scene)
 │  ├─ intro/                       intro.tscn (its dialogue box is inside it), cutscene_plan.gd (CutscenePlan,
@@ -1063,7 +1063,7 @@ The 5 Step-1 files had 24 tests, all passing against the section-17 code (verifi
 
 ### 12.3 `test_content_lint.gd` checks
 
-It reads the 18 JSON files with `FileAccess` and the background `.tres` with `load()`. Since Step 14 it also checks `work_events.json` (the `evt_eNN_name` ids, the tiers, archetypes and levels, the trigger kinds, at most 3 choices, known `requires` and effects, an exhausted choice that names a choice or is "none", a tip id that exists or "none": O7) and `coworkers.json` (four authored coworkers, a 16-name pool, no name shared with the dice pool, Dana, Remy or Jordan). Artist-only fields (`art`, `visual`, `audio`, `note`, naming.json's `_notes`) and id or enum fields are never linted as text.
+It reads the 19 JSON files with `FileAccess` and the background `.tres` with `load()`. Since Step 14 it also checks `work_events.json` (the `evt_eNN_name` ids, the tiers, archetypes and levels, the trigger kinds, at most 3 choices, known `requires` and effects, an exhausted choice that names a choice or is "none", a tip id that exists or "none": O7) and `coworkers.json` (four authored coworkers, a 16-name pool, no name shared with the dice pool, Dana, Remy or Jordan). Artist-only fields (`art`, `visual`, `audio`, `note`, naming.json's `_notes`) and id or enum fields are never linted as text.
 
 1. **Every file parses** to a Dictionary (and none is missing).
 2. **Every referenced id exists:**
@@ -2929,6 +2929,9 @@ extends Resource
 @export var pip_mo_min: float = 0.0
 @export var review_standin_damage: float = 0.55
 @export var review_standin_noise: float = 0.20
+@export var review_hit_good: float = 0.4          # the review duel (D-39, A94): a good answer takes this share of the manager's chip,
+@export var review_hit_okay: float = 1.0          # an okay one takes all of it,
+@export var review_hit_joke: float = 1.8          # and a joke nearly doubles it
 
 @export_group("Controls (5.17)")
 @export var pick_feature_mo: float = 6.0
@@ -3086,7 +3089,7 @@ const BALANCE_PATH := "res://data/balance/balance_config.tres"
 const JSON_FILES: PackedStringArray = [
 	"naming", "backgrounds", "tiers", "companies", "postings", "cv_lines",
 	"questions_choice", "questions_knowledge", "barks", "emails", "tips",
-	"endings", "events", "cutscene", "names", "news", "work_events", "coworkers",
+	"endings", "events", "cutscene", "names", "news", "work_events", "coworkers", "questions_review",
 ]
 
 var balance: BalanceConfig
@@ -3894,6 +3897,11 @@ func finish_interview(won: bool, composure_left: float) -> void:
 ## Accept: the offer becomes the job (run.hire) and the Hired card shows. Accept writes no save:
 ## PHASE2_STUB is never saved, so a kill on the Hired card resumes at the offer (GDD 5.11), and
 ## accepting again hires with the same contract. No dice.
+## The review duel's end (the interview screen calls it with the Evidence it has left): the sim rates it.
+func finish_review(evidence_left: float) -> void:
+	career_finish_review(evidence_left)
+
+
 func answer_offer(accept: bool) -> void:
 	if session != null and career_flow:
 		career_answer_offer(accept)
@@ -6111,6 +6119,18 @@ static func rating(cfg: WorkConfig, evidence_total: float, evidence_left: float)
 static func review_standin_left(cfg: WorkConfig, calibration: float, evidence_total: float, rng: RandomNumberGenerator) -> float:
 	var damage := calibration * cfg.review_standin_damage * (1.0 + cfg.review_standin_noise * (rng.randf() * 2.0 - 1.0))
 	return clampf(evidence_total - damage, 0.0, evidence_total)
+
+
+## What the manager's Calibration lands on your Evidence in one round of the review duel (GDD 5.16, D-39, A94): the
+## stand-in's damage spread over the review's prompts, times 0.4 for a good answer, 1.0 for an okay one (kind "neutral")
+## and 1.8 for a joke (kind "bad"). Three okay answers cost exactly what the stand-in costs on average.
+static func review_hit(cfg: WorkConfig, calibration: float, kind: String) -> float:
+	var mult := cfg.review_hit_okay
+	if kind == "good":
+		mult = cfg.review_hit_good
+	elif kind == "bad":
+		mult = cfg.review_hit_joke
+	return calibration * cfg.review_standin_damage / float(cfg.review_prompts) * mult
 
 
 ## The raise a rating earns, as a fraction of salary.
@@ -8451,7 +8471,7 @@ func _on_card_answered(button_id: String) -> void:
 		WorkCards.K_EVENT:
 			GameState.career_choose(button_id)
 		WorkCards.K_REVIEW:
-			GameState.career_resolve_review()
+			GameState.career_begin_duel()
 		WorkCards.K_PICK:
 			GameState.career_pick_ticket(button_id)
 		WorkCards.K_LEAVE:
@@ -8984,6 +9004,11 @@ static func review_checkpoint(item: Dictionary, s: SimState, ctx: SimContext, se
 		"question_ids": ids, "warmup_id": "", "rounds": ids.size(), "archetype": String(arch.id),
 		"evidence": float(item["evidence"]), "calibration": float(item["calibration"]),
 		"manager": manager_name(s, ctx),
+		"hits": {
+			"good": WorkOdds.review_hit(ctx.cfg, float(item["calibration"]), "good"),
+			"neutral": WorkOdds.review_hit(ctx.cfg, float(item["calibration"]), "neutral"),
+			"bad": WorkOdds.review_hit(ctx.cfg, float(item["calibration"]), "bad"),
+		},
 	}
 
 
@@ -9457,7 +9482,7 @@ Classes, all `@tool`, `class_name` and `RefCounted`, pure like section 3's (INV-
 | `tips.json`, `barks.json`, `endings.json`, `naming.json` (existing) | their shapes in 6.3 | the career run's tips, UI lines, endings and names (CONTENT 16) | - |
 
 - Sections 6.1-6.3 hold: numbers in `.tres`, text in JSON keyed by id, loaded data never modified (INV-08), script defaults equal to the GDD 11.7 defaults, file name = the `id` field.
-- INV-15's counts grew with M1: 11 `.tres` (7 + `work_config` and the three archetypes) and 18 JSON (16 + `work_events` and `coworkers`), and `Content` loads all 18; the invariant and section 0.6 say so. The three archetype ids are `startup`, `agency` and `megacorp` (MC-05, A68), each with a `duel_tier` naming the Phase 1 tier its duel borrows.
+- INV-15's counts grew with M1: 11 `.tres` (7 + `work_config` and the three archetypes) and 18 JSON (16 + `work_events` and `coworkers`), and `Content` loads all 18 (M3 added `questions_review`: 19); the invariant and section 0.6 say so. The three archetype ids are `startup`, `agency` and `megacorp` (MC-05, A68), each with a `duel_tier` naming the Phase 1 tier its duel borrows.
 - **An event's numbers live with it** (A54), as in Phase 1's `events.json`, and the system constants go to `WorkConfig`. A trigger that is a formula, like E12's incident odds, names a `WorkConfig` formula rather than carrying an expression string: `"trigger": {"kind": "incident", "cooldown_days": 5}`. The trigger kinds M1 reads are `monthly`, `review`, `lease`, `after_raise`, `chain` (a telegraphed event that starts from a roll), `resizing`, `random` and `incident`.
 
 The Run Spec's E12 example as JSON, as built (GDD 5.19; its 20-day cooldown is 5 days: MC-23, A69):

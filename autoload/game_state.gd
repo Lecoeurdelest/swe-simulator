@@ -721,6 +721,11 @@ func finish_interview(won: bool, composure_left: float) -> void:
 ## Accept: the offer becomes the job (run.hire) and the Hired card shows. Accept writes no save:
 ## PHASE2_STUB is never saved, so a kill on the Hired card resumes at the offer (GDD 5.11), and
 ## accepting again hires with the same contract. No dice.
+## The review duel's end (the interview screen calls it with the Evidence it has left): the sim rates it.
+func finish_review(evidence_left: float) -> void:
+	career_finish_review(evidence_left)
+
+
 func answer_offer(accept: bool) -> void:
 	if session != null and career_flow:
 		career_answer_offer(accept)

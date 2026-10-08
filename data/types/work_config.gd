@@ -73,6 +73,9 @@ extends Resource
 @export var pip_mo_min: float = 0.0
 @export var review_standin_damage: float = 0.55
 @export var review_standin_noise: float = 0.20
+@export var review_hit_good: float = 0.4          # the review duel (D-39, A94): a good answer takes this share of the manager's chip,
+@export var review_hit_okay: float = 1.0          # an okay one takes all of it,
+@export var review_hit_joke: float = 1.8          # and a joke nearly doubles it
 
 @export_group("Controls (5.17)")
 @export var pick_feature_mo: float = 6.0

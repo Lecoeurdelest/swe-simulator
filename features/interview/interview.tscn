@@ -61,6 +61,7 @@ mouse_filter = 2
 color = Color(1, 0, 1, 1)
 
 [node name="DanaBust" type="ColorRect" parent="Stage" unique_id=971469371]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
