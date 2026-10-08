@@ -9,6 +9,9 @@ extends Control
 ## this root finish or advance the dialogue.
 ## Debug builds print IVSTART / IVTRACE / IVWHEEL / IVFORCE / IVRESULT lines and show the DBG panel
 ## (forced outcomes) in the stage band.
+## The career run feeds this screen through the adapter (DuelAdapter, GDD 5.20): its checkpoint may carry Composure,
+## Doubt HP and the Answer Meter's width multiplier, and the screen reads them when they are there, so a Phase 1
+## checkpoint plays as it always did. The finish goes to GameState.finish_interview either way.
 
 signal _line_shown
 signal _advanced
@@ -44,7 +47,9 @@ var _rng := RandomNumberGenerator.new()   # the interview RNG, seeded from the c
 var _prompts: Array[Dictionary] = []
 var _prompt_index := -1             # the prompt being asked; -1 before prompt 1
 var _doubt := 0.0
+var _doubt_max := 0.0               # Dana's Doubt at the start: the committee band is a share of it
 var _composure := 0.0
+var _zone_mult := 1.0               # the work state's multiplier on the meter's half-width (Skill, Rust)
 var _tired := false
 var _textbook_used := false
 var _worst_q := INF
@@ -183,8 +188,11 @@ func _run() -> void:
 	var iv: Dictionary = GameState.run.interview
 	_rng = InterviewPlan.interview_rng(str(iv.get("seed", "0")))
 	_tired = bool(iv.get("tired", false))
-	_doubt = float(_tier.doubt_hp)
-	_composure = float(_bg.composure_max)
+	var start := DuelAdapter.start_values(iv, _tier, _bg)
+	_doubt = float(start["doubt"])
+	_doubt_max = _doubt
+	_composure = float(start["composure"])
+	_zone_mult = float(start["zone_mult"])
 	_doubt_bar.max_value = _doubt
 	_composure_bar.max_value = _composure
 	_update_bars()
@@ -215,7 +223,7 @@ func _run() -> void:
 			await _reject("composure_zero", "bark_dana_composure_zero")
 			return
 	_prompt_index = _prompts.size()
-	if Odds.committee_eligible(_cfg, _doubt, _tier.doubt_hp):
+	if Odds.committee_eligible(_cfg, _doubt, _doubt_max):
 		await _committee()
 	else:
 		await _reject("rejected", "bark_dana_other_candidates")
@@ -235,7 +243,10 @@ func _wait(sig: Signal) -> Variant:
 ## background opener on the first interview of a run, then the Tired line if you arrived Tired.
 func _greet(iv: Dictionary) -> void:
 	var run: RunState = GameState.run
-	if run.interviews_taken > 0 and run.dana_last_company != "":
+	if str(iv.get("greet", "")) == DuelAdapter.GREET_AFTER_LAYOFF:  # the career run: Dana laid you off, then met you again
+		var laid_off_at := Content.field("companies", str(iv.get("last_company", "")), "name")
+		await _say_dana(Content.text("barks", "bark_dana_greet_after_layoff", {"last_company": laid_off_at}))
+	elif run.interviews_taken > 0 and run.dana_last_company != "":
 		var last_company := Content.field("companies", run.dana_last_company, "name")
 		await _say_dana(Content.text("barks", "bark_dana_greet_again", {"last_company": last_company}))
 	else:
@@ -293,7 +304,7 @@ func _ask_knowledge(n: int, id: String, warmup: bool) -> void:
 	if not warmup and not _textbook_used:  # GDD 5.8.4: the Graduate's first knowledge question
 		bonus = _bg.textbook_zone_bonus
 		_textbook_used = true
-	var h := Odds.zone_half(_cfg, s, bonus)
+	var h := DuelAdapter.half_width(_cfg, s, bonus, _zone_mult)
 	_tired_label.visible = _tired
 	_show_thumb(_tap_pad)
 	_meter_result = ""
@@ -366,7 +377,7 @@ func _ko() -> void:
 ## forced_result ("win" / "loss") comes only from the debug panel and replaces the roll.
 func _committee(forced_result: String = "") -> void:
 	_begin_ending()
-	var win_p := Odds.committee_win_p(_cfg, _doubt, _tier.doubt_hp, GameState.run.stat("net"))
+	var win_p := Odds.committee_win_p(_cfg, _doubt, _doubt_max, GameState.run.stat("net"))
 	var won := Odds.roll(_rng, win_p) if forced_result == "" else forced_result == "win"
 	if _debug_enabled:
 		print("IVWHEEL|p=%.4f|won=%s|forced=%s" % [win_p, won, forced_result != ""])
@@ -670,7 +681,7 @@ func _set_static_text() -> void:
 	_doubt_label.text = Content.text("barks", "ui_doubt")
 	_hint_label.text = Content.text("barks", "meter_hint")
 	_tired_label.text = Content.text("barks", "ui_tired")
-	_back_to_hunt_button.text = Content.text("barks", "ui_back_to_hunt")
+	_back_to_hunt_button.text = Content.text("barks", "ui_back_to_work" if GameState.career_flow else "ui_back_to_hunt")
 	_ready_label.text = Content.text("barks", "ui_ready")
 	_pause_button.text = PAUSE_ICON
 	_meter_text = {
@@ -807,7 +818,7 @@ func _on_debug_force(outcome: String) -> void:
 		"ko":
 			await _ko()
 		"wheel_win", "wheel_loss":
-			_doubt = minf(_doubt, _cfg.committee_band * _tier.doubt_hp)
+			_doubt = minf(_doubt, _cfg.committee_band * _doubt_max)
 			_update_bars()
 			await _committee("win" if outcome == "wheel_win" else "loss")
 		"composure_zero":

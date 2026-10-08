@@ -10,7 +10,8 @@ extends RefCounted
 ##   "event" (a work_events entry), "tip", plus the numbers its text needs.
 ## Feed lines: one quiet line in the Body (payday, rent, a shipped ticket, a rumor), no pause.
 ## Head cards: the sim's queue head, which the player must answer: an event with choices, a review, a Mid's ticket
-##   pick, the forced leave. The layoff scene is the LAYOFF phase's, and an interview or an offer waits for M3's adapter.
+##   pick, the forced leave, an interview day (Start leads to the duel screen: DuelAdapter). The layoff scene is the
+##   LAYOFF phase's, and an offer is answered on the contract screen.
 
 const INFO := "info"
 const WARNING := "warning"
@@ -100,7 +101,9 @@ static func head(s: SimState, ctx: SimContext) -> Dictionary:
 		"forced_leave":
 			return {"kind": K_LEAVE, "days": int(item["days"])}
 		"duel":
-			return {"kind": K_DUEL}
+			var app := Sim.find_application(s, int(item["app"]))
+			return {"kind": K_DUEL, "company": String((app.get("posting", {}) as Dictionary).get("company", "")),
+				"index": int(item["index"]), "of": int(item["of"])}
 		"offer":
 			return {"kind": K_OFFER}
 	return {}

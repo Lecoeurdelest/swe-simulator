@@ -12,12 +12,13 @@ const TRANSITIONS: Dictionary = {
 	Phase.INTRO: [Phase.BACKGROUND_SELECT, Phase.WORK],
 	Phase.BACKGROUND_SELECT: [Phase.JOB_HUNT, Phase.WORK, Phase.TITLE],
 	Phase.JOB_HUNT: [Phase.INTERVIEW, Phase.GAME_OVER, Phase.TITLE],
-	Phase.INTERVIEW: [Phase.OFFER, Phase.JOB_HUNT, Phase.TITLE],
-	Phase.OFFER: [Phase.PHASE2_STUB, Phase.JOB_HUNT, Phase.GAME_OVER, Phase.TITLE],
+	Phase.INTERVIEW: [Phase.OFFER, Phase.JOB_HUNT, Phase.WORK, Phase.TITLE],
+	Phase.OFFER: [Phase.PHASE2_STUB, Phase.JOB_HUNT, Phase.WORK, Phase.GAME_OVER, Phase.TITLE],
 	Phase.PHASE2_STUB: [Phase.TITLE, Phase.BACKGROUND_SELECT],
 	Phase.GAME_OVER: [Phase.TITLE, Phase.BACKGROUND_SELECT],
-	# The career run (ARCHITECTURE 19.4). M3 adds WORK -> INTERVIEW and OFFER -> WORK with the adapter.
-	Phase.WORK: [Phase.LAYOFF, Phase.GAME_OVER, Phase.TITLE],
+	# The career run (ARCHITECTURE 19.4, 19.5): an interview day or a review leaves WORK for INTERVIEW and comes back (or
+	# goes on to OFFER after a win); an offer is answered in OFFER and leads back to WORK. The same phases serve Phase 1.
+	Phase.WORK: [Phase.LAYOFF, Phase.INTERVIEW, Phase.OFFER, Phase.GAME_OVER, Phase.TITLE],
 	Phase.LAYOFF: [Phase.WORK, Phase.TITLE],
 }
 

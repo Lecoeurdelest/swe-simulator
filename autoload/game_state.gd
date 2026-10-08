@@ -171,7 +171,7 @@ func _resume_hunt() -> bool:
 func _resume_career() -> bool:
 	var data := SaveIO.peek()
 	var resume_at := int(data.get("phase", GameFlow.Phase.WORK)) as GameFlow.Phase
-	if not _is_career_phase(resume_at) or not GameFlow.can_resume(resume_at):
+	if not CAREER_PHASES.has(resume_at) or not GameFlow.can_resume(resume_at):
 		return false
 	var bg_id := str((data.get("sim", {}) as Dictionary).get("bg_id", "intern"))
 	session = WorkSession.from_save(data, SimContext.load_default(bg_id))   # the clock starts paused (KILL_TESTS 6)
@@ -180,6 +180,16 @@ func _resume_career() -> bool:
 	run = RunState.new()
 	run.background_id = bg_id
 	run.player_name = session.player_name
+	if resume_at == GameFlow.Phase.INTERVIEW:
+		if session.duel_checkpoint.is_empty():
+			resume_at = GameFlow.Phase.WORK
+		else:
+			_prepare_run_for_duel(session.duel_checkpoint)
+	elif resume_at == GameFlow.Phase.OFFER:
+		if session.wants_offer():
+			_prepare_run_for_offer()
+		else:
+			resume_at = GameFlow.Phase.WORK
 	change_phase(resume_at)
 	return true
 
@@ -311,15 +321,27 @@ func _gap_pool() -> Array:
 ## The WORK scene calls these; the rules are the sim's (WorkSession -> Sim). Every answer is applied without a tick, so
 ## time moves only in career_tick(), which the scene calls once a day while nothing is open. Each answer saves.
 
+## The phases a career save can hold. INTERVIEW and OFFER are Phase 1's too, so they count as the career's only while a
+## session exists (the hunt has none): otherwise save() would write a hunt save over the career one (A88).
+const CAREER_PHASES: Array[GameFlow.Phase] = [GameFlow.Phase.WORK, GameFlow.Phase.LAYOFF, GameFlow.Phase.INTERVIEW, GameFlow.Phase.OFFER]
+
+
 func _is_career_phase(phase: GameFlow.Phase) -> bool:
-	return phase == GameFlow.Phase.WORK or phase == GameFlow.Phase.LAYOFF
+	if phase == GameFlow.Phase.INTERVIEW or phase == GameFlow.Phase.OFFER:
+		return session != null
+	return CAREER_PHASES.has(phase)
 
 
 ## A new career run: the sim's first state, the Handbook's collected tips, then the work state (which saves).
 func _begin_career(run_number: int, bg_id: String, player_name: String, run_seed: int) -> void:
 	var from := run.phase
 	var first := next_run_is_first()
-	session = WorkSession.start(SimContext.load_default(bg_id), run_number, run_seed, collected_tips(), player_name, first)
+	if player_name.is_empty():   # run 1 skips Background select, where the name dice live
+		player_name = Content.text("names", "default")
+	var topics_rng := RandomNumberGenerator.new()
+	topics_rng.seed = DuelAdapter.seed_text(run_seed, DuelAdapter.SALT_PICK, 0, 0).to_int()
+	var topics := Odds.pick(topics_rng, _gap_pool(), Content.background(bg_id).gap_topics_count)
+	session = WorkSession.start(SimContext.load_default(bg_id), run_number, run_seed, collected_tips(), player_name, first, topics)
 	run = RunState.new()
 	run.phase = from   # keeps the transition legal, like retry()
 	run.background_id = bg_id
@@ -360,6 +382,96 @@ func career_pick_ticket(pick: String) -> void:
 
 func career_resolve_review() -> void:
 	_career_answer(func() -> Array: return session.resolve_review())
+
+
+## Start button of an interview day (or, from M3's review duel, of a review): the sim's request becomes the interview
+## checkpoint (DuelAdapter), the run is filled with what the duel screen reads, and INTERVIEW saves it (A88).
+func career_begin_duel() -> void:
+	if session == null or run.phase != GameFlow.Phase.WORK:
+		return
+	var checkpoint := session.begin_duel()
+	if checkpoint.is_empty():
+		return
+	session.clock.set_speed(WorkClock.PAUSE, session.ctx.cfg)
+	_prepare_run_for_duel(checkpoint)
+	change_phase(GameFlow.Phase.INTERVIEW)
+
+
+## The interview ended (the duel screen calls finish_interview): a win leads to the contract, a loss back to work.
+func career_finish_duel(won: bool, composure_left: float) -> void:
+	if session == null:
+		return
+	run.interview = {}
+	session.finish_duel(won, composure_left)
+	_after_duel()
+
+
+## The review duel ended with this much Evidence left.
+func career_finish_review(evidence_left: float) -> void:
+	if session == null:
+		return
+	run.interview = {}
+	session.finish_review(evidence_left)
+	_after_duel()
+
+
+func _after_duel() -> void:
+	if session.is_over():
+		_finish_career()
+	elif session.wants_offer():
+		_prepare_run_for_offer()
+		change_phase(GameFlow.Phase.OFFER)
+	else:
+		change_phase(GameFlow.Phase.WORK)
+
+
+## Accept or Decline on the contract (the offer screen calls answer_offer). Accepting while employed is a voluntary exit;
+## the sim starts the next job. Back at work either way, or at an ending when leaving job 5 ended the career.
+func career_answer_offer(accept: bool) -> void:
+	if session == null:
+		return
+	run.offer = {}
+	session.answer_offer(accept)
+	if session.is_over():
+		_finish_career()
+	else:
+		change_phase(GameFlow.Phase.WORK)
+
+
+## An offer on the table while the work state shows (a resumed or odd state): go to the contract.
+func career_begin_offer() -> void:
+	if session != null and run.phase == GameFlow.Phase.WORK and session.wants_offer():
+		session.clock.set_speed(WorkClock.PAUSE, session.ctx.cfg)
+		_prepare_run_for_offer()
+		change_phase(GameFlow.Phase.OFFER)
+
+
+## Declining an offer never ends a career run (it did on Phase 1's grace day); the offer screen asks.
+func decline_ends_run() -> bool:
+	return false if career_flow else run.decline_ends_run()
+
+
+## The duel screen reads the run the way Phase 1 filled it: the background's starting stats (KNOWLEDGE, EXPERIENCE and
+## NETWORK stay there in the career run, D-26), the gap topics, how often Dana has met you, and the checkpoint.
+func _prepare_run_for_duel(checkpoint: Dictionary) -> void:
+	_prepare_run_basics()
+	run.gap_topics.assign(session.gap_topics)
+	run.first_run = session.first_run
+	run.interviews_taken = session.dana_met
+	run.times_met_dana = session.dana_met
+	run.dana_last_company = session.dana_last_company
+	run.interview = checkpoint.duplicate(true)
+
+
+## The offer screen shows run.offer, the contract paper (DuelAdapter.offer_paper).
+func _prepare_run_for_offer() -> void:
+	_prepare_run_basics()
+	run.offer = session.offer_paper()
+
+
+func _prepare_run_basics() -> void:
+	run.set_background(Content.balance, Content.background(session.sim.bg_id))
+	run.player_name = session.player_name
 
 
 func career_fail_interview() -> void:
@@ -407,6 +519,9 @@ func _after_career(events: Array, save_now: bool) -> void:
 		return
 	if run.phase == GameFlow.Phase.LAYOFF and not WorkCards.is_layoff_pending(session.sim):
 		change_phase(GameFlow.Phase.WORK)     # saves
+		return
+	if run.phase == GameFlow.Phase.WORK and session.wants_offer() and session.notices.is_empty():
+		career_begin_offer()
 		return
 	if save_now or session.is_blocked():
 		_commit()
@@ -576,6 +691,9 @@ func can_take_interview(invite: Dictionary) -> bool:
 ## won = K.O. or committee win. A win builds the whole offer from the checkpoint (RunState.make_offer)
 ## before it is cleared.
 func finish_interview(won: bool, composure_left: float) -> void:
+	if session != null and career_flow:
+		career_finish_duel(won, composure_left)
+		return
 	var iv := run.interview
 	var company_id: String = iv.get("company_id", "")
 	run.interviews_taken += 1
@@ -595,6 +713,9 @@ func finish_interview(won: bool, composure_left: float) -> void:
 ## PHASE2_STUB is never saved, so a kill on the Hired card resumes at the offer (GDD 5.11), and
 ## accepting again hires with the same contract. No dice.
 func answer_offer(accept: bool) -> void:
+	if session != null and career_flow:
+		career_answer_offer(accept)
+		return
 	var company_id: String = run.offer.get("company_id", "")
 	if not accept:
 		var ends_run := run.decline_ends_run()

@@ -195,12 +195,15 @@
   "ui_feed_late": "Ticket shipped late.",
   "ui_job_line": "{level} at {company}",
   "ui_between_jobs": "Between jobs",
-  "ui_duel_stub": "Interview day. Interviews arrive in the next build, so this one is skipped.",
-  "ui_offer_stub": "An offer came in. Offers arrive in the next build, so you pass.",
   "ui_app_stub": "Not in this build yet. Keep an eye on the dock.",
   "coach_speed": "Tap 1x to start the clock. One second is one day. Pause any time.",
   "coach_hours": "Hours is your one dial. More hours ship tickets faster. They also burn you out.",
   "coach_studio": "Your goal is The Studio: five things held for 90 days. The chip at the top counts them.",
   "ui_next": "Day {day} - {what} in {days}d",
-  "ui_choice_none": "nothing"
+  "ui_choice_none": "nothing",
+  "ui_interview_day": "Interview day: {company}. Dana has questions. You have coffee.",
+  "ui_interview_start": "Start the interview",
+  "ui_offer_ready": "An offer is on the table. Time to read the fine print.",
+  "ui_back_to_work": "Back to work",
+  "bark_dana_greet_after_layoff": "Yes, I laid you off at {last_company}. Then they laid me off. Hi. Shall we?"
 }

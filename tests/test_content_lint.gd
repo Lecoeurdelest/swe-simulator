@@ -706,7 +706,8 @@ func test_work_state_text_ids_exist() -> void:  # M2: every id the work state as
 		"ui_runway", "ui_burnout", "ui_ticket", "ui_codebase", "ui_studio_chip", "ui_hours", "ui_day", "ui_next", "ui_choice_none",
 		"ui_tab_jobs", "ui_tab_home", "ui_tab_video", "ui_tab_ducky", "ui_pick_feature", "ui_pick_bugfix", "ui_pick_paydown",
 		"ui_pick_paydown_note", "ui_pick_prompt", "ui_ok", "ui_continue", "ui_review_start", "ui_job_line", "ui_between_jobs",
-		"ui_duel_stub", "ui_offer_stub", "ui_app_stub", "ui_back", "ui_tap_to_continue",
+		"ui_interview_day", "ui_interview_start", "ui_offer_ready", "ui_back_to_work", "bark_dana_greet_after_layoff",
+		"ui_app_stub", "ui_back", "ui_tap_to_continue",
 		"vs_layoff_title", "bark_dana_layoff", "bark_dana_layoff_2", "ui_severance", "ui_access_revoked"])
 	for id: String in ids:
 		if not barks.has(id):

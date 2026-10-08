@@ -826,6 +826,11 @@ static func _find_app(s: SimState, app_id: int) -> Dictionary:
 	return {}
 
 
+## The application for a posting id ({} when it is gone): the adapter reads the posting a duel or an offer is about.
+static func find_application(s: SimState, app_id: int) -> Dictionary:
+	return _find_app(s, app_id)
+
+
 static func _drop_application(s: SimState, app_id: int) -> void:
 	for i: int in s.applications.size():
 		if int(s.applications[i]["posting"]["id"]) == app_id:
@@ -1002,6 +1007,7 @@ static func _end_job(s: SimState, ctx: SimContext, reason: String, events: Array
 	var cfg := ctx.cfg
 	var arch := ctx.archetype(s.job_archetype)
 	var tenure := s.day - s.job_start
+	var company := s.job_company
 	s.savings += s.pay_accrued + severance_months * s.job_salary
 	s.pay_accrued = 0.0
 	if reason != "layoff" and tenure < cfg.short_tenure_days:
@@ -1034,7 +1040,7 @@ static func _end_job(s: SimState, ctx: SimContext, reason: String, events: Array
 	s.hours_lock_until = -1
 	_drop_job_cards(s)
 	s.bump("exit_%s" % reason)
-	events.append({"kind": "job_ended", "reason": reason, "tenure": tenure, "severance_months": severance_months})
+	events.append({"kind": "job_ended", "reason": reason, "tenure": tenure, "severance_months": severance_months, "company": company})
 	_log(s, ctx, "exit", {"reason": reason, "tenure": tenure})
 	if s.jobs_held >= cfg.max_jobs:
 		_end_run(s, ctx, "career_change", events)

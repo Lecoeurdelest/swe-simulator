@@ -244,9 +244,9 @@ func _on_card_answered(button_id: String) -> void:
 		WorkCards.K_LEAVE:
 			GameState.career_acknowledge()
 		WorkCards.K_DUEL:
-			GameState.career_fail_interview()
+			GameState.career_begin_duel()
 		WorkCards.K_OFFER:
-			GameState.career_decline_offer()
+			GameState.career_begin_offer()
 
 
 ## The words for a card: {title, text, buttons: [{id, text, primary}]}. Cards carry ids and numbers (WorkCards); the
@@ -273,9 +273,11 @@ func _card_view(card: Dictionary) -> Dictionary:
 		WorkCards.K_LEAVE:
 			return {"title": "", "text": Content.text("barks", "ui_forced_leave"), "buttons": ok}
 		WorkCards.K_DUEL:
-			return {"title": "", "text": Content.text("barks", "ui_duel_stub"), "buttons": ok}
+			return {"title": "", "text": Content.text("barks", "ui_interview_day", {
+					"company": Content.field("companies", String(card["company"]), "name")}),
+				"buttons": [{"id": "start", "text": UiText.primary(Content.text("barks", "ui_interview_start")), "primary": true}]}
 		WorkCards.K_OFFER:
-			return {"title": "", "text": Content.text("barks", "ui_offer_stub"), "buttons": ok}
+			return {"title": "", "text": Content.text("barks", "ui_offer_ready"), "buttons": ok}
 	return {"title": "", "text": "", "buttons": ok}
 
 

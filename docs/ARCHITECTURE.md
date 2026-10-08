@@ -1416,12 +1416,13 @@ const TRANSITIONS: Dictionary = {
 	Phase.INTRO: [Phase.BACKGROUND_SELECT, Phase.WORK],
 	Phase.BACKGROUND_SELECT: [Phase.JOB_HUNT, Phase.WORK, Phase.TITLE],
 	Phase.JOB_HUNT: [Phase.INTERVIEW, Phase.GAME_OVER, Phase.TITLE],
-	Phase.INTERVIEW: [Phase.OFFER, Phase.JOB_HUNT, Phase.TITLE],
-	Phase.OFFER: [Phase.PHASE2_STUB, Phase.JOB_HUNT, Phase.GAME_OVER, Phase.TITLE],
+	Phase.INTERVIEW: [Phase.OFFER, Phase.JOB_HUNT, Phase.WORK, Phase.TITLE],
+	Phase.OFFER: [Phase.PHASE2_STUB, Phase.JOB_HUNT, Phase.WORK, Phase.GAME_OVER, Phase.TITLE],
 	Phase.PHASE2_STUB: [Phase.TITLE, Phase.BACKGROUND_SELECT],
 	Phase.GAME_OVER: [Phase.TITLE, Phase.BACKGROUND_SELECT],
-	# The career run (ARCHITECTURE 19.4). M3 adds WORK -> INTERVIEW and OFFER -> WORK with the adapter.
-	Phase.WORK: [Phase.LAYOFF, Phase.GAME_OVER, Phase.TITLE],
+	# The career run (ARCHITECTURE 19.4, 19.5): an interview day or a review leaves WORK for INTERVIEW and comes back (or
+	# goes on to OFFER after a win); an offer is answered in OFFER and leads back to WORK. The same phases serve Phase 1.
+	Phase.WORK: [Phase.LAYOFF, Phase.INTERVIEW, Phase.OFFER, Phase.GAME_OVER, Phase.TITLE],
 	Phase.LAYOFF: [Phase.WORK, Phase.TITLE],
 }
 
@@ -3342,7 +3343,7 @@ func _resume_hunt() -> bool:
 func _resume_career() -> bool:
 	var data := SaveIO.peek()
 	var resume_at := int(data.get("phase", GameFlow.Phase.WORK)) as GameFlow.Phase
-	if not _is_career_phase(resume_at) or not GameFlow.can_resume(resume_at):
+	if not CAREER_PHASES.has(resume_at) or not GameFlow.can_resume(resume_at):
 		return false
 	var bg_id := str((data.get("sim", {}) as Dictionary).get("bg_id", "intern"))
 	session = WorkSession.from_save(data, SimContext.load_default(bg_id))   # the clock starts paused (KILL_TESTS 6)
@@ -3351,6 +3352,16 @@ func _resume_career() -> bool:
 	run = RunState.new()
 	run.background_id = bg_id
 	run.player_name = session.player_name
+	if resume_at == GameFlow.Phase.INTERVIEW:
+		if session.duel_checkpoint.is_empty():
+			resume_at = GameFlow.Phase.WORK
+		else:
+			_prepare_run_for_duel(session.duel_checkpoint)
+	elif resume_at == GameFlow.Phase.OFFER:
+		if session.wants_offer():
+			_prepare_run_for_offer()
+		else:
+			resume_at = GameFlow.Phase.WORK
 	change_phase(resume_at)
 	return true
 
@@ -3482,15 +3493,27 @@ func _gap_pool() -> Array:
 ## The WORK scene calls these; the rules are the sim's (WorkSession -> Sim). Every answer is applied without a tick, so
 ## time moves only in career_tick(), which the scene calls once a day while nothing is open. Each answer saves.
 
+## The phases a career save can hold. INTERVIEW and OFFER are Phase 1's too, so they count as the career's only while a
+## session exists (the hunt has none): otherwise save() would write a hunt save over the career one (A88).
+const CAREER_PHASES: Array[GameFlow.Phase] = [GameFlow.Phase.WORK, GameFlow.Phase.LAYOFF, GameFlow.Phase.INTERVIEW, GameFlow.Phase.OFFER]
+
+
 func _is_career_phase(phase: GameFlow.Phase) -> bool:
-	return phase == GameFlow.Phase.WORK or phase == GameFlow.Phase.LAYOFF
+	if phase == GameFlow.Phase.INTERVIEW or phase == GameFlow.Phase.OFFER:
+		return session != null
+	return CAREER_PHASES.has(phase)
 
 
 ## A new career run: the sim's first state, the Handbook's collected tips, then the work state (which saves).
 func _begin_career(run_number: int, bg_id: String, player_name: String, run_seed: int) -> void:
 	var from := run.phase
 	var first := next_run_is_first()
-	session = WorkSession.start(SimContext.load_default(bg_id), run_number, run_seed, collected_tips(), player_name, first)
+	if player_name.is_empty():   # run 1 skips Background select, where the name dice live
+		player_name = Content.text("names", "default")
+	var topics_rng := RandomNumberGenerator.new()
+	topics_rng.seed = DuelAdapter.seed_text(run_seed, DuelAdapter.SALT_PICK, 0, 0).to_int()
+	var topics := Odds.pick(topics_rng, _gap_pool(), Content.background(bg_id).gap_topics_count)
+	session = WorkSession.start(SimContext.load_default(bg_id), run_number, run_seed, collected_tips(), player_name, first, topics)
 	run = RunState.new()
 	run.phase = from   # keeps the transition legal, like retry()
 	run.background_id = bg_id
@@ -3531,6 +3554,96 @@ func career_pick_ticket(pick: String) -> void:
 
 func career_resolve_review() -> void:
 	_career_answer(func() -> Array: return session.resolve_review())
+
+
+## Start button of an interview day (or, from M3's review duel, of a review): the sim's request becomes the interview
+## checkpoint (DuelAdapter), the run is filled with what the duel screen reads, and INTERVIEW saves it (A88).
+func career_begin_duel() -> void:
+	if session == null or run.phase != GameFlow.Phase.WORK:
+		return
+	var checkpoint := session.begin_duel()
+	if checkpoint.is_empty():
+		return
+	session.clock.set_speed(WorkClock.PAUSE, session.ctx.cfg)
+	_prepare_run_for_duel(checkpoint)
+	change_phase(GameFlow.Phase.INTERVIEW)
+
+
+## The interview ended (the duel screen calls finish_interview): a win leads to the contract, a loss back to work.
+func career_finish_duel(won: bool, composure_left: float) -> void:
+	if session == null:
+		return
+	run.interview = {}
+	session.finish_duel(won, composure_left)
+	_after_duel()
+
+
+## The review duel ended with this much Evidence left.
+func career_finish_review(evidence_left: float) -> void:
+	if session == null:
+		return
+	run.interview = {}
+	session.finish_review(evidence_left)
+	_after_duel()
+
+
+func _after_duel() -> void:
+	if session.is_over():
+		_finish_career()
+	elif session.wants_offer():
+		_prepare_run_for_offer()
+		change_phase(GameFlow.Phase.OFFER)
+	else:
+		change_phase(GameFlow.Phase.WORK)
+
+
+## Accept or Decline on the contract (the offer screen calls answer_offer). Accepting while employed is a voluntary exit;
+## the sim starts the next job. Back at work either way, or at an ending when leaving job 5 ended the career.
+func career_answer_offer(accept: bool) -> void:
+	if session == null:
+		return
+	run.offer = {}
+	session.answer_offer(accept)
+	if session.is_over():
+		_finish_career()
+	else:
+		change_phase(GameFlow.Phase.WORK)
+
+
+## An offer on the table while the work state shows (a resumed or odd state): go to the contract.
+func career_begin_offer() -> void:
+	if session != null and run.phase == GameFlow.Phase.WORK and session.wants_offer():
+		session.clock.set_speed(WorkClock.PAUSE, session.ctx.cfg)
+		_prepare_run_for_offer()
+		change_phase(GameFlow.Phase.OFFER)
+
+
+## Declining an offer never ends a career run (it did on Phase 1's grace day); the offer screen asks.
+func decline_ends_run() -> bool:
+	return false if career_flow else run.decline_ends_run()
+
+
+## The duel screen reads the run the way Phase 1 filled it: the background's starting stats (KNOWLEDGE, EXPERIENCE and
+## NETWORK stay there in the career run, D-26), the gap topics, how often Dana has met you, and the checkpoint.
+func _prepare_run_for_duel(checkpoint: Dictionary) -> void:
+	_prepare_run_basics()
+	run.gap_topics.assign(session.gap_topics)
+	run.first_run = session.first_run
+	run.interviews_taken = session.dana_met
+	run.times_met_dana = session.dana_met
+	run.dana_last_company = session.dana_last_company
+	run.interview = checkpoint.duplicate(true)
+
+
+## The offer screen shows run.offer, the contract paper (DuelAdapter.offer_paper).
+func _prepare_run_for_offer() -> void:
+	_prepare_run_basics()
+	run.offer = session.offer_paper()
+
+
+func _prepare_run_basics() -> void:
+	run.set_background(Content.balance, Content.background(session.sim.bg_id))
+	run.player_name = session.player_name
 
 
 func career_fail_interview() -> void:
@@ -3578,6 +3691,9 @@ func _after_career(events: Array, save_now: bool) -> void:
 		return
 	if run.phase == GameFlow.Phase.LAYOFF and not WorkCards.is_layoff_pending(session.sim):
 		change_phase(GameFlow.Phase.WORK)     # saves
+		return
+	if run.phase == GameFlow.Phase.WORK and session.wants_offer() and session.notices.is_empty():
+		career_begin_offer()
 		return
 	if save_now or session.is_blocked():
 		_commit()
@@ -3747,6 +3863,9 @@ func can_take_interview(invite: Dictionary) -> bool:
 ## won = K.O. or committee win. A win builds the whole offer from the checkpoint (RunState.make_offer)
 ## before it is cleared.
 func finish_interview(won: bool, composure_left: float) -> void:
+	if session != null and career_flow:
+		career_finish_duel(won, composure_left)
+		return
 	var iv := run.interview
 	var company_id: String = iv.get("company_id", "")
 	run.interviews_taken += 1
@@ -3766,6 +3885,9 @@ func finish_interview(won: bool, composure_left: float) -> void:
 ## PHASE2_STUB is never saved, so a kill on the Hired card resumes at the offer (GDD 5.11), and
 ## accepting again hires with the same contract. No dice.
 func answer_offer(accept: bool) -> void:
+	if session != null and career_flow:
+		career_answer_offer(accept)
+		return
 	var company_id: String = run.offer.get("company_id", "")
 	if not accept:
 		var ends_run := run.decline_ends_run()
@@ -4304,6 +4426,12 @@ const LEGAL: Array[Array] = [
 	[GameFlow.Phase.WORK, GameFlow.Phase.TITLE],
 	[GameFlow.Phase.LAYOFF, GameFlow.Phase.WORK],
 	[GameFlow.Phase.LAYOFF, GameFlow.Phase.TITLE],
+	# M3's adapter (ARCHITECTURE 19.5): an interview day or a review leaves WORK for INTERVIEW and comes back, or goes on
+	# to the contract after a win; the contract leads back to WORK.
+	[GameFlow.Phase.WORK, GameFlow.Phase.INTERVIEW],
+	[GameFlow.Phase.WORK, GameFlow.Phase.OFFER],
+	[GameFlow.Phase.INTERVIEW, GameFlow.Phase.WORK],
+	[GameFlow.Phase.OFFER, GameFlow.Phase.WORK],
 ]
 
 const ILLEGAL: Array[Array] = [
@@ -4315,9 +4443,8 @@ const ILLEGAL: Array[Array] = [
 	[GameFlow.Phase.GAME_OVER, GameFlow.Phase.JOB_HUNT],
 	[GameFlow.Phase.GAME_OVER, GameFlow.Phase.WORK],
 	[GameFlow.Phase.WORK, GameFlow.Phase.WORK],
-	[GameFlow.Phase.WORK, GameFlow.Phase.INTERVIEW],    # M3 adds these with the adapter
-	[GameFlow.Phase.WORK, GameFlow.Phase.OFFER],
 	[GameFlow.Phase.LAYOFF, GameFlow.Phase.GAME_OVER],
+	[GameFlow.Phase.LAYOFF, GameFlow.Phase.INTERVIEW],
 	[GameFlow.Phase.INTRO, GameFlow.Phase.LAYOFF],
 ]
 
@@ -5059,6 +5186,17 @@ static func pick(cfg: BalanceConfig, tier_id: String, choice_pool: Dictionary, k
 	return {"question_ids": question_ids, "warmup_id": warmup_id}
 
 
+## n ids from a pool with no tiers (the review's prompts, GDD 5.16): unseen ones in an order the RNG decides, then the
+## least recently asked. The ids are sorted first, so the JSON key order never decides.
+static func pick_ids(pool: Dictionary, seen: Array[String], rng: RandomNumberGenerator, n: int) -> Array[String]:
+	var ids: Array[String] = []
+	for id: String in pool:
+		if not id.begins_with("_") and pool[id] is Dictionary:
+			ids.append(id)
+	ids.sort()
+	return _draw(rng, ids, seen, n)
+
+
 ## The ids of one pool that a tier can ask, sorted so the picks never depend on the JSON key order.
 static func eligible(pool: Dictionary, tier_id: String) -> Array[String]:
 	var ids: Array[String] = []
@@ -5725,6 +5863,11 @@ const BACKGROUND_DIR := "res://data/backgrounds/"
 const TIER_DIR := "res://data/tiers/"
 const EVENTS_PATH := "res://data/content/work_events.json"
 const COWORKERS_PATH := "res://data/content/coworkers.json"
+const BALANCE_PATH := "res://data/balance/balance_config.tres"
+const CONTENT_DIR := "res://data/content/"
+## The Phase 1 pools the adapter draws from (DuelAdapter): the interview's questions, the review's prompts, the
+## contract's perks and fine print, and the companies' names. The sim never reads them.
+const DUEL_CONTENT: PackedStringArray = ["questions_choice", "questions_knowledge", "questions_review", "emails", "companies"]
 
 var cfg: WorkConfig
 var archetypes: Dictionary = {}          # id -> ArchetypeData
@@ -5734,6 +5877,8 @@ var coworker_defs: Dictionary = {}       # cw_* id -> entry (coworkers.json)
 var coworker_pool: PackedStringArray = []
 var bg: BackgroundData
 var tiers: Dictionary = {}               # tier id -> TierData
+var balance: BalanceConfig               # Phase 1's constants, which the duel and the contract still read
+var content: Dictionary = {}             # DUEL_CONTENT file name -> parsed JSON
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var log_enabled: bool = true             # the run log; the harness turns it off for speed
 
@@ -5753,6 +5898,9 @@ static func load_default(bg_id: String = "intern") -> SimContext:
 		if file.ends_with(".tres"):
 			var tier := load(TIER_DIR + file) as TierData
 			ctx.tiers[String(tier.id)] = tier
+	ctx.balance = load(BALANCE_PATH) as BalanceConfig
+	for file: String in DUEL_CONTENT:
+		ctx.content[file] = _read_json(CONTENT_DIR + file + ".json")
 	ctx.events = _read_json(EVENTS_PATH)
 	var cw := _read_json(COWORKERS_PATH)
 	ctx.coworker_pool = PackedStringArray(cw.get("_coworker_pool", []))
@@ -5788,6 +5936,8 @@ func archetype(id: String) -> ArchetypeData:
 
 
 static func _read_json(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		return {}
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 	return parsed if parsed is Dictionary else {}
 ```
@@ -7010,6 +7160,11 @@ static func _find_app(s: SimState, app_id: int) -> Dictionary:
 	return {}
 
 
+## The application for a posting id ({} when it is gone): the adapter reads the posting a duel or an offer is about.
+static func find_application(s: SimState, app_id: int) -> Dictionary:
+	return _find_app(s, app_id)
+
+
 static func _drop_application(s: SimState, app_id: int) -> void:
 	for i: int in s.applications.size():
 		if int(s.applications[i]["posting"]["id"]) == app_id:
@@ -7186,6 +7341,7 @@ static func _end_job(s: SimState, ctx: SimContext, reason: String, events: Array
 	var cfg := ctx.cfg
 	var arch := ctx.archetype(s.job_archetype)
 	var tenure := s.day - s.job_start
+	var company := s.job_company
 	s.savings += s.pay_accrued + severance_months * s.job_salary
 	s.pay_accrued = 0.0
 	if reason != "layoff" and tenure < cfg.short_tenure_days:
@@ -7218,7 +7374,7 @@ static func _end_job(s: SimState, ctx: SimContext, reason: String, events: Array
 	s.hours_lock_until = -1
 	_drop_job_cards(s)
 	s.bump("exit_%s" % reason)
-	events.append({"kind": "job_ended", "reason": reason, "tenure": tenure, "severance_months": severance_months})
+	events.append({"kind": "job_ended", "reason": reason, "tenure": tenure, "severance_months": severance_months, "company": company})
 	_log(s, ctx, "exit", {"reason": reason, "tenure": tenure})
 	if s.jobs_held >= cfg.max_jobs:
 		_end_run(s, ctx, "career_change", events)
@@ -7509,7 +7665,8 @@ extends RefCounted
 ##   "event" (a work_events entry), "tip", plus the numbers its text needs.
 ## Feed lines: one quiet line in the Body (payday, rent, a shipped ticket, a rumor), no pause.
 ## Head cards: the sim's queue head, which the player must answer: an event with choices, a review, a Mid's ticket
-##   pick, the forced leave. The layoff scene is the LAYOFF phase's, and an interview or an offer waits for M3's adapter.
+##   pick, the forced leave, an interview day (Start leads to the duel screen: DuelAdapter). The layoff scene is the
+##   LAYOFF phase's, and an offer is answered on the contract screen.
 
 const INFO := "info"
 const WARNING := "warning"
@@ -7599,7 +7756,9 @@ static func head(s: SimState, ctx: SimContext) -> Dictionary:
 		"forced_leave":
 			return {"kind": K_LEAVE, "days": int(item["days"])}
 		"duel":
-			return {"kind": K_DUEL}
+			var app := Sim.find_application(s, int(item["app"]))
+			return {"kind": K_DUEL, "company": String((app.get("posting", {}) as Dictionary).get("company", "")),
+				"index": int(item["index"]), "of": int(item["of"])}
 		"offer":
 			return {"kind": K_OFFER}
 	return {}
@@ -7653,14 +7812,23 @@ var feed: Array = []            # the Body's quiet lines, newest last
 var player_name: String = ""
 var first_run: bool = false     # the first coach marks teach a run that has not been played before
 var coach_closed: Array = []
+var seen_questions: Array[String] = []   # interview questions asked, least to most recently (InterviewPlan.mark_seen)
+var seen_review: Array[String] = []      # review prompts asked, the same way
+var duel_checkpoint: Dictionary = {}     # the interview or review being played ({} when none): Continue resumes it
+var dana_met: int = 0                    # interviews finished: Dana's greeting and her VS plate turn on it
+var dana_last_company: String = ""
+var laid_off_company: String = ""        # the company that just laid you off, until the next interview greets you
+var gap_topics: Array = []               # the Self-Taught's weak topics (D-26), rolled at the start of the run
 
 
-static func start(context: SimContext, run_number: int, run_seed: int, handbook: Array, name: String, first: bool) -> WorkSession:
+static func start(context: SimContext, run_number: int, run_seed: int, handbook: Array, name: String, first: bool,
+		topics: Array = []) -> WorkSession:
 	var session := WorkSession.new()
 	session.ctx = context
 	session.sim = Sim.new_run(context, run_number, run_seed, handbook)
 	session.player_name = name
 	session.first_run = first
+	session.gap_topics = topics.duplicate()
 	return session
 
 
@@ -7675,6 +7843,13 @@ static func from_save(data: Dictionary, context: SimContext) -> WorkSession:
 	session.player_name = String(ui.get("name", ""))
 	session.first_run = bool(ui.get("first_run", false))
 	session.coach_closed = (ui.get("coach_closed", []) as Array).duplicate()
+	session.seen_questions.assign(ui.get("seen_questions", []))
+	session.seen_review.assign(ui.get("seen_review", []))
+	session.duel_checkpoint = (ui.get("duel_checkpoint", {}) as Dictionary).duplicate(true)
+	session.dana_met = int(ui.get("dana_met", 0))
+	session.dana_last_company = String(ui.get("dana_last_company", ""))
+	session.laid_off_company = String(ui.get("laid_off_company", ""))
+	session.gap_topics = (ui.get("gap_topics", []) as Array).duplicate()
 	return session
 
 
@@ -7688,6 +7863,9 @@ func to_save(phase: int) -> Dictionary:
 		"ui": SimState.encode_value({
 			"notices": notices.duplicate(true), "feed": feed.duplicate(true), "name": player_name,
 			"first_run": first_run, "coach_closed": coach_closed.duplicate(),
+			"seen_questions": seen_questions.duplicate(), "seen_review": seen_review.duplicate(),
+			"duel_checkpoint": duel_checkpoint.duplicate(true), "dana_met": dana_met,
+			"dana_last_company": dana_last_company, "laid_off_company": laid_off_company, "gap_topics": gap_topics.duplicate(),
 		}),
 	}
 
@@ -7738,6 +7916,9 @@ func _take(events: Array) -> void:
 	feed.append_array(WorkCards.feed_from(events, sim))
 	while feed.size() > WorkCards.FEED_MAX:
 		feed.pop_front()
+	for e: Dictionary in events:
+		if String(e.get("kind", "")) == "job_ended":
+			laid_off_company = String(e.get("company", "")) if String(e.get("reason", "")) == "layoff" else ""
 
 
 # ---------- the player's answers ----------
@@ -7771,14 +7952,80 @@ func resolve_review() -> Array:
 	return apply({"kind": Sim.IN_REVIEW_RESULT, "evidence_left": left})
 
 
-## M2's stub for an interview day (the duel arrives with M3's adapter): the interview goes badly.
+# ---------- the duel and the contract (the adapter, GDD 5.20; DuelAdapter) ----------
+
+## True when the sim waits on an interview or a review the player plays on the duel screen.
+func wants_duel() -> bool:
+	return ["duel", "review"].has(String(sim.pending().get("kind", "")))
+
+
+## The checkpoint of the duel the sim waits on, built once and kept ({} when none waits). It travels in the save, so a
+## Continue in the middle of an interview replays the same questions and the same luck (A55, A89). The prompts it picked
+## join the questions already asked.
+func begin_duel() -> Dictionary:
+	if not duel_checkpoint.is_empty():
+		return duel_checkpoint
+	var item := sim.pending()
+	match String(item.get("kind", "")):
+		"duel":
+			var app := Sim.find_application(sim, int(item["app"]))
+			if app.is_empty():
+				return {}
+			var history := {"seen": seen_questions, "first_run": first_run, "met": dana_met,
+				"last_company": dana_last_company, "after_layoff": not laid_off_company.is_empty()}
+			duel_checkpoint = DuelAdapter.interview_checkpoint(item, app["posting"], sim.rng_seed, ctx, history)
+			InterviewPlan.mark_seen(seen_questions, (duel_checkpoint["question_ids"] as Array) + [duel_checkpoint["warmup_id"]])
+		"review":
+			duel_checkpoint = DuelAdapter.review_checkpoint(item, sim, ctx, seen_review)
+			InterviewPlan.mark_seen(seen_review, duel_checkpoint["question_ids"] as Array)
+	return duel_checkpoint
+
+
+## The interview ended. A win leads to the contract (the sim queues the offer), a loss ends the application. Dana
+## remembers you either way.
+func finish_duel(passed: bool, composure_left: float) -> Array:
+	var company := String(duel_checkpoint.get("company_id", ""))
+	duel_checkpoint = {}
+	dana_met += 1
+	dana_last_company = company
+	laid_off_company = ""
+	return apply(DuelAdapter.duel_result_input(passed, composure_left))
+
+
+## The review duel ended with this much of your Evidence left (GDD 5.16): the sim rates it, raises you, maybe promotes.
+func finish_review(evidence_left: float) -> Array:
+	duel_checkpoint = {}
+	return apply(DuelAdapter.review_result_input(evidence_left))
+
+
+## True when the sim waits on an answer to an offer.
+func wants_offer() -> bool:
+	return String(sim.pending().get("kind", "")) == "offer"
+
+
+## The contract paper of the offer on the table ({} when there is none).
+func offer_paper() -> Dictionary:
+	var item := sim.pending()
+	if String(item.get("kind", "")) != "offer":
+		return {}
+	return DuelAdapter.offer_paper(item["posting"], ctx, sim.rng_seed)
+
+
+## Accept (a voluntary exit when you hold a job) or Decline (the company is blacklisted). The OfferResult of GDD 5.20 is
+## DuelAdapter.offer_result(accept, paper), for a caller that wants it.
+func answer_offer(accept: bool) -> Array:
+	return apply(DuelAdapter.offer_input(accept))
+
+
+## For the tests and the autoplay: the interview goes badly.
 func fail_interview() -> Array:
-	return apply({"kind": Sim.IN_DUEL_RESULT, "passed": false, "composure_left": 0.0})
+	duel_checkpoint = {}
+	return apply(DuelAdapter.duel_result_input(false, 0.0))
 
 
-## M2's stub for an offer (nothing can win an interview yet): decline it.
+## For the tests and the autoplay: decline the offer.
 func decline_offer() -> Array:
-	return apply({"kind": Sim.IN_ANSWER_OFFER, "accept": false})
+	return answer_offer(false)
 
 
 ## Answer whatever is open in the simplest way: read a notice, take an event's first choice (careful: the last one that
@@ -8106,9 +8353,9 @@ func _on_card_answered(button_id: String) -> void:
 		WorkCards.K_LEAVE:
 			GameState.career_acknowledge()
 		WorkCards.K_DUEL:
-			GameState.career_fail_interview()
+			GameState.career_begin_duel()
 		WorkCards.K_OFFER:
-			GameState.career_decline_offer()
+			GameState.career_begin_offer()
 
 
 ## The words for a card: {title, text, buttons: [{id, text, primary}]}. Cards carry ids and numbers (WorkCards); the
@@ -8135,9 +8382,11 @@ func _card_view(card: Dictionary) -> Dictionary:
 		WorkCards.K_LEAVE:
 			return {"title": "", "text": Content.text("barks", "ui_forced_leave"), "buttons": ok}
 		WorkCards.K_DUEL:
-			return {"title": "", "text": Content.text("barks", "ui_duel_stub"), "buttons": ok}
+			return {"title": "", "text": Content.text("barks", "ui_interview_day", {
+					"company": Content.field("companies", String(card["company"]), "name")}),
+				"buttons": [{"id": "start", "text": UiText.primary(Content.text("barks", "ui_interview_start")), "primary": true}]}
 		WorkCards.K_OFFER:
-			return {"title": "", "text": Content.text("barks", "ui_offer_stub"), "buttons": ok}
+			return {"title": "", "text": Content.text("barks", "ui_offer_ready"), "buttons": ok}
 	return {"title": "", "text": "", "buttons": ok}
 
 
@@ -8511,6 +8760,260 @@ func _advance_to(beat: int) -> void:
 	_locked = true
 	await get_tree().create_timer(Content.balance.input_lock_ms / 1000.0).timeout
 	_locked = false
+```
+
+### 17.21 The adapter and the contract text: core/duel_adapter.gd and core/contract_text.gd (Step 16)
+
+`core/duel_adapter.gd`:
+
+```gdscript
+@tool
+class_name DuelAdapter
+extends RefCounted
+## The adapter between the career run's sim and the shipped duel and contract screens (GDD 5.20, ARCHITECTURE 19.5,
+## R-JOB-06; DECISIONS A88, A89). The sim asks for an interview, a review or an answer to an offer through its queue;
+## this class turns that queue item into plain data the Phase 1 screens already know how to play (the interview
+## checkpoint, the contract paper) and turns what they report into the sim's inputs. Pure, like Sim: no nodes, no
+## autoloads, and no draw from the sim's stream. Everything it rolls comes from local generators seeded from the run
+## seed, the application (or the day) and the duel's index, so Continue replays the same questions and the same luck.
+##
+## Request and result shapes (plain dictionaries, INV-07; the field names are the sim's own):
+##   DuelRequest  {composure, meter_mult, doubt_hp, floor, archetype, tier, unlocked_options, rounds}   (Sim._start_duel)
+##   DuelResult   {passed, composure_left}
+##   OfferRequest the posting {id, company, archetype, level, floor, salary, remote, clauses, posted} (the `offer` item)
+##   OfferResult  {decision, final_salary, clauses}
+
+const KIND_INTERVIEW := "interview"
+const KIND_REVIEW := "review"
+const GREET_FIRST := "first"                # the tier's greeting, then the background's opener
+const GREET_AGAIN := "again"                # "Didn't I interview you at {last_company}?"
+const GREET_AFTER_LAYOFF := "after_layoff"  # Dana laid you off, then met you again at the next company
+
+const SALT_PICK := 7919
+const SALT_INTERVIEW := 104729
+const SALT_REVIEW := 1299709
+const SALT_REVIEW_PICK := 15485863
+const SALT_OFFER := 32452843
+const OFFER_PERKS := 1                      # Phase 1's paper lists two perks; the career's adds a Clauses field and keeps to 20 lines
+const ONSITE_DAYS := 5                      # a non-remote startup posting is in the office all week
+const REMOTE_MODE := "offer_mode_remote"
+const ONSITE_MODE := "offer_mode_onsite"
+const MANAGER_AUTHORED := "cw_kev"          # run 1's manager (GDD 5.18)
+
+
+## A seed as a String (64-bit values do not survive JSON as numbers: INV-05), the same for the same inputs.
+static func seed_text(run_seed: int, salt: int, a: int, b: int) -> String:
+	return str(("%d|%d|%d|%d" % [run_seed, salt, a, b]).hash())
+
+
+# ---------- the interview ----------
+
+## The interview checkpoint for the sim's `duel` queue item {app, index, of, request}, in the shape Phase 1's
+## interview resumes from (RunState.interview) plus the career's numbers. history: {seen: Array[String], first_run,
+## met (interviews finished), last_company, after_layoff}. The caller marks the picked ids as seen.
+static func interview_checkpoint(item: Dictionary, posting: Dictionary, run_seed: int, ctx: SimContext, history: Dictionary) -> Dictionary:
+	var request: Dictionary = item["request"]
+	var app := int(item["app"])
+	var index := int(item["index"])
+	var tier_id := String(request["tier"])
+	var seen: Array[String] = []
+	seen.assign(history.get("seen", []))
+	var first_run := bool(history.get("first_run", false))
+	var met := int(history.get("met", 0))
+	var with_warmup := first_run and met == 0     # InterviewPlan.warmup_due: the first interview of the first run
+	var pick_rng := InterviewPlan.interview_rng(seed_text(run_seed, SALT_PICK, app, index))
+	var plan := InterviewPlan.pick(ctx.balance, tier_id, ctx.content.get("questions_choice", {}),
+		ctx.content.get("questions_knowledge", {}), seen, pick_rng, with_warmup)
+	var greet := GREET_FIRST
+	if bool(history.get("after_layoff", false)):
+		greet = GREET_AFTER_LAYOFF
+	elif met > 0 and not String(history.get("last_company", "")).is_empty():
+		greet = GREET_AGAIN
+	return {
+		"kind": KIND_INTERVIEW, "invite_uid": -1, "company_id": String(posting["company"]), "template_id": "", "tier": tier_id,
+		"seed": seed_text(run_seed, SALT_INTERVIEW, app, index), "tired": false,
+		"question_ids": plan["question_ids"], "warmup_id": plan["warmup_id"],
+		"composure": float(request["composure"]), "doubt_hp": float(request["doubt_hp"]), "meter_mult": float(request["meter_mult"]),
+		"rounds": (plan["question_ids"] as Array).size(), "unlocked_options": (request.get("unlocked_options", []) as Array).duplicate(),
+		"floor": int(request["floor"]), "archetype": String(request["archetype"]),
+		"app": app, "index": index, "of": int(item["of"]),
+		"greet": greet, "last_company": String(history.get("last_company", "")),
+	}
+
+
+## What the interview starts with. A Phase 1 checkpoint has none of the career's fields, so every number falls back to the
+## .tres files it always read (tier.doubt_hp, bg.composure_max, a meter multiplier of 1): a hunt save still plays.
+static func start_values(iv: Dictionary, tier: TierData, bg: BackgroundData) -> Dictionary:
+	return {
+		"composure": float(iv.get("composure", bg.composure_max)),
+		"doubt": float(iv.get("doubt_hp", tier.doubt_hp)),
+		"zone_mult": float(iv.get("meter_mult", 1.0)),
+	}
+
+
+## The Answer Meter's half-width: the stat score's NAILED IT width (plus the Graduate's textbook bonus) times the work
+## state's multiplier (Skill widens it, Rust narrows it), never below the 0.06 floor (RC-25, GDD 5.20). S is untouched.
+static func half_width(cfg: BalanceConfig, s: float, bonus: float, zone_mult: float) -> float:
+	return maxf(cfg.zone_half_base, Odds.zone_half(cfg, s, bonus) * zone_mult)
+
+
+# ---------- the review ----------
+
+## The review checkpoint for the sim's `review` queue item {evidence, calibration}: three prompts from the review pool,
+## the manager's name, and the two HP pools. `seen` is the review prompts asked before (least recently first).
+static func review_checkpoint(item: Dictionary, s: SimState, ctx: SimContext, seen: Array) -> Dictionary:
+	var arch := ctx.archetype(s.job_archetype)
+	var seen_ids: Array[String] = []
+	seen_ids.assign(seen)
+	var pick_rng := InterviewPlan.interview_rng(seed_text(s.rng_seed, SALT_REVIEW_PICK, s.day, s.jobs_held))
+	var ids := InterviewPlan.pick_ids(ctx.content.get("questions_review", {}), seen_ids, pick_rng, ctx.cfg.review_prompts)
+	return {
+		"kind": KIND_REVIEW, "invite_uid": -1, "company_id": s.job_company, "template_id": "", "tier": String(arch.duel_tier),
+		"seed": seed_text(s.rng_seed, SALT_REVIEW, s.day, s.jobs_held), "tired": false,
+		"question_ids": ids, "warmup_id": "", "rounds": ids.size(), "archetype": String(arch.id),
+		"evidence": float(item["evidence"]), "calibration": float(item["calibration"]),
+		"manager": manager_name(s, ctx),
+	}
+
+
+## Your manager: Kev at Hierarchai (run 1's authored crew), else a name from the pool, the same for the whole job.
+static func manager_name(s: SimState, ctx: SimContext) -> String:
+	for cw: Dictionary in s.coworkers:
+		if String(cw.get("id", "")) == MANAGER_AUTHORED:
+			return String(cw.get("name", ""))
+	var pool := ctx.coworker_pool
+	if pool.is_empty():
+		return ""
+	return pool[posmod(("%d|%d" % [s.rng_seed, s.jobs_held]).hash(), pool.size())]
+
+
+# ---------- the contract ----------
+
+## The contract paper for an offer: the same shape RunState.make_offer builds for Phase 1's offer screen (ids into
+## emails.json for every text, the posting's title as raw text, plain data), plus the posting's clauses and its level.
+## The salary is the yearly figure (GDD 5.20, MC-10): the sim's is a month's pay in k$. The perks, the hidden clause
+## (a fine-print joke from the duel tier's pool, revealed here) and the title come from the offer's own generator.
+static func offer_paper(posting: Dictionary, ctx: SimContext, run_seed: int) -> Dictionary:
+	var emails: Dictionary = ctx.content.get("emails", {})
+	var arch := ctx.archetype(String(posting["archetype"]))
+	var tier_id := String(arch.duel_tier)
+	var tier := ctx.tiers.get(tier_id) as TierData
+	var remote := bool(posting.get("remote", false))
+	var office_days := 0
+	if not remote:
+		office_days = ONSITE_DAYS if tier_id == RunState.EQUITY_TIER else tier.office_days
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_text(run_seed, SALT_OFFER, int(posting["id"]), 0).to_int()
+	var perks := Odds.pick(rng, _ids_with_prefix(emails, "perk_", tier_id), OFFER_PERKS)
+	var fine_print := Odds.pick(rng, RunState.fine_print_pool(emails, tier_id, perks), 1)
+	var level_title := String(emails.get("title_" + WorkOdds.LEVELS[int(posting["level"])], ""))
+	return {
+		"company_id": String(posting["company"]), "template_id": "", "tier": tier_id, "archetype": String(arch.id),
+		"level": int(posting["level"]), "floor": int(posting.get("floor", 1)),
+		"job_title": level_title + String(emails.get("title_suffix_" + String(arch.id), "")),
+		"salary": Odds.round_to(float(posting["salary"]) * ctx.cfg.days_per_year / ctx.cfg.days_per_month * 1000.0, 1000),
+		"work_mode": REMOTE_MODE if remote else _mode_id(tier_id, office_days), "office_days": office_days,
+		"commute": RunState.offer_commute(office_days, ctx.bg.commute_minutes),
+		"perks": perks, "fine_print": str(fine_print[0]) if not fine_print.is_empty() else "",
+		"clauses": (posting.get("clauses", []) as Array).duplicate(), "remote": remote,
+		"equity_text": "offer_equity" if tier_id == RunState.EQUITY_TIER else "",
+	}
+
+
+static func _mode_id(tier_id: String, office_days: int) -> String:
+	if office_days >= ONSITE_DAYS:
+		return ONSITE_MODE
+	return "offer_mode_" + tier_id
+
+
+## The sorted ids starting with prefix whose "tiers" list this tier (perk_*, fp_* in emails.json).
+static func _ids_with_prefix(emails: Dictionary, prefix: String, tier_id: String) -> Array[String]:
+	var ids: Array[String] = []
+	for key: Variant in emails:
+		var id := str(key)
+		if id.begins_with(prefix) and emails[key] is Dictionary and ((emails[key] as Dictionary).get("tiers", []) as Array).has(tier_id):
+			ids.append(id)
+	ids.sort()
+	return ids
+
+
+# ---------- what the screens report, as the sim's inputs ----------
+
+static func duel_result_input(passed: bool, composure_left: float) -> Dictionary:
+	return {"kind": Sim.IN_DUEL_RESULT, "passed": passed, "composure_left": composure_left}
+
+
+static func review_result_input(evidence_left: float) -> Dictionary:
+	return {"kind": Sim.IN_REVIEW_RESULT, "evidence_left": evidence_left}
+
+
+static func offer_input(accept: bool) -> Dictionary:
+	return {"kind": Sim.IN_ANSWER_OFFER, "accept": accept}
+
+
+## The OfferResult of GDD 5.20: no negotiation (D-27), so the final salary is the offered one.
+static func offer_result(accept: bool, paper: Dictionary) -> Dictionary:
+	return {"decision": "accept" if accept else "decline", "final_salary": int(paper.get("salary", 0)),
+		"clauses": (paper.get("clauses", []) as Array).duplicate()}
+```
+
+`core/contract_text.gd`:
+
+```gdscript
+@tool
+class_name ContractText
+extends RefCounted
+## The contract paper's lines (GDD S10, CONTENT 13.1), from the paper dictionary and the emails.json entries. Pure, so a
+## test can measure the real paper: pre-wrapped at 40 columns by UiText.word_wrap and UiText.field, one field per line
+## after a 12-character label, values wrapping at 28. The offer screen shows exactly these lines; the career run's paper
+## (DuelAdapter.offer_paper) adds the Clauses field.
+
+const COLUMNS := 40            # GDD 2.7: the 254 px paper holds 40 characters of monogram 16
+const LABEL_COLUMNS := 12      # GDD S10: one field per line after a 12-character label column
+const MAX_LINES := 20          # about a 250 px paper: 20 lines of 12 px plus the panel's margins
+
+
+static func lines(paper: Dictionary, emails: Dictionary, company: String, player_name: String) -> PackedStringArray:
+	var out := PackedStringArray()
+	var commute: Dictionary = paper.get("commute", {})
+	out += UiText.word_wrap(_text(emails, "offer_title", {"company": company}), COLUMNS)
+	out += UiText.word_wrap(_text(emails, "offer_dear", {"player_name": player_name}), COLUMNS)
+	out += UiText.word_wrap(_text(emails, "offer_role", {"job_title": str(paper.get("job_title", ""))}), COLUMNS)
+	out.append("")
+	out += _field(_text(emails, "offer_label_salary"),
+		_text(emails, "offer_salary", {"salary": UiText.money(int(paper.get("salary", 0)))}))
+	if str(paper.get("equity_text", "")) != "":
+		out += _field(_text(emails, "offer_label_equity"), _text(emails, str(paper["equity_text"])))
+	out += _field(_text(emails, "offer_label_mode"), _text(emails, str(paper.get("work_mode", ""))))
+	out += _field(_text(emails, "offer_label_commute"), _text(emails, str(commute.get("id", "")), commute.get("args", {})))
+	var label := _text(emails, "offer_label_perks")
+	for perk: Variant in paper.get("perks", []):
+		out += _field(label, _entry_text(emails, str(perk)))
+		label = ""
+	var clauses: Array = paper.get("clauses", [])
+	if not clauses.is_empty():
+		var parts := PackedStringArray()
+		for clause: Variant in clauses:
+			parts.append(_text(emails, "clause_" + str(clause)))
+		out += _field(_text(emails, "offer_label_clauses"), " ".join(parts))
+	out += _field(_text(emails, "offer_label_fine_print"), _entry_text(emails, str(paper.get("fine_print", ""))))
+	out += UiText.word_wrap(_text(emails, "offer_deadline"), COLUMNS)
+	return out
+
+
+static func _field(label: String, value: String) -> PackedStringArray:
+	return UiText.field(label, value, LABEL_COLUMNS, COLUMNS)
+
+
+## A plain-string entry (offer_title, offer_dear, ...) with its {placeholders} filled.
+static func _text(emails: Dictionary, id: String, args: Dictionary = {}) -> String:
+	return UiText.fill(str(emails.get(id, "")), args)
+
+
+## A perk or fine-print entry: {tiers, text}.
+static func _entry_text(emails: Dictionary, id: String) -> String:
+	var entry: Variant = emails.get(id, {})
+	return str((entry as Dictionary).get("text", "")) if entry is Dictionary else str(entry)
 ```
 
 ---

@@ -176,7 +176,7 @@ func test_the_review_stand_in_rolls_its_own_dice() -> void:  # A67
 	assert_eq(a.notices[0]["event"], Sim.EVT_REVIEW)
 
 
-func test_the_stubs_close_an_interview_and_an_offer() -> void:  # until M3's adapter
+func test_the_autoplay_helpers_close_an_interview_and_an_offer() -> void:  # fail_interview and decline_offer
 	var session := _start()
 	session.sim.queue.append({"kind": "duel", "app": 1, "index": 0, "of": 1, "request": {}})
 	session.sim.applications.append({"posting": {"id": 1, "company": "co_synergai"}, "applied": 0, "reply": 1, "callback": true,
