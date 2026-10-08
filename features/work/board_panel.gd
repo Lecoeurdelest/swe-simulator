@@ -59,7 +59,8 @@ func show_board(session: WorkSession) -> void:
 	_rebuild_nodes(nodes)
 	var can_apply := WorkBoard.can_apply(s, cfg)
 	_refresh.text = Content.text("barks", "ui_board_refresh", {"days": WorkBoard.days_to_refresh(s, cfg)})
-	var waiting := _waiting_text(WorkBoard.waiting(s))
+	var first_time := session.first_run and int(s.stats.get("applies", 0)) == 0   # the first visit: say how it works
+	var waiting := _waiting_text(WorkBoard.waiting(s), first_time)
 	if can_apply:
 		_apply.text = UiText.primary(Content.text("barks", "ui_apply_cost", {"n": int(WorkBoard.apply_burnout(s, cfg))}))
 	else:
@@ -125,9 +126,9 @@ func _compact(button: Button) -> void:
 		button.add_theme_stylebox_override(state, box)
 
 
-func _waiting_text(waiting: Array) -> String:
+func _waiting_text(waiting: Array, first_time: bool = false) -> String:
 	if waiting.is_empty():
-		return Content.text("barks", "ui_board_nothing")
+		return Content.text("barks", "ui_board_hint" if first_time else "ui_board_nothing")
 	var lines := PackedStringArray([Content.text("barks", "ui_board_waiting")])
 	for item: Dictionary in waiting:
 		var id := "ui_app_reply" if String(item["kind"]) == "reply" else "ui_app_interview"

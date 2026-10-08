@@ -1,0 +1,19 @@
+STEP-16 test evidence, 2026-10-08 17:46, branch step-16-run-one
+command: bash tools/headless/run_tests.sh
+RESULT passed=430 failed=0 total=430 suites=34 ms=24114
+command: bash tools/headless/run_tests.sh parse
+CHECK files=138 failed=0
+command: python tools/headless/sync_arch17.py .
+RESULT blocks=46 differing=0
+adapter: passed=12 failed=0 total=12 suites=1
+work_board: passed=12 failed=0 total=12 suites=1
+review_duel: passed=7 failed=0 total=7 suites=1
+sign_slider: passed=7 failed=0 total=7 suites=1
+work_hud: passed=7 failed=0 total=7 suites=1
+work_session: passed=12 failed=0 total=12 suites=1
+flow: passed=10 failed=0 total=10 suites=1
+intro: passed=5 failed=0 total=5 suites=1
+content_lint: passed=40 failed=0 total=40 suites=1
+data_files: passed=7 failed=0 total=7 suites=1
+work_cards: passed=11 failed=0 total=11 suites=1
+command: bash tools/headless/run_bots.sh seeds=10000 out=.project/evidence/STEP-16/2026-10-08-r1 (the five reports in this folder equal STEP-14 r2's in every field but the timings: planner 1,279 wins, median day 861; the others 0 wins)

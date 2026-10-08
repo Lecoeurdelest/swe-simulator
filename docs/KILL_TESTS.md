@@ -33,6 +33,9 @@ O8 asks for this: kill the app mid-run, and the state restores identically (GDD 
 | 9 | mid-review duel (M3) | the same review from its start, with the same prompts (as moment 3) |
 | 10 | during the layoff scene (a plain version in M2, the full scene in M3) | the scene again from its start; the job is lost and the severance paid only once |
 | 11 | on an ending card | no CONTINUE: the save was deleted on entering the ending |
+| 12 | mid-interview, a career interview from the board (M3) | the same interview from its start: the same questions and the same luck (the checkpoint travels in the career save) |
+| 13 | on the contract, before you sign (M3) | the same contract paper, nothing accepted: you still hold your job |
+| 14 | during the HIRED! stamp after signing (M3) | the contract again, not accepted: Accept commits when a tap moves on |
 
 ## If one fails
 
@@ -45,9 +48,10 @@ Write down the moment, what you saw and what you expected, and leave the phone a
 | 2026-09-27 | Windows PC, desktop kill (Claude) | pass | pass | pass | pass | pass | `.project/evidence/STEP-06/2026-09-27-r1/kill_tests_log.md` |
 | | iPhone (developer) | | | | | | |
 
-The career run's moments (6-11):
+The career run's moments (6-14; the headers show 6-11, and moments 12-14 are in the notes):
 
 | Date | Device | 6 | 7 | 8 | 9 | 10 | 11 | Notes |
 |---|---|---|---|---|---|---|---|---|
 | 2026-10-08 | Windows PC, desktop kill (Claude) | pass | pass | pass | M3 | not killed | pass | `.project/evidence/STEP-15/2026-10-08-r1/kill_tests_log.md`; 10 passes through a full run played through `GameState` (WORK, LAYOFF, WORK, GAME_OVER) but was not killed inside the scene |
+| 2026-10-08 | Windows PC, desktop kill (Claude), M3 | | | | pass | pass | | `.project/evidence/STEP-16/2026-10-08-r1/kill_tests_log.md`: 9 (review) and 10 (the layoff scene on the VS screen) now killed inside the scene; 12, 13 and 14 pass |
 | | iPhone (developer) | | | | | | | |

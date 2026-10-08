@@ -1215,6 +1215,8 @@ One entry per event, keyed `evt_eNN_<name>` (A54). Its texts sit inline in the e
 
 **Built in M2 (STEP-15).** The work state's strings of 16.2 are in `barks.json` (the hours, speed, calendar, dock, pick, level, home and warning lines) with the ending lines of 16.5 (`endings.json`) and the layoff scene's of 16.6; the new ids are `ui_ok`, `ui_review_start`, `ui_pick_prompt`, `ui_resizing_survived`, `ui_feed_shipped`, `ui_feed_late`, `ui_job_line`, `ui_between_jobs`, `ui_duel_stub`, `ui_offer_stub`, `ui_app_stub`, `ui_next` ("Day {day} - {what} in {days}d"), `ui_choice_none`, `coach_speed`, `coach_hours` and `coach_studio` (A87, my drafts for your tone review), and `evt_e07_resizing` has its prep card's line, "Everyone is whispering about layoffs. Now might be a good time to prepare." `test_content_lint` checks that every id the work state asks for exists.
 
+**Built in M3 (STEP-16).** Run 1's content, the board, the review and the contract are in the JSON, as 16.8 lists (drafts for your tone review: A96). The rooms they sit in: `barks.json` (the clip, the team row, the board, the hunt's notices and feed lines, Kev's lines, the layoff VS plate), the new `questions_review.json` (the 12 review prompts: the 19th JSON file), `emails.json` (the contract's new fields, the title jokes and the reworded deadline), `cutscene.json` (the handover caption) and `endings.json` (Plan B's first line). `test_content_lint` checks every id the screens ask for and the review pool's shape.
+
 **Built in M1 (STEP-14).** The ten events of DECISIONS A62 (E01, E02, E04, E07, E08, E12, E18, E20, E21, E24) are in `data/content/work_events.json` with these draft texts, unchanged except that E02's results say `{n}` for the raise so tuning can never make a card lie; the signs of run 1's chain and E08's rumor are inline in their entries. Their eight tips are in `tips.json` as drafts for your sign-off (`more` is empty until M6's writing pass). The exhausted choices are the "proposed" ones (A66); E07's prep takes none (`"none"`). `coworkers.json` holds Hierarchai's four and the name pool.
 
 **E12's Ducky block** (the Run Spec's): `evt_e12_joke` "You fixed prod at 2 a.m. Prod now has your phone number."; `evt_e12_cause` "Whoever fixes it once becomes whoever fixes it always."; tip `tip_escalate`.
@@ -1305,7 +1307,7 @@ The Run Spec's own tip texts, made ASCII and American ("favorite", "practice"). 
 - `vs_layoff_title` and `bark_dana_layoff` are the Run Spec's (D-22). Dana stays as written (GDD 1.3, RC-23): the joke is the script she has to read and the process behind it, never her.
 - `bark_dana_greet_after_layoff` is for the first interview after run 1's layoff, which Dana delivered rather than interviewed you for, so `bark_dana_greet_again` ("Didn't I interview you at...") doesn't fit there (proposed).
 - `vs_banner_big_2` is the banner of a MegaCorp posting's second duel (GDD 5.20).
-- The intro's handover to day 0 is Settled (MC-11, D-34). The last caption, as a draft: `intro_p6_handover` "Four years later, you have a job. Remy says the next part is easy."
+- The intro's handover to day 0 is Settled (MC-11, D-34). The last caption, as a draft: `intro_p6_handover` "Four years later, you have a job. Remy says the next part is easy." **Built in M3:** it is the last caption of a new game's intro (16.8).
 
 ### 16.7 Phase 1's strings in the career run
 
@@ -1313,3 +1315,141 @@ The Run Spec's own tip texts, made ASCII and American ("favorite", "practice"). 
 - **Retired with the hunt** when the career run is built (MC-01, D-33: the career run is what `v0.5-mvp` ships): the hunt's UI lines in 10.1 (energy, rent, the Radar, the deck, Mail), its coach lines in 10.2, the emails (12) and the morning events (15.1).
 - **Following MC-08 and MC-09 (settled, D-34):** `end_hired_*` (the stamp stays as a beat), the Dream rows (rebased) and `end_tbc` (dropped).
 - **Removed** (D-27; they left the JSON in the code cleanup of 2026-10-08): `tip_negotiate`, `bark_dana_nego_win`, `bark_dana_nego_lose`, `ui_negotiate`, `offer_equity_doubled`, `offer_signon`.
+
+### 16.8 Run 1, the board, the review and the contract (Step 16): drafts for your tone review
+
+Everything below is in the JSON now (A96). The Run Spec had no words for it, so each line is my draft: the review's prompts and Kev's answers to them, the team row, the clip, the board's labels, the notices and feed lines of the hunt, the contract's new fields and the intro's handover. Tone is yours to sign off (AC-S16-3, W4); a line you change goes back into the file with its id.
+
+**The day-0 clip card** (D-42; `WorkCards.CLIP`): the title is `naming.influencer`, the five conditions are CONTENT 16.2's `ui_studio_s1`..`s5`.
+
+| id | Text |
+|---|---|
+| `ui_clip_intro` | Woke up at 10:47. No alarm. My setup: |
+| `ui_studio_s1` | Senior engineer |
+| `ui_studio_s2` | Fully remote |
+| `ui_studio_s3` | Living in The Studio |
+| `ui_studio_s4` | Burnout 30 or less |
+| `ui_studio_s5` | 6 months saved at Studio rent |
+| `ui_clip_outro` | Hold all five for 90 days. Easy. |
+| `ui_clip_go` | Let's go |
+
+**The intro's handover** (MC-11): the last caption of panel 6 in a new game's intro (`"for": "handover"`); a replayed intro keeps "How did you spend those four years?" (`"for": "choose"`).
+
+| Caption | Text |
+|---|---|
+| for `choose` | How did you spend those four years? |
+| for `handover` | Four years later, you have a job. Remy says the next part is easy. |
+
+**The team row** (D-40): name, role and card line come from `coworkers.json` (16.1); a dark desk shows `ui_desk_empty`.
+
+| id | Text |
+|---|---|
+| `ui_desk_empty` | (desk empty) |
+
+**The DoomApply board** (D-41): labels, then the notices and the feed lines the hunt leaves.
+
+| id | Text | Where |
+|---|---|---|
+| `ui_board_refresh` | New postings in {days}d | the header |
+| `ui_apply` | APPLY | Apply, at job 5 |
+| `ui_apply_cost` | APPLY (Burnout +{n}) | the Apply button |
+| `ui_study` | Study (Burnout +{n}) | the Study button |
+| `ui_study_done` | Studied today | Study, once a day |
+| `ui_board_waiting` | Waiting on: | the applications in flight |
+| `ui_board_nothing` | Nothing in flight. | no application in flight |
+| `ui_app_reply` | {company}: reply by day {day} | an application waiting on a reply |
+| `ui_app_interview` | {company}: interview day {day} | an application with an interview day |
+| `ui_callback` | Callback | a node's odds, with the 5-dot band |
+| `ui_archetype_startup` | Startup | a node |
+| `ui_archetype_agency` | Agency | a node |
+| `ui_archetype_megacorp` | MegaCorp | a node |
+| `ui_mode_remote` | Remote | a node |
+| `ui_mode_office` | Office | a node |
+| `ui_clause_on_call` | On-call | a node |
+| `ui_clause_remote_in_writing` | Remote, written | a node |
+| `ui_clause_unlimited_pto` | PTO* | a node |
+| `ui_last_floor` | This is your last floor. There's no job 6. | the board during job 5 |
+| `ui_board_hint` | Pick a posting, then Apply. Replies take 3 to 10 days. | the board's first visit on a first run, in place of "Nothing in flight." |
+| `ui_applied_feed` | Applied to {company}. Reply in 3-10 days. Maybe. | the feed after Apply |
+| `ui_callback_notice` | {company} called back. Interview on day {day}. | a notice: a reply with an interview day |
+| `ui_rejected_feed` | {company} chose someone else. | the feed: a rejection |
+| `ui_profile_noticed` | Your manager noticed your job hunt. The next 1:1 will be awkward. | a notice: the 5% chance your manager noticed |
+| `ui_interview_failed_feed` | {company}: no offer. | the feed: a lost interview |
+| `ui_offer_declined_feed` | You declined {company}. Their ATS will remember. | the feed: a declined offer |
+| `ui_job_started_feed` | Started at {company}. | the feed: Accept |
+| `ui_studied_feed` | You studied. Rust down, Skill up. | the feed: Study |
+| `ui_recruiter_posting` | The recruiter booked you an interview at {company} on day {day}. | a notice: E18's call |
+| `ui_laid_off_feed` | Laid off from {company}. Severance: {money}. | the feed: you leave the layoff scene |
+
+**The interview day and the layoff scene** (A92, A93).
+
+| id | Text | Where |
+|---|---|---|
+| `ui_interview_day` | Interview day: {company}. Dana has questions. You have coffee. | the interview-day card |
+| `ui_interview_start` | Start the interview | its button |
+| `ui_offer_ready` | An offer is on the table. Time to read the fine print. | an offer waiting in the work state |
+| `ui_back_to_work` | Back to work | the rejection card's button |
+| `bark_dana_greet_after_layoff` | Yes, I laid you off at {last_company}. Then they laid me off. Hi. Shall we? | the first interview after a layoff (16.6's draft) |
+| `vs_banner_big_2` | ROUND 2 OF 7 | a MegaCorp posting's second interview |
+| `vs_dana_stat_layoff` | Meetings today: 14 | Dana's plate on the layoff VS screen |
+| `vs_dana_move_layoff` | Special move: The Reshaping | Dana's plate on the layoff VS screen |
+
+**The contract** (`emails.json`; MC-20): the new fields, the title jokes by archetype and the reworded deadline. `ui_sign` and `ui_sign_tap` are drag-to-sign's label (barks).
+
+| id | Text |
+|---|---|
+| `offer_deadline` | Offer expires at midnight. Probably. |
+| `offer_mode_remote` | Fully remote |
+| `offer_mode_onsite` | Office: 5 days a week |
+| `offer_label_clauses` | Clauses: |
+| `clause_on_call` | On-call. |
+| `clause_remote_in_writing` | Remote, in writing. |
+| `clause_unlimited_pto` | Unlimited PTO*. |
+| `title_junior` | Junior Software Engineer |
+| `title_mid` | Software Engineer |
+| `title_senior` | Senior Software Engineer |
+| `title_suffix_startup` |  (Also Barista) |
+| `title_suffix_agency` |  (Billable) |
+| `title_suffix_megacorp` |  (Band 3 of 11) |
+| `ui_sign` | Drag to sign |
+| `ui_sign_tap` | Tap to sign |
+| `end_plan_b` | The savings ran out. You became a ClikClok career coach. Your course 'How I Almost Got Into Tech' has 40,000 students. |
+
+**The review** (D-39, A94): Kev's lines, then the pool of 12 prompts. A prompt's answers are shuffled on screen; the kind (good, okay, joke) sets what the round costs your Evidence (0.4, 1.0 or 1.8 of the manager's chip) and how the Calibration bar moves.
+
+| id | Text |
+|---|---|
+| `ui_evidence` | EVIDENCE |
+| `ui_calibration` | CALIBRATION |
+| `bark_kev_open` | Okay. Three questions. The form has boxes. |
+| `bark_kev_good_1` | Great. I will put that in the form. In bold. |
+| `bark_kev_good_2` | That's what I hoped you'd say. I'll tell my manager. |
+| `bark_kev_good_3` | Noted, with a star. Stars are rare. |
+| `bark_kev_ok_1` | Okay. I'll write 'solid' and move on. |
+| `bark_kev_ok_2` | Fine. The form has a box for that. I will tick it. |
+| `bark_kev_ok_3` | Hm. Reasonable. Slightly vague, but reasonable. |
+| `bark_kev_bad_1` | I'm going to write that down. Gently. |
+| `bark_kev_bad_2` | Right. Well. The form has a box for concerns. |
+| `bark_kev_bad_3` | Let's pretend I didn't hear that. Then I'll write it down. |
+| `vs_review_exceeds` | EXCEEDS |
+| `bark_kev_close_exceeds` | Exceeds. I fought for that. Please don't make me regret it. |
+| `vs_review_meets` | MEETS |
+| `bark_kev_close_meets` | Meets. Solid. Nobody gets fired for solid. |
+| `vs_review_below` | BELOW |
+| `bark_kev_close_below` | Below. I'm sorry. It's in writing now. |
+
+| id | Prompt | Good | Okay | Joke |
+|---|---|---|---|---|
+| `rq_credit` | A teammate says the demo was mostly theirs. | True in part. I will name who did what. | We worked on it together. | Ask anyone. Actually, do not ask anyone. |
+| `rq_curve` | Why should I rate you above the curve? | Here are my results and who they helped. | I work hard and I'm nice. | Because I said so. In writing. To HR. |
+| `rq_docs` | Nobody can find your design doc. | It's linked in the ticket now. Sorry. | It's somewhere. I think. | Docs are for people with time. |
+| `rq_feedback` | Last month I said your changes were too big. | I split them now. Reviews are faster. | I'll try to keep them smaller. | They're big because the work is big. |
+| `rq_goal` | Where do you want to be in a year? | Owning a project from start to finish. | Here. Maybe with a nicer chair. | Your job. No offense. |
+| `rq_help` | A teammate says you rarely help with reviews. | Fair. I will block time for it daily. | I help when I have time. | Tell them to read faster. |
+| `rq_late` | The ticket was late again. | I flagged the risk on day 3, in writing. | It was bigger than we thought. | Deadlines are a social construct. |
+| `rq_meeting` | You skipped the planning meeting. | I had a conflict and sent notes ahead. | I thought it was optional. | I attended in spirit. |
+| `rq_outage` | You were on call during the outage. | I escalated early and wrote it up. | I fixed it. Long night. | What outage? |
+| `rq_scope` | The client wants one more small feature. | I will size it and say what moves. | Sure, we'll fit it in. | Yes. Also a pony. Also my weekend. |
+| `rq_ship` | What did you ship this quarter? | Two features, one fix. Notes attached. | Lots of small things. Hard to list. | I was busy. Very, very busy. |
+| `rq_weak` | What is one thing you could improve? | I wait too long to ask for help. | I care too much. It's a problem. | Nothing. Next question. |
+

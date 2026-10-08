@@ -265,5 +265,6 @@
   "vs_dana_move_layoff": "Special move: The Reshaping",
   "ui_laid_off_feed": "Laid off from {company}. Severance: {money}.",
   "ui_sign": "Drag to sign",
-  "ui_sign_tap": "Tap to sign"
+  "ui_sign_tap": "Tap to sign",
+  "vs_banner_big_2": "ROUND 2 OF 7"
 }

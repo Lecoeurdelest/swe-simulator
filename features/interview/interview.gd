@@ -212,7 +212,7 @@ func _run() -> void:
 	var warmup_id := str(iv.get("warmup_id", ""))
 	_round_label.text = Content.text("barks", "ui_round", {"n": 1, "total": _prompts.size()})
 	_trace_start(iv)
-	_versus.play(str(iv.get("company_id", "")), str(iv.get("tier", "")))
+	_versus.play(str(iv.get("company_id", "")), str(iv.get("tier", "")), false, int(iv.get("index", 0)) > 0)
 	await _wait(_versus.finished)
 	_show_debug_panel()
 	await _greet(iv)

@@ -1,7 +1,7 @@
 # Bundle: STEP-16 (M3: run 1 end to end)
 
 Snapshot: 2026-10-08, branch `step-16-run-one` (from `main` at the merge of PR #10, which carries M1, its sign-off and M2). Docs: GDD 3.3, 4.5, 4.6, 5.8, 5.9, 5.16, 5.18-5.20, ARCHITECTURE 19.5, CONTENT 16, ROADMAP 12 (Step 16), DECISIONS up to D-42 and A96. Spec: [ROADMAP 12, Step 16](../../docs/ROADMAP.md), [GDD 5.20](../../docs/GDD.md), [ARCHITECTURE 19.5](../../docs/ARCHITECTURE.md), [CONTENT 16.1, 16.3, 16.6](../../docs/CONTENT.md), [merge-report spec gaps](../../docs/merge-report.md).
-State: in progress. STEP-15 (M2) is built and merged and waits only for the developer's playtest (W2), so this step may start. Estimates: Claude about 20 h of tool calls (the 2x rule: stop and cut at about 40 h), the developer about 6 h (the tone sign-off, a playthrough).
+State: built and verified on the desktop (2026-10-08); waits for the developer's tone sign-off, a look at the review and a playthrough. STEP-15 (M2) is built and merged and waits only for the developer's playtest (W2). Estimates: Claude about 20 h of tool calls (the 2x rule: stop and cut at about 40 h), the developer about 6 h (the tone sign-off, a playthrough).
 
 ## Objective
 
@@ -16,14 +16,14 @@ Run 1 playable from day 0 to the board and through it: the intro hands over to d
 
 | ID | Statement | Method | Owner | Status |
 |---|---|---|---|---|
-| AC-S16-1 | Run 1 plays from day 0 to the board, with the five signs before the day-240 layoff | behavioral_test, manual_review | agent, developer | pending |
+| AC-S16-1 | Run 1 plays from day 0 to the board, with the five signs before the day-240 layoff | behavioral_test, manual_review | agent, developer | agent part passed; your playthrough |
 | AC-S16-2 | A won interview from the board reaches the contract modal through the adapter's DuelRequest and DuelResult and OfferRequest and OfferResult, and Accept starts job 2 | behavioral_test, manual_review | agent, developer | pending |
 | AC-S16-3 | You have signed off the tone of Hierarchai's coworkers and the layoff scene (GDD 1.3, W4) | manual_review | developer | pending |
 | AC-STAT04-2 | The review plays as a 3-prompt duel on the Dana duel UI with a manager portrait (P-08) | manual_review | developer | pending |
 | AC-JOB01-1 | The board shows 3-5 postings, refreshed every 14 days or after an application, each with company, archetype, level, salary, work mode and visible clauses; applying costs Burnout +3 employed or +2 unemployed, and a reply comes in 3-10 days | behavioral_test, manual_review | agent, developer | pending |
-| AC-JOB03-1 | `test_adapter`: Composure, the meter's half-width (never below 0.06) and Doubt HP reach the interview from the work state, while knowledge P and the committee wheel read the background's stats unchanged (D-26) | behavioral_test | agent | pending |
+| AC-JOB03-1 | `test_adapter`: Composure, the meter's half-width (never below 0.06) and Doubt HP reach the interview from the work state, while knowledge P and the committee wheel read the background's stats unchanged (D-26) | behavioral_test | agent | pass |
 | AC-JOB04-1 | The contract modal offers only Accept or Decline (D-27), and accepting while employed is a voluntary exit (Quit) | behavioral_test, manual_review | agent, developer | pending |
-| AC-SH-06 | Drag-to-sign shipped in M3, or recorded on the cut list (D-33) | document_check | agent | pending |
+| AC-SH-06 | Drag-to-sign shipped in M3, or recorded on the cut list (D-33) | document_check | agent | pass (shipped) |
 
 The full statements are in `project.yaml`.
 

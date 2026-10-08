@@ -79,7 +79,8 @@ static func hoodie_color(hoodie: String) -> Color:
 
 
 ## layoff = the layoff scene's VS (GDD 5.19, A93): Dana's layoff stat and move, and "DANA VS YOU" as the banner.
-func play(company_id: String, tier: String, layoff: bool = false) -> void:
+## second_duel = a MegaCorp posting's second interview (GDD 5.20): the banner says so (vs_banner_<tier>_2).
+func play(company_id: String, tier: String, layoff: bool = false, second_duel: bool = false) -> void:
 	var run: RunState = GameState.run
 	var cfg: BalanceConfig = Content.balance
 	var bg_entry: Dictionary = Content.entries("backgrounds").get(run.background_id, {})
@@ -97,7 +98,10 @@ func play(company_id: String, tier: String, layoff: bool = false) -> void:
 	_exp_bar.value = run.stat("exp")
 	_net_bar.value = run.stat("net")
 	_vs_label.text = Content.text("barks", "vs_versus")
-	_banner.text = Content.text("barks", "vs_layoff_title" if layoff else "vs_banner_" + tier)
+	var banner_id := "vs_banner_" + tier
+	if second_duel and Content.entry("barks", banner_id + "_2") != null:
+		banner_id += "_2"
+	_banner.text = Content.text("barks", "vs_layoff_title" if layoff else banner_id)
 	_slammed = false
 	_held = false
 	_playing = true

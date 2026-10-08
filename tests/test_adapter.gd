@@ -248,3 +248,47 @@ func test_a_lost_interview_ends_the_application_and_a_layoff_changes_the_greetin
 	assert_false(session.wants_offer(), "a lost interview leaves no offer")
 	assert_eq(session.sim.applications.size(), 0, "and the application is gone")
 	assert_eq(session.laid_off_company, "", "Dana has met you since")
+
+
+## AC-S16-1 and AC-S16-2 in one run: run 1 from day 0 to the layoff, the board, an application, a won interview, the
+## contract, and Accept starting job 2.
+func test_run_one_plays_from_day_zero_through_the_board_to_job_two() -> void:
+	var c := SimContext.load_default()
+	var session := WorkSession.start(c, 1, 20261009, [], "Alex", true)
+	session.queue_clip()
+	assert_true(session.is_blocked(), "run 1 opens on the clip")
+	session.dismiss_notice()
+	session.play_to_layoff()
+	assert_true(session.wants_layoff_scene(), "the layoff scene comes after the five signs and the review")
+	assert_eq(session.sim.day, 240, "on day 240")
+	assert_eq(session.laid_off_company, "co_synergai", "Hierarchai let you go")
+	session.acknowledge()
+	assert_true(session.take_board_hint(), "the board opens by itself")
+	assert_false(session.sim.employed, "between jobs")
+	var posting: Dictionary = {}
+	for p: Dictionary in session.sim.board:
+		if String(p["archetype"]) != "megacorp":   # a MegaCorp posting takes two duels (M4 puts the second on screen)
+			posting = p
+			break
+	session.apply_to(int(posting["id"]))
+	var app: Dictionary = session.sim.applications[0]
+	app["callback"] = true
+	app["reply"] = session.sim.day + 1
+	app["interview"] = session.sim.day + 3
+	var guard := 0
+	while not session.wants_duel() and guard < 30:
+		guard += 1
+		if session.is_blocked():
+			session.answer_simply(true)
+		else:
+			session.tick()
+	assert_true(session.wants_duel(), "the interview day arrives")
+	var checkpoint := session.begin_duel()
+	assert_eq(checkpoint["greet"], DuelAdapter.GREET_AFTER_LAYOFF, "Dana laid you off, then met you again")
+	session.finish_duel(true, 60.0)
+	assert_true(session.wants_offer(), "a won interview leads to the contract")
+	session.answer_offer(true)
+	assert_true(session.sim.employed, "Accept starts the job")
+	assert_eq(session.sim.jobs_held, 2, "job 2")
+	assert_eq(session.sim.job_company, posting["company"])
+
