@@ -176,7 +176,7 @@ func test_the_review_stand_in_rolls_its_own_dice() -> void:  # A67
 	assert_eq(a.notices[0]["event"], Sim.EVT_REVIEW)
 
 
-func test_the_stubs_close_an_interview_and_an_offer() -> void:  # until M3's adapter
+func test_the_autoplay_helpers_close_an_interview_and_an_offer() -> void:  # fail_interview and decline_offer
 	var session := _start()
 	session.sim.queue.append({"kind": "duel", "app": 1, "index": 0, "of": 1, "request": {}})
 	session.sim.applications.append({"posting": {"id": 1, "company": "co_synergai"}, "applied": 0, "reply": 1, "callback": true,
@@ -235,3 +235,17 @@ func test_a_burned_out_player_is_asked_to_read_the_warnings() -> void:  # R-EVT-
 			warned = true
 	assert_true(warned, "the first beat is a notice when Burnout crosses 60")
 	assert_true(session.is_blocked())
+
+
+func test_run_ones_clip_is_one_card_that_blocks_the_clock_until_a_tap() -> void:  # D-42
+	var session := _start()
+	assert_true(session.notices.is_empty(), "the unit-test session starts without it: GameState queues it for a real run 1")
+	session.queue_clip()
+	assert_true(session.is_blocked(), "the clock waits for the clip")
+	assert_eq(session.current_card()["style"], WorkCards.CLIP)
+	assert_eq(session.coach_id(), "", "no coach note over a card")
+	assert_true(session.tick().is_empty(), "no time passes under it (INV-22)")
+	session.dismiss_notice()
+	assert_false(session.is_blocked(), "a tap starts the run")
+	assert_eq(session.coach_id(), WorkSession.COACH_SPEED, "then the first coach note")
+

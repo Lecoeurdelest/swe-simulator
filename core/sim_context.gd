@@ -12,6 +12,11 @@ const BACKGROUND_DIR := "res://data/backgrounds/"
 const TIER_DIR := "res://data/tiers/"
 const EVENTS_PATH := "res://data/content/work_events.json"
 const COWORKERS_PATH := "res://data/content/coworkers.json"
+const BALANCE_PATH := "res://data/balance/balance_config.tres"
+const CONTENT_DIR := "res://data/content/"
+## The Phase 1 pools the adapter draws from (DuelAdapter): the interview's questions, the review's prompts, the
+## contract's perks and fine print, and the companies' names. The sim never reads them.
+const DUEL_CONTENT: PackedStringArray = ["questions_choice", "questions_knowledge", "questions_review", "emails", "companies"]
 
 var cfg: WorkConfig
 var archetypes: Dictionary = {}          # id -> ArchetypeData
@@ -21,6 +26,8 @@ var coworker_defs: Dictionary = {}       # cw_* id -> entry (coworkers.json)
 var coworker_pool: PackedStringArray = []
 var bg: BackgroundData
 var tiers: Dictionary = {}               # tier id -> TierData
+var balance: BalanceConfig               # Phase 1's constants, which the duel and the contract still read
+var content: Dictionary = {}             # DUEL_CONTENT file name -> parsed JSON
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var log_enabled: bool = true             # the run log; the harness turns it off for speed
 
@@ -40,6 +47,9 @@ static func load_default(bg_id: String = "intern") -> SimContext:
 		if file.ends_with(".tres"):
 			var tier := load(TIER_DIR + file) as TierData
 			ctx.tiers[String(tier.id)] = tier
+	ctx.balance = load(BALANCE_PATH) as BalanceConfig
+	for file: String in DUEL_CONTENT:
+		ctx.content[file] = _read_json(CONTENT_DIR + file + ".json")
 	ctx.events = _read_json(EVENTS_PATH)
 	var cw := _read_json(COWORKERS_PATH)
 	ctx.coworker_pool = PackedStringArray(cw.get("_coworker_pool", []))
@@ -75,5 +85,7 @@ func archetype(id: String) -> ArchetypeData:
 
 
 static func _read_json(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		return {}
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 	return parsed if parsed is Dictionary else {}

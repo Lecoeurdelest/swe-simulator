@@ -26,14 +26,24 @@ var feed: Array = []            # the Body's quiet lines, newest last
 var player_name: String = ""
 var first_run: bool = false     # the first coach marks teach a run that has not been played before
 var coach_closed: Array = []
+var seen_questions: Array[String] = []   # interview questions asked, least to most recently (InterviewPlan.mark_seen)
+var seen_review: Array[String] = []      # review prompts asked, the same way
+var duel_checkpoint: Dictionary = {}     # the interview or review being played ({} when none): Continue resumes it
+var dana_met: int = 0                    # interviews finished: Dana's greeting and her VS plate turn on it
+var dana_last_company: String = ""
+var laid_off_company: String = ""        # the company that just laid you off, until the next interview greets you
+var gap_topics: Array = []               # the Self-Taught's weak topics (D-26), rolled at the start of the run
+var board_hint: bool = false             # the work state opens the board by itself next time (after the layoff scene)
 
 
-static func start(context: SimContext, run_number: int, run_seed: int, handbook: Array, name: String, first: bool) -> WorkSession:
+static func start(context: SimContext, run_number: int, run_seed: int, handbook: Array, name: String, first: bool,
+		topics: Array = []) -> WorkSession:
 	var session := WorkSession.new()
 	session.ctx = context
 	session.sim = Sim.new_run(context, run_number, run_seed, handbook)
 	session.player_name = name
 	session.first_run = first
+	session.gap_topics = topics.duplicate()
 	return session
 
 
@@ -48,6 +58,13 @@ static func from_save(data: Dictionary, context: SimContext) -> WorkSession:
 	session.player_name = String(ui.get("name", ""))
 	session.first_run = bool(ui.get("first_run", false))
 	session.coach_closed = (ui.get("coach_closed", []) as Array).duplicate()
+	session.seen_questions.assign(ui.get("seen_questions", []))
+	session.seen_review.assign(ui.get("seen_review", []))
+	session.duel_checkpoint = (ui.get("duel_checkpoint", {}) as Dictionary).duplicate(true)
+	session.dana_met = int(ui.get("dana_met", 0))
+	session.dana_last_company = String(ui.get("dana_last_company", ""))
+	session.laid_off_company = String(ui.get("laid_off_company", ""))
+	session.gap_topics = (ui.get("gap_topics", []) as Array).duplicate()
 	return session
 
 
@@ -61,6 +78,9 @@ func to_save(phase: int) -> Dictionary:
 		"ui": SimState.encode_value({
 			"notices": notices.duplicate(true), "feed": feed.duplicate(true), "name": player_name,
 			"first_run": first_run, "coach_closed": coach_closed.duplicate(),
+			"seen_questions": seen_questions.duplicate(), "seen_review": seen_review.duplicate(),
+			"duel_checkpoint": duel_checkpoint.duplicate(true), "dana_met": dana_met,
+			"dana_last_company": dana_last_company, "laid_off_company": laid_off_company, "gap_topics": gap_topics.duplicate(),
 		}),
 	}
 
@@ -111,6 +131,9 @@ func _take(events: Array) -> void:
 	feed.append_array(WorkCards.feed_from(events, sim))
 	while feed.size() > WorkCards.FEED_MAX:
 		feed.pop_front()
+	for e: Dictionary in events:
+		if String(e.get("kind", "")) == "job_ended":
+			laid_off_company = String(e.get("company", "")) if String(e.get("reason", "")) == "layoff" else ""
 
 
 # ---------- the player's answers ----------
@@ -127,9 +150,38 @@ func pick_ticket(pick: String) -> Array:
 	return apply({"kind": Sim.IN_TICKET_PICK, "pick": pick})
 
 
-## The layoff scene's or the forced leave's OK.
+## The layoff scene's or the forced leave's OK. After the layoff scene the board opens by itself (GDD 4.5, A92).
 func acknowledge() -> Array:
-	return apply({"kind": Sim.IN_ACK})
+	var was_layoff := WorkCards.is_layoff_pending(sim)
+	var severance := float(sim.pending().get("severance", 0.0))
+	var events := apply({"kind": Sim.IN_ACK})
+	if was_layoff:
+		board_hint = true
+		feed.append(WorkCards.line(sim.day, "barks", "ui_laid_off_feed", "", {"company": laid_off_company, "money_k": severance}))
+	return events
+
+
+## Run 1 opens on Remy's clip (D-42): one card in the phone shell that names the five Studio conditions, and a tap starts
+## the run. GameState queues it when a first run begins; the unit tests start without it.
+func queue_clip() -> void:
+	notices.append(WorkCards.notice(WorkCards.CLIP, {}))
+
+
+## True once after the layoff scene: the work state opens the DoomApply board.
+func take_board_hint() -> bool:
+	var hint := board_hint
+	board_hint = false
+	return hint
+
+
+## Apply to a posting on the board (Burnout +3 employed, +2 unemployed; a reply in 3-10 days).
+func apply_to(posting_id: int) -> Array:
+	return apply({"kind": Sim.IN_APPLY, "posting": posting_id})
+
+
+## Study, once a day: Burnout +4, Rust -20, Skill +1 (R-JOB-05).
+func study() -> Array:
+	return apply({"kind": Sim.IN_STUDY})
 
 
 ## M2's review: the stand-in of GDD 5.16 (A67) on its own dice, seeded from the run seed and the day, so the sim's stream
@@ -144,14 +196,83 @@ func resolve_review() -> Array:
 	return apply({"kind": Sim.IN_REVIEW_RESULT, "evidence_left": left})
 
 
-## M2's stub for an interview day (the duel arrives with M3's adapter): the interview goes badly.
+# ---------- the duel and the contract (the adapter, GDD 5.20; DuelAdapter) ----------
+
+## True when the sim waits on an interview or a review the player plays on the duel screen.
+func wants_duel() -> bool:
+	return ["duel", "review"].has(String(sim.pending().get("kind", "")))
+
+
+## The checkpoint of the duel the sim waits on, built once and kept ({} when none waits). It travels in the save, so a
+## Continue in the middle of an interview replays the same questions and the same luck (A55, A89). The prompts it picked
+## join the questions already asked.
+func begin_duel() -> Dictionary:
+	if not duel_checkpoint.is_empty():
+		return duel_checkpoint
+	var item := sim.pending()
+	match String(item.get("kind", "")):
+		"duel":
+			var app := Sim.find_application(sim, int(item["app"]))
+			if app.is_empty():
+				return {}
+			var history := {"seen": seen_questions, "first_run": first_run, "met": dana_met,
+				"last_company": dana_last_company, "after_layoff": not laid_off_company.is_empty()}
+			duel_checkpoint = DuelAdapter.interview_checkpoint(item, app["posting"], sim.rng_seed, ctx, history)
+			InterviewPlan.mark_seen(seen_questions, (duel_checkpoint["question_ids"] as Array) + [duel_checkpoint["warmup_id"]])
+		"review":
+			duel_checkpoint = DuelAdapter.review_checkpoint(item, sim, ctx, seen_review)
+			InterviewPlan.mark_seen(seen_review, duel_checkpoint["question_ids"] as Array)
+	return duel_checkpoint
+
+
+## The interview ended. A win leads to the contract (the sim queues the offer), a loss ends the application. Dana
+## remembers you either way.
+func finish_duel(passed: bool, composure_left: float) -> Array:
+	var company := String(duel_checkpoint.get("company_id", ""))
+	duel_checkpoint = {}
+	dana_met += 1
+	dana_last_company = company
+	laid_off_company = ""
+	return apply(DuelAdapter.duel_result_input(passed, composure_left))
+
+
+## The review duel ended with this much of your Evidence left (GDD 5.16): the sim rates it, raises you, maybe promotes.
+func finish_review(evidence_left: float) -> Array:
+	duel_checkpoint = {}
+	return apply(DuelAdapter.review_result_input(evidence_left))
+
+
+## True when the sim waits on an answer to an offer.
+func wants_offer() -> bool:
+	return String(sim.pending().get("kind", "")) == "offer"
+
+
+## The contract paper of the offer on the table ({} when there is none).
+func offer_paper() -> Dictionary:
+	var item := sim.pending()
+	if String(item.get("kind", "")) != "offer":
+		return {}
+	return DuelAdapter.offer_paper(item["posting"], ctx, sim.rng_seed)
+
+
+## Accept (a voluntary exit when you hold a job) or Decline (the company is blacklisted). The OfferResult of GDD 5.20 is
+## DuelAdapter.offer_result(accept, paper), for a caller that wants it.
+func answer_offer(accept: bool) -> Array:
+	var events := apply(DuelAdapter.offer_input(accept))
+	if not accept:
+		board_hint = true   # a declined offer sends you back to the board (GDD 4.5)
+	return events
+
+
+## For the tests and the autoplay: the interview goes badly.
 func fail_interview() -> Array:
-	return apply({"kind": Sim.IN_DUEL_RESULT, "passed": false, "composure_left": 0.0})
+	duel_checkpoint = {}
+	return apply(DuelAdapter.duel_result_input(false, 0.0))
 
 
-## M2's stub for an offer (nothing can win an interview yet): decline it.
+## For the tests and the autoplay: decline the offer.
 func decline_offer() -> Array:
-	return apply({"kind": Sim.IN_ANSWER_OFFER, "accept": false})
+	return answer_offer(false)
 
 
 ## Answer whatever is open in the simplest way: read a notice, take an event's first choice (careful: the last one that

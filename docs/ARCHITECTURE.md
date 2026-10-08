@@ -41,7 +41,7 @@ If this doc and the GDD disagree on a rule or a number, the GDD wins; fix this d
    - The rules live in six pure `@tool` classes: `GameFlow`, `RunState`, `SaveIO`, `Odds`, plus `InterviewPlan` (Step 4) and `HuntTips` (Step 5). `UiText` (Step 4, label styling) and `CutscenePlan` (Step 6, the intro's play order) are pure helpers, not rule classes.
 6. **Where data lives:**
    - Numbers you tune are in **11 `.tres` files**: 1 BalanceConfig, 3 BackgroundData, 3 TierData (all the hiring odds), and the career run's 1 WorkConfig and 3 ArchetypeData (since Step 14).
-   - All text is in **18 JSON files keyed by id** (the career run's `work_events` and `coworkers` joined the 16 in Step 14). Companies are JSON only; there is no company `.tres`.
+   - All text is in **19 JSON files keyed by id** (the career run's `work_events` and `coworkers` joined the 16 in Step 14). Companies are JSON only; there is no company `.tres`.
 7. **Randomness:** there is one seeded RNG per run. Each interview gets its own RNG, seeded from a checkpoint, so a resume replays the same interview; the offer's contract is picked on another one seeded from the same checkpoint (section 7.2). 64-bit seeds and states are saved as **strings**.
 8. **One JSON save** in `user://`.
    - It is written only while a run is live (hunt, interview, offer).
@@ -247,7 +247,7 @@ res://
 │  ├─ balance/balance_config.tres
 │  ├─ backgrounds/                 intern.tres, graduate.tres, self_taught.tres
 │  ├─ tiers/                       startup.tres, mid.tres, big.tres
-│  └─ content/                     the 18 JSON files (section 6.3)
+│  └─ content/                     the 19 JSON files (section 6.3)
 ├─ features/                       every screen has <name>.tscn + <name>.gd; the extras are listed
 │  ├─ title/                       title.tscn + title.gd  (main scene)
 │  ├─ intro/                       intro.tscn (its dialogue box is inside it), cutscene_plan.gd (CutscenePlan,
@@ -525,6 +525,7 @@ Removed on 2026-10-08, the code cleanup of Negotiate (DECISIONS D-27, 2026-10-07
 | `postings.json` | 5 | `"job_mid_backend": {"tier", "company": "any" or a co_ id, "title", "tags": [3], "degree": bool, "min_years": int, "ghost": "roll" or "always", "joke", "salary_text", "should": bool, "research_reveal"? and "note"? (the SHOULD Unicorn only)}`, plus the plain-string UI ids `card_*`, `knock_*`, `research_*`, `hirebot_*`, `stamp_sent` |
 | `cv_lines.json` | 6 | `"cv_intern_edu_honest": {"background", "line": "edu", "variant": "honest" or "polished", "text", "tags": [], "degree": bool, "passes_years": bool}`: 6 per background. The `lie` variant and the lie-only fields `degree_claim`, `probe` and `probe_at` were removed on 2026-09-29 (DECISIONS D9) |
 | `questions_choice.json` | 7 | `"eq_friday_deploy": {"prompt", "teamwork": bool, "tiers": [...], "tip", "opener_only": bool, "answers": [{"kind": "good", "text", "reaction"}, ...], "exclusive": {"background", "kind", "text", "reaction"}?}` |
+| `questions_review.json` | 19.5 | `"rq_ship": {"prompt", "answers": [{"kind": "good", "text"}, {"kind": "neutral", "text"}, {"kind": "bad", "text"}]}`: the review's 12 prompts (D-39), no tiers and no per-answer reactions (Kev's are `bark_kev_*` in `barks.json`) |
 | `questions_knowledge.json` | 9 | `"kq_hash_map": {"prompt", "topic", "kind": "tech" or "behavioral", "difficulty": 1-3, "weak_for": a bg id or "none", "tiers": [...], "tip", "green", "yellow", "red", "ducky"}` |
 | `barks.json` | 8, 10 | plain strings: `dana_title_*`, `bark_*`, `vs_*`, `meter_*`, `ducky_real_answer`, `ui_*`, `coach_*` |
 | `tips.json` | 11 | `"tip_ats_knockouts": {"short", "more", "triggers"}` |
@@ -1063,7 +1064,7 @@ The 5 Step-1 files had 24 tests, all passing against the section-17 code (verifi
 
 ### 12.3 `test_content_lint.gd` checks
 
-It reads the 18 JSON files with `FileAccess` and the background `.tres` with `load()`. Since Step 14 it also checks `work_events.json` (the `evt_eNN_name` ids, the tiers, archetypes and levels, the trigger kinds, at most 3 choices, known `requires` and effects, an exhausted choice that names a choice or is "none", a tip id that exists or "none": O7) and `coworkers.json` (four authored coworkers, a 16-name pool, no name shared with the dice pool, Dana, Remy or Jordan). Artist-only fields (`art`, `visual`, `audio`, `note`, naming.json's `_notes`) and id or enum fields are never linted as text.
+It reads the 19 JSON files with `FileAccess` and the background `.tres` with `load()`. Since Step 14 it also checks `work_events.json` (the `evt_eNN_name` ids, the tiers, archetypes and levels, the trigger kinds, at most 3 choices, known `requires` and effects, an exhausted choice that names a choice or is "none", a tip id that exists or "none": O7) and `coworkers.json` (four authored coworkers, a 16-name pool, no name shared with the dice pool, Dana, Remy or Jordan). Artist-only fields (`art`, `visual`, `audio`, `note`, naming.json's `_notes`) and id or enum fields are never linted as text.
 
 1. **Every file parses** to a Dictionary (and none is missing).
 2. **Every referenced id exists:**
@@ -1416,12 +1417,13 @@ const TRANSITIONS: Dictionary = {
 	Phase.INTRO: [Phase.BACKGROUND_SELECT, Phase.WORK],
 	Phase.BACKGROUND_SELECT: [Phase.JOB_HUNT, Phase.WORK, Phase.TITLE],
 	Phase.JOB_HUNT: [Phase.INTERVIEW, Phase.GAME_OVER, Phase.TITLE],
-	Phase.INTERVIEW: [Phase.OFFER, Phase.JOB_HUNT, Phase.TITLE],
-	Phase.OFFER: [Phase.PHASE2_STUB, Phase.JOB_HUNT, Phase.GAME_OVER, Phase.TITLE],
+	Phase.INTERVIEW: [Phase.OFFER, Phase.JOB_HUNT, Phase.WORK, Phase.TITLE],
+	Phase.OFFER: [Phase.PHASE2_STUB, Phase.JOB_HUNT, Phase.WORK, Phase.GAME_OVER, Phase.TITLE],
 	Phase.PHASE2_STUB: [Phase.TITLE, Phase.BACKGROUND_SELECT],
 	Phase.GAME_OVER: [Phase.TITLE, Phase.BACKGROUND_SELECT],
-	# The career run (ARCHITECTURE 19.4). M3 adds WORK -> INTERVIEW and OFFER -> WORK with the adapter.
-	Phase.WORK: [Phase.LAYOFF, Phase.GAME_OVER, Phase.TITLE],
+	# The career run (ARCHITECTURE 19.4, 19.5): an interview day or a review leaves WORK for INTERVIEW and comes back (or
+	# goes on to OFFER after a win); an offer is answered in OFFER and leads back to WORK. The same phases serve Phase 1.
+	Phase.WORK: [Phase.LAYOFF, Phase.INTERVIEW, Phase.OFFER, Phase.GAME_OVER, Phase.TITLE],
 	Phase.LAYOFF: [Phase.WORK, Phase.TITLE],
 }
 
@@ -2928,6 +2930,9 @@ extends Resource
 @export var pip_mo_min: float = 0.0
 @export var review_standin_damage: float = 0.55
 @export var review_standin_noise: float = 0.20
+@export var review_hit_good: float = 0.4          # the review duel (D-39, A94): a good answer takes this share of the manager's chip,
+@export var review_hit_okay: float = 1.0          # an okay one takes all of it,
+@export var review_hit_joke: float = 1.8          # and a joke nearly doubles it
 
 @export_group("Controls (5.17)")
 @export var pick_feature_mo: float = 6.0
@@ -2982,6 +2987,7 @@ extends Resource
 @export var callback_level_down: float = 0.8
 @export var callback_short_tenure_cut: float = 0.15
 @export var callback_reference_bonus: float = 0.10
+@export var callback_band_steps: PackedFloat64Array = PackedFloat64Array([0.10, 0.20, 0.30, 0.40])   # the 5-dot band's thresholds (A90)
 @export var interview_days_min: int = 3
 @export var interview_days_max: int = 7
 @export var study_burnout: float = 4.0
@@ -3084,7 +3090,7 @@ const BALANCE_PATH := "res://data/balance/balance_config.tres"
 const JSON_FILES: PackedStringArray = [
 	"naming", "backgrounds", "tiers", "companies", "postings", "cv_lines",
 	"questions_choice", "questions_knowledge", "barks", "emails", "tips",
-	"endings", "events", "cutscene", "names", "news", "work_events", "coworkers",
+	"endings", "events", "cutscene", "names", "news", "work_events", "coworkers", "questions_review",
 ]
 
 var balance: BalanceConfig
@@ -3295,6 +3301,12 @@ func start_hunt_game() -> void:
 	change_phase(GameFlow.Phase.BACKGROUND_SELECT if intro_seen else GameFlow.Phase.INTRO)
 
 
+## The intro in front of the player ends in day 0 (a new game's run 1), not in Background select: its last caption hands over
+## to the job (MC-11).
+func intro_hands_over() -> bool:
+	return career_flow and _intro_starts_career
+
+
 func replay_intro() -> void:  # Title: "Replay intro"
 	run = RunState.new()
 	session = null
@@ -3342,7 +3354,7 @@ func _resume_hunt() -> bool:
 func _resume_career() -> bool:
 	var data := SaveIO.peek()
 	var resume_at := int(data.get("phase", GameFlow.Phase.WORK)) as GameFlow.Phase
-	if not _is_career_phase(resume_at) or not GameFlow.can_resume(resume_at):
+	if not CAREER_PHASES.has(resume_at) or not GameFlow.can_resume(resume_at):
 		return false
 	var bg_id := str((data.get("sim", {}) as Dictionary).get("bg_id", "intern"))
 	session = WorkSession.from_save(data, SimContext.load_default(bg_id))   # the clock starts paused (KILL_TESTS 6)
@@ -3351,6 +3363,18 @@ func _resume_career() -> bool:
 	run = RunState.new()
 	run.background_id = bg_id
 	run.player_name = session.player_name
+	if resume_at == GameFlow.Phase.INTERVIEW:
+		if session.duel_checkpoint.is_empty():
+			resume_at = GameFlow.Phase.WORK
+		else:
+			_prepare_run_for_duel(session.duel_checkpoint)
+	elif resume_at == GameFlow.Phase.OFFER:
+		if session.wants_offer():
+			_prepare_run_for_offer()
+		else:
+			resume_at = GameFlow.Phase.WORK
+	elif resume_at == GameFlow.Phase.LAYOFF:
+		_prepare_run_basics()
 	change_phase(resume_at)
 	return true
 
@@ -3416,6 +3440,7 @@ func debug_career_quick_start(to_layoff: bool = false, run_seed: int = 20261009)
 	run.phase = GameFlow.Phase.WORK
 	if to_layoff:
 		session.play_to_layoff()
+		_prepare_run_basics()
 		run.phase = GameFlow.Phase.LAYOFF
 
 
@@ -3482,15 +3507,29 @@ func _gap_pool() -> Array:
 ## The WORK scene calls these; the rules are the sim's (WorkSession -> Sim). Every answer is applied without a tick, so
 ## time moves only in career_tick(), which the scene calls once a day while nothing is open. Each answer saves.
 
+## The phases a career save can hold. INTERVIEW and OFFER are Phase 1's too, so they count as the career's only while a
+## session exists (the hunt has none): otherwise save() would write a hunt save over the career one (A88).
+const CAREER_PHASES: Array[GameFlow.Phase] = [GameFlow.Phase.WORK, GameFlow.Phase.LAYOFF, GameFlow.Phase.INTERVIEW, GameFlow.Phase.OFFER]
+
+
 func _is_career_phase(phase: GameFlow.Phase) -> bool:
-	return phase == GameFlow.Phase.WORK or phase == GameFlow.Phase.LAYOFF
+	if phase == GameFlow.Phase.INTERVIEW or phase == GameFlow.Phase.OFFER:
+		return session != null
+	return CAREER_PHASES.has(phase)
 
 
 ## A new career run: the sim's first state, the Handbook's collected tips, then the work state (which saves).
 func _begin_career(run_number: int, bg_id: String, player_name: String, run_seed: int) -> void:
 	var from := run.phase
 	var first := next_run_is_first()
-	session = WorkSession.start(SimContext.load_default(bg_id), run_number, run_seed, collected_tips(), player_name, first)
+	if player_name.is_empty():   # run 1 skips Background select, where the name dice live
+		player_name = Content.text("names", "default")
+	var topics_rng := RandomNumberGenerator.new()
+	topics_rng.seed = DuelAdapter.seed_text(run_seed, DuelAdapter.SALT_PICK, 0, 0).to_int()
+	var topics := Odds.pick(topics_rng, _gap_pool(), Content.background(bg_id).gap_topics_count)
+	session = WorkSession.start(SimContext.load_default(bg_id), run_number, run_seed, collected_tips(), player_name, first, topics)
+	if run_number == 1:
+		session.queue_clip()   # D-42: run 1 opens on Remy's clip
 	run = RunState.new()
 	run.phase = from   # keeps the transition legal, like retry()
 	run.background_id = bg_id
@@ -3533,6 +3572,105 @@ func career_resolve_review() -> void:
 	_career_answer(func() -> Array: return session.resolve_review())
 
 
+## The DoomApply board's two actions (GDD 5.20): apply to a posting, study.
+func career_apply(posting_id: int) -> void:
+	_career_answer(func() -> Array: return session.apply_to(posting_id))
+
+
+func career_study() -> void:
+	_career_answer(func() -> Array: return session.study())
+
+
+## Start button of an interview day (or, from M3's review duel, of a review): the sim's request becomes the interview
+## checkpoint (DuelAdapter), the run is filled with what the duel screen reads, and INTERVIEW saves it (A88).
+func career_begin_duel() -> void:
+	if session == null or run.phase != GameFlow.Phase.WORK:
+		return
+	var checkpoint := session.begin_duel()
+	if checkpoint.is_empty():
+		return
+	session.clock.set_speed(WorkClock.PAUSE, session.ctx.cfg)
+	_prepare_run_for_duel(checkpoint)
+	change_phase(GameFlow.Phase.INTERVIEW)
+
+
+## The interview ended (the duel screen calls finish_interview): a win leads to the contract, a loss back to work.
+func career_finish_duel(won: bool, composure_left: float) -> void:
+	if session == null:
+		return
+	run.interview = {}
+	session.finish_duel(won, composure_left)
+	_after_duel()
+
+
+## The review duel ended with this much Evidence left.
+func career_finish_review(evidence_left: float) -> void:
+	if session == null:
+		return
+	run.interview = {}
+	session.finish_review(evidence_left)
+	_after_duel()
+
+
+func _after_duel() -> void:
+	if session.is_over():
+		_finish_career()
+	elif session.wants_offer():
+		_prepare_run_for_offer()
+		change_phase(GameFlow.Phase.OFFER)
+	else:
+		change_phase(GameFlow.Phase.WORK)
+
+
+## Accept or Decline on the contract (the offer screen calls answer_offer). Accepting while employed is a voluntary exit;
+## the sim starts the next job. Back at work either way, or at an ending when leaving job 5 ended the career.
+func career_answer_offer(accept: bool) -> void:
+	if session == null:
+		return
+	run.offer = {}
+	session.answer_offer(accept)
+	if session.is_over():
+		_finish_career()
+	else:
+		change_phase(GameFlow.Phase.WORK)
+
+
+## An offer on the table while the work state shows (a resumed or odd state): go to the contract.
+func career_begin_offer() -> void:
+	if session != null and run.phase == GameFlow.Phase.WORK and session.wants_offer():
+		session.clock.set_speed(WorkClock.PAUSE, session.ctx.cfg)
+		_prepare_run_for_offer()
+		change_phase(GameFlow.Phase.OFFER)
+
+
+## Declining an offer never ends a career run (it did on Phase 1's grace day); the offer screen asks.
+func decline_ends_run() -> bool:
+	return false if career_flow else run.decline_ends_run()
+
+
+## The duel screen reads the run the way Phase 1 filled it: the background's starting stats (KNOWLEDGE, EXPERIENCE and
+## NETWORK stay there in the career run, D-26), the gap topics, how often Dana has met you, and the checkpoint.
+func _prepare_run_for_duel(checkpoint: Dictionary) -> void:
+	_prepare_run_basics()
+	run.gap_topics.assign(session.gap_topics)
+	run.first_run = session.first_run
+	run.interviews_taken = session.dana_met
+	run.times_met_dana = session.dana_met
+	run.dana_last_company = session.dana_last_company
+	run.interview = checkpoint.duplicate(true)
+
+
+## The offer screen shows run.offer, the contract paper (DuelAdapter.offer_paper).
+func _prepare_run_for_offer() -> void:
+	_prepare_run_basics()
+	run.offer = session.offer_paper()
+
+
+func _prepare_run_basics() -> void:
+	run.set_background(Content.balance, Content.background(session.sim.bg_id))
+	run.player_name = session.player_name
+
+
 func career_fail_interview() -> void:
 	_career_answer(func() -> Array: return session.fail_interview())
 
@@ -3541,8 +3679,10 @@ func career_decline_offer() -> void:
 	_career_answer(func() -> Array: return session.decline_offer())
 
 
-## OK on the layoff scene or the forced leave.
+## OK on the layoff scene or the forced leave. The layoff scene is counted (the pill appears from the second viewing).
 func career_acknowledge() -> void:
+	if run.phase == GameFlow.Phase.LAYOFF:
+		set_setting("meta", "layoffs_seen", int(setting("meta", "layoffs_seen", 0)) + 1)
 	_career_answer(func() -> Array: return session.acknowledge())
 
 
@@ -3574,10 +3714,14 @@ func _after_career(events: Array, save_now: bool) -> void:
 		return
 	if run.phase == GameFlow.Phase.WORK and session.wants_layoff_scene():
 		session.clock.set_speed(WorkClock.PAUSE, session.ctx.cfg)   # the scene is a beat of its own: the clock waits after it
+		_prepare_run_basics()   # the VS screen reads your stats and your name
 		change_phase(GameFlow.Phase.LAYOFF)   # saves
 		return
 	if run.phase == GameFlow.Phase.LAYOFF and not WorkCards.is_layoff_pending(session.sim):
 		change_phase(GameFlow.Phase.WORK)     # saves
+		return
+	if run.phase == GameFlow.Phase.WORK and session.wants_offer() and session.notices.is_empty():
+		career_begin_offer()
 		return
 	if save_now or session.is_blocked():
 		_commit()
@@ -3747,6 +3891,9 @@ func can_take_interview(invite: Dictionary) -> bool:
 ## won = K.O. or committee win. A win builds the whole offer from the checkpoint (RunState.make_offer)
 ## before it is cleared.
 func finish_interview(won: bool, composure_left: float) -> void:
+	if session != null and career_flow:
+		career_finish_duel(won, composure_left)
+		return
 	var iv := run.interview
 	var company_id: String = iv.get("company_id", "")
 	run.interviews_taken += 1
@@ -3765,7 +3912,15 @@ func finish_interview(won: bool, composure_left: float) -> void:
 ## Accept: the offer becomes the job (run.hire) and the Hired card shows. Accept writes no save:
 ## PHASE2_STUB is never saved, so a kill on the Hired card resumes at the offer (GDD 5.11), and
 ## accepting again hires with the same contract. No dice.
+## The review duel's end (the interview screen calls it with the Evidence it has left): the sim rates it.
+func finish_review(evidence_left: float) -> void:
+	career_finish_review(evidence_left)
+
+
 func answer_offer(accept: bool) -> void:
+	if session != null and career_flow:
+		career_answer_offer(accept)
+		return
 	var company_id: String = run.offer.get("company_id", "")
 	if not accept:
 		var ends_run := run.decline_ends_run()
@@ -4304,6 +4459,12 @@ const LEGAL: Array[Array] = [
 	[GameFlow.Phase.WORK, GameFlow.Phase.TITLE],
 	[GameFlow.Phase.LAYOFF, GameFlow.Phase.WORK],
 	[GameFlow.Phase.LAYOFF, GameFlow.Phase.TITLE],
+	# M3's adapter (ARCHITECTURE 19.5): an interview day or a review leaves WORK for INTERVIEW and comes back, or goes on
+	# to the contract after a win; the contract leads back to WORK.
+	[GameFlow.Phase.WORK, GameFlow.Phase.INTERVIEW],
+	[GameFlow.Phase.WORK, GameFlow.Phase.OFFER],
+	[GameFlow.Phase.INTERVIEW, GameFlow.Phase.WORK],
+	[GameFlow.Phase.OFFER, GameFlow.Phase.WORK],
 ]
 
 const ILLEGAL: Array[Array] = [
@@ -4315,9 +4476,8 @@ const ILLEGAL: Array[Array] = [
 	[GameFlow.Phase.GAME_OVER, GameFlow.Phase.JOB_HUNT],
 	[GameFlow.Phase.GAME_OVER, GameFlow.Phase.WORK],
 	[GameFlow.Phase.WORK, GameFlow.Phase.WORK],
-	[GameFlow.Phase.WORK, GameFlow.Phase.INTERVIEW],    # M3 adds these with the adapter
-	[GameFlow.Phase.WORK, GameFlow.Phase.OFFER],
 	[GameFlow.Phase.LAYOFF, GameFlow.Phase.GAME_OVER],
+	[GameFlow.Phase.LAYOFF, GameFlow.Phase.INTERVIEW],
 	[GameFlow.Phase.INTRO, GameFlow.Phase.LAYOFF],
 ]
 
@@ -5059,6 +5219,17 @@ static func pick(cfg: BalanceConfig, tier_id: String, choice_pool: Dictionary, k
 	return {"question_ids": question_ids, "warmup_id": warmup_id}
 
 
+## n ids from a pool with no tiers (the review's prompts, GDD 5.16): unseen ones in an order the RNG decides, then the
+## least recently asked. The ids are sorted first, so the JSON key order never decides.
+static func pick_ids(pool: Dictionary, seen: Array[String], rng: RandomNumberGenerator, n: int) -> Array[String]:
+	var ids: Array[String] = []
+	for id: String in pool:
+		if not id.begins_with("_") and pool[id] is Dictionary:
+			ids.append(id)
+	ids.sort()
+	return _draw(rng, ids, seen, n)
+
+
 ## The ids of one pool that a tier can ask, sorted so the picks never depend on the JSON key order.
 static func eligible(pool: Dictionary, tier_id: String) -> Array[String]:
 	var ids: Array[String] = []
@@ -5403,8 +5574,10 @@ const STYLE_TITLE := "title"   # a caption that renders as the title card, not i
 
 
 ## The panels in "order" (ties by id): [{id, order, seconds, captions: [{speaker, text, style}]}].
-## An entry without an "order" or without a caption with text is not a panel ("_" notes, plain strings).
-static func panels(entries: Dictionary) -> Array[Dictionary]:
+## An entry without an "order" or without a caption with text is not a panel ("_" notes, plain strings). A caption may say
+## "for": "choose" (the question that leads to Background select) or "handover" (the line that leads to day 0 of a career's
+## run 1, MC-11); each plays only in its own intro. handover says which intro this is.
+static func panels(entries: Dictionary, handover: bool = false) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	for id: Variant in entries:
 		var entry: Variant = entries[id]
@@ -5412,7 +5585,7 @@ static func panels(entries: Dictionary) -> Array[Dictionary]:
 			continue
 		var captions: Array[Dictionary] = []
 		for caption: Variant in (entry as Dictionary).get("captions", []):
-			if caption is Dictionary and not str((caption as Dictionary).get("text", "")).is_empty():
+			if caption is Dictionary and not str((caption as Dictionary).get("text", "")).is_empty() and _plays(caption, handover):
 				captions.append({
 					"speaker": str(caption.get("speaker", "")),
 					"text": str(caption["text"]),
@@ -5425,6 +5598,17 @@ static func panels(entries: Dictionary) -> Array[Dictionary]:
 	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return a["order"] < b["order"] or (a["order"] == b["order"] and a["id"] < b["id"]))
 	return out
+
+
+## A caption that says "for": "handover" plays only in the intro that hands over to day 0, one that says "choose" only in
+## the other; the rest play in both.
+static func _plays(caption: Dictionary, handover: bool) -> bool:
+	match str(caption.get("for", "")):
+		"handover":
+			return handover
+		"choose":
+			return not handover
+	return true
 
 
 ## The whole intro's pan time in seconds (GDD S02 wants 40 or less).
@@ -5725,6 +5909,11 @@ const BACKGROUND_DIR := "res://data/backgrounds/"
 const TIER_DIR := "res://data/tiers/"
 const EVENTS_PATH := "res://data/content/work_events.json"
 const COWORKERS_PATH := "res://data/content/coworkers.json"
+const BALANCE_PATH := "res://data/balance/balance_config.tres"
+const CONTENT_DIR := "res://data/content/"
+## The Phase 1 pools the adapter draws from (DuelAdapter): the interview's questions, the review's prompts, the
+## contract's perks and fine print, and the companies' names. The sim never reads them.
+const DUEL_CONTENT: PackedStringArray = ["questions_choice", "questions_knowledge", "questions_review", "emails", "companies"]
 
 var cfg: WorkConfig
 var archetypes: Dictionary = {}          # id -> ArchetypeData
@@ -5734,6 +5923,8 @@ var coworker_defs: Dictionary = {}       # cw_* id -> entry (coworkers.json)
 var coworker_pool: PackedStringArray = []
 var bg: BackgroundData
 var tiers: Dictionary = {}               # tier id -> TierData
+var balance: BalanceConfig               # Phase 1's constants, which the duel and the contract still read
+var content: Dictionary = {}             # DUEL_CONTENT file name -> parsed JSON
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var log_enabled: bool = true             # the run log; the harness turns it off for speed
 
@@ -5753,6 +5944,9 @@ static func load_default(bg_id: String = "intern") -> SimContext:
 		if file.ends_with(".tres"):
 			var tier := load(TIER_DIR + file) as TierData
 			ctx.tiers[String(tier.id)] = tier
+	ctx.balance = load(BALANCE_PATH) as BalanceConfig
+	for file: String in DUEL_CONTENT:
+		ctx.content[file] = _read_json(CONTENT_DIR + file + ".json")
 	ctx.events = _read_json(EVENTS_PATH)
 	var cw := _read_json(COWORKERS_PATH)
 	ctx.coworker_pool = PackedStringArray(cw.get("_coworker_pool", []))
@@ -5788,6 +5982,8 @@ func archetype(id: String) -> ArchetypeData:
 
 
 static func _read_json(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		return {}
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 	return parsed if parsed is Dictionary else {}
 ```
@@ -5953,6 +6149,18 @@ static func review_standin_left(cfg: WorkConfig, calibration: float, evidence_to
 	return clampf(evidence_total - damage, 0.0, evidence_total)
 
 
+## What the manager's Calibration lands on your Evidence in one round of the review duel (GDD 5.16, D-39, A94): the
+## stand-in's damage spread over the review's prompts, times 0.4 for a good answer, 1.0 for an okay one (kind "neutral")
+## and 1.8 for a joke (kind "bad"). Three okay answers cost exactly what the stand-in costs on average.
+static func review_hit(cfg: WorkConfig, calibration: float, kind: String) -> float:
+	var mult := cfg.review_hit_okay
+	if kind == "good":
+		mult = cfg.review_hit_good
+	elif kind == "bad":
+		mult = cfg.review_hit_joke
+	return calibration * cfg.review_standin_damage / float(cfg.review_prompts) * mult
+
+
 ## The raise a rating earns, as a fraction of salary.
 static func raise_for(cfg: WorkConfig, rating_id: int) -> float:
 	if rating_id == EXCEEDS:
@@ -6041,6 +6249,20 @@ static func level_factor(cfg: WorkConfig, posting_level: int, level: int) -> flo
 static func callback_p(cfg: WorkConfig, posting_level: int, level: int, short_tenure_stacks: int, references: int) -> float:
 	return cfg.callback_base * level_factor(cfg, posting_level, level) \
 		* (1.0 - cfg.callback_short_tenure_cut * short_tenure_stacks) * (1.0 + cfg.callback_reference_bonus * references)
+
+
+## The 5-dot band of the callback odds (GDD 5.20, A90): 1 + the thresholds the odds reach. Shown as dots, never a percentage.
+static func callback_dots(cfg: WorkConfig, p: float) -> int:
+	var dots := 1
+	for step: float in cfg.callback_band_steps:
+		if p >= step:
+			dots += 1
+	return dots
+
+
+## A month's pay in k$ as the yearly figure the board and the contract show (MC-10): whole dollars, rounded to $1,000.
+static func yearly_salary(cfg: WorkConfig, monthly_k: float) -> int:
+	return Odds.round_to(monthly_k * float(cfg.days_per_year) / float(cfg.days_per_month) * 1000.0, 1000)
 
 
 # ---------- the duel's inputs (GDD 5.20, R-JOB-03) ----------
@@ -7010,6 +7232,11 @@ static func _find_app(s: SimState, app_id: int) -> Dictionary:
 	return {}
 
 
+## The application for a posting id ({} when it is gone): the adapter reads the posting a duel or an offer is about.
+static func find_application(s: SimState, app_id: int) -> Dictionary:
+	return _find_app(s, app_id)
+
+
 static func _drop_application(s: SimState, app_id: int) -> void:
 	for i: int in s.applications.size():
 		if int(s.applications[i]["posting"]["id"]) == app_id:
@@ -7027,6 +7254,11 @@ static func _recruiter_application(s: SimState, ctx: SimContext, events: Array) 
 	s.applications.append({"posting": posting, "applied": s.day, "reply": s.day, "callback": true, "interview": interview,
 		"status": "callback", "duels_done": 0, "next_duel": -1})
 	events.append({"kind": "recruiter_posting", "company": posting["company"], "interview": interview})
+
+
+## How many references you can give: each coworker, past or present, at Rapport 60 or more (the board's callback odds).
+static func references(s: SimState, cfg: WorkConfig) -> int:
+	return _references(s, cfg)
 
 
 static func _references(s: SimState, cfg: WorkConfig) -> int:
@@ -7088,7 +7320,7 @@ static func _gen_posting(s: SimState, ctx: SimContext) -> Dictionary:
 		company = pool[start]
 		for k: int in pool.size():
 			var candidate := pool[(start + k) % pool.size()]
-			if not s.blacklist.has(candidate):
+			if not s.blacklist.has(candidate) and candidate != s.job_company:   # nobody posts a job at the company you already work for
 				company = candidate
 				break
 	var id_n := s.next_posting_id
@@ -7186,6 +7418,7 @@ static func _end_job(s: SimState, ctx: SimContext, reason: String, events: Array
 	var cfg := ctx.cfg
 	var arch := ctx.archetype(s.job_archetype)
 	var tenure := s.day - s.job_start
+	var company := s.job_company
 	s.savings += s.pay_accrued + severance_months * s.job_salary
 	s.pay_accrued = 0.0
 	if reason != "layoff" and tenure < cfg.short_tenure_days:
@@ -7218,7 +7451,7 @@ static func _end_job(s: SimState, ctx: SimContext, reason: String, events: Array
 	s.hours_lock_until = -1
 	_drop_job_cards(s)
 	s.bump("exit_%s" % reason)
-	events.append({"kind": "job_ended", "reason": reason, "tenure": tenure, "severance_months": severance_months})
+	events.append({"kind": "job_ended", "reason": reason, "tenure": tenure, "severance_months": severance_months, "company": company})
 	_log(s, ctx, "exit", {"reason": reason, "tenure": tenure})
 	if s.jobs_held >= cfg.max_jobs:
 		_end_run(s, ctx, "career_change", events)
@@ -7488,6 +7721,27 @@ static func calendar(ctx: SimContext, s: SimState) -> Array:
 	return out
 
 
+## Hierarchai's authored coworkers as the Body's team rows (D-40, GDD 5.18): {id, name, role, line, gone}. Run 1's four have
+## cards in coworkers.json; a generated crew has none, so it shows no rows (M4). A desk goes dark with the sign that says
+## so (E07's run1_desks_dark names the sign by its number), and every row clears with the job.
+static func team(ctx: SimContext, s: SimState) -> Array:
+	var out: Array = []
+	var telegraph: Dictionary = (ctx.events.get("evt_e07_resizing", {}) as Dictionary).get("telegraph", {})
+	var signs: Array = telegraph.get("run1_signs", [])
+	var dark: Dictionary = telegraph.get("run1_desks_dark", {})
+	for cw: Dictionary in s.coworkers:
+		var id := String(cw.get("id", ""))
+		var def: Dictionary = ctx.coworker_defs.get(id, {})
+		if def.is_empty():
+			continue
+		var gone := false
+		if dark.has(id):
+			var index := int(dark[id]) - 1
+			gone = index >= 0 and index < signs.size() and s.day >= int((signs[index] as Dictionary)["day"])
+		out.append({"id": id, "name": String(def["name"]), "role": String(def["role"]), "line": String(def["line"]), "gone": gone})
+	return out
+
+
 ## The next thing on the calendar (for a text line under the strip), or {} when the strip is empty.
 static func next_on_calendar(ctx: SimContext, s: SimState) -> Dictionary:
 	var items := calendar(ctx, s)
@@ -7509,11 +7763,13 @@ extends RefCounted
 ##   "event" (a work_events entry), "tip", plus the numbers its text needs.
 ## Feed lines: one quiet line in the Body (payday, rent, a shipped ticket, a rumor), no pause.
 ## Head cards: the sim's queue head, which the player must answer: an event with choices, a review, a Mid's ticket
-##   pick, the forced leave. The layoff scene is the LAYOFF phase's, and an interview or an offer waits for M3's adapter.
+##   pick, the forced leave, an interview day (Start leads to the duel screen: DuelAdapter). The layoff scene is the
+##   LAYOFF phase's, and an offer is answered on the contract screen.
 
 const INFO := "info"
 const WARNING := "warning"
 const DUCKY := "ducky"
+const CLIP := "clip"   # run 1's day-0 clip card (D-42): Remy's five conditions
 
 const K_EVENT := "event"
 const K_REVIEW := "review"
@@ -7553,6 +7809,12 @@ static func notices_from(events: Array, s: SimState, ctx: SimContext) -> Array:
 				out.append(notice(DUCKY, {"tip": String(e["id"])}))
 			"resizing_survived":
 				out.append(notice(INFO, {"id": "ui_resizing_survived", "n": int(e["cuts"])}))
+			"callback":   # a reply with an interview day (GDD 5.20, A92): a notice; the day is on the calendar strip too
+				out.append(notice(INFO, {"id": "ui_callback_notice", "company": String(e["company"]), "day": int(e["interview"])}))
+			"recruiter_posting":
+				out.append(notice(INFO, {"id": "ui_recruiter_posting", "company": String(e["company"]), "day": int(e["interview"])}))
+			"profile_noticed":
+				out.append(notice(WARNING, {"id": "ui_profile_noticed"}))
 			"event":
 				if (e.get("choices", []) as Array).is_empty():  # no choices: it only needs reading, if it pauses at all
 					var evt: Dictionary = ctx.events.get(String(e["id"]), {})
@@ -7577,6 +7839,18 @@ static func feed_from(events: Array, s: SimState) -> Array:
 				out.append({"day": s.day, "literal": String(e["text"])})
 			"resizing_survived":
 				out.append(line(s.day, "barks", "ui_resizing_survived", "", {"n": int(e["cuts"])}))
+			"application_sent":
+				out.append(line(s.day, "barks", "ui_applied_feed", "", {"company": String(e["company"])}))
+			"rejected":
+				out.append(line(s.day, "barks", "ui_rejected_feed", "", {"company": String(e["company"])}))
+			"interview_failed":
+				out.append(line(s.day, "barks", "ui_interview_failed_feed", "", {"company": String(e["company"])}))
+			"offer_declined":
+				out.append(line(s.day, "barks", "ui_offer_declined_feed", "", {"company": String(e["company"])}))
+			"job_started":
+				out.append(line(s.day, "barks", "ui_job_started_feed", "", {"company": String(e["company"])}))
+			"studied":
+				out.append(line(s.day, "barks", "ui_studied_feed", "", {}))
 	return out
 
 
@@ -7599,7 +7873,9 @@ static func head(s: SimState, ctx: SimContext) -> Dictionary:
 		"forced_leave":
 			return {"kind": K_LEAVE, "days": int(item["days"])}
 		"duel":
-			return {"kind": K_DUEL}
+			var app := Sim.find_application(s, int(item["app"]))
+			return {"kind": K_DUEL, "company": String((app.get("posting", {}) as Dictionary).get("company", "")),
+				"index": int(item["index"]), "of": int(item["of"])}
 		"offer":
 			return {"kind": K_OFFER}
 	return {}
@@ -7653,14 +7929,24 @@ var feed: Array = []            # the Body's quiet lines, newest last
 var player_name: String = ""
 var first_run: bool = false     # the first coach marks teach a run that has not been played before
 var coach_closed: Array = []
+var seen_questions: Array[String] = []   # interview questions asked, least to most recently (InterviewPlan.mark_seen)
+var seen_review: Array[String] = []      # review prompts asked, the same way
+var duel_checkpoint: Dictionary = {}     # the interview or review being played ({} when none): Continue resumes it
+var dana_met: int = 0                    # interviews finished: Dana's greeting and her VS plate turn on it
+var dana_last_company: String = ""
+var laid_off_company: String = ""        # the company that just laid you off, until the next interview greets you
+var gap_topics: Array = []               # the Self-Taught's weak topics (D-26), rolled at the start of the run
+var board_hint: bool = false             # the work state opens the board by itself next time (after the layoff scene)
 
 
-static func start(context: SimContext, run_number: int, run_seed: int, handbook: Array, name: String, first: bool) -> WorkSession:
+static func start(context: SimContext, run_number: int, run_seed: int, handbook: Array, name: String, first: bool,
+		topics: Array = []) -> WorkSession:
 	var session := WorkSession.new()
 	session.ctx = context
 	session.sim = Sim.new_run(context, run_number, run_seed, handbook)
 	session.player_name = name
 	session.first_run = first
+	session.gap_topics = topics.duplicate()
 	return session
 
 
@@ -7675,6 +7961,13 @@ static func from_save(data: Dictionary, context: SimContext) -> WorkSession:
 	session.player_name = String(ui.get("name", ""))
 	session.first_run = bool(ui.get("first_run", false))
 	session.coach_closed = (ui.get("coach_closed", []) as Array).duplicate()
+	session.seen_questions.assign(ui.get("seen_questions", []))
+	session.seen_review.assign(ui.get("seen_review", []))
+	session.duel_checkpoint = (ui.get("duel_checkpoint", {}) as Dictionary).duplicate(true)
+	session.dana_met = int(ui.get("dana_met", 0))
+	session.dana_last_company = String(ui.get("dana_last_company", ""))
+	session.laid_off_company = String(ui.get("laid_off_company", ""))
+	session.gap_topics = (ui.get("gap_topics", []) as Array).duplicate()
 	return session
 
 
@@ -7688,6 +7981,9 @@ func to_save(phase: int) -> Dictionary:
 		"ui": SimState.encode_value({
 			"notices": notices.duplicate(true), "feed": feed.duplicate(true), "name": player_name,
 			"first_run": first_run, "coach_closed": coach_closed.duplicate(),
+			"seen_questions": seen_questions.duplicate(), "seen_review": seen_review.duplicate(),
+			"duel_checkpoint": duel_checkpoint.duplicate(true), "dana_met": dana_met,
+			"dana_last_company": dana_last_company, "laid_off_company": laid_off_company, "gap_topics": gap_topics.duplicate(),
 		}),
 	}
 
@@ -7738,6 +8034,9 @@ func _take(events: Array) -> void:
 	feed.append_array(WorkCards.feed_from(events, sim))
 	while feed.size() > WorkCards.FEED_MAX:
 		feed.pop_front()
+	for e: Dictionary in events:
+		if String(e.get("kind", "")) == "job_ended":
+			laid_off_company = String(e.get("company", "")) if String(e.get("reason", "")) == "layoff" else ""
 
 
 # ---------- the player's answers ----------
@@ -7754,9 +8053,38 @@ func pick_ticket(pick: String) -> Array:
 	return apply({"kind": Sim.IN_TICKET_PICK, "pick": pick})
 
 
-## The layoff scene's or the forced leave's OK.
+## The layoff scene's or the forced leave's OK. After the layoff scene the board opens by itself (GDD 4.5, A92).
 func acknowledge() -> Array:
-	return apply({"kind": Sim.IN_ACK})
+	var was_layoff := WorkCards.is_layoff_pending(sim)
+	var severance := float(sim.pending().get("severance", 0.0))
+	var events := apply({"kind": Sim.IN_ACK})
+	if was_layoff:
+		board_hint = true
+		feed.append(WorkCards.line(sim.day, "barks", "ui_laid_off_feed", "", {"company": laid_off_company, "money_k": severance}))
+	return events
+
+
+## Run 1 opens on Remy's clip (D-42): one card in the phone shell that names the five Studio conditions, and a tap starts
+## the run. GameState queues it when a first run begins; the unit tests start without it.
+func queue_clip() -> void:
+	notices.append(WorkCards.notice(WorkCards.CLIP, {}))
+
+
+## True once after the layoff scene: the work state opens the DoomApply board.
+func take_board_hint() -> bool:
+	var hint := board_hint
+	board_hint = false
+	return hint
+
+
+## Apply to a posting on the board (Burnout +3 employed, +2 unemployed; a reply in 3-10 days).
+func apply_to(posting_id: int) -> Array:
+	return apply({"kind": Sim.IN_APPLY, "posting": posting_id})
+
+
+## Study, once a day: Burnout +4, Rust -20, Skill +1 (R-JOB-05).
+func study() -> Array:
+	return apply({"kind": Sim.IN_STUDY})
 
 
 ## M2's review: the stand-in of GDD 5.16 (A67) on its own dice, seeded from the run seed and the day, so the sim's stream
@@ -7771,14 +8099,83 @@ func resolve_review() -> Array:
 	return apply({"kind": Sim.IN_REVIEW_RESULT, "evidence_left": left})
 
 
-## M2's stub for an interview day (the duel arrives with M3's adapter): the interview goes badly.
+# ---------- the duel and the contract (the adapter, GDD 5.20; DuelAdapter) ----------
+
+## True when the sim waits on an interview or a review the player plays on the duel screen.
+func wants_duel() -> bool:
+	return ["duel", "review"].has(String(sim.pending().get("kind", "")))
+
+
+## The checkpoint of the duel the sim waits on, built once and kept ({} when none waits). It travels in the save, so a
+## Continue in the middle of an interview replays the same questions and the same luck (A55, A89). The prompts it picked
+## join the questions already asked.
+func begin_duel() -> Dictionary:
+	if not duel_checkpoint.is_empty():
+		return duel_checkpoint
+	var item := sim.pending()
+	match String(item.get("kind", "")):
+		"duel":
+			var app := Sim.find_application(sim, int(item["app"]))
+			if app.is_empty():
+				return {}
+			var history := {"seen": seen_questions, "first_run": first_run, "met": dana_met,
+				"last_company": dana_last_company, "after_layoff": not laid_off_company.is_empty()}
+			duel_checkpoint = DuelAdapter.interview_checkpoint(item, app["posting"], sim.rng_seed, ctx, history)
+			InterviewPlan.mark_seen(seen_questions, (duel_checkpoint["question_ids"] as Array) + [duel_checkpoint["warmup_id"]])
+		"review":
+			duel_checkpoint = DuelAdapter.review_checkpoint(item, sim, ctx, seen_review)
+			InterviewPlan.mark_seen(seen_review, duel_checkpoint["question_ids"] as Array)
+	return duel_checkpoint
+
+
+## The interview ended. A win leads to the contract (the sim queues the offer), a loss ends the application. Dana
+## remembers you either way.
+func finish_duel(passed: bool, composure_left: float) -> Array:
+	var company := String(duel_checkpoint.get("company_id", ""))
+	duel_checkpoint = {}
+	dana_met += 1
+	dana_last_company = company
+	laid_off_company = ""
+	return apply(DuelAdapter.duel_result_input(passed, composure_left))
+
+
+## The review duel ended with this much of your Evidence left (GDD 5.16): the sim rates it, raises you, maybe promotes.
+func finish_review(evidence_left: float) -> Array:
+	duel_checkpoint = {}
+	return apply(DuelAdapter.review_result_input(evidence_left))
+
+
+## True when the sim waits on an answer to an offer.
+func wants_offer() -> bool:
+	return String(sim.pending().get("kind", "")) == "offer"
+
+
+## The contract paper of the offer on the table ({} when there is none).
+func offer_paper() -> Dictionary:
+	var item := sim.pending()
+	if String(item.get("kind", "")) != "offer":
+		return {}
+	return DuelAdapter.offer_paper(item["posting"], ctx, sim.rng_seed)
+
+
+## Accept (a voluntary exit when you hold a job) or Decline (the company is blacklisted). The OfferResult of GDD 5.20 is
+## DuelAdapter.offer_result(accept, paper), for a caller that wants it.
+func answer_offer(accept: bool) -> Array:
+	var events := apply(DuelAdapter.offer_input(accept))
+	if not accept:
+		board_hint = true   # a declined offer sends you back to the board (GDD 4.5)
+	return events
+
+
+## For the tests and the autoplay: the interview goes badly.
 func fail_interview() -> Array:
-	return apply({"kind": Sim.IN_DUEL_RESULT, "passed": false, "composure_left": 0.0})
+	duel_checkpoint = {}
+	return apply(DuelAdapter.duel_result_input(false, 0.0))
 
 
-## M2's stub for an offer (nothing can win an interview yet): decline it.
+## For the tests and the autoplay: decline the offer.
 func decline_offer() -> Array:
-	return apply({"kind": Sim.IN_ANSWER_OFFER, "accept": false})
+	return answer_offer(false)
 
 
 ## Answer whatever is open in the simplest way: read a notice, take an event's first choice (careful: the last one that
@@ -7868,7 +8265,7 @@ extends Control
 ## over it in the ModalLayer and stop the clock. Rules live in the sim: this scene shows `GameState.session` and calls
 ## GameState's career_* verbs (INV-01, INV-03). The clock is `_process`: whole days, only while nothing is open (INV-22).
 
-const FEED_SHOWN := 5
+const FEED_SHOWN := 8
 const BURNOUT_COLOR := Color(0.99607843, 0.68235296, 0.20392157)        # the PrimaryButton amber
 const DANGER_COLOR := Color(0.89411765, 0.23137255, 0.26666668)          # the warning red (late ticket, red runway)
 const TICKET_COLOR := Color(0.16, 0.68, 1.0)
@@ -7880,6 +8277,7 @@ var _speed_buttons: Array[Button] = []
 var _shown_signature := ""       # what the card sheet shows now, so a refresh never reopens (and re-locks) it
 var _shown_card: Dictionary = {}
 var _stub_open := false          # a dock app's "not in this build" card is open
+var _board_open := false         # the DoomApply board replaces the Body and the thumb band; the clock waits (INV-22)
 
 @onready var _next_label: Label = %NextLabel
 @onready var _studio_label: Label = %StudioLabel
@@ -7893,12 +8291,17 @@ var _stub_open := false          # a dock app's "not in this build" card is open
 @onready var _rack: CodebaseRack = %Rack
 @onready var _strip: CalendarStrip = %Strip
 @onready var _job_label: Label = %JobLabel
+@onready var _team: TeamRows = %TeamRows
 @onready var _feed: Label = %Feed
+@onready var _feed_scroll: ScrollContainer = %FeedScroll
 @onready var _coach: CoachMark = %Coach
 @onready var _hours_label: Label = %HoursLabel
 @onready var _back_button: Button = %BackButton
 @onready var _dock_buttons: Array[Button] = [%JobsDock, %HomeDock, %VideoDock, %DuckyDock]
 @onready var _card: EventCard = %EventCard
+@onready var _board: BoardPanel = %Board
+@onready var _body: PanelContainer = %Body
+@onready var _thumb_band: VBoxContainer = %ThumbBand
 @onready var _pause: PauseMenu = %PauseMenu
 
 
@@ -7918,7 +8321,7 @@ func _ready() -> void:
 	_back_button.text = UiText.back(Content.text("barks", "ui_back"))
 	for dock_id: Array in [[0, "ui_tab_jobs"], [1, "ui_tab_home"], [2, "ui_tab_video"], [3, "ui_tab_ducky"]]:
 		_dock_buttons[dock_id[0]].text = Content.text("barks", dock_id[1])
-		_dock_buttons[dock_id[0]].pressed.connect(_open_stub_app)
+		_dock_buttons[dock_id[0]].pressed.connect(_open_board if dock_id[0] == 0 else _open_stub_app)
 	var hours_group := ButtonGroup.new()
 	for i: int in _hours_buttons.size():
 		_hours_buttons[i].button_group = hours_group
@@ -7931,9 +8334,13 @@ func _ready() -> void:
 	_back_button.pressed.connect(Device.handle_back)
 	_card.answered.connect(_on_card_answered)
 	_coach.closed.connect(GameState.career_close_coach)
+	_board.apply_pressed.connect(GameState.career_apply)
+	_board.study_pressed.connect(GameState.career_study)
 	_pause.quit_to_title_pressed.connect(GameState.quit_to_title)
 	GameState.run_changed.connect(_refresh)
 	_refresh()
+	if GameState.session.take_board_hint():   # after the layoff scene the board opens by itself (GDD 4.5)
+		_open_board.call_deferred()
 
 
 ## The clock (D-01, D-13; INV-22): whole days, one `career_tick` each, only while nothing is open over the work state
@@ -7942,7 +8349,7 @@ func _process(delta: float) -> void:
 	var session := GameState.session
 	if session == null or GameState.run.phase != GameFlow.Phase.WORK:
 		return
-	if session.is_blocked() or _card.is_open() or _stub_open or _pause.is_open() or SceneRouter.busy:
+	if session.is_blocked() or _card.is_open() or _stub_open or _board_open or _pause.is_open() or SceneRouter.busy:
 		session.clock.hold()
 		return
 	for _day: int in session.clock.advance(session.ctx.cfg, delta):
@@ -7951,13 +8358,16 @@ func _process(delta: float) -> void:
 			break
 
 
-## Back (the action bar's, Esc, Android): close a dock app's card, resume from Pause, else open Pause. A card
-## the player must answer stays; its "=" opens Pause too.
+## Back (the action bar's, Esc, Android): close a dock app's card or the board, resume from Pause, else open Pause. A
+## card the player must answer stays; its "=" opens Pause too.
 func handle_back() -> bool:
 	if _pause.is_open():
 		return _pause.handle_back()
 	if _stub_open:
 		_close_stub_app()
+		return true
+	if _board_open:
+		_close_board()
 		return true
 	GameState.save()   # opening Pause keeps the quiet days since the last save, in case the app is killed from here
 	_pause.open()
@@ -7974,9 +8384,12 @@ func _refresh() -> void:
 	var ctx := session.ctx
 	_refresh_top_band(s, ctx)
 	_refresh_body(s)
+	_team.show_team(WorkHud.team(ctx, s))
 	_refresh_controls(session)
 	_refresh_card(session)
 	_refresh_coach(session)
+	if _board_open:
+		_board.show_board(session)
 
 
 func _refresh_top_band(s: SimState, ctx: SimContext) -> void:
@@ -8014,7 +8427,17 @@ func _refresh_body(s: SimState) -> void:
 	var feed := GameState.session.feed
 	for line: Dictionary in feed.slice(maxi(feed.size() - FEED_SHOWN, 0)):
 		lines.append("D%d  %s" % [int(line["day"]), _feed_text(line)])
-	_feed.text = "\n".join(lines)
+	var text := "\n".join(lines)
+	if text != _feed.text:
+		_feed.text = text
+		_scroll_feed_to_the_end.call_deferred()
+
+
+## The feed is a log: it scrolls inside the Body, so a long line never pushes the thumb band off the screen, and it
+## shows the newest lines.
+func _scroll_feed_to_the_end() -> void:
+	await get_tree().process_frame
+	_feed_scroll.scroll_vertical = int(_feed_scroll.get_v_scroll_bar().max_value)
 
 
 func _refresh_controls(session: WorkSession) -> void:
@@ -8046,7 +8469,7 @@ func _refresh_card(session: WorkSession) -> void:
 
 
 func _refresh_coach(session: WorkSession) -> void:
-	var id := "" if _stub_open else session.coach_id()
+	var id := "" if _stub_open or _board_open else session.coach_id()
 	match id:
 		WorkSession.COACH_SPEED:
 			_coach.point(id, Content.text("barks", id), _speed_buttons[1])
@@ -8066,6 +8489,25 @@ func _on_hours_pressed(notch: int) -> void:
 
 func _on_speed_pressed(position: int) -> void:
 	GameState.career_set_speed(position)
+
+
+## The DoomApply board (D-41): it takes the Body's and the thumb band's place, and the clock waits while it is open.
+func _open_board() -> void:
+	if _board_open or _stub_open or _card.is_open():
+		return
+	_board_open = true
+	_body.hide()
+	_thumb_band.hide()
+	_board.show()
+	_refresh()
+
+
+func _close_board() -> void:
+	_board_open = false
+	_board.hide()
+	_body.show()
+	_thumb_band.show()
+	_refresh()
 
 
 func _open_stub_app() -> void:
@@ -8100,15 +8542,15 @@ func _on_card_answered(button_id: String) -> void:
 		WorkCards.K_EVENT:
 			GameState.career_choose(button_id)
 		WorkCards.K_REVIEW:
-			GameState.career_resolve_review()
+			GameState.career_begin_duel()
 		WorkCards.K_PICK:
 			GameState.career_pick_ticket(button_id)
 		WorkCards.K_LEAVE:
 			GameState.career_acknowledge()
 		WorkCards.K_DUEL:
-			GameState.career_fail_interview()
+			GameState.career_begin_duel()
 		WorkCards.K_OFFER:
-			GameState.career_decline_offer()
+			GameState.career_begin_offer()
 
 
 ## The words for a card: {title, text, buttons: [{id, text, primary}]}. Cards carry ids and numbers (WorkCards); the
@@ -8135,14 +8577,23 @@ func _card_view(card: Dictionary) -> Dictionary:
 		WorkCards.K_LEAVE:
 			return {"title": "", "text": Content.text("barks", "ui_forced_leave"), "buttons": ok}
 		WorkCards.K_DUEL:
-			return {"title": "", "text": Content.text("barks", "ui_duel_stub"), "buttons": ok}
+			return {"title": "", "text": Content.text("barks", "ui_interview_day", {
+					"company": Content.field("companies", String(card["company"]), "name")}),
+				"buttons": [{"id": "start", "text": UiText.primary(Content.text("barks", "ui_interview_start")), "primary": true}]}
 		WorkCards.K_OFFER:
-			return {"title": "", "text": Content.text("barks", "ui_offer_stub"), "buttons": ok}
+			return {"title": "", "text": Content.text("barks", "ui_offer_ready"), "buttons": ok}
 	return {"title": "", "text": "", "buttons": ok}
 
 
 func _notice_view(card: Dictionary, ok: Array) -> Dictionary:
 	var style := String(card.get("style", WorkCards.INFO))
+	if style == WorkCards.CLIP:   # run 1's day-0 clip (D-42): Remy's five conditions, then a tap starts the run
+		var lines := PackedStringArray([Content.text("barks", "ui_clip_intro")])
+		for n: int in range(1, 6):
+			lines.append(Content.text("barks", "ui_studio_s%d" % n))
+		lines.append(Content.text("barks", "ui_clip_outro"))
+		return {"title": Content.text("naming", "influencer"), "text": "\n".join(lines),
+			"buttons": [{"id": "ok", "text": UiText.primary(Content.text("barks", "ui_clip_go")), "primary": true}]}
 	if style == WorkCards.DUCKY:
 		return {"title": Content.text("naming", "mascot"), "text": Content.field("tips", String(card["tip"]), "short"), "buttons": ok}
 	var text := ""
@@ -8153,7 +8604,8 @@ func _notice_view(card: Dictionary, ok: Array) -> Dictionary:
 	elif card.has("rating"):
 		text = _review_result_text(card)
 	elif card.has("id"):
-		text = Content.text("barks", String(card["id"]), {"n": int(card.get("n", 0))})
+		text = Content.text("barks", String(card["id"]), {"n": int(card.get("n", 0)),
+			"company": _company_name(String(card.get("company", ""))), "day": int(card.get("day", 0))})
 	elif card.has("event"):
 		text = Content.field("work_events", String(card["event"]), "text")
 	return {"title": "", "text": text, "buttons": ok}
@@ -8201,10 +8653,16 @@ func _feed_text(line: Dictionary) -> String:
 	if line.has("literal"):
 		return tr(String(line["literal"]))
 	var args: Dictionary = line.get("args", {})
-	var fill := {"money": UiText.money_k(float(args.get("money_k", 0.0))), "n": int(args.get("n", 0))}
+	var fill := {"money": UiText.money_k(float(args.get("money_k", 0.0))), "n": int(args.get("n", 0)),
+		"company": _company_name(String(args.get("company", "")))}
 	if String(line.get("field", "")).is_empty():
 		return Content.text(String(line["file"]), String(line["id"]), fill)
 	return Content.field(String(line["file"]), String(line["id"]), String(line["field"]), fill)
+
+
+## A company's display name from its id ("" for none).
+func _company_name(company_id: String) -> String:
+	return Content.field("companies", company_id, "name") if not company_id.is_empty() else ""
 
 
 func _tint(label: Label, color: Color) -> void:
@@ -8423,11 +8881,12 @@ func _draw() -> void:
 
 ```gdscript
 extends Control
-## The layoff scene (GDD 5.19, D-22; ARCHITECTURE 19.7): "DANA VS YOU", and then no fight starts. Dana reads the
-## euphemism, the severance appears, your access is revoked. Non-interactive: its four beats advance on taps like the
-## intro's captions (no auto-advance: D12, A19, RC-34), Back opens Pause, and the last OK hands the sim its
-## acknowledgement (GameState.career_acknowledge), which sends the run back to WORK. This is M2's plain version; M3
-## gives it the VS intro's look and the hold-to-skip pill from the second viewing.
+## The layoff scene (GDD 5.19, D-22, A93; ARCHITECTURE 19.7): the VS screen plays "DANA VS YOU", and then no fight starts.
+## Dana reads the euphemism, the severance appears, your access is revoked. Non-interactive: its four beats advance on taps
+## like the intro's captions (no auto-advance: D12, A19, RC-34), Back opens Pause (or taps the VS screen, as in an
+## interview), and the last OK hands the sim its acknowledgement (GameState.career_acknowledge), which sends the run back
+## to WORK with the board open. From the second viewing on (settings meta.layoffs_seen) a hold-to-skip pill skips the
+## beats.
 
 const BEATS := 4
 const REVOKED_COLOR := Color(0.89411765, 0.23137255, 0.26666668)   # the warning red of the hub's rent line
@@ -8436,23 +8895,24 @@ var _beat := -1
 var _locked := true     # the 250 ms input lock after each beat (GDD 2.8 rule 7)
 var _leaving := false
 
-@onready var _title: Label = %Title
 @onready var _line: Label = %DanaLine
 @onready var _line2: Label = %DanaLine2
 @onready var _severance: Label = %Severance
 @onready var _revoked: Label = %Revoked
 @onready var _hint: Label = %Hint
+@onready var _skip_pill: HoldSkipPill = %SkipPill
 @onready var _tap_pad: Control = %TapPad
 @onready var _back_button: Button = %BackButton
 @onready var _next_button: Button = %NextButton
+@onready var _versus: VersusIntro = %VersusIntro
 @onready var _pause: PauseMenu = %PauseMenu
 
 
 func _ready() -> void:
 	if OS.is_debug_build() and GameState.session == null:
 		GameState.debug_career_quick_start(true)   # project_run mode="custom": a run that has just been laid off
-	var pending := GameState.session.sim.pending() if GameState.session != null else {}
-	_title.text = Content.text("barks", "vs_layoff_title")
+	var session := GameState.session
+	var pending := session.sim.pending() if session != null else {}
 	_line.text = Content.text("barks", "bark_dana_layoff")
 	_line2.text = Content.text("barks", "bark_dana_layoff_2")
 	_severance.text = Content.text("barks", "ui_severance", {"money": UiText.money_k(float(pending.get("severance", 0.0)))})
@@ -8460,19 +8920,33 @@ func _ready() -> void:
 	_revoked.add_theme_color_override(&"font_color", REVOKED_COLOR)
 	_hint.text = Content.text("barks", "ui_tap_to_continue")
 	_back_button.text = UiText.back(Content.text("barks", "ui_back"))
+	_skip_pill.text = Content.text("barks", "ui_skip_hold")
+	_skip_pill.visible = int(GameState.setting("meta", "layoffs_seen", 0)) >= 1
+	_skip_pill.held.connect(_leave)
 	_back_button.pressed.connect(Device.handle_back)
 	_next_button.pressed.connect(_advance)
 	_tap_pad.gui_input.connect(_on_tap_input)
 	_pause.quit_to_title_pressed.connect(GameState.quit_to_title)
 	for beat: Control in [_line2, _severance, _revoked]:
 		beat.hide()
+	_play_versus(session)
+
+
+## The VS screen first: the company that let you go, Dana's plate with her layoff stat and move, "DANA VS YOU" as the banner.
+func _play_versus(session: WorkSession) -> void:
+	var company_id := session.laid_off_company if session != null else ""
+	var tier := str((Content.entries("companies").get(company_id, {}) as Dictionary).get("tier", "startup"))
+	_versus.play(company_id, tier, true)
+	await _versus.finished
 	_advance_to(0)
 
 
-## Back opens Pause (RC-34); a second Back resumes.
+## Back taps the VS screen while it plays (as in an interview); otherwise it opens Pause (RC-34), and a second Back resumes.
 func handle_back() -> bool:
 	if _pause.is_open():
 		return _pause.handle_back()
+	if _versus.tap():
+		return true
 	GameState.save()
 	_pause.open()
 	return true
@@ -8486,14 +8960,21 @@ func _on_tap_input(event: InputEvent) -> void:
 
 
 func _advance() -> void:
-	if _locked or _leaving or _pause.is_open():
+	if _locked or _leaving or _pause.is_open() or _versus.is_playing():
 		return
 	if _beat >= BEATS - 1:
-		_leaving = true
-		_next_button.disabled = true
-		GameState.career_acknowledge()
+		_leave()
 		return
 	_advance_to(_beat + 1)
+
+
+## The last OK, or the pill: the sim's acknowledgement, and the scene is over (and counted for the pill).
+func _leave() -> void:
+	if _leaving:
+		return
+	_leaving = true
+	_next_button.disabled = true
+	GameState.career_acknowledge()
 
 
 func _advance_to(beat: int) -> void:
@@ -8511,6 +8992,774 @@ func _advance_to(beat: int) -> void:
 	_locked = true
 	await get_tree().create_timer(Content.balance.input_lock_ms / 1000.0).timeout
 	_locked = false
+```
+
+### 17.21 The adapter and the contract text: core/duel_adapter.gd and core/contract_text.gd (Step 16)
+
+`core/duel_adapter.gd`:
+
+```gdscript
+@tool
+class_name DuelAdapter
+extends RefCounted
+## The adapter between the career run's sim and the shipped duel and contract screens (GDD 5.20, ARCHITECTURE 19.5,
+## R-JOB-06; DECISIONS A88, A89). The sim asks for an interview, a review or an answer to an offer through its queue;
+## this class turns that queue item into plain data the Phase 1 screens already know how to play (the interview
+## checkpoint, the contract paper) and turns what they report into the sim's inputs. Pure, like Sim: no nodes, no
+## autoloads, and no draw from the sim's stream. Everything it rolls comes from local generators seeded from the run
+## seed, the application (or the day) and the duel's index, so Continue replays the same questions and the same luck.
+##
+## Request and result shapes (plain dictionaries, INV-07; the field names are the sim's own):
+##   DuelRequest  {composure, meter_mult, doubt_hp, floor, archetype, tier, unlocked_options, rounds}   (Sim._start_duel)
+##   DuelResult   {passed, composure_left}
+##   OfferRequest the posting {id, company, archetype, level, floor, salary, remote, clauses, posted} (the `offer` item)
+##   OfferResult  {decision, final_salary, clauses}
+
+const KIND_INTERVIEW := "interview"
+const KIND_REVIEW := "review"
+const GREET_FIRST := "first"                # the tier's greeting, then the background's opener
+const GREET_AGAIN := "again"                # "Didn't I interview you at {last_company}?"
+const GREET_AFTER_LAYOFF := "after_layoff"  # Dana laid you off, then met you again at the next company
+
+const SALT_PICK := 7919
+const SALT_INTERVIEW := 104729
+const SALT_REVIEW := 1299709
+const SALT_REVIEW_PICK := 15485863
+const SALT_OFFER := 32452843
+const OFFER_PERKS := 1                      # Phase 1's paper lists two perks; the career's adds a Clauses field and keeps to 20 lines
+const ONSITE_DAYS := 5                      # a non-remote startup posting is in the office all week
+const REMOTE_MODE := "offer_mode_remote"
+const ONSITE_MODE := "offer_mode_onsite"
+const MANAGER_AUTHORED := "cw_kev"          # run 1's manager (GDD 5.18)
+
+
+## A seed as a String (64-bit values do not survive JSON as numbers: INV-05), the same for the same inputs.
+static func seed_text(run_seed: int, salt: int, a: int, b: int) -> String:
+	return str(("%d|%d|%d|%d" % [run_seed, salt, a, b]).hash())
+
+
+# ---------- the interview ----------
+
+## The interview checkpoint for the sim's `duel` queue item {app, index, of, request}, in the shape Phase 1's
+## interview resumes from (RunState.interview) plus the career's numbers. history: {seen: Array[String], first_run,
+## met (interviews finished), last_company, after_layoff}. The caller marks the picked ids as seen.
+static func interview_checkpoint(item: Dictionary, posting: Dictionary, run_seed: int, ctx: SimContext, history: Dictionary) -> Dictionary:
+	var request: Dictionary = item["request"]
+	var app := int(item["app"])
+	var index := int(item["index"])
+	var tier_id := String(request["tier"])
+	var seen: Array[String] = []
+	seen.assign(history.get("seen", []))
+	var first_run := bool(history.get("first_run", false))
+	var met := int(history.get("met", 0))
+	var with_warmup := first_run and met == 0     # InterviewPlan.warmup_due: the first interview of the first run
+	var pick_rng := InterviewPlan.interview_rng(seed_text(run_seed, SALT_PICK, app, index))
+	var plan := InterviewPlan.pick(ctx.balance, tier_id, ctx.content.get("questions_choice", {}),
+		ctx.content.get("questions_knowledge", {}), seen, pick_rng, with_warmup)
+	var greet := GREET_FIRST
+	if bool(history.get("after_layoff", false)):
+		greet = GREET_AFTER_LAYOFF
+	elif met > 0 and not String(history.get("last_company", "")).is_empty():
+		greet = GREET_AGAIN
+	return {
+		"kind": KIND_INTERVIEW, "invite_uid": -1, "company_id": String(posting["company"]), "template_id": "", "tier": tier_id,
+		"seed": seed_text(run_seed, SALT_INTERVIEW, app, index), "tired": false,
+		"question_ids": plan["question_ids"], "warmup_id": plan["warmup_id"],
+		"composure": float(request["composure"]), "doubt_hp": float(request["doubt_hp"]), "meter_mult": float(request["meter_mult"]),
+		"rounds": (plan["question_ids"] as Array).size(), "unlocked_options": (request.get("unlocked_options", []) as Array).duplicate(),
+		"floor": int(request["floor"]), "archetype": String(request["archetype"]),
+		"app": app, "index": index, "of": int(item["of"]),
+		"greet": greet, "last_company": String(history.get("last_company", "")),
+	}
+
+
+## What the interview starts with. A Phase 1 checkpoint has none of the career's fields, so every number falls back to the
+## .tres files it always read (tier.doubt_hp, bg.composure_max, a meter multiplier of 1): a hunt save still plays.
+static func start_values(iv: Dictionary, tier: TierData, bg: BackgroundData) -> Dictionary:
+	return {
+		"composure": float(iv.get("composure", bg.composure_max)),
+		"doubt": float(iv.get("doubt_hp", tier.doubt_hp)),
+		"zone_mult": float(iv.get("meter_mult", 1.0)),
+	}
+
+
+## The Answer Meter's half-width: the stat score's NAILED IT width (plus the Graduate's textbook bonus) times the work
+## state's multiplier (Skill widens it, Rust narrows it), never below the 0.06 floor (RC-25, GDD 5.20). S is untouched.
+static func half_width(cfg: BalanceConfig, s: float, bonus: float, zone_mult: float) -> float:
+	return maxf(cfg.zone_half_base, Odds.zone_half(cfg, s, bonus) * zone_mult)
+
+
+# ---------- the review ----------
+
+## The review checkpoint for the sim's `review` queue item {evidence, calibration}: three prompts from the review pool,
+## the manager's name, and the two HP pools. `seen` is the review prompts asked before (least recently first).
+static func review_checkpoint(item: Dictionary, s: SimState, ctx: SimContext, seen: Array) -> Dictionary:
+	var arch := ctx.archetype(s.job_archetype)
+	var seen_ids: Array[String] = []
+	seen_ids.assign(seen)
+	var pick_rng := InterviewPlan.interview_rng(seed_text(s.rng_seed, SALT_REVIEW_PICK, s.day, s.jobs_held))
+	var ids := InterviewPlan.pick_ids(ctx.content.get("questions_review", {}), seen_ids, pick_rng, ctx.cfg.review_prompts)
+	return {
+		"kind": KIND_REVIEW, "invite_uid": -1, "company_id": s.job_company, "template_id": "", "tier": String(arch.duel_tier),
+		"seed": seed_text(s.rng_seed, SALT_REVIEW, s.day, s.jobs_held), "tired": false,
+		"question_ids": ids, "warmup_id": "", "rounds": ids.size(), "archetype": String(arch.id),
+		"evidence": float(item["evidence"]), "calibration": float(item["calibration"]),
+		"manager": manager_name(s, ctx),
+		"hits": {
+			"good": WorkOdds.review_hit(ctx.cfg, float(item["calibration"]), "good"),
+			"neutral": WorkOdds.review_hit(ctx.cfg, float(item["calibration"]), "neutral"),
+			"bad": WorkOdds.review_hit(ctx.cfg, float(item["calibration"]), "bad"),
+		},
+	}
+
+
+## Your manager: Kev at Hierarchai (run 1's authored crew), else a name from the pool, the same for the whole job.
+static func manager_name(s: SimState, ctx: SimContext) -> String:
+	for cw: Dictionary in s.coworkers:
+		if String(cw.get("id", "")) == MANAGER_AUTHORED:
+			return String(cw.get("name", ""))
+	var pool := ctx.coworker_pool
+	if pool.is_empty():
+		return ""
+	return pool[posmod(("%d|%d" % [s.rng_seed, s.jobs_held]).hash(), pool.size())]
+
+
+# ---------- the contract ----------
+
+## The contract paper for an offer: the same shape RunState.make_offer builds for Phase 1's offer screen (ids into
+## emails.json for every text, the posting's title as raw text, plain data), plus the posting's clauses and its level.
+## The salary is the yearly figure (GDD 5.20, MC-10): the sim's is a month's pay in k$. The perks, the hidden clause
+## (a fine-print joke from the duel tier's pool, revealed here) and the title come from the offer's own generator.
+static func offer_paper(posting: Dictionary, ctx: SimContext, run_seed: int) -> Dictionary:
+	var emails: Dictionary = ctx.content.get("emails", {})
+	var arch := ctx.archetype(String(posting["archetype"]))
+	var tier_id := String(arch.duel_tier)
+	var tier := ctx.tiers.get(tier_id) as TierData
+	var remote := bool(posting.get("remote", false))
+	var office_days := 0
+	if not remote:
+		office_days = ONSITE_DAYS if tier_id == RunState.EQUITY_TIER else tier.office_days
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_text(run_seed, SALT_OFFER, int(posting["id"]), 0).to_int()
+	var perks := Odds.pick(rng, _ids_with_prefix(emails, "perk_", tier_id), OFFER_PERKS)
+	var fine_print := Odds.pick(rng, RunState.fine_print_pool(emails, tier_id, perks), 1)
+	var level_title := String(emails.get("title_" + WorkOdds.LEVELS[int(posting["level"])], ""))
+	return {
+		"company_id": String(posting["company"]), "template_id": "", "tier": tier_id, "archetype": String(arch.id),
+		"level": int(posting["level"]), "floor": int(posting.get("floor", 1)),
+		"job_title": level_title + String(emails.get("title_suffix_" + String(arch.id), "")),
+		"salary": WorkOdds.yearly_salary(ctx.cfg, float(posting["salary"])),
+		"work_mode": REMOTE_MODE if remote else _mode_id(tier_id, office_days), "office_days": office_days,
+		"commute": RunState.offer_commute(office_days, ctx.bg.commute_minutes),
+		"perks": perks, "fine_print": str(fine_print[0]) if not fine_print.is_empty() else "",
+		"clauses": (posting.get("clauses", []) as Array).duplicate(), "remote": remote,
+		"equity_text": "offer_equity" if tier_id == RunState.EQUITY_TIER else "",
+	}
+
+
+static func _mode_id(tier_id: String, office_days: int) -> String:
+	if office_days >= ONSITE_DAYS:
+		return ONSITE_MODE
+	return "offer_mode_" + tier_id
+
+
+## The sorted ids starting with prefix whose "tiers" list this tier (perk_*, fp_* in emails.json).
+static func _ids_with_prefix(emails: Dictionary, prefix: String, tier_id: String) -> Array[String]:
+	var ids: Array[String] = []
+	for key: Variant in emails:
+		var id := str(key)
+		if id.begins_with(prefix) and emails[key] is Dictionary and ((emails[key] as Dictionary).get("tiers", []) as Array).has(tier_id):
+			ids.append(id)
+	ids.sort()
+	return ids
+
+
+# ---------- what the screens report, as the sim's inputs ----------
+
+static func duel_result_input(passed: bool, composure_left: float) -> Dictionary:
+	return {"kind": Sim.IN_DUEL_RESULT, "passed": passed, "composure_left": composure_left}
+
+
+static func review_result_input(evidence_left: float) -> Dictionary:
+	return {"kind": Sim.IN_REVIEW_RESULT, "evidence_left": evidence_left}
+
+
+static func offer_input(accept: bool) -> Dictionary:
+	return {"kind": Sim.IN_ANSWER_OFFER, "accept": accept}
+
+
+## The OfferResult of GDD 5.20: no negotiation (D-27), so the final salary is the offered one.
+static func offer_result(accept: bool, paper: Dictionary) -> Dictionary:
+	return {"decision": "accept" if accept else "decline", "final_salary": int(paper.get("salary", 0)),
+		"clauses": (paper.get("clauses", []) as Array).duplicate()}
+```
+
+`core/contract_text.gd`:
+
+```gdscript
+@tool
+class_name ContractText
+extends RefCounted
+## The contract paper's lines (GDD S10, CONTENT 13.1), from the paper dictionary and the emails.json entries. Pure, so a
+## test can measure the real paper: pre-wrapped at 40 columns by UiText.word_wrap and UiText.field, one field per line
+## after a 12-character label, values wrapping at 28. The offer screen shows exactly these lines; the career run's paper
+## (DuelAdapter.offer_paper) adds the Clauses field.
+
+const COLUMNS := 40            # GDD 2.7: the 254 px paper holds 40 characters of monogram 16
+const LABEL_COLUMNS := 12      # GDD S10: one field per line after a 12-character label column
+const MAX_LINES := 20          # about a 250 px paper: 20 lines of 12 px plus the panel's margins
+
+
+static func lines(paper: Dictionary, emails: Dictionary, company: String, player_name: String) -> PackedStringArray:
+	var out := PackedStringArray()
+	var commute: Dictionary = paper.get("commute", {})
+	out += UiText.word_wrap(_text(emails, "offer_title", {"company": company}), COLUMNS)
+	out += UiText.word_wrap(_text(emails, "offer_dear", {"player_name": player_name}), COLUMNS)
+	out += UiText.word_wrap(_text(emails, "offer_role", {"job_title": str(paper.get("job_title", ""))}), COLUMNS)
+	out.append("")
+	out += _field(_text(emails, "offer_label_salary"),
+		_text(emails, "offer_salary", {"salary": UiText.money(int(paper.get("salary", 0)))}))
+	if str(paper.get("equity_text", "")) != "":
+		out += _field(_text(emails, "offer_label_equity"), _text(emails, str(paper["equity_text"])))
+	out += _field(_text(emails, "offer_label_mode"), _text(emails, str(paper.get("work_mode", ""))))
+	out += _field(_text(emails, "offer_label_commute"), _text(emails, str(commute.get("id", "")), commute.get("args", {})))
+	var label := _text(emails, "offer_label_perks")
+	for perk: Variant in paper.get("perks", []):
+		out += _field(label, _entry_text(emails, str(perk)))
+		label = ""
+	var clauses: Array = paper.get("clauses", [])
+	if not clauses.is_empty():
+		var parts := PackedStringArray()
+		for clause: Variant in clauses:
+			parts.append(_text(emails, "clause_" + str(clause)))
+		out += _field(_text(emails, "offer_label_clauses"), " ".join(parts))
+	out += _field(_text(emails, "offer_label_fine_print"), _entry_text(emails, str(paper.get("fine_print", ""))))
+	out += UiText.word_wrap(_text(emails, "offer_deadline"), COLUMNS)
+	return out
+
+
+static func _field(label: String, value: String) -> PackedStringArray:
+	return UiText.field(label, value, LABEL_COLUMNS, COLUMNS)
+
+
+## A plain-string entry (offer_title, offer_dear, ...) with its {placeholders} filled.
+static func _text(emails: Dictionary, id: String, args: Dictionary = {}) -> String:
+	return UiText.fill(str(emails.get(id, "")), args)
+
+
+## A perk or fine-print entry: {tiers, text}.
+static func _entry_text(emails: Dictionary, id: String) -> String:
+	var entry: Variant = emails.get(id, {})
+	return str((entry as Dictionary).get("text", "")) if entry is Dictionary else str(entry)
+```
+
+### 17.22 The DoomApply board: core/work_board.gd and features/work/board_panel.gd (Step 16)
+
+`core/work_board.gd`:
+
+```gdscript
+@tool
+class_name WorkBoard
+extends RefCounted
+## What the DoomApply board shows (GDD 5.20, D-41, P-02), as plain data: the postings as nodes with their yearly pay,
+## clauses and callback dots, the applications waiting on a reply, and whether you can apply or study. Pure, like
+## WorkHud: it reads a SimState and changes nothing, so the board scene only draws what it is told (INV-03) and a test
+## can check each number. A node carries ids and numbers, never text.
+
+
+## The board's postings, in the sim's order, as {id, company, archetype, level, floor, salary (yearly, whole dollars),
+## remote, clauses, dots (1-5)}. The dots are the callback odds' band (WorkOdds.callback_dots); the odds themselves are
+## never shown (pillar 3).
+static func nodes(s: SimState, ctx: SimContext) -> Array:
+	var out: Array = []
+	var refs := Sim.references(s, ctx.cfg)
+	for p: Dictionary in s.board:
+		var odds := WorkOdds.callback_p(ctx.cfg, int(p["level"]), s.level, s.scar_short_tenure, refs)
+		out.append({
+			"id": int(p["id"]), "company": String(p["company"]), "archetype": String(p["archetype"]), "level": int(p["level"]),
+			"floor": int(p.get("floor", 1)), "salary": WorkOdds.yearly_salary(ctx.cfg, float(p["salary"])),
+			"remote": bool(p.get("remote", false)), "clauses": (p.get("clauses", []) as Array).duplicate(),
+			"dots": WorkOdds.callback_dots(ctx.cfg, odds),
+		})
+	return out
+
+
+## The applications still in flight, soonest first: {company, kind ("reply" or "interview"), day}. A duel waiting on the
+## screen or an offer waiting on the contract is not listed: those have a card of their own.
+static func waiting(s: SimState) -> Array:
+	var out: Array = []
+	for app: Dictionary in s.applications:
+		var company := String((app["posting"] as Dictionary).get("company", ""))
+		match String(app.get("status", "")):
+			"wait":
+				out.append({"company": company, "kind": "reply", "day": int(app["reply"])})
+			"callback":
+				out.append({"company": company, "kind": "interview", "day": int(app["interview"])})
+			"between":
+				out.append({"company": company, "kind": "interview", "day": int(app["next_duel"])})
+	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["day"]) < int(b["day"]))
+	return out
+
+
+## Applying is off only at job 5, where there is no next floor (D-16, A72).
+static func can_apply(s: SimState, cfg: WorkConfig) -> bool:
+	return not (s.employed and s.jobs_held >= cfg.max_jobs)
+
+
+## The Burnout an application costs: more while you still hold a job to lose.
+static func apply_burnout(s: SimState, cfg: WorkConfig) -> float:
+	return cfg.apply_burnout_employed if s.employed else cfg.apply_burnout_unemployed
+
+
+## Study is one a day.
+static func can_study(s: SimState) -> bool:
+	return s.last_study_day != s.day
+
+
+## Days until the board's postings are replaced (0 on the day it refreshes).
+static func days_to_refresh(s: SimState, cfg: WorkConfig) -> int:
+	return maxi(0, cfg.board_refresh_days - (s.day - s.board_day))
+```
+
+`features/work/board_panel.gd`:
+
+```gdscript
+class_name BoardPanel
+extends VBoxContainer
+## The DoomApply board (GDD 5.20, 4.6; D-41, P-02): 3-5 postings stacked as nodes of a route, joined by a line, each with
+## company, archetype, level, yearly pay, work mode, clauses and the callback band as 5 dots, never a percentage. Tap a
+## node to select it; Apply (primary) and Study sit in the thumb band beside Back. It shows what WorkBoard computes and
+## reports two presses (INV-03); the work screen turns them into GameState verbs. It replaces the Body and the Hours
+## and dock rows while it is open, so the top band keeps showing Runway and Burnout while you apply.
+
+signal apply_pressed(posting_id: int)
+signal study_pressed
+
+const ROUTE_X := 10.0                  # the line that joins the nodes runs along the left edge
+const ROUTE_COLOR := Color(0.54509807, 0.60784316, 0.7058824, 1)
+const NODE_MARGIN := 4.0               # the theme's buttons are 36 px tall for one line; a node holds three or four
+const STATES: Array[StringName] = [&"normal", &"pressed", &"hover", &"hover_pressed", &"focus", &"disabled"]
+const CLAUSE_IDS: Dictionary = {
+	"on_call": "ui_clause_on_call", "remote_in_writing": "ui_clause_remote_in_writing", "unlimited_pto": "ui_clause_unlimited_pto",
+}
+const ARCHETYPE_IDS: Dictionary = {
+	"startup": "ui_archetype_startup", "agency": "ui_archetype_agency", "megacorp": "ui_archetype_megacorp",
+}
+
+var _selected := -1                    # the posting id you tapped; -1 until one is
+var _group := ButtonGroup.new()
+
+@onready var _title: Label = %Title
+@onready var _refresh: Label = %Refresh
+@onready var _nodes: VBoxContainer = %Nodes
+@onready var _waiting: Label = %Waiting
+@onready var _study: Button = %StudyButton
+@onready var _back: Button = %BackButton
+@onready var _apply: Button = %ApplyButton
+
+
+func _ready() -> void:
+	_title.text = Content.text("naming", "app_jobs").to_upper()
+	_back.text = UiText.back(Content.text("barks", "ui_back"))
+	_apply.text = UiText.primary(Content.text("barks", "ui_apply"))
+	_back.pressed.connect(Device.handle_back)
+	_apply.pressed.connect(_on_apply_pressed)
+	_study.pressed.connect(study_pressed.emit)
+	_nodes.draw.connect(_draw_route)
+	_nodes.sort_children.connect(_nodes.queue_redraw)
+
+
+## Draws the board from the session's state: the nodes (the selection stays on its posting, else the first), the
+## applications in flight and the two buttons' states.
+func show_board(session: WorkSession) -> void:
+	var s := session.sim
+	var ctx := session.ctx
+	var cfg := ctx.cfg
+	var nodes := WorkBoard.nodes(s, ctx)
+	var kept := false
+	for node: Dictionary in nodes:
+		if int(node["id"]) == _selected:
+			kept = true
+	if not kept:
+		_selected = int(nodes[0]["id"]) if not nodes.is_empty() else -1
+	_rebuild_nodes(nodes)
+	var can_apply := WorkBoard.can_apply(s, cfg)
+	_refresh.text = Content.text("barks", "ui_board_refresh", {"days": WorkBoard.days_to_refresh(s, cfg)})
+	var first_time := session.first_run and int(s.stats.get("applies", 0)) == 0   # the first visit: say how it works
+	var waiting := _waiting_text(WorkBoard.waiting(s), first_time)
+	if can_apply:
+		_apply.text = UiText.primary(Content.text("barks", "ui_apply_cost", {"n": int(WorkBoard.apply_burnout(s, cfg))}))
+	else:
+		_apply.text = UiText.primary(Content.text("barks", "ui_apply"))
+		waiting += "\n" + Content.text("barks", "ui_last_floor")
+	_waiting.text = waiting
+	var can_study := WorkBoard.can_study(s)
+	_study.text = Content.text("barks", "ui_study", {"n": int(cfg.study_burnout)}) if can_study else Content.text("barks", "ui_study_done")
+	_study.disabled = not can_study
+	_apply.disabled = _selected < 0 or not can_apply
+
+
+func selected_id() -> int:
+	return _selected
+
+
+## The text of one node's button: the company, what the job is and where, the clauses (when it has any), and the odds.
+func node_text(node: Dictionary) -> String:
+	var company := Content.field("companies", String(node["company"]), "name")
+	var what := "%s  %s  %s/yr  %s" % [
+		Content.text("barks", String(ARCHETYPE_IDS.get(node["archetype"], "ui_archetype_startup"))),
+		Content.text("barks", WorkHud.level_label_id(int(node["level"]))),
+		UiText.money(int(node["salary"])),
+		Content.text("barks", "ui_mode_remote" if bool(node["remote"]) else "ui_mode_office")]
+	var lines: Array = [company, what]
+	var clauses := PackedStringArray()
+	for clause: Variant in node["clauses"]:
+		clauses.append(Content.text("barks", String(CLAUSE_IDS.get(clause, ""))))
+	if not clauses.is_empty():
+		lines.append("  ".join(clauses))
+	var dots := int(node["dots"])
+	lines.append("%s %s" % [Content.text("barks", "ui_callback"), UiText.band(dots, Content.text("barks", "ui_odds_%d" % dots))])
+	return "\n".join(lines)
+
+
+func _rebuild_nodes(nodes: Array) -> void:
+	for child: Node in _nodes.get_children():
+		_nodes.remove_child(child)
+		child.queue_free()
+	for node: Dictionary in nodes:
+		var button := Button.new()
+		button.toggle_mode = true
+		button.button_group = _group
+		button.focus_mode = Control.FOCUS_NONE
+		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		button.clip_text = true
+		button.text = node_text(node)
+		button.set_pressed_no_signal(int(node["id"]) == _selected)
+		button.pressed.connect(_on_node_pressed.bind(int(node["id"])))
+		_nodes.add_child(button)
+		_compact(button)
+	_nodes.queue_redraw()
+
+
+## The theme's button style has margins for a one-line, 36 px button: a node's own copy keeps the look and trims them.
+func _compact(button: Button) -> void:
+	for state: StringName in STATES:
+		var box := button.get_theme_stylebox(state).duplicate() as StyleBoxFlat
+		if box == null:
+			continue
+		box.content_margin_top = NODE_MARGIN
+		box.content_margin_bottom = NODE_MARGIN
+		button.add_theme_stylebox_override(state, box)
+
+
+func _waiting_text(waiting: Array, first_time: bool = false) -> String:
+	if waiting.is_empty():
+		return Content.text("barks", "ui_board_hint" if first_time else "ui_board_nothing")
+	var lines := PackedStringArray([Content.text("barks", "ui_board_waiting")])
+	for item: Dictionary in waiting:
+		var id := "ui_app_reply" if String(item["kind"]) == "reply" else "ui_app_interview"
+		lines.append(Content.text("barks", id, {"company": Content.field("companies", String(item["company"]), "name"), "day": int(item["day"])}))
+	return "\n".join(lines)
+
+
+func _on_node_pressed(posting_id: int) -> void:
+	_selected = posting_id
+	_apply.disabled = false
+
+
+func _on_apply_pressed() -> void:
+	if _selected >= 0:
+		apply_pressed.emit(_selected)
+
+
+## The route: a line down the left edge from each node to the next.
+func _draw_route() -> void:
+	var buttons := _nodes.get_children()
+	for i: int in buttons.size() - 1:
+		var from: Control = buttons[i]
+		var to: Control = buttons[i + 1]
+		_nodes.draw_line(Vector2(ROUTE_X, from.position.y + from.size.y), Vector2(ROUTE_X, to.position.y), ROUTE_COLOR, 2.0)
+```
+
+### 17.23 The team rows: features/work/team_rows.gd (Step 16)
+
+`features/work/team_rows.gd`:
+
+```gdscript
+class_name TeamRows
+extends VBoxContainer
+## The team under the job line (D-40, GDD 5.18): one two-line row per coworker, the name and role, then their card line
+## (CONTENT 16.1). A desk that has gone dark shows "(desk empty)" and fades; the rows clear with the job. It shows what
+## WorkHud.team gives it, and only rebuilds when that changes, because the screen refreshes every day.
+
+const GONE_COLOR := Color(0.45, 0.47, 0.55)
+
+var _signature := ""
+
+
+func show_team(rows: Array) -> void:
+	var signature := JSON.stringify(rows)
+	if signature == _signature:
+		return
+	_signature = signature
+	for child: Node in get_children():
+		remove_child(child)
+		child.queue_free()
+	for row: Dictionary in rows:
+		var label := Label.new()
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if bool(row["gone"]):
+			label.text = "%s  %s" % [row["name"], Content.text("barks", "ui_desk_empty")]
+			label.add_theme_color_override(&"font_color", GONE_COLOR)
+		else:
+			label.text = "%s - %s\n%s" % [row["name"], tr(String(row["role"])), tr(String(row["line"]))]
+		add_child(label)
+	visible = not rows.is_empty()
+```
+
+### 17.24 The contract's gesture and beat: features/offer/sign_slider.gd and features/offer/hired_beat.gd (Step 16)
+
+`features/offer/sign_slider.gd`:
+
+```gdscript
+class_name SignSlider
+extends Control
+## Drag-to-sign (GDD S10, SHOULD-06; DECISIONS A95): ACCEPT becomes a drag from the left end of its track to the right, so
+## signing a contract is a gesture and not a tap you can make by accident. Start on the handle, drag it along the track and
+## let go past the end to sign; let go earlier and it springs back. With Relaxed Timing on, a tap anywhere on it signs.
+## Mouse events only (INV-14: touches arrive as emulated mouse events), the handle is a full 36 px target, and it sits in the
+## thumb band where ACCEPT was. It draws itself in the grey-box style until the art pass.
+
+signal signed
+
+const HANDLE_W := 36.0
+const SIGN_FRACTION := 0.95     # how far along the track counts as signed
+const TAP_SLOP := 6.0           # a press that moves less than this many pixels is a tap
+const SPRING_S := 0.12
+const TRACK_COLOR := Color(0.13, 0.15, 0.24, 1.0)
+const BORDER_COLOR := Color(0.54509807, 0.60784316, 0.7058824, 1.0)
+const FILL_COLOR := Color(0.99607843, 0.68235296, 0.20392157, 0.35)
+const HANDLE_COLOR := Color(0.99607843, 0.68235296, 0.20392157, 1.0)
+const INK_COLOR := Color(0.11, 0.12, 0.17, 1.0)
+const TEXT_COLOR := Color(1.0, 1.0, 1.0, 1.0)
+const CHEVRON := ">>"
+
+var disabled := false: set = set_disabled
+var relaxed := false            # Relaxed Timing: a tap signs
+
+var _label := ""
+var _x := 0.0                   # the handle's left edge, 0 to the end of the track
+var _dragging := false
+var _grab := 0.0                # where in the handle the press landed
+var _moved := 0.0               # how far the pointer has moved since the press
+var _spring: Tween
+
+
+func _ready() -> void:
+	focus_mode = Control.FOCUS_NONE
+	custom_minimum_size = Vector2(168.0, 36.0)
+
+
+func set_label(text: String) -> void:
+	_label = text
+	queue_redraw()
+
+
+func set_disabled(value: bool) -> void:
+	disabled = value
+	if value:
+		_dragging = false
+	modulate.a = 0.5 if value else 1.0
+	queue_redraw()
+
+
+## 0 at the start of the track, 1 at its end.
+func progress() -> float:
+	return _x / _travel()
+
+
+func _travel() -> float:
+	return maxf(size.x - HANDLE_W, 1.0)
+
+
+func _gui_input(event: InputEvent) -> void:
+	if disabled:
+		return
+	var button := event as InputEventMouseButton
+	if button != null and button.button_index == MOUSE_BUTTON_LEFT:
+		if button.pressed:
+			_press(button.position)
+		else:
+			_release()
+		accept_event()
+		return
+	var motion := event as InputEventMouseMotion
+	if motion != null and _dragging:
+		_moved += motion.relative.length()
+		_x = clampf(motion.position.x - _grab, 0.0, _travel())
+		queue_redraw()
+		accept_event()
+
+
+## Only a press on the handle starts a drag, so a stray tap on the track does nothing (a tap signs in Relaxed Timing).
+func _press(at: Vector2) -> void:
+	var on_handle := Rect2(_x, 0.0, HANDLE_W, size.y).has_point(at)
+	if not on_handle and not relaxed:
+		return
+	if _spring != null:
+		_spring.kill()
+	_dragging = true
+	_moved = 0.0
+	_grab = clampf(at.x - _x, 0.0, HANDLE_W) if on_handle else HANDLE_W * 0.5
+
+
+func _release() -> void:
+	if not _dragging:
+		return
+	_dragging = false
+	if relaxed and _moved < TAP_SLOP:
+		_sign()
+	elif progress() >= SIGN_FRACTION:
+		_sign()
+	else:
+		_spring_back()
+
+
+func _sign() -> void:
+	_x = _travel()
+	queue_redraw()
+	signed.emit()
+
+
+func _spring_back() -> void:
+	if not is_inside_tree():
+		_x = 0.0
+		queue_redraw()
+		return
+	if _spring != null:
+		_spring.kill()
+	_spring = create_tween()
+	_spring.tween_method(_set_x, _x, 0.0, SPRING_S)
+
+
+func _set_x(value: float) -> void:
+	_x = value
+	queue_redraw()
+
+
+func _draw() -> void:
+	var track := Rect2(Vector2.ZERO, size)
+	draw_rect(track, TRACK_COLOR)
+	if _x > 0.0:
+		draw_rect(Rect2(0.0, 0.0, _x + HANDLE_W, size.y), FILL_COLOR)
+	draw_rect(track, BORDER_COLOR, false, 1.0)
+	var font := get_theme_default_font()
+	var font_size := get_theme_default_font_size()
+	var text_width := font.get_string_size(_label, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	var baseline := floorf((size.y + font.get_ascent(font_size) - font.get_descent(font_size)) * 0.5)
+	draw_string(font, Vector2(floorf(HANDLE_W + (size.x - HANDLE_W - text_width) * 0.5), baseline), _label,
+		HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, TEXT_COLOR)
+	draw_rect(Rect2(_x, 0.0, HANDLE_W, size.y), HANDLE_COLOR)
+	var chevron_width := font.get_string_size(CHEVRON, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	draw_string(font, Vector2(floorf(_x + (HANDLE_W - chevron_width) * 0.5), baseline), CHEVRON,
+		HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, INK_COLOR)
+```
+
+`features/offer/hired_beat.gd`:
+
+```gdscript
+class_name HiredBeat
+extends Control
+## The HIRED! stamp as a short beat on Accept (MC-08, A92; GDD S11's first beat): the stamp slams onto the illustration
+## above the company, the role, the yearly pay and the tier's hired line, and a tap moves on (the Dream vs Reality sheet
+## went to the ending cards, MC-09). The offer screen plays it over its paper and commits the Accept when it finishes,
+## so a kill during it resumes at the offer, as the Hired card always did.
+
+signal finished
+
+const STAMP_DELAY_S := 0.15    # after the paper's buttons go quiet, the stamp lands
+
+var _armed := false            # the stamp is down and the input lock has passed: a tap moves on
+var _done := false
+
+@onready var _art: EndingArt = %Art
+@onready var _job_lines: Label = %JobLines
+@onready var _hired_line: Label = %HiredLine
+@onready var _tap_hint: Label = %TapHint
+
+
+func _ready() -> void:
+	set_process_input(false)
+
+
+## paper: the contract paper (DuelAdapter.offer_paper). Shows the beat and starts the stamp.
+func play(paper: Dictionary) -> void:
+	var tier := str(paper.get("tier", ""))
+	var company_id := str(paper.get("company_id", ""))
+	var bg_entry: Dictionary = Content.entries("backgrounds").get(GameState.run.background_id, {})
+	_art.setup(Content.text("endings", "end_hired_title"), VersusIntro.tier_color(tier),
+		VersusIntro.hoodie_color(str(bg_entry.get("hoodie", ""))))
+	_job_lines.text = "\n".join(PackedStringArray([
+		Content.field("companies", company_id, "name"),
+		tr(str(paper.get("job_title", ""))),
+		Content.text("emails", "offer_salary", {"salary": UiText.money(int(paper.get("salary", 0)))}),
+	]))
+	var hired := PackedStringArray([Content.text("endings", "end_hired_" + tier)])
+	if (Content.entries("companies").get(company_id, {}) as Dictionary).has("hired_extra"):
+		hired.append(Content.field("companies", company_id, "hired_extra"))   # CONTENT.md 14: Stealth Mode
+	_hired_line.text = "\n".join(hired)
+	_tap_hint.text = Content.text("barks", "ui_tap_to_continue")
+	_tap_hint.modulate.a = 0.0
+	_armed = false
+	_done = false
+	show()
+	_art.landed.connect(_on_stamp_landed, CONNECT_ONE_SHOT)
+	var tween := create_tween()
+	tween.tween_interval(STAMP_DELAY_S)
+	tween.tween_callback(_art.slam)
+
+
+## Back moves on like a tap, once the stamp is down. True while the beat is showing.
+func skip() -> bool:
+	if not visible:
+		return false
+	if _armed:
+		_finish()
+	return true
+
+
+## The stamp is down: after the input lock (GDD 2.8 rule 7), a tap anywhere moves on.
+func _on_stamp_landed() -> void:
+	var tween := create_tween()
+	tween.tween_interval(Content.balance.input_lock_ms / 1000.0)
+	tween.tween_callback(_arm)
+
+
+func _arm() -> void:
+	if _done:
+		return
+	_armed = true
+	_tap_hint.modulate.a = 1.0
+	set_process_input(true)
+
+
+## A tap anywhere (touches arrive as emulated mouse events), acting on the release like a button.
+func _input(event: InputEvent) -> void:
+	var mb := event as InputEventMouseButton
+	if mb == null or mb.button_index != MOUSE_BUTTON_LEFT:
+		return
+	get_viewport().set_input_as_handled()
+	if not mb.pressed and _armed:
+		_finish()
+
+
+func _finish() -> void:
+	if _done:
+		return
+	_done = true
+	set_process_input(false)
+	finished.emit()
 ```
 
 ---
@@ -8616,7 +9865,7 @@ Classes, all `@tool`, `class_name` and `RefCounted`, pure like section 3's (INV-
 | `tips.json`, `barks.json`, `endings.json`, `naming.json` (existing) | their shapes in 6.3 | the career run's tips, UI lines, endings and names (CONTENT 16) | - |
 
 - Sections 6.1-6.3 hold: numbers in `.tres`, text in JSON keyed by id, loaded data never modified (INV-08), script defaults equal to the GDD 11.7 defaults, file name = the `id` field.
-- INV-15's counts grew with M1: 11 `.tres` (7 + `work_config` and the three archetypes) and 18 JSON (16 + `work_events` and `coworkers`), and `Content` loads all 18; the invariant and section 0.6 say so. The three archetype ids are `startup`, `agency` and `megacorp` (MC-05, A68), each with a `duel_tier` naming the Phase 1 tier its duel borrows.
+- INV-15's counts grew with M1: 11 `.tres` (7 + `work_config` and the three archetypes) and 18 JSON (16 + `work_events` and `coworkers`), and `Content` loads all 18 (M3 added `questions_review`: 19); the invariant and section 0.6 say so. The three archetype ids are `startup`, `agency` and `megacorp` (MC-05, A68), each with a `duel_tier` naming the Phase 1 tier its duel borrows.
 - **An event's numbers live with it** (A54), as in Phase 1's `events.json`, and the system constants go to `WorkConfig`. A trigger that is a formula, like E12's incident odds, names a `WorkConfig` formula rather than carrying an expression string: `"trigger": {"kind": "incident", "cooldown_days": 5}`. The trigger kinds M1 reads are `monthly`, `review`, `lease`, `after_raise`, `chain` (a telegraphed event that starts from a roll), `resizing`, `random` and `incident`.
 
 The Run Spec's E12 example as JSON, as built (GDD 5.19; its 20-day cooldown is 5 days: MC-23, A69):
@@ -8655,23 +9904,26 @@ The Run Spec's E12 example as JSON, as built (GDD 5.19; its 20-day cooldown is 5
 ### 19.4 Phases, save and meta (M2, built)
 
 - **New phases are appended** to `GameFlow.Phase` (INV-10, 4.1): `WORK` (the work state, at a job or between jobs: one clock, D-04) and `LAYOFF` (the layoff scene). Both are live phases. The job interview and the review both use `INTERVIEW` (the request says which, 19.5; M3), and the career run's endings use `GAME_OVER` with an ending id (the Plan B card's layout, GDD S12). `PHASE2_STUB` stays in the enum, unused once the career run's Accept beat exists (MC-08, D-34; RC-04).
-- **Transitions as built** (`test_flow`): TITLE -> INTRO (run 1, the first time), WORK (run 1 once the intro has been seen, and Continue), BACKGROUND_SELECT (runs 2 and later) or LAYOFF (Continue during the scene); INTRO -> WORK (run 1) or BACKGROUND_SELECT (a replayed intro); BACKGROUND_SELECT -> WORK; WORK -> LAYOFF, GAME_OVER or TITLE; LAYOFF -> WORK or TITLE; GAME_OVER -> TITLE or BACKGROUND_SELECT; and the quit-to-title rows of 4.1. M3 adds WORK -> INTERVIEW and OFFER -> WORK with the adapter.
+- **Transitions as built** (`test_flow`): TITLE -> INTRO (run 1, the first time), WORK (run 1 once the intro has been seen, and Continue), BACKGROUND_SELECT (runs 2 and later) or LAYOFF (Continue during the scene); INTRO -> WORK (run 1) or BACKGROUND_SELECT (a replayed intro); BACKGROUND_SELECT -> WORK; WORK -> LAYOFF, GAME_OVER or TITLE; LAYOFF -> WORK or TITLE; GAME_OVER -> TITLE or BACKGROUND_SELECT; and the quit-to-title rows of 4.1. **M3 (built):** WORK -> INTERVIEW (an interview day or a review), WORK -> OFFER (an offer waiting in the work state), INTERVIEW -> WORK (a lost interview, or a review), INTERVIEW -> OFFER (a win) and OFFER -> WORK (Accept or Decline), beside Phase 1's own pairs; `TITLE` -> INTERVIEW and OFFER already served Continue.
 - **Where New game goes** (A78): `GameState.start_new_game()` begins the career run (`career_flow`). Phase 1's hunt is reachable only through `start_hunt_game()`, the Title's debug-only "Old hunt" button, until M4 retires it (19.9). Continue resumes whichever run the slot holds.
-- **The save** (A79): the same one slot (`user://save_v1.json`, temp file then rename: section 8). `SaveIO.kind_of()` tells a career save, `{version: 2, phase, sim, ui}`, from Phase 1's (`RunState.to_dict`, version 1). `sim` is **`SimState.to_save()`** (A75), the run log included: every float as its raw 64 bits in hex, because Godot's JSON parser does not read every double back exactly (`123456789.12345679` comes back one step off) and a save that differs in the last digit resumes into a different future. `ui` is the screen's own state through the same codec: the notices not yet read, the feed, the player's name, `first_run` and the closed coach marks. The clock's speed is not saved: Continue waits, paused (KILL_TESTS 6). `test_work_session` proves a round trip is bit for bit and lives the same days.
+- **The save** (A79): the same one slot (`user://save_v1.json`, temp file then rename: section 8). `SaveIO.kind_of()` tells a career save, `{version: 2, phase, sim, ui}`, from Phase 1's (`RunState.to_dict`, version 1). `sim` is **`SimState.to_save()`** (A75), the run log included: every float as its raw 64 bits in hex, because Godot's JSON parser does not read every double back exactly (`123456789.12345679` comes back one step off) and a save that differs in the last digit resumes into a different future. `ui` is the screen's own state through the same codec: the notices not yet read, the feed, the player's name, `first_run` and the closed coach marks, and since M3 the duel checkpoint (an interview or a review in progress), the questions and review prompts already asked, how often Dana has met you and where, the company that just laid you off, the Self-Taught's gap topics and nothing else of Phase 1's: `INTERVIEW` and `OFFER` are career phases only while a session exists (`GameState._is_career_phase`), or `save()` would write a hunt save over the career one. The clock's speed is not saved: Continue waits, paused (KILL_TESTS 6). `test_work_session` proves a round trip is bit for bit and lives the same days.
 - **When it's written** (RC-35, GDD 5.11): only in the live phases; after every answer (each is a committed action), when a notice is dismissed, on a card, a payday, a rent, a shipped ticket or a job's end (`GameState.career_tick` decides), on entering a live phase, and on `APPLICATION_PAUSED`, `FOCUS_OUT` and `WM_CLOSE_REQUEST`. Not on every tick. It is deleted on entering `GAME_OVER`, where the run counts in `run_count` and the tips it showed join `meta.handbook`, as today.
 - **No time while closed** (D-13, INV-22): the clock moves only in the `WORK` scene's `_process`, in whole days (`WorkClock`), and only while nothing is open over it: no notice or card (`WorkSession.is_blocked`), no dock app, no Pause, no scene change. `APPLICATION_PAUSED` and `FOCUS_OUT` set the speed to Pause. The sim never reads the wall clock.
 - **Meta between runs**, in `settings.cfg`'s `[meta]` (section 8): `run_count` (exists) and `handbook` (the collected tip ids, merged when a run ends; M6 shows them). The proposed `endings_seen` and `studio_wins` wait for the milestones that use them; `last_background` exists. INV-11 holds: nothing but our JSON save and `settings.cfg` is read from `user://`.
 
-### 19.5 The adapter (M3; R-JOB-06, GDD 5.20, 13.4)
+### 19.5 The adapter (M3, built; R-JOB-06, GDD 5.20, 13.4; DECISIONS A88, A89)
 
-Today `interview.gd` reads its three numbers itself (GDD 13.4): `_composure` from `_bg.composure_max`, `_doubt` from `_tier.doubt_hp`, and the meter's half-width from `Odds.zone_half(...)`. A-01 assumed they were inputs; they aren't. The plan:
+`interview.gd` and `offer.gd` stay the shipped screens; a pure class, `DuelAdapter` (17.21), and `GameState`'s career verbs stand between them and the sim (A-01 assumed the duel took its numbers as inputs; it did not, and now it does).
 
-- **DuelRequest -> the interview checkpoint.** `GameState` turns a DuelRequest into the checkpoint the interview already resumes from (section 8), adding `composure` (base x (1 - Burnout/200)), `doubt_hp` (base x (1 + 0.08 (floor - 1))), `zone_mult` ((1 + Skill/200) x (1 - Rust/200)), `rounds` and `unlocked_options`. `interview.gd` reads them from the checkpoint when they are there and from the `.tres` files when they aren't, so a Phase 1 checkpoint still plays as today.
-- **The meter:** `half_width = maxf(cfg.zone_half_base, Odds.zone_half(cfg, s, bonus) * zone_mult)`, so the 0.06 floor clamps Rust (RC-25). S is unchanged, and so are knowledge P and the committee wheel, which keep reading the background's KNOWLEDGE, EXPERIENCE and NETWORK (D-26).
-- **Rounds:** `cfg.prompt_pattern` is one fixed 5-prompt pattern today, so a request's `rounds` (5, or 3 for a review) needs the pattern to come from the request. The review's pattern and prompts are an M3 spec gap (GDD 5.16).
-- **DuelResult** comes from `GameState.finish_interview(won, composure_left)`: `{passed, composure_left, dream_reality_delta}`, the last following MC-09 (settled, D-34).
-- **OfferRequest -> the paper.** A career offer builder fills the same paper as `run.offer` (7.1) from the posting: company, role, salary (GDD 5.15, shown as the yearly figure: MC-10, D-34), work mode, the clauses where the fine print goes (the clause list is an M3 spec gap) and the hidden clause, revealed. `GameState.answer_offer(accept)` then yields `{decision, final_salary, clauses}`, with `final_salary` = the offered salary (no negotiation: D-27).
-- The fields are plain-data Dictionaries in snake_case (A55, INV-07). `test_adapter` checks that a request's numbers reach the interview's start values (19.10).
+- **DuelRequest -> the interview checkpoint.** The sim already builds the request when an interview day comes (`Sim._start_duel`: `composure` = the background's base x (1 - Burnout/200), `meter_mult` = (1 + Skill/200) x (1 - Rust/200), `doubt_hp` = the tier's base x (1 + step (floor - 1)), `floor`, `archetype`, `tier`, `unlocked_options`, `rounds`). The field names are the sim's (GDD 5.20 says `meter_width`, section 19.5's plan said `zone_mult`: the docs follow the code). `WorkSession.begin_duel()` turns it into the checkpoint Phase 1's interview resumes from (`RunState.interview`) plus the career's numbers, once: the picked questions (`InterviewPlan.pick`, by the prompt pattern, never repeating what `seen_questions` holds), the warm-up on a first run's first interview, the greeting (`first`, `again`, or `after_layoff`), the seed (a String) and the request's numbers. It travels in the career save, so Continue replays the same interview.
+- **What the screen reads.** `DuelAdapter.start_values(checkpoint, tier, bg)` gives Composure, Doubt and the meter's multiplier from the checkpoint and, for a Phase 1 checkpoint that has none of them, from the `.tres` files as before. The meter's half-width is `DuelAdapter.half_width`: `maxf(zone_half_base, Odds.zone_half(cfg, s, bonus) * meter_mult)`, so the 0.06 floor clamps Rust (RC-25); S, knowledge P and the committee wheel keep reading the background's KNOWLEDGE, EXPERIENCE and NETWORK (D-26) through a `RunState` filled with the background's starting stats (`GameState._prepare_run_for_duel`). The committee band is a share of the interview's own Doubt HP.
+- **Rounds.** An interview plays `cfg.prompt_pattern` (5); a review plays 3 choice prompts from the review pool (`InterviewPlan.pick_ids`; D-39).
+- **The review.** The same screen in review mode (`kind: "review"`): the checkpoint holds the manager (`DuelAdapter.manager_name`), the Evidence and Calibration, and what each answer kind costs (`WorkOdds.review_hit`); it ends in `GameState.finish_review(evidence_left)`, which is the sim's `review_result`.
+- **DuelResult** is `GameState.finish_interview(won, composure_left)` -> `WorkSession.finish_duel` -> the sim's `duel_result` input, {passed, composure_left}. `dream_reality_delta` is not in it: the Dream score is per job, on Accept (MC-09), and arrives with the ending cards (M4).
+- **OfferRequest -> the paper.** `DuelAdapter.offer_paper(posting, ctx, run_seed)` fills the paper `offer.gd` shows (the shape of `RunState.offer`, 7.1): the company, a title ("Junior Software Engineer (Also Barista)": the level's title plus the archetype's joke), the yearly salary (`WorkOdds.yearly_salary`: a month's pay x 12, rounded to $1,000: MC-10), the work mode and commute, one perk, the visible clauses and the hidden one (a fine-print joke from the duel tier's pool, revealed), all from a generator seeded from the run seed and the posting (A89). `ContractText.lines` (17.21) is the paper's text, pure, so a test measures it: at most 20 lines for every archetype, level, work mode and clause set. `GameState.answer_offer(accept)` -> `career_answer_offer` -> the sim's `answer_offer`; the `OfferResult` is `DuelAdapter.offer_result(accept, paper)` ({decision, final_salary, clauses}, the salary the offered one: D-27).
+- **Seeds.** The interview's seed, questions, perks and the review's prompts come from `DuelAdapter.seed_text(run_seed, salt, a, b)`, never the sim's stream (INV-21): rebuilt from the same inputs, they are the same.
+- **The flow in `GameState`.** `career_begin_duel()` (Start on an interview day or a review) -> `session.begin_duel()`, `_prepare_run_for_duel`, `change_phase(INTERVIEW)`; `finish_interview` / `finish_review` -> `career_finish_duel` / `career_finish_review` -> `change_phase(OFFER)` after a win with an offer waiting, else `WORK`; `career_answer_offer(accept)` -> `WORK` (or an ending). Phase 1's `finish_interview` and `answer_offer` hand a career run to these, so the screens call the same verbs in both.
+- The fields are plain-data Dictionaries in snake_case (A55, INV-07). `test_adapter` (12 tests) checks that a request's numbers reach the interview's start values, the 0.06 floor, that a Phase 1 checkpoint still plays, the replay from the seed, the paper and its fit, and run 1 from day 0 through the board to job 2.
 
 ### 19.6 The run log and the harness (M1, built; GDD 5.22, R-BAL, A56)
 
@@ -8701,6 +9953,8 @@ python tools/headless/sweep.py --seeds 1000 "base=" "a=ticket_deadline_mult:1.3"
 - **The pure classes** (17.19): `WorkClock`, `WorkHud` (what the top band shows), `WorkCards` (notices, feed lines and the head card, from the sim's events and queue) and `WorkSession` (the run as the screen plays it: the sim, the clock, the notices, the feed, the coach marks and the exact save). `GameState.session` holds one. The screens' scripts are in 17.20.
 - Every screen keeps an on-screen Back (section 9): the work state's opens Pause. The layoff scene follows RC-34: taps advance its beats and Back opens Pause; the hold-to-skip pill (11.2) comes with M3.
 
+**As built at M3 (D-40, D-41, D-42, A93, A95).** The Body's rows are the job line, the team row (`TeamRows`, 17.23; `WorkHud.team`) and the feed, which is a scrolling log, so a long line can never push the thumb band off the screen. The Jobs dock opens `BoardPanel` (`features/work/board_panel.tscn`, 17.22), a `VBoxContainer` between the top band and the Body that hides the Body and the thumb band while it is open, and `work.gd` holds the clock while it shows (INV-22); it shows what `WorkBoard` (pure, 17.22) computes and reports `apply_pressed` and `study_pressed`, which the screen turns into `career_apply` and `career_study`. Run 1 opens on the clip, a notice of style `WorkCards.CLIP` that `GameState` queues when a first run begins. After the layoff scene `WorkSession.take_board_hint()` opens the board once. The layoff scene (`features/layoff/`) plays on `VersusIntro` in a layoff mode, with a `HoldSkipPill` from the second viewing. The contract screen (`features/offer/`) has `SignSlider` (drag-to-sign) in the action bar and `HiredBeat` (the HIRED! stamp, committed after a tap).
+
 ### 19.8 The diorama (M5; GDD 2.11)
 
 - A `TileMapLayer` of 16x16 tiles (11.8), a column about three screens tall in the Body, with y-sorted characters. It scrolls like Mail's list, a ScrollContainer drag and never an action gesture (GDD 2.8 rule 5).
@@ -8718,7 +9972,7 @@ Nothing retires until the career run replaces the Phase 1 flow (MC-01, D-33: tha
 
 D-27's negotiation code did not wait for MC-01: it left in its own commit on 2026-10-08 (ROADMAP 12, Step 14 task 6): `Odds.negotiate_p`, `Odds.negotiated_salary`, BalanceConfig's `nego_*` fields, the offer's `negotiated` flag, `test_offer`'s negotiation test and the unused strings (CONTENT 16.7). Section 17 was re-synced in that commit. Each retired file's block leaves section 17 in the same commit, through the usual sync.
 
-### 19.10 Tests (M1: 126 tests in six suites; M2: 34 in four more, and 4 in suites that grew; the adapter's is M3)
+### 19.10 Tests (M1: 126 tests in six suites; M2: 34 in four more, and 4 in suites that grew; M3: 38 in four more suites, and more in the suites that grew)
 
 | Suite | Tests | Covers |
 |---|---|---|
@@ -8733,7 +9987,11 @@ D-27's negotiation code did not wait for MC-01: it left in its own commit on 202
 | `test_work_hud.gd` | 6 | the top band's numbers: Runway in months and red under two, Burnout, the Codebase's 10 LEDs, the Ticket and its deadline, the Studio chip, the label ids and the calendar strip |
 | `test_work_cards.gd` | 11 | the notices and feed lines the sim's events leave, the head card for each queue kind, the layoff scene not being a card, an event's `{money}` and `{home}`, and the severance a layoff card carries |
 | `test_work_session.gd` | 11 | the clock waits paused; `tick()` refuses while a notice or a card is open (INV-22); answers never burn a day; a whole job plays through to the layoff on day 240 with its five signs and its review; the save round trip is exact and lives the same days (KILL_TESTS 6-8); a run played with inputs between ticks replays from its log; the review stand-in's own dice; the interview and offer stubs; the coach marks; the feed |
-| `test_adapter.gd` (M3) | - | a DuelRequest's numbers reach the interview's start values; the 0.06 floor; a Phase 1 checkpoint still works |
+| `test_adapter.gd` | 12 | a DuelRequest's numbers reach the interview's start values (AC-JOB03-1); the 0.06 floor; a Phase 1 checkpoint still plays; the checkpoint follows the prompt pattern and never repeats a question; the same inputs replay the same interview; the warm-up and the greeting follow who has met Dana; the contract paper from a posting and its OfferResult; every career contract fits 20 lines; a won interview leads to an offer and Accept starts the job (AC-S16-2); a lost one ends the application; run 1 from day 0 through the board to job 2 (AC-S16-1) |
+| `test_work_board.gd` | 12 | the board's nodes and yearly pay, the 5-dot callback band and what moves it (level, references, Short Tenure), applications in flight, who can apply or study, a reply's notice and an application's feed line, the board opening after the layoff scene and after a decline |
+| `test_review_duel.gd` | 7 | a round's hit and the stand-in's mean, the rating from the answers, the review checkpoint (pool, manager, costs, replay), no repeated prompts, the manager's name, a finished review rates you (AC-STAT04-2) |
+| `test_sign_slider.gd` | 7 | drag to the end signs, a short drag springs back, the handle never leaves the track, a press that misses the handle does nothing, Relaxed Timing's tap, a disabled slider, the handle's size (INV-14) |
+| `test_work_hud.gd`, `test_intro.gd`, `test_work_session.gd`, `test_flow.gd`, `test_content_lint.gd`, `test_data_files.gd` (grown) | - | the team rows follow the signs and the job; the intro's handover caption plays only in a new game's intro; run 1's clip blocks the clock until a tap; the new phase pairs; the review pool's shape and every new text id; the new `WorkConfig` numbers |
 
 `tests/sim_fixture.gd` (`SimFixture`) builds the context the sim suites share: the Run Spec's numbers (`WorkConfig.new()` and archetypes built by hand), so tuning the `.tres` never breaks a worked example.
 

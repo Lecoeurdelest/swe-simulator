@@ -32,8 +32,10 @@ Ask the four gate questions of ROADMAP 7 as well, afterwards, one at a time:
 
 ## What this build does not have (do not apologize for it, just note it)
 
-- **No job board.** After the layoff the run waits between jobs, the dock's apps are stubs, and Plan B ends the run about a month later. The gate ends at the layoff.
-- **No interviews.** A recruiter's call (E18) leads to a skipped interview. The review is an automatic stand-in with its card and result.
+M3 (STEP-16) is built on top of the M2 build, so a playtest on the newest build also plays its content: run 1 opens on Remy's clip, the team shows under the job line, the review is a 3-question duel with Kev, the layoff scene is on the VS screen, and the DoomApply board, the interviews and the contract work. The gate's two questions are unchanged and still end at the layoff; players who go on are playing M3's board, which is welcome but not graded.
+
+- **No Home, ClikClok or Handbook apps** (they say "not in this build yet"), no Mid or Senior controls beyond the ticket pick, and Plan B still ends a run whose savings run out.
+- **The clauses are mostly a joke** and "Ask Priya" does nothing yet (nothing raises Rapport in run 1).
 - Grey boxes instead of the office diorama (M5). Runs after the first show Phase 1's background card.
 - Reasonable hours (notch 3) are a slow burn: the Runway chip is red from day 1, and a thin runway adds to Burnout. A player who never touches the Hours drifts toward Burnout 75 around day 150, which is the point of the dial, and what the second gate question asks about.
 

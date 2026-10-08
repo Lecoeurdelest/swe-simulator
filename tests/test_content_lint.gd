@@ -11,7 +11,7 @@ const ARCHETYPE_DIR := "res://data/archetypes/"
 const FILES: PackedStringArray = [
 	"naming", "backgrounds", "tiers", "companies", "postings", "cv_lines",
 	"questions_choice", "questions_knowledge", "barks", "emails", "tips",
-	"endings", "events", "cutscene", "names", "news", "work_events", "coworkers",
+	"endings", "events", "cutscene", "names", "news", "work_events", "coworkers", "questions_review",
 ]
 const TIERS: PackedStringArray = ["startup", "mid", "big"]
 const WRAP_COLUMNS := 40
@@ -706,8 +706,25 @@ func test_work_state_text_ids_exist() -> void:  # M2: every id the work state as
 		"ui_runway", "ui_burnout", "ui_ticket", "ui_codebase", "ui_studio_chip", "ui_hours", "ui_day", "ui_next", "ui_choice_none",
 		"ui_tab_jobs", "ui_tab_home", "ui_tab_video", "ui_tab_ducky", "ui_pick_feature", "ui_pick_bugfix", "ui_pick_paydown",
 		"ui_pick_paydown_note", "ui_pick_prompt", "ui_ok", "ui_continue", "ui_review_start", "ui_job_line", "ui_between_jobs",
-		"ui_duel_stub", "ui_offer_stub", "ui_app_stub", "ui_back", "ui_tap_to_continue",
-		"vs_layoff_title", "bark_dana_layoff", "bark_dana_layoff_2", "ui_severance", "ui_access_revoked"])
+		"ui_interview_day", "ui_interview_start", "ui_offer_ready", "ui_back_to_work", "bark_dana_greet_after_layoff",
+		"ui_app_stub", "ui_back", "ui_tap_to_continue",
+		"vs_layoff_title", "bark_dana_layoff", "bark_dana_layoff_2", "ui_severance", "ui_access_revoked",
+		# M3: the board, the hunt's notices and feed lines, the review duel
+		"ui_apply", "ui_apply_cost", "ui_study", "ui_study_done", "ui_board_refresh", "ui_board_waiting", "ui_board_nothing",
+		"ui_board_hint", "ui_app_reply", "ui_app_interview", "ui_clause_on_call", "ui_clause_remote_in_writing",
+		"ui_clause_unlimited_pto", "ui_mode_remote", "ui_mode_office", "ui_callback", "ui_last_floor", "ui_applied_feed",
+		"ui_callback_notice", "ui_rejected_feed", "ui_profile_noticed", "ui_interview_failed_feed", "ui_offer_declined_feed",
+		"ui_job_started_feed", "ui_studied_feed", "ui_recruiter_posting", "ui_archetype_startup", "ui_archetype_agency",
+		"ui_archetype_megacorp", "ui_evidence", "ui_calibration", "bark_kev_open", "vs_review_below", "vs_review_meets",
+		"vs_review_exceeds", "bark_kev_close_below", "bark_kev_close_meets", "bark_kev_close_exceeds",
+		# M3: run 1's clip card and the team rows
+		"ui_clip_intro", "ui_clip_outro", "ui_clip_go", "ui_desk_empty", "ui_studio_s1", "ui_studio_s2", "ui_studio_s3",
+		"ui_studio_s4", "ui_studio_s5", "vs_dana_stat_layoff", "vs_dana_move_layoff", "ui_laid_off_feed", "ui_skip_hold", "ui_sign", "ui_sign_tap", "vs_banner_big_2"])
+	for kind: String in ["good", "ok", "bad"]:
+		for n: int in range(1, 4):
+			ids.append("bark_kev_%s_%d" % [kind, n])
+	for n: int in range(1, 6):
+		ids.append("ui_odds_%d" % n)
 	for id: String in ids:
 		if not barks.has(id):
 			problems.append("barks.json has no '%s'" % id)
@@ -720,6 +737,34 @@ func test_work_state_text_ids_exist() -> void:  # M2: every id the work state as
 		if not endings.has(key):
 			problems.append("endings.json has no '%s'" % key)
 	_report(problems, "work-state text id")
+
+
+func test_contract_text_ids_exist() -> void:  # M3: the career contract's own words (DuelAdapter.offer_paper, ContractText)
+	var problems: Array[String] = []
+	var emails := _entries("emails")
+	for id: String in ["offer_mode_remote", "offer_mode_onsite", "offer_label_clauses", "title_junior", "title_mid", "title_senior",
+			"title_suffix_startup", "title_suffix_agency", "title_suffix_megacorp", "clause_on_call", "clause_remote_in_writing",
+			"clause_unlimited_pto", "offer_deadline"]:
+		if not emails.has(id):
+			problems.append("emails.json has no '%s'" % id)
+	_report(problems, "contract text id")
+
+
+## The review's prompts (D-39, A94): at least 12, one of each answer kind, and each short enough for its box.
+func test_shape_review_prompts() -> void:
+	var problems: Array[String] = []
+	var questions := _entries("questions_review")
+	if questions.size() < 12:
+		problems.append("questions_review.json has %d prompts, want at least 12" % questions.size())
+	for id: String in questions:
+		if not id.begins_with("rq_"):
+			problems.append("questions_review/%s: ids start with rq_" % id)
+		var kinds: Array[String] = []
+		for answer: Variant in _field(questions, id, "answers", []):
+			kinds.append(str((answer as Dictionary).get("kind", "")) if answer is Dictionary else "?")
+		if kinds.size() != 3 or kinds.count("good") != 1 or kinds.count("neutral") != 1 or kinds.count("bad") != 1:
+			problems.append("questions_review/%s: answer kinds %s (want one good, one neutral, one bad)" % [id, kinds])
+	_report(problems, "review prompt")
 
 
 func test_work_companies_exist() -> void:  # DECISIONS D-34 (MC-06): the career run reuses Phase 1's companies

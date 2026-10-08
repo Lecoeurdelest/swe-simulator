@@ -1095,6 +1095,7 @@ The hours are estimates written at the merge; each step's kickoff revises them, 
 ### Step 16 (M3): run 1 end to end
 
 - **Goal:** run 1 playable from day 0 to the board: Hierarchai and its coworkers, the resizing chain, the review duel, the layoff scene, the DoomApply board and the adapter.
+- **Status:** built and verified on the desktop on branch `step-16-run-one` (2026-10-08); the tone sign-off and the playthrough are yours. Built on `main` (M1, its sign-off and M2 are merged).
 - **Best practice:** finish one vertical path before widening: run 1 is the tutorial, the story and the satire's thesis in one.
 
 **Tasks**
@@ -1105,6 +1106,10 @@ The hours are estimates written at the merge; each step's kickoff revises them, 
 5. **The DoomApply board** (Claude): postings as nodes, the callback band, apply and study, replies and interviews on the calendar strip (GDD 5.20).
 
 **Design huddle:** the review's prompts, the clause list, the callback band's thresholds, E07's prep effects and run 1's work mode (spec gaps); MC-06, MC-08, MC-11, MC-19 and MC-20 are settled (D-34: Hierarchai for Pivotly, the HIRED! stamp as a beat, a new last intro caption, Decline still blacklists, reword the copy that names retired mechanics); the coworkers' and the layoff scene's tone is signed off for the drafts (D-37) and checked again once built.
+
+**Held 2026-10-08.** You answered the four forks with the recommendations: the review is three choice prompts (D-39), Hierarchai's coworkers are a team row in the Body (D-40), the board is a column of nodes (D-41) and day 0 opens on one clip card (D-42). The rest took the recommended defaults and are logged as A88-A96 in `docs/DECISIONS.md`, all "please review": the adapter's shape (A88, A89), the callback band (A90), the clauses (A91), the hunt's flow (A92), the layoff scene (A93), the review's numbers (A94), drag-to-sign (A95) and the new wording (A96). Reading the Phase 1 code at the kickoff found three traps the plan did not name: the career save must cover INTERVIEW and OFFER (`save()` would write a hunt save over it), `WORK` has no transition to them yet, and a career `RunState` is bare (no stats, no rent days) until the adapter fills it.
+
+**Built 2026-10-08** on branch `step-16-run-one`, as eight increments (each verified, pushed): the adapter and the phases (`DuelAdapter`, `ContractText`, the career save in INTERVIEW and OFFER, the verbs; A88, A89), the DoomApply board (`WorkBoard`, `BoardPanel`; D-41, A90-A92, A98), the interview and the contract from the board with the HIRED! stamp, the review duel (D-39, A94), run 1's content (the team row, the clip card, the handover caption: D-40, D-42), the layoff scene on the VS screen (A93), drag-to-sign (SHOULD-06, A95) and the evidence. 430 tests in 34 suites pass headless, the five bots still play the same runs, and the desktop kill tests of moments 9, 10, 12, 13 and 14 pass (`.project/evidence/STEP-16/2026-10-08-r1/`). Waiting for you: the tone sign-off of Hierarchai's coworkers and the layoff scene (AC-S16-3), your look at the review (AC-STAT04-2), and a playthrough on the desktop or your iPhone.
 
 **Done when**
 - [ ] Run 1 plays from day 0 to the board, with the five signs before day 240.

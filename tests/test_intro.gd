@@ -74,3 +74,24 @@ func test_cutscene_json_plays_as_the_gdd_says() -> void:
 			if caption["style"] == CutscenePlan.STYLE_TITLE:
 				titles += 1
 	assert_eq(titles, 1, "one title card (GDD S02: title slam, then Background select)")
+
+
+func test_the_handover_caption_plays_only_in_a_new_games_intro() -> void:  # MC-11, D-42
+	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(CUTSCENE_PATH))
+	assert_true(data is Dictionary)
+	if not (data is Dictionary):
+		return
+	var last_caption := func(panels: Array[Dictionary]) -> String:
+		var captions: Array = panels[panels.size() - 1]["captions"]
+		return str((captions[captions.size() - 1] as Dictionary)["text"])
+	assert_eq(last_caption.call(CutscenePlan.panels(data)), "How did you spend those four years?", "a replayed intro leads to Background select")
+	assert_eq(last_caption.call(CutscenePlan.panels(data, true)), "Four years later, you have a job. Remy says the next part is easy.", "a new game's intro hands over to day 0")
+	assert_eq(CutscenePlan.panels(data, true).size(), PANEL_COUNT, "the same six panels")
+	assert_eq(CutscenePlan.total_seconds(CutscenePlan.panels(data, true)), CutscenePlan.total_seconds(CutscenePlan.panels(data)), "the same pan time")
+	var entries := {"p": {"order": 1, "seconds": 1, "captions": [
+		{"text": "both"}, {"text": "question", "for": "choose"}, {"text": "handover", "for": "handover"}]}}
+	var plain: Array = CutscenePlan.panels(entries)[0]["captions"].map(func(cp: Dictionary) -> String: return cp["text"])
+	var handed: Array = CutscenePlan.panels(entries, true)[0]["captions"].map(func(cp: Dictionary) -> String: return cp["text"])
+	assert_eq(plain, ["both", "question"])
+	assert_eq(handed, ["both", "handover"])
+

@@ -4,10 +4,8 @@ extends Control
 ## Ducky tip, which fades in once the paper has landed and closes on a tap (for this offer only), and
 ## calls GameState.answer_offer(). Decline asks first, and on the grace day the question says the run
 ## ends (GDD 5.10); then Dana answers (5.9.4) before the Decline is committed.
-## Back never declines an offer (ARCHITECTURE 9).
+## Back never declines an offer (ARCHITECTURE 9). ACCEPT is a drag-to-sign gesture (SignSlider, A95).
 
-const CONTRACT_COLUMNS := 40   # GDD 2.7: the 254 px paper holds 40 characters of monogram 16
-const LABEL_COLUMNS := 12      # GDD S10: one field per line after a 12-character label column
 const PAPER_SLIDE_S := 0.3     # GDD 9.1 "the paper slides up from the bottom" (no duration given)
 const DANA_LINE_S := 2.5       # Dana's Decline line moves on by itself after this, or on a tap
 const TIP_FADE_S := 0.15       # Ducky's tip fades in after the paper lands, so it never sits over the rising paper
@@ -34,9 +32,10 @@ var _settle_t := 1.0           # the settle's eased progress; 1 = at rest
 @onready var _dana_text: Label = %DanaText
 @onready var _back_button: Button = %BackButton
 @onready var _decline_button: Button = %DeclineButton
-@onready var _accept_button: Button = %AcceptButton
+@onready var _sign: SignSlider = %SignSlider
 @onready var _pause: PauseMenu = %PauseMenu
 @onready var _decline_dialog: ConfirmDialog = %DeclineDialog
+@onready var _hired: HiredBeat = %HiredBeat
 
 
 func _ready() -> void:
@@ -49,10 +48,11 @@ func _ready() -> void:
 	_dana_name.text = Content.text("naming", "interviewer").to_upper()
 	_back_button.text = UiText.back(Content.text("barks", "ui_back"))
 	_decline_button.text = Content.text("barks", "ui_decline")
-	_accept_button.text = UiText.primary(Content.text("barks", "ui_accept"))
+	_sign.relaxed = bool(GameState.setting("options", "relaxed_timing", false))
+	_sign.set_label(Content.text("barks", "ui_sign_tap" if _sign.relaxed else "ui_sign"))
 	_back_button.pressed.connect(Device.handle_back)
 	_decline_button.pressed.connect(_on_decline)
-	_accept_button.pressed.connect(_on_accept)
+	_sign.signed.connect(_on_accept)
 	_decline_dialog.confirmed.connect(_on_decline_confirmed)
 	_tip.close_tapped.connect(_on_tip_closed)
 	_pause.quit_to_title_pressed.connect(GameState.quit_to_title)
@@ -64,6 +64,8 @@ func _ready() -> void:
 ## ARCHITECTURE 9: the confirm dialog open = cancel it; Pause open = resume; Dana's Decline line =
 ## move on; else open Pause. Back never declines.
 func handle_back() -> bool:
+	if _hired.skip():
+		return true
 	if _decline_dialog.is_open():
 		return _decline_dialog.handle_back()
 	if _pause.is_open():
@@ -86,36 +88,12 @@ func _input(event: InputEvent) -> void:
 
 # ---------- the contract (GDD S10, CONTENT.md 13.1) ----------
 
-## Top to bottom: the title and the letter, a blank line, one field per line after the label column
-## (the equity only at startups, the second perk under the first), then the deadline. Every text comes
-## from emails.json through the ids run.offer holds; the job title is the posting's own.
+## The paper's lines (ContractText, GDD S10, CONTENT.md 13.1): the title and the letter, a blank line, one field per line
+## after the label column (the equity only at startups, the second perk under the first, the career's clauses), then the
+## deadline. Every text comes from emails.json through the ids run.offer holds; the job title is the posting's own.
 func _contract_lines(run: RunState) -> PackedStringArray:
-	var offer: Dictionary = run.offer
-	var company := Content.field("companies", str(offer.get("company_id", "")), "name")
-	var commute: Dictionary = offer.get("commute", {})
-	var lines := PackedStringArray()
-	lines += UiText.word_wrap(Content.text("emails", "offer_title", {"company": company}), CONTRACT_COLUMNS)
-	lines += UiText.word_wrap(Content.text("emails", "offer_dear", {"player_name": run.player_name}), CONTRACT_COLUMNS)
-	lines += UiText.word_wrap(Content.text("emails", "offer_role", {"job_title": tr(str(offer.get("job_title", "")))}), CONTRACT_COLUMNS)
-	lines.append("")
-	lines += _field(Content.text("emails", "offer_label_salary"),
-		Content.text("emails", "offer_salary", {"salary": UiText.money(int(offer.get("salary", 0)))}))
-	if str(offer.get("equity_text", "")) != "":
-		lines += _field(Content.text("emails", "offer_label_equity"), Content.text("emails", str(offer["equity_text"])))
-	lines += _field(Content.text("emails", "offer_label_mode"), Content.text("emails", str(offer.get("work_mode", ""))))
-	lines += _field(Content.text("emails", "offer_label_commute"),
-		Content.text("emails", str(commute.get("id", "")), commute.get("args", {})))
-	var label := Content.text("emails", "offer_label_perks")
-	for perk: Variant in offer.get("perks", []):
-		lines += _field(label, Content.text("emails", str(perk)))
-		label = ""
-	lines += _field(Content.text("emails", "offer_label_fine_print"), Content.text("emails", str(offer.get("fine_print", ""))))
-	lines += UiText.word_wrap(Content.text("emails", "offer_deadline"), CONTRACT_COLUMNS)
-	return lines
-
-
-func _field(label: String, value: String) -> PackedStringArray:
-	return UiText.field(label, value, LABEL_COLUMNS, CONTRACT_COLUMNS)
+	var company := Content.field("companies", str(run.offer.get("company_id", "")), "name")
+	return ContractText.lines(run.offer, Content.entries("emails"), company, run.player_name)
 
 
 # ---------- the paper slides up ----------
@@ -182,7 +160,7 @@ func _on_tip_closed() -> void:
 
 func _set_answer_buttons(on: bool) -> void:
 	_decline_button.disabled = not on
-	_accept_button.disabled = not on
+	_sign.disabled = not on
 
 
 # ---------- answers ----------
@@ -192,6 +170,10 @@ func _on_accept() -> void:
 		return
 	_answered = true
 	_set_answer_buttons(false)
+	if GameState.career_flow:   # the career run's Accept plays the HIRED! stamp first (MC-08), then commits
+		_hired.finished.connect(GameState.answer_offer.bind(true), CONNECT_ONE_SHOT)
+		_hired.play(GameState.run.offer)
+		return
 	GameState.answer_offer(true)
 
 
@@ -200,7 +182,7 @@ func _on_decline() -> void:
 	if _answered:
 		return
 	var message := Content.text("barks", "ui_decline_confirm")
-	if GameState.run.decline_ends_run():
+	if GameState.decline_ends_run():
 		message = Content.text("barks", "ui_decline_confirm_grace")
 	_decline_dialog.open(message, Content.text("barks", "ui_decline"), "", true)
 

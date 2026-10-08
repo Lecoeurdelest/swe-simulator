@@ -36,6 +36,12 @@ const LEGAL: Array[Array] = [
 	[GameFlow.Phase.WORK, GameFlow.Phase.TITLE],
 	[GameFlow.Phase.LAYOFF, GameFlow.Phase.WORK],
 	[GameFlow.Phase.LAYOFF, GameFlow.Phase.TITLE],
+	# M3's adapter (ARCHITECTURE 19.5): an interview day or a review leaves WORK for INTERVIEW and comes back, or goes on
+	# to the contract after a win; the contract leads back to WORK.
+	[GameFlow.Phase.WORK, GameFlow.Phase.INTERVIEW],
+	[GameFlow.Phase.WORK, GameFlow.Phase.OFFER],
+	[GameFlow.Phase.INTERVIEW, GameFlow.Phase.WORK],
+	[GameFlow.Phase.OFFER, GameFlow.Phase.WORK],
 ]
 
 const ILLEGAL: Array[Array] = [
@@ -47,9 +53,8 @@ const ILLEGAL: Array[Array] = [
 	[GameFlow.Phase.GAME_OVER, GameFlow.Phase.JOB_HUNT],
 	[GameFlow.Phase.GAME_OVER, GameFlow.Phase.WORK],
 	[GameFlow.Phase.WORK, GameFlow.Phase.WORK],
-	[GameFlow.Phase.WORK, GameFlow.Phase.INTERVIEW],    # M3 adds these with the adapter
-	[GameFlow.Phase.WORK, GameFlow.Phase.OFFER],
 	[GameFlow.Phase.LAYOFF, GameFlow.Phase.GAME_OVER],
+	[GameFlow.Phase.LAYOFF, GameFlow.Phase.INTERVIEW],
 	[GameFlow.Phase.INTRO, GameFlow.Phase.LAYOFF],
 ]
 

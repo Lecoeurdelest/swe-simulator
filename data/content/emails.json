@@ -61,7 +61,7 @@
   "offer_commute_office": "{office_days} days x {commute_min} min each way = {hours} h a week",
   "offer_label_perks": "Perks:",
   "offer_label_fine_print": "Fine print:",
-  "offer_deadline": "Please decide before you sleep.",
+  "offer_deadline": "Offer expires at midnight. Probably.",
   "perk_pingpong": {
     "tiers": [
       "startup"
@@ -193,5 +193,17 @@
       "big"
     ],
     "text": "The Company reserves the right to call itself 'a family'."
-  }
+  },
+  "offer_mode_remote": "Fully remote",
+  "offer_mode_onsite": "Office: 5 days a week",
+  "title_junior": "Junior Software Engineer",
+  "title_mid": "Software Engineer",
+  "title_senior": "Senior Software Engineer",
+  "title_suffix_startup": " (Also Barista)",
+  "title_suffix_agency": " (Billable)",
+  "title_suffix_megacorp": " (Band 3 of 11)",
+  "offer_label_clauses": "Clauses:",
+  "clause_on_call": "On-call.",
+  "clause_remote_in_writing": "Remote, in writing.",
+  "clause_unlimited_pto": "Unlimited PTO*."
 }

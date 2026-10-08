@@ -10,11 +10,13 @@ extends RefCounted
 ##   "event" (a work_events entry), "tip", plus the numbers its text needs.
 ## Feed lines: one quiet line in the Body (payday, rent, a shipped ticket, a rumor), no pause.
 ## Head cards: the sim's queue head, which the player must answer: an event with choices, a review, a Mid's ticket
-##   pick, the forced leave. The layoff scene is the LAYOFF phase's, and an interview or an offer waits for M3's adapter.
+##   pick, the forced leave, an interview day (Start leads to the duel screen: DuelAdapter). The layoff scene is the
+##   LAYOFF phase's, and an offer is answered on the contract screen.
 
 const INFO := "info"
 const WARNING := "warning"
 const DUCKY := "ducky"
+const CLIP := "clip"   # run 1's day-0 clip card (D-42): Remy's five conditions
 
 const K_EVENT := "event"
 const K_REVIEW := "review"
@@ -54,6 +56,12 @@ static func notices_from(events: Array, s: SimState, ctx: SimContext) -> Array:
 				out.append(notice(DUCKY, {"tip": String(e["id"])}))
 			"resizing_survived":
 				out.append(notice(INFO, {"id": "ui_resizing_survived", "n": int(e["cuts"])}))
+			"callback":   # a reply with an interview day (GDD 5.20, A92): a notice; the day is on the calendar strip too
+				out.append(notice(INFO, {"id": "ui_callback_notice", "company": String(e["company"]), "day": int(e["interview"])}))
+			"recruiter_posting":
+				out.append(notice(INFO, {"id": "ui_recruiter_posting", "company": String(e["company"]), "day": int(e["interview"])}))
+			"profile_noticed":
+				out.append(notice(WARNING, {"id": "ui_profile_noticed"}))
 			"event":
 				if (e.get("choices", []) as Array).is_empty():  # no choices: it only needs reading, if it pauses at all
 					var evt: Dictionary = ctx.events.get(String(e["id"]), {})
@@ -78,6 +86,18 @@ static func feed_from(events: Array, s: SimState) -> Array:
 				out.append({"day": s.day, "literal": String(e["text"])})
 			"resizing_survived":
 				out.append(line(s.day, "barks", "ui_resizing_survived", "", {"n": int(e["cuts"])}))
+			"application_sent":
+				out.append(line(s.day, "barks", "ui_applied_feed", "", {"company": String(e["company"])}))
+			"rejected":
+				out.append(line(s.day, "barks", "ui_rejected_feed", "", {"company": String(e["company"])}))
+			"interview_failed":
+				out.append(line(s.day, "barks", "ui_interview_failed_feed", "", {"company": String(e["company"])}))
+			"offer_declined":
+				out.append(line(s.day, "barks", "ui_offer_declined_feed", "", {"company": String(e["company"])}))
+			"job_started":
+				out.append(line(s.day, "barks", "ui_job_started_feed", "", {"company": String(e["company"])}))
+			"studied":
+				out.append(line(s.day, "barks", "ui_studied_feed", "", {}))
 	return out
 
 
@@ -100,7 +120,9 @@ static func head(s: SimState, ctx: SimContext) -> Dictionary:
 		"forced_leave":
 			return {"kind": K_LEAVE, "days": int(item["days"])}
 		"duel":
-			return {"kind": K_DUEL}
+			var app := Sim.find_application(s, int(item["app"]))
+			return {"kind": K_DUEL, "company": String((app.get("posting", {}) as Dictionary).get("company", "")),
+				"index": int(item["index"]), "of": int(item["of"])}
 		"offer":
 			return {"kind": K_OFFER}
 	return {}

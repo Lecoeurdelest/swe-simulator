@@ -826,6 +826,11 @@ static func _find_app(s: SimState, app_id: int) -> Dictionary:
 	return {}
 
 
+## The application for a posting id ({} when it is gone): the adapter reads the posting a duel or an offer is about.
+static func find_application(s: SimState, app_id: int) -> Dictionary:
+	return _find_app(s, app_id)
+
+
 static func _drop_application(s: SimState, app_id: int) -> void:
 	for i: int in s.applications.size():
 		if int(s.applications[i]["posting"]["id"]) == app_id:
@@ -843,6 +848,11 @@ static func _recruiter_application(s: SimState, ctx: SimContext, events: Array) 
 	s.applications.append({"posting": posting, "applied": s.day, "reply": s.day, "callback": true, "interview": interview,
 		"status": "callback", "duels_done": 0, "next_duel": -1})
 	events.append({"kind": "recruiter_posting", "company": posting["company"], "interview": interview})
+
+
+## How many references you can give: each coworker, past or present, at Rapport 60 or more (the board's callback odds).
+static func references(s: SimState, cfg: WorkConfig) -> int:
+	return _references(s, cfg)
 
 
 static func _references(s: SimState, cfg: WorkConfig) -> int:
@@ -904,7 +914,7 @@ static func _gen_posting(s: SimState, ctx: SimContext) -> Dictionary:
 		company = pool[start]
 		for k: int in pool.size():
 			var candidate := pool[(start + k) % pool.size()]
-			if not s.blacklist.has(candidate):
+			if not s.blacklist.has(candidate) and candidate != s.job_company:   # nobody posts a job at the company you already work for
 				company = candidate
 				break
 	var id_n := s.next_posting_id
@@ -1002,6 +1012,7 @@ static func _end_job(s: SimState, ctx: SimContext, reason: String, events: Array
 	var cfg := ctx.cfg
 	var arch := ctx.archetype(s.job_archetype)
 	var tenure := s.day - s.job_start
+	var company := s.job_company
 	s.savings += s.pay_accrued + severance_months * s.job_salary
 	s.pay_accrued = 0.0
 	if reason != "layoff" and tenure < cfg.short_tenure_days:
@@ -1034,7 +1045,7 @@ static func _end_job(s: SimState, ctx: SimContext, reason: String, events: Array
 	s.hours_lock_until = -1
 	_drop_job_cards(s)
 	s.bump("exit_%s" % reason)
-	events.append({"kind": "job_ended", "reason": reason, "tenure": tenure, "severance_months": severance_months})
+	events.append({"kind": "job_ended", "reason": reason, "tenure": tenure, "severance_months": severance_months, "company": company})
 	_log(s, ctx, "exit", {"reason": reason, "tenure": tenure})
 	if s.jobs_held >= cfg.max_jobs:
 		_end_run(s, ctx, "career_change", events)

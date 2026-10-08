@@ -1128,7 +1128,9 @@ tasks:
     decision_ids: [D-02, D-03, D-05, D-22, D-23, D-26, D-27, D-33, P-02, P-06, P-08, Q-02]
     depends_on: [STEP-15]
     acceptance_ids: [AC-S16-1, AC-S16-2, AC-S16-3, AC-STAT04-2, AC-JOB01-1, AC-JOB03-1, AC-JOB04-1, AC-SH-06]
-    outputs: ["features/layoff/", data/content/coworkers.json, tests/test_adapter.gd]
+    outputs: ["features/layoff/", "features/work/", "features/interview/", "features/offer/", data/content/coworkers.json, data/content/questions_review.json, core/duel_adapter.gd, core/work_board.gd, tests/test_adapter.gd, "tests/test_work_board.gd", "tests/test_review_duel.gd", ".project/evidence/STEP-16/"]
+    note: "Built and verified on branch step-16-run-one (2026-10-08); waits for the developer's tone sign-off, a look at the review and a playthrough. The huddle: D-39 (the review is three choice prompts), D-40 (the team row), D-41 (the board is a column of nodes), D-42 (the day-0 clip card) and the agent defaults A88-A96. Context bundle: .project/bundles/STEP-16.md."
+    out_of_scope: ["The Dream vs Reality score (M4: per job, on Accept)", "The other events and the clause effects (M4, M6)", "The diorama (M5)"]
     milestone: "M3 (Run Spec v1)"
   - id: STEP-17
     title: "M4: all systems"

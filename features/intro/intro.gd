@@ -43,7 +43,7 @@ var _type_tween: Tween
 
 
 func _ready() -> void:
-	_panels = CutscenePlan.panels(Content.entries("cutscene"))
+	_panels = CutscenePlan.panels(Content.entries("cutscene"), GameState.intro_hands_over())
 	_frame.custom_minimum_size = _frame_size()
 	_skip_pill.text = Content.text("barks", "ui_skip_hold")
 	(%TapHint as Label).text = Content.text("barks", "ui_tap_to_continue")

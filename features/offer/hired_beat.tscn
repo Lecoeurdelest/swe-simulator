@@ -1,0 +1,83 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://features/offer/hired_beat.gd" id="1_beat"]
+[ext_resource type="Script" path="res://ui/components/safe_area_margin.gd" id="2_safe"]
+[ext_resource type="PackedScene" path="res://ui/components/ending_art.tscn" id="3_art"]
+
+[node name="HiredBeat" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_beat")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.11, 0.12, 0.17, 1)
+
+[node name="SafeArea" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_safe")
+
+[node name="Column" type="VBoxContainer" parent="SafeArea"]
+custom_minimum_size = Vector2(254, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Art" parent="SafeArea/Column" instance=ExtResource("3_art")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Info" type="PanelContainer" parent="SafeArea/Column"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="InfoRows" type="VBoxContainer" parent="SafeArea/Column/Info"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="JobLines" type="Label" parent="SafeArea/Column/Info/InfoRows"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Beigeware Financial
+Junior Software Engineer
+$30,000/year"
+autowrap_mode = 3
+
+[node name="HiredLine" type="Label" parent="SafeArea/Column/Info/InfoRows"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "There's a sweater on your chair."
+autowrap_mode = 3
+
+[node name="Spacer" type="Control" parent="SafeArea/Column"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="TapHint" type="Label" parent="SafeArea/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+text = "Tap to continue"
+horizontal_alignment = 1
+vertical_alignment = 1

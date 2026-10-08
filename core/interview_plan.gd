@@ -54,6 +54,17 @@ static func pick(cfg: BalanceConfig, tier_id: String, choice_pool: Dictionary, k
 	return {"question_ids": question_ids, "warmup_id": warmup_id}
 
 
+## n ids from a pool with no tiers (the review's prompts, GDD 5.16): unseen ones in an order the RNG decides, then the
+## least recently asked. The ids are sorted first, so the JSON key order never decides.
+static func pick_ids(pool: Dictionary, seen: Array[String], rng: RandomNumberGenerator, n: int) -> Array[String]:
+	var ids: Array[String] = []
+	for id: String in pool:
+		if not id.begins_with("_") and pool[id] is Dictionary:
+			ids.append(id)
+	ids.sort()
+	return _draw(rng, ids, seen, n)
+
+
 ## The ids of one pool that a tier can ask, sorted so the picks never depend on the JSON key order.
 static func eligible(pool: Dictionary, tier_id: String) -> Array[String]:
 	var ids: Array[String] = []

@@ -96,6 +96,27 @@ static func calendar(ctx: SimContext, s: SimState) -> Array:
 	return out
 
 
+## Hierarchai's authored coworkers as the Body's team rows (D-40, GDD 5.18): {id, name, role, line, gone}. Run 1's four have
+## cards in coworkers.json; a generated crew has none, so it shows no rows (M4). A desk goes dark with the sign that says
+## so (E07's run1_desks_dark names the sign by its number), and every row clears with the job.
+static func team(ctx: SimContext, s: SimState) -> Array:
+	var out: Array = []
+	var telegraph: Dictionary = (ctx.events.get("evt_e07_resizing", {}) as Dictionary).get("telegraph", {})
+	var signs: Array = telegraph.get("run1_signs", [])
+	var dark: Dictionary = telegraph.get("run1_desks_dark", {})
+	for cw: Dictionary in s.coworkers:
+		var id := String(cw.get("id", ""))
+		var def: Dictionary = ctx.coworker_defs.get(id, {})
+		if def.is_empty():
+			continue
+		var gone := false
+		if dark.has(id):
+			var index := int(dark[id]) - 1
+			gone = index >= 0 and index < signs.size() and s.day >= int((signs[index] as Dictionary)["day"])
+		out.append({"id": id, "name": String(def["name"]), "role": String(def["role"]), "line": String(def["line"]), "gone": gone})
+	return out
+
+
 ## The next thing on the calendar (for a text line under the strip), or {} when the strip is empty.
 static func next_on_calendar(ctx: SimContext, s: SimState) -> Dictionary:
 	var items := calendar(ctx, s)
