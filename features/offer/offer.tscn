@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://ba7fpxb5lc526" path="res://ui/components/confirm_dialog.tscn" id="4_conf"]
 [ext_resource type="PackedScene" uid="uid://cv7u0us1tep67" path="res://ui/components/ducky_note.tscn" id="5_duck"]
 [ext_resource type="PackedScene" path="res://features/offer/hired_beat.tscn" id="6_hired"]
+[ext_resource type="Script" path="res://features/offer/sign_slider.gd" id="7_sign"]
 
 [node name="Offer" type="Control" unique_id=894328749]
 layout_mode = 3
@@ -207,13 +208,12 @@ custom_minimum_size = Vector2(80, 36)
 layout_mode = 2
 text = "Decline"
 
-[node name="AcceptButton" type="Button" parent="SafeArea/Column/ThumbBand/ActionBar" unique_id=1423753907]
+[node name="SignSlider" type="Control" parent="SafeArea/Column/ThumbBand/ActionBar"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(168, 36)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_type_variation = &"PrimaryButton"
-text = "ACCEPT"
+script = ExtResource("7_sign")
 
 [node name="ModalLayer" type="CanvasLayer" parent="." unique_id=412430585]
 layer = 10

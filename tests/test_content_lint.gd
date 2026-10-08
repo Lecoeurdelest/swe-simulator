@@ -719,7 +719,7 @@ func test_work_state_text_ids_exist() -> void:  # M2: every id the work state as
 		"vs_review_exceeds", "bark_kev_close_below", "bark_kev_close_meets", "bark_kev_close_exceeds",
 		# M3: run 1's clip card and the team rows
 		"ui_clip_intro", "ui_clip_outro", "ui_clip_go", "ui_desk_empty", "ui_studio_s1", "ui_studio_s2", "ui_studio_s3",
-		"ui_studio_s4", "ui_studio_s5", "vs_dana_stat_layoff", "vs_dana_move_layoff", "ui_laid_off_feed", "ui_skip_hold"])
+		"ui_studio_s4", "ui_studio_s5", "vs_dana_stat_layoff", "vs_dana_move_layoff", "ui_laid_off_feed", "ui_skip_hold", "ui_sign", "ui_sign_tap"])
 	for kind: String in ["good", "ok", "bad"]:
 		for n: int in range(1, 4):
 			ids.append("bark_kev_%s_%d" % [kind, n])

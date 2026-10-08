@@ -263,5 +263,7 @@
   "ui_desk_empty": "(desk empty)",
   "vs_dana_stat_layoff": "Meetings today: 14",
   "vs_dana_move_layoff": "Special move: The Reshaping",
-  "ui_laid_off_feed": "Laid off from {company}. Severance: {money}."
+  "ui_laid_off_feed": "Laid off from {company}. Severance: {money}.",
+  "ui_sign": "Drag to sign",
+  "ui_sign_tap": "Tap to sign"
 }

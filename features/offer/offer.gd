@@ -4,7 +4,7 @@ extends Control
 ## Ducky tip, which fades in once the paper has landed and closes on a tap (for this offer only), and
 ## calls GameState.answer_offer(). Decline asks first, and on the grace day the question says the run
 ## ends (GDD 5.10); then Dana answers (5.9.4) before the Decline is committed.
-## Back never declines an offer (ARCHITECTURE 9).
+## Back never declines an offer (ARCHITECTURE 9). ACCEPT is a drag-to-sign gesture (SignSlider, A95).
 
 const PAPER_SLIDE_S := 0.3     # GDD 9.1 "the paper slides up from the bottom" (no duration given)
 const DANA_LINE_S := 2.5       # Dana's Decline line moves on by itself after this, or on a tap
@@ -32,7 +32,7 @@ var _settle_t := 1.0           # the settle's eased progress; 1 = at rest
 @onready var _dana_text: Label = %DanaText
 @onready var _back_button: Button = %BackButton
 @onready var _decline_button: Button = %DeclineButton
-@onready var _accept_button: Button = %AcceptButton
+@onready var _sign: SignSlider = %SignSlider
 @onready var _pause: PauseMenu = %PauseMenu
 @onready var _decline_dialog: ConfirmDialog = %DeclineDialog
 @onready var _hired: HiredBeat = %HiredBeat
@@ -48,10 +48,11 @@ func _ready() -> void:
 	_dana_name.text = Content.text("naming", "interviewer").to_upper()
 	_back_button.text = UiText.back(Content.text("barks", "ui_back"))
 	_decline_button.text = Content.text("barks", "ui_decline")
-	_accept_button.text = UiText.primary(Content.text("barks", "ui_accept"))
+	_sign.relaxed = bool(GameState.setting("options", "relaxed_timing", false))
+	_sign.set_label(Content.text("barks", "ui_sign_tap" if _sign.relaxed else "ui_sign"))
 	_back_button.pressed.connect(Device.handle_back)
 	_decline_button.pressed.connect(_on_decline)
-	_accept_button.pressed.connect(_on_accept)
+	_sign.signed.connect(_on_accept)
 	_decline_dialog.confirmed.connect(_on_decline_confirmed)
 	_tip.close_tapped.connect(_on_tip_closed)
 	_pause.quit_to_title_pressed.connect(GameState.quit_to_title)
@@ -159,7 +160,7 @@ func _on_tip_closed() -> void:
 
 func _set_answer_buttons(on: bool) -> void:
 	_decline_button.disabled = not on
-	_accept_button.disabled = not on
+	_sign.disabled = not on
 
 
 # ---------- answers ----------
