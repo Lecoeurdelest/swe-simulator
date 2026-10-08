@@ -155,3 +155,19 @@ func test_the_board_opens_by_itself_once_after_the_layoff_scene() -> void:  # GD
 	session.acknowledge()
 	assert_true(session.take_board_hint(), "after the layoff scene")
 	assert_false(session.take_board_hint(), "once")
+
+
+func test_declining_an_offer_sends_you_back_to_the_board() -> void:  # A92
+	var session := WorkSession.start(c, 2, 4, [], "Alex", false)
+	session.sim.queue.append({"kind": "offer", "app": 9, "posting": SimFixture.posting(c, "startup", 0, 1, false, 9)})
+	session.answer_offer(false)
+	assert_true(session.sim.blacklist.has("co_test"), "the company is blacklisted (MC-19)")
+	assert_true(session.take_board_hint(), "back to the board")
+	assert_eq(session.feed.back()["id"], "ui_offer_declined_feed")
+	var other := WorkSession.start(c, 2, 4, [], "Alex", false)
+	other.sim.savings = 500.0
+	other.sim.queue.append({"kind": "offer", "app": 10, "posting": SimFixture.posting(c, "startup", 0, 1, false, 10)})
+	other.answer_offer(true)
+	assert_false(other.take_board_hint(), "an accepted offer starts a job instead")
+	assert_eq(other.feed.back()["id"], "ui_job_started_feed")
+

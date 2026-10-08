@@ -8083,7 +8083,10 @@ func offer_paper() -> Dictionary:
 ## Accept (a voluntary exit when you hold a job) or Decline (the company is blacklisted). The OfferResult of GDD 5.20 is
 ## DuelAdapter.offer_result(accept, paper), for a caller that wants it.
 func answer_offer(accept: bool) -> Array:
-	return apply(DuelAdapter.offer_input(accept))
+	var events := apply(DuelAdapter.offer_input(accept))
+	if not accept:
+		board_hint = true   # a declined offer sends you back to the board (GDD 4.5)
+	return events
 
 
 ## For the tests and the autoplay: the interview goes badly.

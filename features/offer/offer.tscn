@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://ce41s06l840t1" path="res://ui/components/pause_menu.tscn" id="3_pause"]
 [ext_resource type="PackedScene" uid="uid://ba7fpxb5lc526" path="res://ui/components/confirm_dialog.tscn" id="4_conf"]
 [ext_resource type="PackedScene" uid="uid://cv7u0us1tep67" path="res://ui/components/ducky_note.tscn" id="5_duck"]
+[ext_resource type="PackedScene" path="res://features/offer/hired_beat.tscn" id="6_hired"]
 
 [node name="Offer" type="Control" unique_id=894328749]
 layout_mode = 3
@@ -221,4 +222,7 @@ layer = 10
 unique_name_in_owner = true
 
 [node name="DeclineDialog" parent="ModalLayer" unique_id=1619682519 instance=ExtResource("4_conf")]
+unique_name_in_owner = true
+
+[node name="HiredBeat" parent="ModalLayer" instance=ExtResource("6_hired")]
 unique_name_in_owner = true

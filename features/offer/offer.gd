@@ -35,6 +35,7 @@ var _settle_t := 1.0           # the settle's eased progress; 1 = at rest
 @onready var _accept_button: Button = %AcceptButton
 @onready var _pause: PauseMenu = %PauseMenu
 @onready var _decline_dialog: ConfirmDialog = %DeclineDialog
+@onready var _hired: HiredBeat = %HiredBeat
 
 
 func _ready() -> void:
@@ -62,6 +63,8 @@ func _ready() -> void:
 ## ARCHITECTURE 9: the confirm dialog open = cancel it; Pause open = resume; Dana's Decline line =
 ## move on; else open Pause. Back never declines.
 func handle_back() -> bool:
+	if _hired.skip():
+		return true
 	if _decline_dialog.is_open():
 		return _decline_dialog.handle_back()
 	if _pause.is_open():
@@ -166,6 +169,10 @@ func _on_accept() -> void:
 		return
 	_answered = true
 	_set_answer_buttons(false)
+	if GameState.career_flow:   # the career run's Accept plays the HIRED! stamp first (MC-08), then commits
+		_hired.finished.connect(GameState.answer_offer.bind(true), CONNECT_ONE_SHOT)
+		_hired.play(GameState.run.offer)
+		return
 	GameState.answer_offer(true)
 
 
