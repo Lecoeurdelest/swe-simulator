@@ -1106,6 +1106,8 @@ The hours are estimates written at the merge; each step's kickoff revises them, 
 
 **Design huddle:** the review's prompts, the clause list, the callback band's thresholds, E07's prep effects and run 1's work mode (spec gaps); MC-06, MC-08, MC-11, MC-19 and MC-20 are settled (D-34: Hierarchai for Pivotly, the HIRED! stamp as a beat, a new last intro caption, Decline still blacklists, reword the copy that names retired mechanics); the coworkers' and the layoff scene's tone is signed off for the drafts (D-37) and checked again once built.
 
+**Held 2026-10-08.** You answered the four forks with the recommendations: the review is three choice prompts (D-39), Hierarchai's coworkers are a team row in the Body (D-40), the board is a column of nodes (D-41) and day 0 opens on one clip card (D-42). The rest took the recommended defaults and are logged as A88-A96 in `docs/DECISIONS.md`, all "please review": the adapter's shape (A88, A89), the callback band (A90), the clauses (A91), the hunt's flow (A92), the layoff scene (A93), the review's numbers (A94), drag-to-sign (A95) and the new wording (A96). Reading the Phase 1 code at the kickoff found three traps the plan did not name: the career save must cover INTERVIEW and OFFER (`save()` would write a hunt save over it), `WORK` has no transition to them yet, and a career `RunState` is bare (no stats, no rent days) until the adapter fills it.
+
 **Done when**
 - [ ] Run 1 plays from day 0 to the board, with the five signs before day 240.
 - [ ] A won interview from the board reaches the contract modal through the adapter, and Accept starts job 2.

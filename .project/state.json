@@ -207,7 +207,22 @@
       },
       "history": [{"date": "2026-10-08", "to": "in_progress", "reason": "Branch step-15-greybox-ui cut from step-14-signoff after PR #8 merged and the developer signed off M1 (D-29..D-38). The huddle's defaults were taken as agent defaults, A78-A87."}, {"date": "2026-10-08", "to": "verifying", "reason": "Tasks 1-3 built and verified: 387 tests in 30 suites pass, the load check passes (125 files), the desktop kill tests pass (moments 6, 7, 8 and 11), and a whole run played through GameState's verbs. Only developer-owned criteria remain: the playtest and the manual reviews."}]
     },
-    "STEP-16": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-15. Drag-to-sign (SHOULD-06) joins this step (D-33).", "criteria": {}, "history": []},
+    "STEP-16": {
+      "execution": "in_progress",
+      "relevance": "current",
+      "detail": "In progress on branch step-16-run-one (2026-10-08). The huddle is held: D-39 (the review is three choice prompts), D-40 (the team row), D-41 (the board is a column of nodes), D-42 (the day-0 clip card) and the agent defaults A88-A96. Drag-to-sign (SHOULD-06) joins this step (D-33). Context bundle: .project/bundles/STEP-16.md.",
+      "criteria": {
+        "AC-S16-1": {"status": "pending", "by": "agent", "note": "Run 1 from day 0 to the board, with the five signs before day 240: test_work_session plays it; the real screens are checked in the editor."},
+        "AC-S16-2": {"status": "pending", "by": "agent", "note": "A won interview from the board reaches the contract through the adapter and Accept starts job 2: test_adapter and the editor run."},
+        "AC-S16-3": {"status": "pending", "by": "developer", "note": "Your tone sign-off of Hierarchai's coworkers and the layoff scene (W4)."},
+        "AC-STAT04-2": {"status": "pending", "by": "developer", "note": "The review as a 3-prompt duel with a manager portrait (D-39): your look at it."},
+        "AC-JOB01-1": {"status": "pending", "by": "agent", "note": "The board, applying and replies: test_work_board and the editor run."},
+        "AC-JOB03-1": {"status": "pending", "by": "agent", "note": "test_adapter: the request's numbers reach the interview, the 0.06 floor, a Phase 1 checkpoint still plays."},
+        "AC-JOB04-1": {"status": "pending", "by": "agent", "note": "The contract offers Accept or Decline only; Accept while employed is a Quit: test_adapter and test_sim_rules."},
+        "AC-SH-06": {"status": "pending", "by": "agent", "note": "Drag-to-sign built under the 2x rule (A95), or recorded on the cut list."}
+      },
+      "history": [{"date": "2026-10-08", "to": "in_progress", "reason": "Branch step-16-run-one cut from main after PR #10 (M1, its sign-off and M2) merged. STEP-15 waits only for the developer's playtest (W2). The huddle was held: four forks answered with the recommendations (D-39..D-42), the rest taken as agent defaults (A88-A96)."}]
+    },
     "STEP-17": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-16.", "criteria": {}, "history": []},
     "STEP-18": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-17. The art is the developer's to draw (D-21: no commissioned art).", "criteria": {}, "history": []},
     "STEP-19": {"execution": "todo", "relevance": "current", "detail": "Needs STEP-18.", "criteria": {}, "history": []}

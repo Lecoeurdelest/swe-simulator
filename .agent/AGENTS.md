@@ -4,7 +4,7 @@ Shared instructions for every coding agent. `.claude/CLAUDE.md` and `.code/AGENT
 
 The game is a satirical 2D pixel-art **portrait** mobile game: **iPhone first**, built on the developer's MacBook, with Android LATER (`docs/DECISIONS.md` D1, P1). It is built with Godot **4.7.2** (the exact version on every machine), GDScript and `gl_compatibility`, edited through the godot-ai MCP. The developer is a **first-time game developer** who wants to learn as well as ship: explain *why*, not just what, and bring design choices to them with a recommended default.
 
-Since 2026-10-07 the game is a **career roguelite** (Run Spec v1, merged into the docs: DECISIONS W8): one run is one career of up to five jobs on a macro clock, and the Phase 1 job hunt lives on as the DoomApply app, the Dana duel and the contract modal behind an adapter (GDD 0). The shipped game is still Phase 1's v0.1 grey-box. **M1, the career run's sim core (STEP-14), is built, merged and signed off** (2026-10-08, PR #8): it runs headless beside the game, with five bots and a harness; nothing on screen uses it yet. The developer's sign-off of 2026-10-08 answered every open conflict (D-29..D-38) and set the scope: build every MUST and SHOULD. **M2 (STEP-15, the grey-box UI) is built** on branch `step-15-greybox-ui` (2026-10-08) and waits for the developer's playtest (`docs/PLAYTEST_M2.md`); **M3 (STEP-16, run 1 end to end) is next** (ROADMAP 12).
+Since 2026-10-07 the game is a **career roguelite** (Run Spec v1, merged into the docs: DECISIONS W8): one run is one career of up to five jobs on a macro clock, and the Phase 1 job hunt lives on as the DoomApply app, the Dana duel and the contract modal behind an adapter (GDD 0). The shipped game is still Phase 1's v0.1 grey-box. **M1, the career run's sim core (STEP-14), is built, merged and signed off** (2026-10-08, PR #8): it runs headless beside the game, with five bots and a harness; nothing on screen uses it yet. The developer's sign-off of 2026-10-08 answered every open conflict (D-29..D-38) and set the scope: build every MUST and SHOULD. **M2 (STEP-15, the grey-box UI) is built and merged** (PR #10, 2026-10-08) and waits for the developer's playtest (`docs/PLAYTEST_M2.md`); **M3 (STEP-16, run 1 end to end) is in progress** on branch `step-16-run-one` (ROADMAP 12; the huddle is D-39..D-42 and A88..A96).
 
 ## What to read
 
@@ -30,7 +30,7 @@ If two docs disagree: the GDD wins on rules and numbers, ARCHITECTURE wins on en
 - **The original docs win** on pixel-art style, engine and language, code conventions, shipped UI conventions and existing characters (Dana, Remy, Ducky).
 - **The Run Spec wins** on game design (run structure, systems, rules, numbers, events, endings), and it supersedes every earlier work-loop note.
 - A conflict neither rule settles goes into `docs/merge-report.md` as the next MC-nn with a proposed resolution, and the doc text says "Open (MC-nn)". Never resolve one silently, and never decide an open MC item yourself: it waits for the developer.
-- Keep the spec's ids everywhere: D-, P-, Q- (decisions and questions), R- (requirements), E01-E26 (events), S1-S5, O1-O9, A-01..A-05 (the spec's assumptions, not agent defaults) and M1-M6. A new design decision continues the D- series (D-39 next, A60).
+- Keep the spec's ids everywhere: D-, P-, Q- (decisions and questions), R- (requirements), E01-E26 (events), S1-S5, O1-O9, A-01..A-05 (the spec's assumptions, not agent defaults) and M1-M6. A new design decision continues the D- series (D-43 next, A60).
 
 ## Session loop (ROADMAP 10, ARCHITECTURE 16)
 
@@ -101,7 +101,7 @@ PYTHONIOENCODING=utf-8 python .agent/skills/plan-driven-development/scripts/chec
 
 The only expected validator warnings are "STEP-00: decision D4 is not accepted." and "STEP-00: decision D7 is not accepted." (D4 was superseded by D9, D7 by D-27).
 
-**Git on the Windows PC** works from the Bash tool (Git Bash); it isn't on the PowerShell PATH, and there is no `gh` CLI, so pull-request status comes from the GitHub page.
+**Git on the Windows PC** works from the Bash tool (Git Bash); it isn't on the PowerShell PATH. The `gh` CLI is installed and signed in as the developer (since 2026-10-08): use it to open pull requests and read their status; merge one only when the developer asks, with a merge commit and never squash.
 
 ## godot-ai gotchas
 

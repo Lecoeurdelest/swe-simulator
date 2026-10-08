@@ -1,13 +1,13 @@
 # Review queue: what's waiting for you
 
-Rewritten on 2026-10-08, after you signed off STEP-14 (M1), and updated the same day for STEP-15 (M2). The Run Spec merge, its open conflicts and M1's review (the old sections 0.1-0.6) are answered: the record is `docs/DECISIONS.md` D-29..D-38 and `docs/merge-report.md`. Sections 1-5 carry over what was still waiting from the Step 7 review (2026-09-29). Tick items off here, or delete the file when you're done.
+Rewritten on 2026-10-08, after you signed off STEP-14 (M1), and updated the same day for STEP-15 (M2) and STEP-16 (M3). The Run Spec merge, its open conflicts and M1's review (the old sections 0.1-0.6) are answered: the record is `docs/DECISIONS.md` D-29..D-38 and `docs/merge-report.md`. Sections 1-5 carry over what was still waiting from the Step 7 review (2026-09-29). Tick items off here, or delete the file when you're done.
 
 ## 0. Waiting for you now
 
-1. **Merge `step-14-signoff`** on GitHub (a merge commit, not squash): the decision rows D-29..D-38, INV-21..23, the one-month starting savings, Phase 1's company names in place of the placeholders, the settled docs, and the rerun evidence. Then **`step-15-greybox-ui`** (M2, built on top of it), in that order.
-2. **Tick STEP-14's "Done when" boxes** in ROADMAP 12 (Step 14). The tracking already says done; the checkboxes are yours.
-3. **Run the M2 playtest** (`docs/PLAYTEST_M2.md`), which also carries Playtest #1 (D-33): three outside players, silent, on the desktop build or your iPhone. The step cannot be done without it. Pull `step-15-greybox-ui`, run the project and press New game (Reset first run first).
-4. **M2's agent defaults A78-A87** in `docs/DECISIONS.md`, all "please review": the entry points, the save, the clock, the cards, the stand-ins, what happens after the layoff, the coach marks, the layout, the debug helpers and the new strings (A87 lists my drafts for your tone check, including the prep card's line).
+1. **Tick STEP-14's "Done when" boxes** in ROADMAP 12 (Step 14). The tracking already says done; the checkboxes are yours. (PRs #9 and #10, the sign-off and M2, are merged.)
+2. **Run the M2 playtest** (`docs/PLAYTEST_M2.md`), which also carries Playtest #1 (D-33): three outside players, silent, on the desktop build or your iPhone. The step cannot be done without it. Pull `main`, run the project and press New game (Reset first run first). M3 (below) changes the screens as it lands, so the cleanest build for the playtest is `main` as of the M2 merge or the finished M3.
+3. **M2's agent defaults A78-A87** in `docs/DECISIONS.md`, all "please review": the entry points, the save, the clock, the cards, the stand-ins, what happens after the layoff, the coach marks, the layout, the debug helpers and the new strings (A87 lists my drafts for your tone check, including the prep card's line).
+4. **M3's agent defaults A88-A96**, all "please review": the adapter's shape, dice, the callback band, clauses, the hunt's flow, the layoff scene, the review's numbers, drag-to-sign and the new wording (A96 lists my drafts). M3 (STEP-16) is in progress on `step-16-run-one`; its tone sign-off (Hierarchai's coworkers and the layoff scene, AC-S16-3) comes when it is built.
 5. **Phase 1 leftovers:** A42, Q5 and the Phase 1 copy sign-off (sections 2 and 3 below).
 6. **The iPhone checklist** (section 5), when the Mac and iPhone are ready; it now also holds the career run's kill moments 6-11 (`docs/KILL_TESTS.md`).
 
@@ -32,6 +32,10 @@ Rewritten on 2026-10-08, after you signed off STEP-14 (M1), and updated the same
 | Scope of the career run | build every MUST and SHOULD | D-36 |
 | Tone and tip accuracy | signed off (CONTENT 16's drafts and the 23 event tips) | D-37 |
 | INV-21..23 | added | D-38 |
+| M3: the review's form | three choice prompts | D-39 |
+| M3: the coworkers before the diorama | a team row in the Body | D-40 |
+| M3: the board | a column of nodes | D-41 |
+| M3: day 0 | one clip card | D-42 |
 
 ## 1. The Step 7 review (merged)
 
