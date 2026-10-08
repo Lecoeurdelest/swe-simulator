@@ -12,7 +12,7 @@ extends Resource
 @export var duels_per_offer: int = 1
 @export var remote_share: float = 0.10
 @export var board_weight: float = 1.0         # relative share of the board's postings
-@export var company_ids: PackedStringArray = PackedStringArray(["co_outsourcery", "co_pixelpivot", "co_beigeware", "co_bytebistro"])
+@export var company_ids: PackedStringArray = PackedStringArray(["co_pixelpivot", "co_beigeware", "co_bytebistro"])
 
 @export_group("Pay")
 @export var pay_mult: float = 0.80

@@ -35,7 +35,7 @@ extends Resource
 @export var move_cost_months: float = 1.0
 @export var start_home: int = 0
 @export var run1_pay_days_accrued: int = 5
-@export var run1_company: String = "co_pivotly"
+@export var run1_company: String = "co_synergai"
 @export var run1_archetype: String = "startup"
 @export var run1_remote: bool = false
 

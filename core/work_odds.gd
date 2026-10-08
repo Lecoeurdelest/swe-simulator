@@ -43,7 +43,7 @@ static func start_savings(cfg: WorkConfig, bg: BackgroundData, emergency_edge: b
 
 
 ## Months of salary paid when a job ends in a layoff. options are rolled with equal odds; per_year is
-## prorated by the days of tenure. first_job_max picks the largest option instead (run 1's Pivotly: always 1).
+## prorated by the days of tenure. first_job_max picks the largest option instead (run 1's Hierarchai: always 1).
 static func severance_months(cfg: WorkConfig, arch: ArchetypeData, tenure_days: int, first_job_max: bool, rng: RandomNumberGenerator) -> float:
 	var options: PackedFloat64Array = arch.severance_options
 	var pick: float = 0.0

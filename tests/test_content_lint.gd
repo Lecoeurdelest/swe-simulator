@@ -627,7 +627,7 @@ func test_coworkers_shape() -> void:
 		if cw_name in taken:
 			problems.append("%s: the name %s is taken (CONTENT 16.1)" % [id, cw_name])
 		taken.append(cw_name)
-	assert_eq(authored, 4, "Pivotly has 4 authored coworkers (Minh, Priya, Tom, Kev)")
+	assert_eq(authored, 4, "Hierarchai has 4 authored coworkers (Minh, Priya, Tom, Kev)")
 	var pool: Array = entries.get("_coworker_pool", [])
 	assert_eq(pool.size(), 16, "the name pool has 16 names")
 	for n: Variant in pool:
@@ -684,6 +684,26 @@ static func wrap_lines(text: String, columns: int) -> int:
 				lines += 1
 				used -= columns
 	return lines
+
+
+func test_work_companies_exist() -> void:  # DECISIONS D-34 (MC-06): the career run reuses Phase 1's companies
+	var problems: Array[String] = []
+	var companies := _entries("companies")
+	var cfg := load("res://data/work/work_config.tres") as WorkConfig
+	if cfg == null:
+		problems.append("work_config.tres is not a WorkConfig")
+	elif not companies.has(cfg.run1_company):
+		problems.append("run1_company '%s' is not in companies.json" % cfg.run1_company)
+	for id: String in _archetype_ids():
+		var path := ARCHETYPE_DIR + id + ".tres"
+		var arch := load(path) as ArchetypeData
+		if arch == null:
+			problems.append("%s is not an ArchetypeData" % path)
+			continue
+		for company: String in arch.company_ids:
+			if not companies.has(company):
+				problems.append("%s: company '%s' is not in companies.json" % [id, company])
+	_report(problems, "company ids")
 
 
 func _check_budget(category: String) -> void:

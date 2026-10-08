@@ -1,0 +1,15 @@
+STEP-14 test evidence, 2026-10-08 05:37, after D-30 (starting savings) and MC-06 (company names); branch step-14-signoff, uncommitted at the time of the run
+command: bash tools/headless/run_tests.sh
+RESULT passed=349 failed=0 total=349 suites=26 ms=20344
+command: bash tools/headless/run_tests.sh parse
+CHECK files=109 failed=0
+command: python tools/headless/sync_arch17.py .
+RESULT blocks=30 differing=0
+sim_rules: passed=47 failed=0 total=47 suites=1
+sim_review: passed=14 failed=0 total=14 suites=1
+sim_events: passed=27 failed=0 total=27 suites=1
+sim_endings: passed=19 failed=0 total=19 suites=1
+sim_replay: passed=11 failed=0 total=11 suites=1
+sim_smoke: passed=8 failed=0 total=8 suites=1
+data_files: passed=7 failed=0 total=7 suites=1
+content_lint: passed=37 failed=0 total=37 suites=1

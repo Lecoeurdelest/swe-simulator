@@ -4,7 +4,7 @@ Shared instructions for every coding agent. `.claude/CLAUDE.md` and `.code/AGENT
 
 The game is a satirical 2D pixel-art **portrait** mobile game: **iPhone first**, built on the developer's MacBook, with Android LATER (`docs/DECISIONS.md` D1, P1). It is built with Godot **4.7.2** (the exact version on every machine), GDScript and `gl_compatibility`, edited through the godot-ai MCP. The developer is a **first-time game developer** who wants to learn as well as ship: explain *why*, not just what, and bring design choices to them with a recommended default.
 
-Since 2026-10-07 the game is a **career roguelite** (Run Spec v1, merged into the docs: DECISIONS W8): one run is one career of up to five jobs on a macro clock, and the Phase 1 job hunt lives on as the DoomApply app, the Dana duel and the contract modal behind an adapter (GDD 0). The shipped game is still Phase 1's v0.1 grey-box. **M1, the career run's sim core (STEP-14), is built** (2026-10-08, branch `step-14-sim-core`, waiting for your review and merge): it runs headless beside the game, with five bots and a harness; nothing on screen uses it yet. **M2 (STEP-15, the grey-box UI) is next** (ROADMAP 12).
+Since 2026-10-07 the game is a **career roguelite** (Run Spec v1, merged into the docs: DECISIONS W8): one run is one career of up to five jobs on a macro clock, and the Phase 1 job hunt lives on as the DoomApply app, the Dana duel and the contract modal behind an adapter (GDD 0). The shipped game is still Phase 1's v0.1 grey-box. **M1, the career run's sim core (STEP-14), is built, merged and signed off** (2026-10-08, PR #8): it runs headless beside the game, with five bots and a harness; nothing on screen uses it yet. The developer's sign-off of 2026-10-08 answered every open conflict (D-29..D-38) and set the scope: build every MUST and SHOULD. **M2 (STEP-15, the grey-box UI) is next** (ROADMAP 12).
 
 ## What to read
 
@@ -12,10 +12,10 @@ Since 2026-10-07 the game is a **career roguelite** (Run Spec v1, merged into th
 |---|---|
 | Rules and numbers (wins on design) | `docs/GDD.md` |
 | Every string and content id | `docs/CONTENT.md` |
-| Engine facts, code rules, code skeletons (wins on engine facts) | `docs/ARCHITECTURE.md` (section 19: the career run's code plan, not built yet) |
+| Engine facts, code rules, code skeletons (wins on engine facts) | `docs/ARCHITECTURE.md` (section 19: the career run's code plan; the sim core is built, the screens are not) |
 | The step plan and each step's Done-when | `docs/ROADMAP.md` (section 12: the career run's M1-M6) |
-| Design decision answers | `docs/DECISIONS.md`: D1-D12, P1-P3, C1-C4, W1-W9, the Run Spec's rows D-01..D-25, P-01..P-08 and Q-01..Q-07, the developer's later design decisions D-26 onward (A60), and the agent defaults A1 onward. D1-D8 were decided on 2026-09-26, D9-D12 on 2026-09-29, the Run Spec rows and D-26..D-28 on 2026-10-07 |
-| The Run Spec merge: where each part went, every conflict (RC-nn resolved, MC-nn open) and every spec gap | `docs/merge-report.md` |
+| Design decision answers | `docs/DECISIONS.md`: D1-D12, P1-P3, C1-C4, W1-W9, the Run Spec's rows D-01..D-25, P-01..P-08 and Q-01..Q-07, the developer's later design decisions D-26 onward (A60), and the agent defaults A1 onward. D1-D8 were decided on 2026-09-26, D9-D12 on 2026-09-29, the Run Spec rows and D-26..D-28 on 2026-10-07, D-29..D-38 on 2026-10-08 |
+| The Run Spec merge: where each part went, every conflict (RC-nn and MC-nn, all answered) and every spec gap | `docs/merge-report.md` |
 | The Run Spec as received (archived, read-only; the merged docs win) | `docs/run-spec-v1.md` |
 | How to drive Godot through the MCP and headless (a dated reference; the commands are below) | `docs/swe-simulator-godot-access.md` (with `docs/swe-simulator-handoff.md`, the 2026-10-06 handoff) |
 | Where each task stands | `docs/task/README.md` (generated from `.project/state.json`) |
@@ -30,7 +30,7 @@ If two docs disagree: the GDD wins on rules and numbers, ARCHITECTURE wins on en
 - **The original docs win** on pixel-art style, engine and language, code conventions, shipped UI conventions and existing characters (Dana, Remy, Ducky).
 - **The Run Spec wins** on game design (run structure, systems, rules, numbers, events, endings), and it supersedes every earlier work-loop note.
 - A conflict neither rule settles goes into `docs/merge-report.md` as the next MC-nn with a proposed resolution, and the doc text says "Open (MC-nn)". Never resolve one silently, and never decide an open MC item yourself: it waits for the developer.
-- Keep the spec's ids everywhere: D-, P-, Q- (decisions and questions), R- (requirements), E01-E26 (events), S1-S5, O1-O9, A-01..A-05 (the spec's assumptions, not agent defaults) and M1-M6. A new design decision continues the D- series (D-29 next, A60).
+- Keep the spec's ids everywhere: D-, P-, Q- (decisions and questions), R- (requirements), E01-E26 (events), S1-S5, O1-O9, A-01..A-05 (the spec's assumptions, not agent defaults) and M1-M6. A new design decision continues the D- series (D-39 next, A60).
 
 ## Session loop (ROADMAP 10, ARCHITECTURE 16)
 

@@ -55,7 +55,7 @@ Removed 2026-09-29 with the CV screen and lying (D9): Buzzwordsmith, the CV app,
 
 Before any public release, run a trademark and app-store search on every name above and on every company in section 4.
 
-**Run Spec v1 (2026-10-07):** the career run adds names (section 16.1): the placeholder companies Pivotly, Outsourcery and Monolith (Open, MC-06), Pivotly's four coworkers, a coworker name pool, the four home tiers and two phone apps, Home and the Handbook. The same trademark check applies to any of them that ships.
+**Run Spec v1 (2026-10-07):** the career run adds names (section 16.1): Hierarchai's four coworkers, a coworker name pool, the four home tiers and two phone apps, Home and the Handbook (the Run Spec's placeholder companies Pivotly, Outsourcery and Monolith are replaced by Phase 1's Hierarchai, Scope & Creep Digital and OmniGlobal Dynamics: MC-06, D-34). The same trademark check applies to any of them that ships.
 
 ### 1.2 Keywords and topics
 
@@ -89,7 +89,7 @@ google, alphabet, microsoft, macrohard, apple, amazon, amazoom, meta, facebook, 
 
 ## 3. Backgrounds -> `data/content/backgrounds.json` (numbers live in `BackgroundData`)
 
-**Run Spec v1 status:** run 1's background is always The Intern (P-06), so run 1 never shows Background select; The Graduate unlocks after run 1 and The Self-Taught after the first Studio win or five runs (GDD 5.21). The card's energy and rent-runway lines (`ui_energy_per_day`, `ui_rent_runway`) retire with the day loop (D-04), and what replaces them is Open (MC-04). The perk and flaw lines describe hunt mechanics (referrals, knockouts, Tailor & Apply), so they need new text once MC-03 says what a background changes in the career run. The lines the duel uses stay (`vs_nickname`, `dana_opener`), and so does `plan_b_line`. The header that ends the intro is Open (MC-11).
+**Run Spec v1 status:** run 1's background is always The Intern (P-06), so run 1 never shows Background select; The Graduate unlocks after run 1 and The Self-Taught after the first Studio win or five runs (GDD 5.21). The card's energy and rent-runway lines (`ui_energy_per_day`, `ui_rent_runway`) retire with the day loop (D-04), and what replaces them is Settled (MC-04, D-30): starting savings in months of expenses. The perk and flaw lines describe hunt mechanics (referrals, knockouts, Tailor & Apply), so they need new text now that MC-03 is settled (D-32): in the career run a background changes only the duel's inputs, starting savings and the commute. The lines the duel uses stay (`vs_nickname`, `dana_opener`), and so does `plan_b_line`. The header that ends the intro is Settled (MC-11, D-34).
 
 ### 3.1 Text
 
@@ -1069,13 +1069,13 @@ Background lines for Plan B are in section 3 (`plan_b_line`). The Stealth Mode H
 
 Changed 2026-09-29 (DECISIONS C4): the Dream vs Reality header, row labels, lowest grade and footer. The four rows from Remy's video now name his number (the rent row has none: the video never mentions rent), each row shows its points out of the row's maximum ("18.9/40", DECISIONS A48), and the footer explains the 100 (the old one, "The video scored 100. The video was sponsored.", was neither clear nor funny to the developer). The rescinded-offer ending line was removed with the background check (D9).
 
-**Run Spec v1 status:** the Plan B card stays as the career run's runway loss (D-19); `end_plan_b`'s "Rent's due." is Open (MC-20), and `end_stats` counts the hunt (the career run's stats line is a draft in 16.5). The Hired card is no longer an ending (D-24): `end_hired_*`, the Dream rows and `end_tbc` wait for MC-08 and MC-09. The four new endings are drafts in 16.5.
+**Run Spec v1 status:** the Plan B card stays as the career run's runway loss (D-19); `end_plan_b`'s "Rent's due." is Settled (MC-20, D-34): reword at M3, and `end_stats` counts the hunt (the career run's stats line is a draft in 16.5). The Hired card is no longer an ending (D-24): `end_hired_*`, the Dream rows and `end_tbc` follow MC-08 and MC-09 (settled, D-34): the HIRED! stamp stays as a short beat, the Dream rows are rebased, and `end_tbc` goes. The four new endings are drafts in 16.5.
 
 ---
 
 ## 15. Events, news and myths (SHOULD) -> `data/content/events.json`, `news.json`
 
-**Run Spec v1 status:** the career run's events (16.3, GDD 5.19) replace these morning cards (RC-16); what happens to them in Phase 1 is Open (MC-01: proposed, park them). The Unicorn (`evt_unicorn`) has no place on the career run's board yet (MC-07). The news ticker (15.2) stays.
+**Run Spec v1 status:** the career run's events (16.3, GDD 5.19) replace these morning cards (RC-16); what happens to them in Phase 1 is settled (MC-01, D-33): they are parked. The Unicorn (`evt_unicorn`) has no place on the career run's board (MC-07, D-34). The news ticker (15.2) stays.
 
 ### 15.1 Morning event cards (one per morning, 50% chance, never on day 1)
 
@@ -1104,10 +1104,10 @@ Changed 2026-09-29 (DECISIONS C4): the Dream vs Reality header, row labels, lowe
 
 ## 16. The career run (Run Spec v1): draft strings
 
-Every string in this section is a **draft** for the career run, written during the Run Spec v1 merge (2026-10-07). None is in the JSON yet, and none is approved: you own the jokes and the tone, and you sign off every tip (W4, GDD 8.1). M6 is the Ducky writing pass, with the plain-language rule for non-tech players (C3; Open, MC-17), so jargon here ("prod", "PR", "post-mortem") is kept only until then.
+Every string in this section is a **draft** for the career run, written during the Run Spec v1 merge (2026-10-07). Their tone and the 23 event tips were signed off on 2026-10-08 (D-37; later edits come back to you), and they go into the JSON as each milestone builds them (M1's 10 events and 8 tips already are). M6 is the Ducky writing pass, with the plain-language rule for non-tech players (C3; Settled, MC-17, D-34), so jargon here ("prod", "PR", "post-mortem") is kept only until then.
 
 - **Conventions** (section 0): ASCII only, American spelling (A57), snake_case ids with a prefix, and the GDD 2.7 budgets: a card or dialogue line 120 characters, a choice or answer button 40, a tip `short` 120, a dock label 6.
-- **New placeholders**, which join section 0's list when these strings go into the JSON: `{jobs}`, `{layoffs}`, `{money}`, `{months}`, `{level}`, `{coworker}`, `{choice}`, `{home}`. Money shows as `{money}` until MC-10 decides between k$ and yearly dollars.
+- **New placeholders**, which join section 0's list when these strings go into the JSON: `{jobs}`, `{layoffs}`, `{money}`, `{months}`, `{level}`, `{coworker}`, `{choice}`, `{home}`. Money shows as `{money}`; MC-10 settled that the contract shows the yearly figure (D-34).
 - **Banned words:** the brand list (1.3) bans some everyday words too ("indeed", "slack", "zoom", "meta", "intel", "apple", "discord", "copilot", "alphabet", "azure", "nimbus", "oracle"). These drafts avoid them; so must any rewrite.
 - **Where they go** (planned, ARCHITECTURE 19.3): names in `naming.json` and a new `coworkers.json`; the work state's UI in `barks.json` (`ui_*`); the events in a new `work_events.json` (`evt_eNN_*`, A54); the tips in `tips.json`; the endings in `endings.json`; Dana's new lines in `barks.json`.
 
@@ -1115,17 +1115,17 @@ Every string in this section is a **draft** for the career run, written during t
 
 | Key | Name | Note |
 |---|---|---|
-| `co_pivotly` | Pivotly | run 1's Startup. A placeholder name and id: Open (MC-06), proposed Hierarchai (`co_synergai`) |
-| `co_outsourcery` | Outsourcery | the Agency placeholder (MC-06 proposes Scope & Creep Digital, `co_pixelpivot`) |
-| `co_monolith` | Monolith | the MegaCorp placeholder (MC-06 proposes OmniGlobal Dynamics, `co_omniglobal`) |
+| `co_synergai` | Hierarchai | run 1's Startup (MC-06, D-34: the Run Spec's placeholder was Pivotly). Already in `companies.json` |
+| `co_pixelpivot` | Scope & Creep Digital | the Agency's lead company (MC-06; the placeholder was Outsourcery). Already in `companies.json` |
+| `co_omniglobal` | OmniGlobal Dynamics | the MegaCorp's lead company (MC-06; the placeholder was Monolith). Already in `companies.json` |
 | `app_home` | Home | the home-tier app. "Your rent, with nicer photos." |
 | `app_handbook` | The Handbook | Ducky's collected tips, kept between runs (GDD 5.21) |
-| `ui_archetype_startup` / `_agency` / `_megacorp` | Startup / Agency / MegaCorp | the ids wait for MC-05 |
+| `ui_archetype_startup` / `_agency` / `_megacorp` | Startup / Agency / MegaCorp | the ids are set (MC-05, A68, D-34) |
 | `ui_level_junior` / `_mid` / `_senior` | Junior / Mid / Senior | |
 | `ui_home_shared` / `_one_bed` / `_studio` / `_penthouse` | Shared room / One-bed / The Studio / Penthouse | the home tiers (GDD 5.15) |
 | `scar_short_tenure` / `scar_burnout_history` / `scar_bad_reference` / `scar_resume_gap` / `scar_corner_cutter` | Short Tenure / Burnout History / Bad Reference / Resume Gap / Corner-Cutter | the Scars (GDD 5.21); "Resume" without the accent (A57) |
 
-**Pivotly's coworkers** (`coworkers.json`; a new `cw_` prefix that joins GDD 5.0's list when the file exists):
+**Hierarchai's coworkers** (`coworkers.json`; a new `cw_` prefix that joins GDD 5.0's list when the file exists):
 
 | id | Name | Role | Card line |
 |---|---|---|---|
@@ -1134,7 +1134,7 @@ Every string in this section is a **draft** for the career run, written during t
 | `cw_tom` | Tom | product manager | "It's a small one." |
 | `cw_kev` | Kev | your engineering manager | Means well. Reports up. |
 
-Dana is the same Dana (sections 8 and 16.6). **The coworker name pool** for an Agency or a MegaCorp (`coworker_pool`), sharing no name with the dice pool (3.2), Dana, Remy, Jordan or Pivotly's four: Ari, Bo, Cam, Eli, Fran, Gale, Hana, Ira, Jo, Lee, Nico, Noor, Oli, Pat, Ren, Sasha.
+Dana is the same Dana (sections 8 and 16.6). **The coworker name pool** for an Agency or a MegaCorp (`coworker_pool`), sharing no name with the dice pool (3.2), Dana, Remy, Jordan or Hierarchai's four: Ari, Bo, Cam, Eli, Fran, Gale, Hana, Ira, Jo, Lee, Nico, Noor, Oli, Pat, Ren, Sasha.
 
 ### 16.2 The work state (the phone shell, M2)
 
@@ -1213,7 +1213,7 @@ One entry per event, keyed `evt_eNN_<name>` (A54). Its texts sit inline in the e
 | `evt_e25_review_request` | {coworker} asks you to review 2,000 lines of code. "Should be quick!" | `review`: Review it properly; `rubber_stamp`: Rubber-stamp it | Rubber-stamp it (proposed) |
 | `evt_e26_blame_postmortem` | Incident review. Slide 3 says "Root cause:" and then a pause long enough for your name. | `own_it`: Own it; `blame_deadline`: Blame the deadline | Own it (proposed) |
 
-**Built in M1 (STEP-14).** The ten events of DECISIONS A62 (E01, E02, E04, E07, E08, E12, E18, E20, E21, E24) are in `data/content/work_events.json` with these draft texts, unchanged except that E02's results say `{n}` for the raise so tuning can never make a card lie; the signs of run 1's chain and E08's rumor are inline in their entries. Their eight tips are in `tips.json` as drafts for your sign-off (`more` is empty until M6's writing pass). The exhausted choices are the "proposed" ones (A66); E07's prep takes none (`"none"`). `coworkers.json` holds Pivotly's four and the name pool.
+**Built in M1 (STEP-14).** The ten events of DECISIONS A62 (E01, E02, E04, E07, E08, E12, E18, E20, E21, E24) are in `data/content/work_events.json` with these draft texts, unchanged except that E02's results say `{n}` for the raise so tuning can never make a card lie; the signs of run 1's chain and E08's rumor are inline in their entries. Their eight tips are in `tips.json` as drafts for your sign-off (`more` is empty until M6's writing pass). The exhausted choices are the "proposed" ones (A66); E07's prep takes none (`"none"`). `coworkers.json` holds Hierarchai's four and the name pool.
 
 **E12's Ducky block** (the Run Spec's): `evt_e12_joke` "You fixed prod at 2 a.m. Prod now has your phone number."; `evt_e12_cause` "Whoever fixes it once becomes whoever fixes it always."; tip `tip_escalate`.
 
@@ -1254,7 +1254,7 @@ The Run Spec's own tip texts, made ASCII and American ("favorite", "practice"). 
 | `tip_escalate` | Heroics are a staffing bug; escalate first, then help. | E12 |
 | `tip_check_sender` | Urgency is the scammer's favorite feature; check the sender. | E13 |
 | `tip_report_fast` | Report fast; the cleanup is cheaper than the shame. | E14 |
-| `tip_rotate_key` | A leaked key gets rotated, not just deleted. | E15 (MC-17 proposes reusing `tip_secrets`) |
+| `tip_rotate_key` | A leaked key gets rotated, not just deleted. | not used: E15 reuses `tip_secrets` (MC-17, D-34) |
 | `tip_small_prs` | Small PRs get reviewed; ask one named person. | E16 |
 | `tip_write_it_down` | Write it down the day you ship it. | E17 |
 | `tip_take_the_call` | Always take the call; information is free. | E18 (Edge) |
@@ -1264,7 +1264,7 @@ The Run Spec's own tip texts, made ASCII and American ("favorite", "practice"). 
 | `tip_ask_mentorship` | Ask for mentorship specifically: 30 minutes, every two weeks. | E23 |
 | `tip_overtime_loan` | Overtime is a loan; know who's paying it back. | E24 (Edge) |
 | `tip_review_design` | Review the design, not the semicolons. | E25 |
-| `tip_blameless_postmortem` | Blameless post-mortems fix systems; blame fixes nothing. | E26 (MC-17 proposes reusing `tip_blameless`) |
+| `tip_blameless_postmortem` | Blameless post-mortems fix systems; blame fixes nothing. | not used: E26 reuses `tip_blameless` (MC-17, D-34) |
 
 23 tips. E01, E04 and E19 have none (D-28 took E04's "Landlords negotiate too; ask before you sign").
 
@@ -1285,8 +1285,8 @@ The Run Spec's own tip texts, made ASCII and American ("favorite", "practice"). 
 | `end_career_stats` | Days: {day} - Jobs: {jobs} - Layoffs: {layoffs} - Level: {level} |
 
 - The four card lines are the Run Spec's (GDD 3.3); `end_studio_caption` is the win video's caption (GDD 3.4). `end_studio_one` is a grammatical variant, like `ui_ghost_footer_one`; the caption's one-job and one-layoff variants come with the JSON.
-- Plan B keeps `end_plan_b_title`, `end_plan_b` (its "Rent's due." is Open, MC-20), the background's `plan_b_line` and `end_plan_b_final`.
-- Every ending card also shows the career-long Dream vs Reality score, whose formula and rows are Open (MC-09).
+- Plan B keeps `end_plan_b_title`, `end_plan_b` (its "Rent's due." is Settled, MC-20, D-34: reword at M3), the background's `plan_b_line` and `end_plan_b_final`.
+- Every ending card also shows the career-long Dream vs Reality score, whose formula and rows are Settled (MC-09, D-34): the 5 rows, rebased and scored per job.
 
 ### 16.6 The layoff scene and Dana's new lines (`barks.json`)
 
@@ -1303,11 +1303,11 @@ The Run Spec's own tip texts, made ASCII and American ("favorite", "practice"). 
 - `vs_layoff_title` and `bark_dana_layoff` are the Run Spec's (D-22). Dana stays as written (GDD 1.3, RC-23): the joke is the script she has to read and the process behind it, never her.
 - `bark_dana_greet_after_layoff` is for the first interview after run 1's layoff, which Dana delivered rather than interviewed you for, so `bark_dana_greet_again` ("Didn't I interview you at...") doesn't fit there (proposed).
 - `vs_banner_big_2` is the banner of a MegaCorp posting's second duel (GDD 5.20).
-- The intro's handover to day 0 is Open (MC-11). The proposed last caption, as a draft: `intro_p6_handover` "Four years later, you have a job. Remy says the next part is easy."
+- The intro's handover to day 0 is Settled (MC-11, D-34). The last caption, as a draft: `intro_p6_handover` "Four years later, you have a job. Remy says the next part is easy."
 
 ### 16.7 Phase 1's strings in the career run
 
-- **Kept:** the duel's (sections 7-9), the offer's (13; `offer_deadline`, "Please decide before you sleep.", is Open, MC-20), the Plan B card's (14) and `coach_meter` (10.2).
-- **Retired with the hunt** when the career run is built (MC-01 decides when): the hunt's UI lines in 10.1 (energy, rent, the Radar, the deck, Mail), its coach lines in 10.2, the emails (12) and the morning events (15.1).
-- **Waiting for MC-08 and MC-09:** `end_hired_*`, the Dream rows and `end_tbc`.
+- **Kept:** the duel's (sections 7-9), the offer's (13; `offer_deadline`, "Please decide before you sleep.", is Settled, MC-20, D-34: reword at M3), the Plan B card's (14) and `coach_meter` (10.2).
+- **Retired with the hunt** when the career run is built (MC-01, D-33: the career run is what `v0.5-mvp` ships): the hunt's UI lines in 10.1 (energy, rent, the Radar, the deck, Mail), its coach lines in 10.2, the emails (12) and the morning events (15.1).
+- **Following MC-08 and MC-09 (settled, D-34):** `end_hired_*` (the stamp stays as a beat), the Dream rows (rebased) and `end_tbc` (dropped).
 - **Removed** (D-27; they left the JSON in the code cleanup of 2026-10-08): `tip_negotiate`, `bark_dana_nego_win`, `bark_dana_nego_lose`, `ui_negotiate`, `offer_equity_doubled`, `offer_signon`.

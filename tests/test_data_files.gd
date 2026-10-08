@@ -87,7 +87,7 @@ const BACKGROUNDS: Dictionary = {
 		"invite_mult_big": 1.0, "invite_mult_mid": 1.0, "invite_mult_startup": 0.8,
 		"referral_tokens": 2, "pity_n": 6, "has_degree_honest": true, "years_pass_honest": true,
 		"composure_max": 100, "startup_exp_bonus": 0, "textbook_zone_bonus": 0.0, "salary_mult": 1.10,
-		"start_savings_months": 0.5,
+		"start_savings_months": 1.0,
 	},
 	"graduate": {
 		"start_knw": 55, "start_exp": 15, "start_net": 15,
@@ -96,7 +96,7 @@ const BACKGROUNDS: Dictionary = {
 		"invite_mult_big": 1.2, "invite_mult_mid": 1.0, "invite_mult_startup": 1.0,
 		"referral_tokens": 0, "pity_n": 8, "has_degree_honest": true, "years_pass_honest": false,
 		"composure_max": 100, "startup_exp_bonus": 0, "textbook_zone_bonus": 0.04, "salary_mult": 1.00,
-		"start_savings_months": 0.4,
+		"start_savings_months": 0.8,
 	},
 	"self_taught": {
 		"start_knw": 55, "start_exp": 10, "start_net": 5,
@@ -105,7 +105,7 @@ const BACKGROUNDS: Dictionary = {
 		"invite_mult_big": 1.0, "invite_mult_mid": 1.0, "invite_mult_startup": 1.3,
 		"referral_tokens": 0, "pity_n": 10, "has_degree_honest": false, "years_pass_honest": false,
 		"composure_max": 90, "startup_exp_bonus": 5, "textbook_zone_bonus": 0.0, "salary_mult": 0.90,
-		"start_savings_months": 0.4,
+		"start_savings_months": 0.8,
 	},
 }
 
@@ -122,7 +122,7 @@ var work_expected: Dictionary = {
 	"runway_red_months": 2.0, "salary_base_k": PackedFloat64Array([3.0, 4.2, 6.0]), "resume_gap_offer_cut": 0.10,
 	"home_rent_k": PackedFloat64Array([0.9, 1.5, 2.4, 4.0]),
 	"home_recovery": PackedFloat64Array([0.0, 0.10, 0.25, 0.35]), "move_cost_months": 1.0, "start_home": 0,
-	"run1_pay_days_accrued": 5, "run1_company": "co_pivotly", "run1_archetype": "startup", "run1_remote": false,
+	"run1_pay_days_accrued": 5, "run1_company": "co_synergai", "run1_archetype": "startup", "run1_remote": false,
 	# Work stats (5.16)
 	"burnout_max": 100.0, "stat_max": 100.0, "mo_min": -100.0, "mo_max": 100.0, "skill_per_ticket": 2.0,
 	"rust_per_day": 0.1, "ticket_size_days": PackedInt32Array([10, 20, 35]), "ticket_deadline_mult": 1.5,
@@ -174,7 +174,7 @@ var work_expected: Dictionary = {
 var archetype_expected: Dictionary = {
 	"startup": {
 		"duel_tier": &"startup", "duels_per_offer": 1, "remote_share": 0.60, "board_weight": 1.0,
-		"company_ids": PackedStringArray(["co_pivotly", "co_synergai", "co_quantumleaf", "co_stealth"]),
+		"company_ids": PackedStringArray(["co_synergai", "co_quantumleaf", "co_stealth"]),
 		"pay_mult": 0.85, "severance_options": PackedFloat64Array([0.0, 0.5, 1.0]), "severance_per_year": 0.0,
 		"leave_level_drop": 0, "codebase_start": 20.0, "codebase_drift": 0.08, "ticket_speed": 1.0,
 		"utilization_mo": 0.0, "floor_size": 8, "review_cadence_days": 180, "calibration_hp": 60.0,
@@ -183,7 +183,7 @@ var archetype_expected: Dictionary = {
 	},
 	"agency": {
 		"duel_tier": &"mid", "duels_per_offer": 1, "remote_share": 0.10, "board_weight": 1.0,
-		"company_ids": PackedStringArray(["co_outsourcery", "co_pixelpivot", "co_beigeware", "co_bytebistro"]),
+		"company_ids": PackedStringArray(["co_pixelpivot", "co_beigeware", "co_bytebistro"]),
 		"pay_mult": 0.80, "severance_options": PackedFloat64Array([0.5]), "severance_per_year": 0.0,
 		"leave_level_drop": 1, "codebase_start": 55.0, "codebase_drift": 0.03, "ticket_speed": 1.0,
 		"utilization_mo": -0.2, "floor_size": 12, "review_cadence_days": 120, "calibration_hp": 50.0,
@@ -192,7 +192,7 @@ var archetype_expected: Dictionary = {
 	},
 	"megacorp": {
 		"duel_tier": &"big", "duels_per_offer": 2, "remote_share": 0.25, "board_weight": 1.0,
-		"company_ids": PackedStringArray(["co_monolith", "co_omniglobal", "co_nimbus", "co_adverse"]),
+		"company_ids": PackedStringArray(["co_omniglobal", "co_nimbus", "co_adverse"]),
 		"pay_mult": 1.25, "severance_options": PackedFloat64Array([0.0]), "severance_per_year": 2.0,
 		"leave_level_drop": 0, "codebase_start": 40.0, "codebase_drift": 0.04, "ticket_speed": 0.67,
 		"utilization_mo": 0.0, "floor_size": 24, "review_cadence_days": 180, "calibration_hp": 80.0,
