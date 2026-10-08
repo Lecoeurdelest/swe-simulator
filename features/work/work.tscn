@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" path="res://features/work/event_card.tscn" id="8_card"]
 [ext_resource type="PackedScene" path="res://ui/components/pause_menu.tscn" id="9_pause"]
 [ext_resource type="PackedScene" path="res://features/work/board_panel.tscn" id="10_board"]
+[ext_resource type="Script" path="res://features/work/team_rows.gd" id="11_team"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_chip"]
 bg_color = Color(0.13, 0.15, 0.24, 1)
@@ -181,9 +182,23 @@ theme_type_variation = &"HeaderLabel"
 text = "Junior at Hierarchai"
 clip_text = true
 
-[node name="Feed" type="Label" parent="SafeArea/Column/Body/BodyRows"]
+[node name="TeamRows" type="VBoxContainer" parent="SafeArea/Column/Body/BodyRows"]
 unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 2
+script = ExtResource("11_team")
+
+[node name="FeedScroll" type="ScrollContainer" parent="SafeArea/Column/Body/BodyRows"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Feed" type="Label" parent="SafeArea/Column/Body/BodyRows/FeedScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
 text = "Ticket shipped on time."
 autowrap_mode = 3
 

@@ -124,6 +124,12 @@ func start_hunt_game() -> void:
 	change_phase(GameFlow.Phase.BACKGROUND_SELECT if intro_seen else GameFlow.Phase.INTRO)
 
 
+## The intro in front of the player ends in day 0 (a new game's run 1), not in Background select: its last caption hands over
+## to the job (MC-11).
+func intro_hands_over() -> bool:
+	return career_flow and _intro_starts_career
+
+
 func replay_intro() -> void:  # Title: "Replay intro"
 	run = RunState.new()
 	session = null
@@ -342,6 +348,8 @@ func _begin_career(run_number: int, bg_id: String, player_name: String, run_seed
 	topics_rng.seed = DuelAdapter.seed_text(run_seed, DuelAdapter.SALT_PICK, 0, 0).to_int()
 	var topics := Odds.pick(topics_rng, _gap_pool(), Content.background(bg_id).gap_topics_count)
 	session = WorkSession.start(SimContext.load_default(bg_id), run_number, run_seed, collected_tips(), player_name, first, topics)
+	if run_number == 1:
+		session.queue_clip()   # D-42: run 1 opens on Remy's clip
 	run = RunState.new()
 	run.phase = from   # keeps the transition legal, like retry()
 	run.background_id = bg_id

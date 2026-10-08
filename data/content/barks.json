@@ -251,5 +251,14 @@
   "bark_kev_close_below": "Below. I'm sorry. It's in writing now.",
   "vs_review_below": "BELOW",
   "vs_review_meets": "MEETS",
-  "vs_review_exceeds": "EXCEEDS"
+  "vs_review_exceeds": "EXCEEDS",
+  "ui_clip_intro": "Woke up at 10:47. No alarm. My setup:",
+  "ui_clip_outro": "Hold all five for 90 days. Easy.",
+  "ui_clip_go": "Let's go",
+  "ui_studio_s1": "Senior engineer",
+  "ui_studio_s2": "Fully remote",
+  "ui_studio_s3": "Living in The Studio",
+  "ui_studio_s4": "Burnout 30 or less",
+  "ui_studio_s5": "6 months saved at Studio rent",
+  "ui_desk_empty": "(desk empty)"
 }

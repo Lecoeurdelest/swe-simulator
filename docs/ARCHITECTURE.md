@@ -3300,6 +3300,12 @@ func start_hunt_game() -> void:
 	change_phase(GameFlow.Phase.BACKGROUND_SELECT if intro_seen else GameFlow.Phase.INTRO)
 
 
+## The intro in front of the player ends in day 0 (a new game's run 1), not in Background select: its last caption hands over
+## to the job (MC-11).
+func intro_hands_over() -> bool:
+	return career_flow and _intro_starts_career
+
+
 func replay_intro() -> void:  # Title: "Replay intro"
 	run = RunState.new()
 	session = null
@@ -3518,6 +3524,8 @@ func _begin_career(run_number: int, bg_id: String, player_name: String, run_seed
 	topics_rng.seed = DuelAdapter.seed_text(run_seed, DuelAdapter.SALT_PICK, 0, 0).to_int()
 	var topics := Odds.pick(topics_rng, _gap_pool(), Content.background(bg_id).gap_topics_count)
 	session = WorkSession.start(SimContext.load_default(bg_id), run_number, run_seed, collected_tips(), player_name, first, topics)
+	if run_number == 1:
+		session.queue_clip()   # D-42: run 1 opens on Remy's clip
 	run = RunState.new()
 	run.phase = from   # keeps the transition legal, like retry()
 	run.background_id = bg_id
@@ -5559,8 +5567,10 @@ const STYLE_TITLE := "title"   # a caption that renders as the title card, not i
 
 
 ## The panels in "order" (ties by id): [{id, order, seconds, captions: [{speaker, text, style}]}].
-## An entry without an "order" or without a caption with text is not a panel ("_" notes, plain strings).
-static func panels(entries: Dictionary) -> Array[Dictionary]:
+## An entry without an "order" or without a caption with text is not a panel ("_" notes, plain strings). A caption may say
+## "for": "choose" (the question that leads to Background select) or "handover" (the line that leads to day 0 of a career's
+## run 1, MC-11); each plays only in its own intro. handover says which intro this is.
+static func panels(entries: Dictionary, handover: bool = false) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	for id: Variant in entries:
 		var entry: Variant = entries[id]
@@ -5568,7 +5578,7 @@ static func panels(entries: Dictionary) -> Array[Dictionary]:
 			continue
 		var captions: Array[Dictionary] = []
 		for caption: Variant in (entry as Dictionary).get("captions", []):
-			if caption is Dictionary and not str((caption as Dictionary).get("text", "")).is_empty():
+			if caption is Dictionary and not str((caption as Dictionary).get("text", "")).is_empty() and _plays(caption, handover):
 				captions.append({
 					"speaker": str(caption.get("speaker", "")),
 					"text": str(caption["text"]),
@@ -5581,6 +5591,17 @@ static func panels(entries: Dictionary) -> Array[Dictionary]:
 	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return a["order"] < b["order"] or (a["order"] == b["order"] and a["id"] < b["id"]))
 	return out
+
+
+## A caption that says "for": "handover" plays only in the intro that hands over to day 0, one that says "choose" only in
+## the other; the rest play in both.
+static func _plays(caption: Dictionary, handover: bool) -> bool:
+	match str(caption.get("for", "")):
+		"handover":
+			return handover
+		"choose":
+			return not handover
+	return true
 
 
 ## The whole intro's pan time in seconds (GDD S02 wants 40 or less).
@@ -7693,6 +7714,27 @@ static func calendar(ctx: SimContext, s: SimState) -> Array:
 	return out
 
 
+## Hierarchai's authored coworkers as the Body's team rows (D-40, GDD 5.18): {id, name, role, line, gone}. Run 1's four have
+## cards in coworkers.json; a generated crew has none, so it shows no rows (M4). A desk goes dark with the sign that says
+## so (E07's run1_desks_dark names the sign by its number), and every row clears with the job.
+static func team(ctx: SimContext, s: SimState) -> Array:
+	var out: Array = []
+	var telegraph: Dictionary = (ctx.events.get("evt_e07_resizing", {}) as Dictionary).get("telegraph", {})
+	var signs: Array = telegraph.get("run1_signs", [])
+	var dark: Dictionary = telegraph.get("run1_desks_dark", {})
+	for cw: Dictionary in s.coworkers:
+		var id := String(cw.get("id", ""))
+		var def: Dictionary = ctx.coworker_defs.get(id, {})
+		if def.is_empty():
+			continue
+		var gone := false
+		if dark.has(id):
+			var index := int(dark[id]) - 1
+			gone = index >= 0 and index < signs.size() and s.day >= int((signs[index] as Dictionary)["day"])
+		out.append({"id": id, "name": String(def["name"]), "role": String(def["role"]), "line": String(def["line"]), "gone": gone})
+	return out
+
+
 ## The next thing on the calendar (for a text line under the strip), or {} when the strip is empty.
 static func next_on_calendar(ctx: SimContext, s: SimState) -> Dictionary:
 	var items := calendar(ctx, s)
@@ -7720,6 +7762,7 @@ extends RefCounted
 const INFO := "info"
 const WARNING := "warning"
 const DUCKY := "ducky"
+const CLIP := "clip"   # run 1's day-0 clip card (D-42): Remy's five conditions
 
 const K_EVENT := "event"
 const K_REVIEW := "review"
@@ -8012,6 +8055,12 @@ func acknowledge() -> Array:
 	return events
 
 
+## Run 1 opens on Remy's clip (D-42): one card in the phone shell that names the five Studio conditions, and a tap starts
+## the run. GameState queues it when a first run begins; the unit tests start without it.
+func queue_clip() -> void:
+	notices.append(WorkCards.notice(WorkCards.CLIP, {}))
+
+
 ## True once after the layoff scene: the work state opens the DoomApply board.
 func take_board_hint() -> bool:
 	var hint := board_hint
@@ -8207,7 +8256,7 @@ extends Control
 ## over it in the ModalLayer and stop the clock. Rules live in the sim: this scene shows `GameState.session` and calls
 ## GameState's career_* verbs (INV-01, INV-03). The clock is `_process`: whole days, only while nothing is open (INV-22).
 
-const FEED_SHOWN := 5
+const FEED_SHOWN := 8
 const BURNOUT_COLOR := Color(0.99607843, 0.68235296, 0.20392157)        # the PrimaryButton amber
 const DANGER_COLOR := Color(0.89411765, 0.23137255, 0.26666668)          # the warning red (late ticket, red runway)
 const TICKET_COLOR := Color(0.16, 0.68, 1.0)
@@ -8233,7 +8282,9 @@ var _board_open := false         # the DoomApply board replaces the Body and the
 @onready var _rack: CodebaseRack = %Rack
 @onready var _strip: CalendarStrip = %Strip
 @onready var _job_label: Label = %JobLabel
+@onready var _team: TeamRows = %TeamRows
 @onready var _feed: Label = %Feed
+@onready var _feed_scroll: ScrollContainer = %FeedScroll
 @onready var _coach: CoachMark = %Coach
 @onready var _hours_label: Label = %HoursLabel
 @onready var _back_button: Button = %BackButton
@@ -8324,6 +8375,7 @@ func _refresh() -> void:
 	var ctx := session.ctx
 	_refresh_top_band(s, ctx)
 	_refresh_body(s)
+	_team.show_team(WorkHud.team(ctx, s))
 	_refresh_controls(session)
 	_refresh_card(session)
 	_refresh_coach(session)
@@ -8366,7 +8418,17 @@ func _refresh_body(s: SimState) -> void:
 	var feed := GameState.session.feed
 	for line: Dictionary in feed.slice(maxi(feed.size() - FEED_SHOWN, 0)):
 		lines.append("D%d  %s" % [int(line["day"]), _feed_text(line)])
-	_feed.text = "\n".join(lines)
+	var text := "\n".join(lines)
+	if text != _feed.text:
+		_feed.text = text
+		_scroll_feed_to_the_end.call_deferred()
+
+
+## The feed is a log: it scrolls inside the Body, so a long line never pushes the thumb band off the screen, and it
+## shows the newest lines.
+func _scroll_feed_to_the_end() -> void:
+	await get_tree().process_frame
+	_feed_scroll.scroll_vertical = int(_feed_scroll.get_v_scroll_bar().max_value)
 
 
 func _refresh_controls(session: WorkSession) -> void:
@@ -8516,6 +8578,13 @@ func _card_view(card: Dictionary) -> Dictionary:
 
 func _notice_view(card: Dictionary, ok: Array) -> Dictionary:
 	var style := String(card.get("style", WorkCards.INFO))
+	if style == WorkCards.CLIP:   # run 1's day-0 clip (D-42): Remy's five conditions, then a tap starts the run
+		var lines := PackedStringArray([Content.text("barks", "ui_clip_intro")])
+		for n: int in range(1, 6):
+			lines.append(Content.text("barks", "ui_studio_s%d" % n))
+		lines.append(Content.text("barks", "ui_clip_outro"))
+		return {"title": Content.text("naming", "influencer"), "text": "\n".join(lines),
+			"buttons": [{"id": "ok", "text": UiText.primary(Content.text("barks", "ui_clip_go")), "primary": true}]}
 	if style == WorkCards.DUCKY:
 		return {"title": Content.text("naming", "mascot"), "text": Content.field("tips", String(card["tip"]), "short"), "buttons": ok}
 	var text := ""
@@ -9377,6 +9446,43 @@ func _draw_route() -> void:
 		var from: Control = buttons[i]
 		var to: Control = buttons[i + 1]
 		_nodes.draw_line(Vector2(ROUTE_X, from.position.y + from.size.y), Vector2(ROUTE_X, to.position.y), ROUTE_COLOR, 2.0)
+```
+
+### 17.23 The team rows: features/work/team_rows.gd (Step 16)
+
+`features/work/team_rows.gd`:
+
+```gdscript
+class_name TeamRows
+extends VBoxContainer
+## The team under the job line (D-40, GDD 5.18): one two-line row per coworker, the name and role, then their card line
+## (CONTENT 16.1). A desk that has gone dark shows "(desk empty)" and fades; the rows clear with the job. It shows what
+## WorkHud.team gives it, and only rebuilds when that changes, because the screen refreshes every day.
+
+const GONE_COLOR := Color(0.45, 0.47, 0.55)
+
+var _signature := ""
+
+
+func show_team(rows: Array) -> void:
+	var signature := JSON.stringify(rows)
+	if signature == _signature:
+		return
+	_signature = signature
+	for child: Node in get_children():
+		remove_child(child)
+		child.queue_free()
+	for row: Dictionary in rows:
+		var label := Label.new()
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if bool(row["gone"]):
+			label.text = "%s  %s" % [row["name"], Content.text("barks", "ui_desk_empty")]
+			label.add_theme_color_override(&"font_color", GONE_COLOR)
+		else:
+			label.text = "%s - %s\n%s" % [row["name"], tr(String(row["role"])), tr(String(row["line"]))]
+		add_child(label)
+	visible = not rows.is_empty()
 ```
 
 ---

@@ -235,3 +235,17 @@ func test_a_burned_out_player_is_asked_to_read_the_warnings() -> void:  # R-EVT-
 			warned = true
 	assert_true(warned, "the first beat is a notice when Burnout crosses 60")
 	assert_true(session.is_blocked())
+
+
+func test_run_ones_clip_is_one_card_that_blocks_the_clock_until_a_tap() -> void:  # D-42
+	var session := _start()
+	assert_true(session.notices.is_empty(), "the unit-test session starts without it: GameState queues it for a real run 1")
+	session.queue_clip()
+	assert_true(session.is_blocked(), "the clock waits for the clip")
+	assert_eq(session.current_card()["style"], WorkCards.CLIP)
+	assert_eq(session.coach_id(), "", "no coach note over a card")
+	assert_true(session.tick().is_empty(), "no time passes under it (INV-22)")
+	session.dismiss_notice()
+	assert_false(session.is_blocked(), "a tap starts the run")
+	assert_eq(session.coach_id(), WorkSession.COACH_SPEED, "then the first coach note")
+

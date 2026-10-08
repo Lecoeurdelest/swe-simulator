@@ -8,8 +8,10 @@ const STYLE_TITLE := "title"   # a caption that renders as the title card, not i
 
 
 ## The panels in "order" (ties by id): [{id, order, seconds, captions: [{speaker, text, style}]}].
-## An entry without an "order" or without a caption with text is not a panel ("_" notes, plain strings).
-static func panels(entries: Dictionary) -> Array[Dictionary]:
+## An entry without an "order" or without a caption with text is not a panel ("_" notes, plain strings). A caption may say
+## "for": "choose" (the question that leads to Background select) or "handover" (the line that leads to day 0 of a career's
+## run 1, MC-11); each plays only in its own intro. handover says which intro this is.
+static func panels(entries: Dictionary, handover: bool = false) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	for id: Variant in entries:
 		var entry: Variant = entries[id]
@@ -17,7 +19,7 @@ static func panels(entries: Dictionary) -> Array[Dictionary]:
 			continue
 		var captions: Array[Dictionary] = []
 		for caption: Variant in (entry as Dictionary).get("captions", []):
-			if caption is Dictionary and not str((caption as Dictionary).get("text", "")).is_empty():
+			if caption is Dictionary and not str((caption as Dictionary).get("text", "")).is_empty() and _plays(caption, handover):
 				captions.append({
 					"speaker": str(caption.get("speaker", "")),
 					"text": str(caption["text"]),
@@ -30,6 +32,17 @@ static func panels(entries: Dictionary) -> Array[Dictionary]:
 	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return a["order"] < b["order"] or (a["order"] == b["order"] and a["id"] < b["id"]))
 	return out
+
+
+## A caption that says "for": "handover" plays only in the intro that hands over to day 0, one that says "choose" only in
+## the other; the rest play in both.
+static func _plays(caption: Dictionary, handover: bool) -> bool:
+	match str(caption.get("for", "")):
+		"handover":
+			return handover
+		"choose":
+			return not handover
+	return true
 
 
 ## The whole intro's pan time in seconds (GDD S02 wants 40 or less).

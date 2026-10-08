@@ -6,7 +6,7 @@ extends Control
 ## over it in the ModalLayer and stop the clock. Rules live in the sim: this scene shows `GameState.session` and calls
 ## GameState's career_* verbs (INV-01, INV-03). The clock is `_process`: whole days, only while nothing is open (INV-22).
 
-const FEED_SHOWN := 5
+const FEED_SHOWN := 8
 const BURNOUT_COLOR := Color(0.99607843, 0.68235296, 0.20392157)        # the PrimaryButton amber
 const DANGER_COLOR := Color(0.89411765, 0.23137255, 0.26666668)          # the warning red (late ticket, red runway)
 const TICKET_COLOR := Color(0.16, 0.68, 1.0)
@@ -32,7 +32,9 @@ var _board_open := false         # the DoomApply board replaces the Body and the
 @onready var _rack: CodebaseRack = %Rack
 @onready var _strip: CalendarStrip = %Strip
 @onready var _job_label: Label = %JobLabel
+@onready var _team: TeamRows = %TeamRows
 @onready var _feed: Label = %Feed
+@onready var _feed_scroll: ScrollContainer = %FeedScroll
 @onready var _coach: CoachMark = %Coach
 @onready var _hours_label: Label = %HoursLabel
 @onready var _back_button: Button = %BackButton
@@ -123,6 +125,7 @@ func _refresh() -> void:
 	var ctx := session.ctx
 	_refresh_top_band(s, ctx)
 	_refresh_body(s)
+	_team.show_team(WorkHud.team(ctx, s))
 	_refresh_controls(session)
 	_refresh_card(session)
 	_refresh_coach(session)
@@ -165,7 +168,17 @@ func _refresh_body(s: SimState) -> void:
 	var feed := GameState.session.feed
 	for line: Dictionary in feed.slice(maxi(feed.size() - FEED_SHOWN, 0)):
 		lines.append("D%d  %s" % [int(line["day"]), _feed_text(line)])
-	_feed.text = "\n".join(lines)
+	var text := "\n".join(lines)
+	if text != _feed.text:
+		_feed.text = text
+		_scroll_feed_to_the_end.call_deferred()
+
+
+## The feed is a log: it scrolls inside the Body, so a long line never pushes the thumb band off the screen, and it
+## shows the newest lines.
+func _scroll_feed_to_the_end() -> void:
+	await get_tree().process_frame
+	_feed_scroll.scroll_vertical = int(_feed_scroll.get_v_scroll_bar().max_value)
 
 
 func _refresh_controls(session: WorkSession) -> void:
@@ -315,6 +328,13 @@ func _card_view(card: Dictionary) -> Dictionary:
 
 func _notice_view(card: Dictionary, ok: Array) -> Dictionary:
 	var style := String(card.get("style", WorkCards.INFO))
+	if style == WorkCards.CLIP:   # run 1's day-0 clip (D-42): Remy's five conditions, then a tap starts the run
+		var lines := PackedStringArray([Content.text("barks", "ui_clip_intro")])
+		for n: int in range(1, 6):
+			lines.append(Content.text("barks", "ui_studio_s%d" % n))
+		lines.append(Content.text("barks", "ui_clip_outro"))
+		return {"title": Content.text("naming", "influencer"), "text": "\n".join(lines),
+			"buttons": [{"id": "ok", "text": UiText.primary(Content.text("barks", "ui_clip_go")), "primary": true}]}
 	if style == WorkCards.DUCKY:
 		return {"title": Content.text("naming", "mascot"), "text": Content.field("tips", String(card["tip"]), "short"), "buttons": ok}
 	var text := ""

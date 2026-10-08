@@ -159,6 +159,12 @@ func acknowledge() -> Array:
 	return events
 
 
+## Run 1 opens on Remy's clip (D-42): one card in the phone shell that names the five Studio conditions, and a tap starts
+## the run. GameState queues it when a first run begins; the unit tests start without it.
+func queue_clip() -> void:
+	notices.append(WorkCards.notice(WorkCards.CLIP, {}))
+
+
 ## True once after the layoff scene: the work state opens the DoomApply board.
 func take_board_hint() -> bool:
 	var hint := board_hint

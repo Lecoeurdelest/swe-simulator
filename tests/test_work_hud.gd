@@ -101,3 +101,33 @@ func test_the_calendar_strip_lists_the_next_sixty_days() -> void:  # 5.14
 			assert_eq(int(item["offset"]), 50, "day 180 from day 130")
 	assert_true(review_seen, "the review comes into the strip 60 days out")
 	assert_eq(String(WorkHud.next_on_calendar(c, SimFixture.fresh(c)).get("kind", "")), "rent", "the first thing is tomorrow's rent")
+
+
+func test_the_team_rows_follow_the_signs_and_the_job() -> void:  # D-40
+	var s := SimFixture.fresh(c)
+	var rows := WorkHud.team(c, s)
+	assert_eq(rows.size(), 4, "Hierarchai's four authored coworkers")
+	var names: Array = rows.map(func(r: Dictionary) -> String: return r["name"])
+	names.sort()
+	assert_eq(names, ["Kev", "Minh", "Priya", "Tom"])
+	for row: Dictionary in rows:
+		assert_false(row["gone"], "nobody is gone on day 0")
+		assert_ne(row["role"], "")
+		assert_ne(row["line"], "")
+	s.day = 209
+	assert_false(_row(WorkHud.team(c, s), "cw_minh")["gone"], "the day before the fourth sign")
+	s.day = 210
+	assert_true(_row(WorkHud.team(c, s), "cw_minh")["gone"], "Minh's desk goes dark with the fourth sign")
+	assert_false(_row(WorkHud.team(c, s), "cw_kev")["gone"], "nobody else's does")
+	s.coworkers = []
+	assert_true(WorkHud.team(c, s).is_empty(), "every row clears with the job")
+	s.coworkers = [{"id": "cw_gen_0", "level": 1, "salary": 3.0, "rapport": 50.0}]
+	assert_true(WorkHud.team(c, s).is_empty(), "a generated crew has no cards yet (M4)")
+
+
+func _row(rows: Array, id: String) -> Dictionary:
+	for row: Dictionary in rows:
+		if row["id"] == id:
+			return row
+	return {}
+

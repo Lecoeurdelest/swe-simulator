@@ -102,7 +102,13 @@
       },
       {
         "speaker": "",
-        "text": "How did you spend those four years?"
+        "text": "How did you spend those four years?",
+        "for": "choose"
+      },
+      {
+        "speaker": "",
+        "text": "Four years later, you have a job. Remy says the next part is easy.",
+        "for": "handover"
       }
     ],
     "visual": "Same room, desaturated, rain. You are 21. A sports-style ticker crawls: \"RECORD PROFITS, 12,000 LAYOFFS 'TO FOCUS ON AI' * ENTRY-LEVEL ROLE: 5+ YEARS REQUIRED * 4,000 APPLICANTS FOR 1 JUNIOR ROLE\". The phone buzzes: Remy, same studio, now full of moving boxes, ring light flickering. Smash to black; title slams in.",

@@ -16,6 +16,7 @@ extends RefCounted
 const INFO := "info"
 const WARNING := "warning"
 const DUCKY := "ducky"
+const CLIP := "clip"   # run 1's day-0 clip card (D-42): Remy's five conditions
 
 const K_EVENT := "event"
 const K_REVIEW := "review"
