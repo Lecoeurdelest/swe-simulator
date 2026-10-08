@@ -260,5 +260,8 @@
   "ui_studio_s3": "Living in The Studio",
   "ui_studio_s4": "Burnout 30 or less",
   "ui_studio_s5": "6 months saved at Studio rent",
-  "ui_desk_empty": "(desk empty)"
+  "ui_desk_empty": "(desk empty)",
+  "vs_dana_stat_layoff": "Meetings today: 14",
+  "vs_dana_move_layoff": "Special move: The Reshaping",
+  "ui_laid_off_feed": "Laid off from {company}. Severance: {money}."
 }

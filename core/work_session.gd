@@ -153,9 +153,11 @@ func pick_ticket(pick: String) -> Array:
 ## The layoff scene's or the forced leave's OK. After the layoff scene the board opens by itself (GDD 4.5, A92).
 func acknowledge() -> Array:
 	var was_layoff := WorkCards.is_layoff_pending(sim)
+	var severance := float(sim.pending().get("severance", 0.0))
 	var events := apply({"kind": Sim.IN_ACK})
 	if was_layoff:
 		board_hint = true
+		feed.append(WorkCards.line(sim.day, "barks", "ui_laid_off_feed", "", {"company": laid_off_company, "money_k": severance}))
 	return events
 
 

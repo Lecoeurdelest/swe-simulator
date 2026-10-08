@@ -3,6 +3,8 @@
 [ext_resource type="Script" path="res://features/layoff/layoff.gd" id="1_layoff"]
 [ext_resource type="Script" path="res://ui/components/safe_area_margin.gd" id="2_safe"]
 [ext_resource type="PackedScene" path="res://ui/components/pause_menu.tscn" id="3_pause"]
+[ext_resource type="Script" path="res://features/intro/hold_skip_pill.gd" id="4_pill"]
+[ext_resource type="PackedScene" path="res://features/interview/versus_intro.tscn" id="5_vs"]
 
 [node name="Layoff" type="Control"]
 layout_mode = 3
@@ -56,13 +58,6 @@ mouse_filter = 2
 theme_override_constants/separation = 10
 alignment = 1
 
-[node name="Title" type="Label" parent="SafeArea/Column/Body"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"HeaderLabel"
-text = "DANA VS YOU"
-horizontal_alignment = 1
-
 [node name="DanaPanel" type="PanelContainer" parent="SafeArea/Column/Body"]
 layout_mode = 2
 mouse_filter = 2
@@ -96,11 +91,28 @@ layout_mode = 2
 text = "ACCESS REVOKED"
 horizontal_alignment = 1
 
-[node name="Hint" type="Label" parent="SafeArea/Column"]
+[node name="HintRow" type="HBoxContainer" parent="SafeArea/Column"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Hint" type="Label" parent="SafeArea/Column/HintRow"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 text = "Tap to continue"
 horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SkipPill" type="Button" parent="SafeArea/Column/HintRow"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(96, 34)
+layout_mode = 2
+focus_mode = 0
+text = "Hold to skip"
+alignment = 2
+script = ExtResource("4_pill")
 
 [node name="ActionBar" type="HBoxContainer" parent="SafeArea/Column"]
 custom_minimum_size = Vector2(0, 36)
@@ -120,6 +132,9 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"PrimaryButton"
 text = "CONTINUE"
+
+[node name="VersusIntro" parent="." instance=ExtResource("5_vs")]
+unique_name_in_owner = true
 
 [node name="ModalLayer" type="CanvasLayer" parent="."]
 layer = 10

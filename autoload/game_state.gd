@@ -196,6 +196,8 @@ func _resume_career() -> bool:
 			_prepare_run_for_offer()
 		else:
 			resume_at = GameFlow.Phase.WORK
+	elif resume_at == GameFlow.Phase.LAYOFF:
+		_prepare_run_basics()
 	change_phase(resume_at)
 	return true
 
@@ -261,6 +263,7 @@ func debug_career_quick_start(to_layoff: bool = false, run_seed: int = 20261009)
 	run.phase = GameFlow.Phase.WORK
 	if to_layoff:
 		session.play_to_layoff()
+		_prepare_run_basics()
 		run.phase = GameFlow.Phase.LAYOFF
 
 
@@ -499,8 +502,10 @@ func career_decline_offer() -> void:
 	_career_answer(func() -> Array: return session.decline_offer())
 
 
-## OK on the layoff scene or the forced leave.
+## OK on the layoff scene or the forced leave. The layoff scene is counted (the pill appears from the second viewing).
 func career_acknowledge() -> void:
+	if run.phase == GameFlow.Phase.LAYOFF:
+		set_setting("meta", "layoffs_seen", int(setting("meta", "layoffs_seen", 0)) + 1)
 	_career_answer(func() -> Array: return session.acknowledge())
 
 
@@ -532,6 +537,7 @@ func _after_career(events: Array, save_now: bool) -> void:
 		return
 	if run.phase == GameFlow.Phase.WORK and session.wants_layoff_scene():
 		session.clock.set_speed(WorkClock.PAUSE, session.ctx.cfg)   # the scene is a beat of its own: the clock waits after it
+		_prepare_run_basics()   # the VS screen reads your stats and your name
 		change_phase(GameFlow.Phase.LAYOFF)   # saves
 		return
 	if run.phase == GameFlow.Phase.LAYOFF and not WorkCards.is_layoff_pending(session.sim):
