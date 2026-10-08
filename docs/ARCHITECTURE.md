@@ -2983,6 +2983,7 @@ extends Resource
 @export var callback_level_down: float = 0.8
 @export var callback_short_tenure_cut: float = 0.15
 @export var callback_reference_bonus: float = 0.10
+@export var callback_band_steps: PackedFloat64Array = PackedFloat64Array([0.10, 0.20, 0.30, 0.40])   # the 5-dot band's thresholds (A90)
 @export var interview_days_min: int = 3
 @export var interview_days_max: int = 7
 @export var study_burnout: float = 4.0
@@ -3554,6 +3555,15 @@ func career_pick_ticket(pick: String) -> void:
 
 func career_resolve_review() -> void:
 	_career_answer(func() -> Array: return session.resolve_review())
+
+
+## The DoomApply board's two actions (GDD 5.20): apply to a posting, study.
+func career_apply(posting_id: int) -> void:
+	_career_answer(func() -> Array: return session.apply_to(posting_id))
+
+
+func career_study() -> void:
+	_career_answer(func() -> Array: return session.study())
 
 
 ## Start button of an interview day (or, from M3's review duel, of a review): the sim's request becomes the interview
@@ -6193,6 +6203,20 @@ static func callback_p(cfg: WorkConfig, posting_level: int, level: int, short_te
 		* (1.0 - cfg.callback_short_tenure_cut * short_tenure_stacks) * (1.0 + cfg.callback_reference_bonus * references)
 
 
+## The 5-dot band of the callback odds (GDD 5.20, A90): 1 + the thresholds the odds reach. Shown as dots, never a percentage.
+static func callback_dots(cfg: WorkConfig, p: float) -> int:
+	var dots := 1
+	for step: float in cfg.callback_band_steps:
+		if p >= step:
+			dots += 1
+	return dots
+
+
+## A month's pay in k$ as the yearly figure the board and the contract show (MC-10): whole dollars, rounded to $1,000.
+static func yearly_salary(cfg: WorkConfig, monthly_k: float) -> int:
+	return Odds.round_to(monthly_k * float(cfg.days_per_year) / float(cfg.days_per_month) * 1000.0, 1000)
+
+
 # ---------- the duel's inputs (GDD 5.20, R-JOB-03) ----------
 
 ## Your Composure HP: the background's base, lowered by Burnout.
@@ -7184,6 +7208,11 @@ static func _recruiter_application(s: SimState, ctx: SimContext, events: Array) 
 	events.append({"kind": "recruiter_posting", "company": posting["company"], "interview": interview})
 
 
+## How many references you can give: each coworker, past or present, at Rapport 60 or more (the board's callback odds).
+static func references(s: SimState, cfg: WorkConfig) -> int:
+	return _references(s, cfg)
+
+
 static func _references(s: SimState, cfg: WorkConfig) -> int:
 	var n := 0
 	for cw: Dictionary in s.coworkers:
@@ -7243,7 +7272,7 @@ static func _gen_posting(s: SimState, ctx: SimContext) -> Dictionary:
 		company = pool[start]
 		for k: int in pool.size():
 			var candidate := pool[(start + k) % pool.size()]
-			if not s.blacklist.has(candidate):
+			if not s.blacklist.has(candidate) and candidate != s.job_company:   # nobody posts a job at the company you already work for
 				company = candidate
 				break
 	var id_n := s.next_posting_id
@@ -7710,6 +7739,12 @@ static func notices_from(events: Array, s: SimState, ctx: SimContext) -> Array:
 				out.append(notice(DUCKY, {"tip": String(e["id"])}))
 			"resizing_survived":
 				out.append(notice(INFO, {"id": "ui_resizing_survived", "n": int(e["cuts"])}))
+			"callback":   # a reply with an interview day (GDD 5.20, A92): a notice; the day is on the calendar strip too
+				out.append(notice(INFO, {"id": "ui_callback_notice", "company": String(e["company"]), "day": int(e["interview"])}))
+			"recruiter_posting":
+				out.append(notice(INFO, {"id": "ui_recruiter_posting", "company": String(e["company"]), "day": int(e["interview"])}))
+			"profile_noticed":
+				out.append(notice(WARNING, {"id": "ui_profile_noticed"}))
 			"event":
 				if (e.get("choices", []) as Array).is_empty():  # no choices: it only needs reading, if it pauses at all
 					var evt: Dictionary = ctx.events.get(String(e["id"]), {})
@@ -7734,6 +7769,18 @@ static func feed_from(events: Array, s: SimState) -> Array:
 				out.append({"day": s.day, "literal": String(e["text"])})
 			"resizing_survived":
 				out.append(line(s.day, "barks", "ui_resizing_survived", "", {"n": int(e["cuts"])}))
+			"application_sent":
+				out.append(line(s.day, "barks", "ui_applied_feed", "", {"company": String(e["company"])}))
+			"rejected":
+				out.append(line(s.day, "barks", "ui_rejected_feed", "", {"company": String(e["company"])}))
+			"interview_failed":
+				out.append(line(s.day, "barks", "ui_interview_failed_feed", "", {"company": String(e["company"])}))
+			"offer_declined":
+				out.append(line(s.day, "barks", "ui_offer_declined_feed", "", {"company": String(e["company"])}))
+			"job_started":
+				out.append(line(s.day, "barks", "ui_job_started_feed", "", {"company": String(e["company"])}))
+			"studied":
+				out.append(line(s.day, "barks", "ui_studied_feed", "", {}))
 	return out
 
 
@@ -7819,6 +7866,7 @@ var dana_met: int = 0                    # interviews finished: Dana's greeting 
 var dana_last_company: String = ""
 var laid_off_company: String = ""        # the company that just laid you off, until the next interview greets you
 var gap_topics: Array = []               # the Self-Taught's weak topics (D-26), rolled at the start of the run
+var board_hint: bool = false             # the work state opens the board by itself next time (after the layoff scene)
 
 
 static func start(context: SimContext, run_number: int, run_seed: int, handbook: Array, name: String, first: bool,
@@ -7935,9 +7983,30 @@ func pick_ticket(pick: String) -> Array:
 	return apply({"kind": Sim.IN_TICKET_PICK, "pick": pick})
 
 
-## The layoff scene's or the forced leave's OK.
+## The layoff scene's or the forced leave's OK. After the layoff scene the board opens by itself (GDD 4.5, A92).
 func acknowledge() -> Array:
-	return apply({"kind": Sim.IN_ACK})
+	var was_layoff := WorkCards.is_layoff_pending(sim)
+	var events := apply({"kind": Sim.IN_ACK})
+	if was_layoff:
+		board_hint = true
+	return events
+
+
+## True once after the layoff scene: the work state opens the DoomApply board.
+func take_board_hint() -> bool:
+	var hint := board_hint
+	board_hint = false
+	return hint
+
+
+## Apply to a posting on the board (Burnout +3 employed, +2 unemployed; a reply in 3-10 days).
+func apply_to(posting_id: int) -> Array:
+	return apply({"kind": Sim.IN_APPLY, "posting": posting_id})
+
+
+## Study, once a day: Burnout +4, Rust -20, Skill +1 (R-JOB-05).
+func study() -> Array:
+	return apply({"kind": Sim.IN_STUDY})
 
 
 ## M2's review: the stand-in of GDD 5.16 (A67) on its own dice, seeded from the run seed and the day, so the sim's stream
@@ -8127,6 +8196,7 @@ var _speed_buttons: Array[Button] = []
 var _shown_signature := ""       # what the card sheet shows now, so a refresh never reopens (and re-locks) it
 var _shown_card: Dictionary = {}
 var _stub_open := false          # a dock app's "not in this build" card is open
+var _board_open := false         # the DoomApply board replaces the Body and the thumb band; the clock waits (INV-22)
 
 @onready var _next_label: Label = %NextLabel
 @onready var _studio_label: Label = %StudioLabel
@@ -8146,6 +8216,9 @@ var _stub_open := false          # a dock app's "not in this build" card is open
 @onready var _back_button: Button = %BackButton
 @onready var _dock_buttons: Array[Button] = [%JobsDock, %HomeDock, %VideoDock, %DuckyDock]
 @onready var _card: EventCard = %EventCard
+@onready var _board: BoardPanel = %Board
+@onready var _body: PanelContainer = %Body
+@onready var _thumb_band: VBoxContainer = %ThumbBand
 @onready var _pause: PauseMenu = %PauseMenu
 
 
@@ -8165,7 +8238,7 @@ func _ready() -> void:
 	_back_button.text = UiText.back(Content.text("barks", "ui_back"))
 	for dock_id: Array in [[0, "ui_tab_jobs"], [1, "ui_tab_home"], [2, "ui_tab_video"], [3, "ui_tab_ducky"]]:
 		_dock_buttons[dock_id[0]].text = Content.text("barks", dock_id[1])
-		_dock_buttons[dock_id[0]].pressed.connect(_open_stub_app)
+		_dock_buttons[dock_id[0]].pressed.connect(_open_board if dock_id[0] == 0 else _open_stub_app)
 	var hours_group := ButtonGroup.new()
 	for i: int in _hours_buttons.size():
 		_hours_buttons[i].button_group = hours_group
@@ -8178,9 +8251,13 @@ func _ready() -> void:
 	_back_button.pressed.connect(Device.handle_back)
 	_card.answered.connect(_on_card_answered)
 	_coach.closed.connect(GameState.career_close_coach)
+	_board.apply_pressed.connect(GameState.career_apply)
+	_board.study_pressed.connect(GameState.career_study)
 	_pause.quit_to_title_pressed.connect(GameState.quit_to_title)
 	GameState.run_changed.connect(_refresh)
 	_refresh()
+	if GameState.session.take_board_hint():   # after the layoff scene the board opens by itself (GDD 4.5)
+		_open_board.call_deferred()
 
 
 ## The clock (D-01, D-13; INV-22): whole days, one `career_tick` each, only while nothing is open over the work state
@@ -8189,7 +8266,7 @@ func _process(delta: float) -> void:
 	var session := GameState.session
 	if session == null or GameState.run.phase != GameFlow.Phase.WORK:
 		return
-	if session.is_blocked() or _card.is_open() or _stub_open or _pause.is_open() or SceneRouter.busy:
+	if session.is_blocked() or _card.is_open() or _stub_open or _board_open or _pause.is_open() or SceneRouter.busy:
 		session.clock.hold()
 		return
 	for _day: int in session.clock.advance(session.ctx.cfg, delta):
@@ -8198,13 +8275,16 @@ func _process(delta: float) -> void:
 			break
 
 
-## Back (the action bar's, Esc, Android): close a dock app's card, resume from Pause, else open Pause. A card
-## the player must answer stays; its "=" opens Pause too.
+## Back (the action bar's, Esc, Android): close a dock app's card or the board, resume from Pause, else open Pause. A
+## card the player must answer stays; its "=" opens Pause too.
 func handle_back() -> bool:
 	if _pause.is_open():
 		return _pause.handle_back()
 	if _stub_open:
 		_close_stub_app()
+		return true
+	if _board_open:
+		_close_board()
 		return true
 	GameState.save()   # opening Pause keeps the quiet days since the last save, in case the app is killed from here
 	_pause.open()
@@ -8224,6 +8304,8 @@ func _refresh() -> void:
 	_refresh_controls(session)
 	_refresh_card(session)
 	_refresh_coach(session)
+	if _board_open:
+		_board.show_board(session)
 
 
 func _refresh_top_band(s: SimState, ctx: SimContext) -> void:
@@ -8293,7 +8375,7 @@ func _refresh_card(session: WorkSession) -> void:
 
 
 func _refresh_coach(session: WorkSession) -> void:
-	var id := "" if _stub_open else session.coach_id()
+	var id := "" if _stub_open or _board_open else session.coach_id()
 	match id:
 		WorkSession.COACH_SPEED:
 			_coach.point(id, Content.text("barks", id), _speed_buttons[1])
@@ -8313,6 +8395,25 @@ func _on_hours_pressed(notch: int) -> void:
 
 func _on_speed_pressed(position: int) -> void:
 	GameState.career_set_speed(position)
+
+
+## The DoomApply board (D-41): it takes the Body's and the thumb band's place, and the clock waits while it is open.
+func _open_board() -> void:
+	if _board_open or _stub_open or _card.is_open():
+		return
+	_board_open = true
+	_body.hide()
+	_thumb_band.hide()
+	_board.show()
+	_refresh()
+
+
+func _close_board() -> void:
+	_board_open = false
+	_board.hide()
+	_body.show()
+	_thumb_band.show()
+	_refresh()
 
 
 func _open_stub_app() -> void:
@@ -8402,7 +8503,8 @@ func _notice_view(card: Dictionary, ok: Array) -> Dictionary:
 	elif card.has("rating"):
 		text = _review_result_text(card)
 	elif card.has("id"):
-		text = Content.text("barks", String(card["id"]), {"n": int(card.get("n", 0))})
+		text = Content.text("barks", String(card["id"]), {"n": int(card.get("n", 0)),
+			"company": _company_name(String(card.get("company", ""))), "day": int(card.get("day", 0))})
 	elif card.has("event"):
 		text = Content.field("work_events", String(card["event"]), "text")
 	return {"title": "", "text": text, "buttons": ok}
@@ -8450,10 +8552,16 @@ func _feed_text(line: Dictionary) -> String:
 	if line.has("literal"):
 		return tr(String(line["literal"]))
 	var args: Dictionary = line.get("args", {})
-	var fill := {"money": UiText.money_k(float(args.get("money_k", 0.0))), "n": int(args.get("n", 0))}
+	var fill := {"money": UiText.money_k(float(args.get("money_k", 0.0))), "n": int(args.get("n", 0)),
+		"company": _company_name(String(args.get("company", "")))}
 	if String(line.get("field", "")).is_empty():
 		return Content.text(String(line["file"]), String(line["id"]), fill)
 	return Content.field(String(line["file"]), String(line["id"]), String(line["field"]), fill)
+
+
+## A company's display name from its id ("" for none).
+func _company_name(company_id: String) -> String:
+	return Content.field("companies", company_id, "name") if not company_id.is_empty() else ""
 
 
 func _tint(label: Label, color: Color) -> void:
@@ -8911,7 +9019,7 @@ static func offer_paper(posting: Dictionary, ctx: SimContext, run_seed: int) -> 
 		"company_id": String(posting["company"]), "template_id": "", "tier": tier_id, "archetype": String(arch.id),
 		"level": int(posting["level"]), "floor": int(posting.get("floor", 1)),
 		"job_title": level_title + String(emails.get("title_suffix_" + String(arch.id), "")),
-		"salary": Odds.round_to(float(posting["salary"]) * ctx.cfg.days_per_year / ctx.cfg.days_per_month * 1000.0, 1000),
+		"salary": WorkOdds.yearly_salary(ctx.cfg, float(posting["salary"])),
 		"work_mode": REMOTE_MODE if remote else _mode_id(tier_id, office_days), "office_days": office_days,
 		"commute": RunState.offer_commute(office_days, ctx.bg.commute_minutes),
 		"perks": perks, "fine_print": str(fine_print[0]) if not fine_print.is_empty() else "",
@@ -9014,6 +9122,233 @@ static func _text(emails: Dictionary, id: String, args: Dictionary = {}) -> Stri
 static func _entry_text(emails: Dictionary, id: String) -> String:
 	var entry: Variant = emails.get(id, {})
 	return str((entry as Dictionary).get("text", "")) if entry is Dictionary else str(entry)
+```
+
+### 17.22 The DoomApply board: core/work_board.gd and features/work/board_panel.gd (Step 16)
+
+`core/work_board.gd`:
+
+```gdscript
+@tool
+class_name WorkBoard
+extends RefCounted
+## What the DoomApply board shows (GDD 5.20, D-41, P-02), as plain data: the postings as nodes with their yearly pay,
+## clauses and callback dots, the applications waiting on a reply, and whether you can apply or study. Pure, like
+## WorkHud: it reads a SimState and changes nothing, so the board scene only draws what it is told (INV-03) and a test
+## can check each number. A node carries ids and numbers, never text.
+
+
+## The board's postings, in the sim's order, as {id, company, archetype, level, floor, salary (yearly, whole dollars),
+## remote, clauses, dots (1-5)}. The dots are the callback odds' band (WorkOdds.callback_dots); the odds themselves are
+## never shown (pillar 3).
+static func nodes(s: SimState, ctx: SimContext) -> Array:
+	var out: Array = []
+	var refs := Sim.references(s, ctx.cfg)
+	for p: Dictionary in s.board:
+		var odds := WorkOdds.callback_p(ctx.cfg, int(p["level"]), s.level, s.scar_short_tenure, refs)
+		out.append({
+			"id": int(p["id"]), "company": String(p["company"]), "archetype": String(p["archetype"]), "level": int(p["level"]),
+			"floor": int(p.get("floor", 1)), "salary": WorkOdds.yearly_salary(ctx.cfg, float(p["salary"])),
+			"remote": bool(p.get("remote", false)), "clauses": (p.get("clauses", []) as Array).duplicate(),
+			"dots": WorkOdds.callback_dots(ctx.cfg, odds),
+		})
+	return out
+
+
+## The applications still in flight, soonest first: {company, kind ("reply" or "interview"), day}. A duel waiting on the
+## screen or an offer waiting on the contract is not listed: those have a card of their own.
+static func waiting(s: SimState) -> Array:
+	var out: Array = []
+	for app: Dictionary in s.applications:
+		var company := String((app["posting"] as Dictionary).get("company", ""))
+		match String(app.get("status", "")):
+			"wait":
+				out.append({"company": company, "kind": "reply", "day": int(app["reply"])})
+			"callback":
+				out.append({"company": company, "kind": "interview", "day": int(app["interview"])})
+			"between":
+				out.append({"company": company, "kind": "interview", "day": int(app["next_duel"])})
+	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["day"]) < int(b["day"]))
+	return out
+
+
+## Applying is off only at job 5, where there is no next floor (D-16, A72).
+static func can_apply(s: SimState, cfg: WorkConfig) -> bool:
+	return not (s.employed and s.jobs_held >= cfg.max_jobs)
+
+
+## The Burnout an application costs: more while you still hold a job to lose.
+static func apply_burnout(s: SimState, cfg: WorkConfig) -> float:
+	return cfg.apply_burnout_employed if s.employed else cfg.apply_burnout_unemployed
+
+
+## Study is one a day.
+static func can_study(s: SimState) -> bool:
+	return s.last_study_day != s.day
+
+
+## Days until the board's postings are replaced (0 on the day it refreshes).
+static func days_to_refresh(s: SimState, cfg: WorkConfig) -> int:
+	return maxi(0, cfg.board_refresh_days - (s.day - s.board_day))
+```
+
+`features/work/board_panel.gd`:
+
+```gdscript
+class_name BoardPanel
+extends VBoxContainer
+## The DoomApply board (GDD 5.20, 4.6; D-41, P-02): 3-5 postings stacked as nodes of a route, joined by a line, each with
+## company, archetype, level, yearly pay, work mode, clauses and the callback band as 5 dots, never a percentage. Tap a
+## node to select it; Apply (primary) and Study sit in the thumb band beside Back. It shows what WorkBoard computes and
+## reports two presses (INV-03); the work screen turns them into GameState verbs. It replaces the Body and the Hours
+## and dock rows while it is open, so the top band keeps showing Runway and Burnout while you apply.
+
+signal apply_pressed(posting_id: int)
+signal study_pressed
+
+const ROUTE_X := 10.0                  # the line that joins the nodes runs along the left edge
+const ROUTE_COLOR := Color(0.54509807, 0.60784316, 0.7058824, 1)
+const NODE_MARGIN := 4.0               # the theme's buttons are 36 px tall for one line; a node holds three or four
+const STATES: Array[StringName] = [&"normal", &"pressed", &"hover", &"hover_pressed", &"focus", &"disabled"]
+const CLAUSE_IDS: Dictionary = {
+	"on_call": "ui_clause_on_call", "remote_in_writing": "ui_clause_remote_in_writing", "unlimited_pto": "ui_clause_unlimited_pto",
+}
+const ARCHETYPE_IDS: Dictionary = {
+	"startup": "ui_archetype_startup", "agency": "ui_archetype_agency", "megacorp": "ui_archetype_megacorp",
+}
+
+var _selected := -1                    # the posting id you tapped; -1 until one is
+var _group := ButtonGroup.new()
+
+@onready var _title: Label = %Title
+@onready var _refresh: Label = %Refresh
+@onready var _nodes: VBoxContainer = %Nodes
+@onready var _waiting: Label = %Waiting
+@onready var _study: Button = %StudyButton
+@onready var _back: Button = %BackButton
+@onready var _apply: Button = %ApplyButton
+
+
+func _ready() -> void:
+	_title.text = Content.text("naming", "app_jobs").to_upper()
+	_back.text = UiText.back(Content.text("barks", "ui_back"))
+	_apply.text = UiText.primary(Content.text("barks", "ui_apply"))
+	_back.pressed.connect(Device.handle_back)
+	_apply.pressed.connect(_on_apply_pressed)
+	_study.pressed.connect(study_pressed.emit)
+	_nodes.draw.connect(_draw_route)
+	_nodes.sort_children.connect(_nodes.queue_redraw)
+
+
+## Draws the board from the session's state: the nodes (the selection stays on its posting, else the first), the
+## applications in flight and the two buttons' states.
+func show_board(session: WorkSession) -> void:
+	var s := session.sim
+	var ctx := session.ctx
+	var cfg := ctx.cfg
+	var nodes := WorkBoard.nodes(s, ctx)
+	var kept := false
+	for node: Dictionary in nodes:
+		if int(node["id"]) == _selected:
+			kept = true
+	if not kept:
+		_selected = int(nodes[0]["id"]) if not nodes.is_empty() else -1
+	_rebuild_nodes(nodes)
+	var can_apply := WorkBoard.can_apply(s, cfg)
+	_refresh.text = Content.text("barks", "ui_board_refresh", {"days": WorkBoard.days_to_refresh(s, cfg)})
+	var waiting := _waiting_text(WorkBoard.waiting(s))
+	if can_apply:
+		_apply.text = UiText.primary(Content.text("barks", "ui_apply_cost", {"n": int(WorkBoard.apply_burnout(s, cfg))}))
+	else:
+		_apply.text = UiText.primary(Content.text("barks", "ui_apply"))
+		waiting += "\n" + Content.text("barks", "ui_last_floor")
+	_waiting.text = waiting
+	var can_study := WorkBoard.can_study(s)
+	_study.text = Content.text("barks", "ui_study", {"n": int(cfg.study_burnout)}) if can_study else Content.text("barks", "ui_study_done")
+	_study.disabled = not can_study
+	_apply.disabled = _selected < 0 or not can_apply
+
+
+func selected_id() -> int:
+	return _selected
+
+
+## The text of one node's button: the company, what the job is and where, the clauses (when it has any), and the odds.
+func node_text(node: Dictionary) -> String:
+	var company := Content.field("companies", String(node["company"]), "name")
+	var what := "%s  %s  %s/yr  %s" % [
+		Content.text("barks", String(ARCHETYPE_IDS.get(node["archetype"], "ui_archetype_startup"))),
+		Content.text("barks", WorkHud.level_label_id(int(node["level"]))),
+		UiText.money(int(node["salary"])),
+		Content.text("barks", "ui_mode_remote" if bool(node["remote"]) else "ui_mode_office")]
+	var lines: Array = [company, what]
+	var clauses := PackedStringArray()
+	for clause: Variant in node["clauses"]:
+		clauses.append(Content.text("barks", String(CLAUSE_IDS.get(clause, ""))))
+	if not clauses.is_empty():
+		lines.append("  ".join(clauses))
+	var dots := int(node["dots"])
+	lines.append("%s %s" % [Content.text("barks", "ui_callback"), UiText.band(dots, Content.text("barks", "ui_odds_%d" % dots))])
+	return "\n".join(lines)
+
+
+func _rebuild_nodes(nodes: Array) -> void:
+	for child: Node in _nodes.get_children():
+		_nodes.remove_child(child)
+		child.queue_free()
+	for node: Dictionary in nodes:
+		var button := Button.new()
+		button.toggle_mode = true
+		button.button_group = _group
+		button.focus_mode = Control.FOCUS_NONE
+		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		button.clip_text = true
+		button.text = node_text(node)
+		button.set_pressed_no_signal(int(node["id"]) == _selected)
+		button.pressed.connect(_on_node_pressed.bind(int(node["id"])))
+		_nodes.add_child(button)
+		_compact(button)
+	_nodes.queue_redraw()
+
+
+## The theme's button style has margins for a one-line, 36 px button: a node's own copy keeps the look and trims them.
+func _compact(button: Button) -> void:
+	for state: StringName in STATES:
+		var box := button.get_theme_stylebox(state).duplicate() as StyleBoxFlat
+		if box == null:
+			continue
+		box.content_margin_top = NODE_MARGIN
+		box.content_margin_bottom = NODE_MARGIN
+		button.add_theme_stylebox_override(state, box)
+
+
+func _waiting_text(waiting: Array) -> String:
+	if waiting.is_empty():
+		return Content.text("barks", "ui_board_nothing")
+	var lines := PackedStringArray([Content.text("barks", "ui_board_waiting")])
+	for item: Dictionary in waiting:
+		var id := "ui_app_reply" if String(item["kind"]) == "reply" else "ui_app_interview"
+		lines.append(Content.text("barks", id, {"company": Content.field("companies", String(item["company"]), "name"), "day": int(item["day"])}))
+	return "\n".join(lines)
+
+
+func _on_node_pressed(posting_id: int) -> void:
+	_selected = posting_id
+	_apply.disabled = false
+
+
+func _on_apply_pressed() -> void:
+	if _selected >= 0:
+		apply_pressed.emit(_selected)
+
+
+## The route: a line down the left edge from each node to the next.
+func _draw_route() -> void:
+	var buttons := _nodes.get_children()
+	for i: int in buttons.size() - 1:
+		var from: Control = buttons[i]
+		var to: Control = buttons[i + 1]
+		_nodes.draw_line(Vector2(ROUTE_X, from.position.y + from.size.y), Vector2(ROUTE_X, to.position.y), ROUTE_COLOR, 2.0)
 ```
 
 ---

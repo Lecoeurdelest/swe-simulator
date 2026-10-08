@@ -55,6 +55,12 @@ static func notices_from(events: Array, s: SimState, ctx: SimContext) -> Array:
 				out.append(notice(DUCKY, {"tip": String(e["id"])}))
 			"resizing_survived":
 				out.append(notice(INFO, {"id": "ui_resizing_survived", "n": int(e["cuts"])}))
+			"callback":   # a reply with an interview day (GDD 5.20, A92): a notice; the day is on the calendar strip too
+				out.append(notice(INFO, {"id": "ui_callback_notice", "company": String(e["company"]), "day": int(e["interview"])}))
+			"recruiter_posting":
+				out.append(notice(INFO, {"id": "ui_recruiter_posting", "company": String(e["company"]), "day": int(e["interview"])}))
+			"profile_noticed":
+				out.append(notice(WARNING, {"id": "ui_profile_noticed"}))
 			"event":
 				if (e.get("choices", []) as Array).is_empty():  # no choices: it only needs reading, if it pauses at all
 					var evt: Dictionary = ctx.events.get(String(e["id"]), {})
@@ -79,6 +85,18 @@ static func feed_from(events: Array, s: SimState) -> Array:
 				out.append({"day": s.day, "literal": String(e["text"])})
 			"resizing_survived":
 				out.append(line(s.day, "barks", "ui_resizing_survived", "", {"n": int(e["cuts"])}))
+			"application_sent":
+				out.append(line(s.day, "barks", "ui_applied_feed", "", {"company": String(e["company"])}))
+			"rejected":
+				out.append(line(s.day, "barks", "ui_rejected_feed", "", {"company": String(e["company"])}))
+			"interview_failed":
+				out.append(line(s.day, "barks", "ui_interview_failed_feed", "", {"company": String(e["company"])}))
+			"offer_declined":
+				out.append(line(s.day, "barks", "ui_offer_declined_feed", "", {"company": String(e["company"])}))
+			"job_started":
+				out.append(line(s.day, "barks", "ui_job_started_feed", "", {"company": String(e["company"])}))
+			"studied":
+				out.append(line(s.day, "barks", "ui_studied_feed", "", {}))
 	return out
 
 

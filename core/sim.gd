@@ -850,6 +850,11 @@ static func _recruiter_application(s: SimState, ctx: SimContext, events: Array) 
 	events.append({"kind": "recruiter_posting", "company": posting["company"], "interview": interview})
 
 
+## How many references you can give: each coworker, past or present, at Rapport 60 or more (the board's callback odds).
+static func references(s: SimState, cfg: WorkConfig) -> int:
+	return _references(s, cfg)
+
+
 static func _references(s: SimState, cfg: WorkConfig) -> int:
 	var n := 0
 	for cw: Dictionary in s.coworkers:
@@ -909,7 +914,7 @@ static func _gen_posting(s: SimState, ctx: SimContext) -> Dictionary:
 		company = pool[start]
 		for k: int in pool.size():
 			var candidate := pool[(start + k) % pool.size()]
-			if not s.blacklist.has(candidate):
+			if not s.blacklist.has(candidate) and candidate != s.job_company:   # nobody posts a job at the company you already work for
 				company = candidate
 				break
 	var id_n := s.next_posting_id

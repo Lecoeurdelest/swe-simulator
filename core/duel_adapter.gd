@@ -142,7 +142,7 @@ static func offer_paper(posting: Dictionary, ctx: SimContext, run_seed: int) -> 
 		"company_id": String(posting["company"]), "template_id": "", "tier": tier_id, "archetype": String(arch.id),
 		"level": int(posting["level"]), "floor": int(posting.get("floor", 1)),
 		"job_title": level_title + String(emails.get("title_suffix_" + String(arch.id), "")),
-		"salary": Odds.round_to(float(posting["salary"]) * ctx.cfg.days_per_year / ctx.cfg.days_per_month * 1000.0, 1000),
+		"salary": WorkOdds.yearly_salary(ctx.cfg, float(posting["salary"])),
 		"work_mode": REMOTE_MODE if remote else _mode_id(tier_id, office_days), "office_days": office_days,
 		"commute": RunState.offer_commute(office_days, ctx.bg.commute_minutes),
 		"perks": perks, "fine_print": str(fine_print[0]) if not fine_print.is_empty() else "",

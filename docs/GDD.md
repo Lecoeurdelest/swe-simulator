@@ -2282,6 +2282,7 @@ Every Run Spec number, with the file that owns it (ARCHITECTURE 19.3). **Built i
 | `reply_days` | 3-10 | W |
 | `notice_chance` / `notice_mo` | 0.05 / -10 | W |
 | `callback_base` | 0.35 | W |
+| `callback_band_steps` (the 5-dot band: one more dot at each) | 10 / 20 / 30 / 40 % | W |
 | `level_fit` (your level / one up / below) | 1.0 / 0.5 / 0.8 | W |
 | `short_tenure_callback_cut` (per stack) / `reference_callback_bonus` (per reference) | 0.15 / 0.10 | W |
 | `interview_delay_days` | 3-7 | W |

@@ -127,6 +127,7 @@ extends Resource
 @export var callback_level_down: float = 0.8
 @export var callback_short_tenure_cut: float = 0.15
 @export var callback_reference_bonus: float = 0.10
+@export var callback_band_steps: PackedFloat64Array = PackedFloat64Array([0.10, 0.20, 0.30, 0.40])   # the 5-dot band's thresholds (A90)
 @export var interview_days_min: int = 3
 @export var interview_days_max: int = 7
 @export var study_burnout: float = 4.0

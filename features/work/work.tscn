@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://features/job_hunt/dock_button.gd" id="7_dock"]
 [ext_resource type="PackedScene" path="res://features/work/event_card.tscn" id="8_card"]
 [ext_resource type="PackedScene" path="res://ui/components/pause_menu.tscn" id="9_pause"]
+[ext_resource type="PackedScene" path="res://features/work/board_panel.tscn" id="10_board"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_chip"]
 bg_color = Color(0.13, 0.15, 0.24, 1)
@@ -157,6 +158,10 @@ custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 script = ExtResource("5_strip")
 
+[node name="Board" parent="SafeArea/Column" instance=ExtResource("10_board")]
+unique_name_in_owner = true
+layout_mode = 2
+
 [node name="Body" type="PanelContainer" parent="SafeArea/Column"]
 unique_name_in_owner = true
 clip_contents = true
@@ -187,6 +192,7 @@ unique_name_in_owner = true
 layout_mode = 2
 
 [node name="ThumbBand" type="VBoxContainer" parent="SafeArea/Column"]
+unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 4

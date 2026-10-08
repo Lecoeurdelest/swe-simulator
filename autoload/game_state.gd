@@ -384,6 +384,15 @@ func career_resolve_review() -> void:
 	_career_answer(func() -> Array: return session.resolve_review())
 
 
+## The DoomApply board's two actions (GDD 5.20): apply to a posting, study.
+func career_apply(posting_id: int) -> void:
+	_career_answer(func() -> Array: return session.apply_to(posting_id))
+
+
+func career_study() -> void:
+	_career_answer(func() -> Array: return session.study())
+
+
 ## Start button of an interview day (or, from M3's review duel, of a review): the sim's request becomes the interview
 ## checkpoint (DuelAdapter), the run is filled with what the duel screen reads, and INTERVIEW saves it (A88).
 func career_begin_duel() -> void:

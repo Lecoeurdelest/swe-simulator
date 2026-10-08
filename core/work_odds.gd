@@ -246,6 +246,20 @@ static func callback_p(cfg: WorkConfig, posting_level: int, level: int, short_te
 		* (1.0 - cfg.callback_short_tenure_cut * short_tenure_stacks) * (1.0 + cfg.callback_reference_bonus * references)
 
 
+## The 5-dot band of the callback odds (GDD 5.20, A90): 1 + the thresholds the odds reach. Shown as dots, never a percentage.
+static func callback_dots(cfg: WorkConfig, p: float) -> int:
+	var dots := 1
+	for step: float in cfg.callback_band_steps:
+		if p >= step:
+			dots += 1
+	return dots
+
+
+## A month's pay in k$ as the yearly figure the board and the contract show (MC-10): whole dollars, rounded to $1,000.
+static func yearly_salary(cfg: WorkConfig, monthly_k: float) -> int:
+	return Odds.round_to(monthly_k * float(cfg.days_per_year) / float(cfg.days_per_month) * 1000.0, 1000)
+
+
 # ---------- the duel's inputs (GDD 5.20, R-JOB-03) ----------
 
 ## Your Composure HP: the background's base, lowered by Burnout.

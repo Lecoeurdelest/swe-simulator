@@ -82,7 +82,7 @@ func test_the_feed_keeps_the_quiet_lines() -> void:
 		{"kind": "payday", "amount": 2.55}, {"kind": "rent", "amount": 2.1},
 		{"kind": "ticket_shipped", "on_time": true, "size": 1}, {"kind": "ticket_shipped", "on_time": false, "size": 1},
 		{"kind": "rumor", "event": "evt_e07_resizing", "text": "Hiring is paused."},
-		{"kind": "studied"}], s)
+		{"kind": "something_else"}], s)
 	assert_eq(feed.size(), 5, "the unknown kind adds nothing")
 	assert_eq(feed[0]["id"], "evt_e01_payday")
 	assert_eq(feed[0]["field"], "text")

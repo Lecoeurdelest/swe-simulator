@@ -18,6 +18,7 @@ var _speed_buttons: Array[Button] = []
 var _shown_signature := ""       # what the card sheet shows now, so a refresh never reopens (and re-locks) it
 var _shown_card: Dictionary = {}
 var _stub_open := false          # a dock app's "not in this build" card is open
+var _board_open := false         # the DoomApply board replaces the Body and the thumb band; the clock waits (INV-22)
 
 @onready var _next_label: Label = %NextLabel
 @onready var _studio_label: Label = %StudioLabel
@@ -37,6 +38,9 @@ var _stub_open := false          # a dock app's "not in this build" card is open
 @onready var _back_button: Button = %BackButton
 @onready var _dock_buttons: Array[Button] = [%JobsDock, %HomeDock, %VideoDock, %DuckyDock]
 @onready var _card: EventCard = %EventCard
+@onready var _board: BoardPanel = %Board
+@onready var _body: PanelContainer = %Body
+@onready var _thumb_band: VBoxContainer = %ThumbBand
 @onready var _pause: PauseMenu = %PauseMenu
 
 
@@ -56,7 +60,7 @@ func _ready() -> void:
 	_back_button.text = UiText.back(Content.text("barks", "ui_back"))
 	for dock_id: Array in [[0, "ui_tab_jobs"], [1, "ui_tab_home"], [2, "ui_tab_video"], [3, "ui_tab_ducky"]]:
 		_dock_buttons[dock_id[0]].text = Content.text("barks", dock_id[1])
-		_dock_buttons[dock_id[0]].pressed.connect(_open_stub_app)
+		_dock_buttons[dock_id[0]].pressed.connect(_open_board if dock_id[0] == 0 else _open_stub_app)
 	var hours_group := ButtonGroup.new()
 	for i: int in _hours_buttons.size():
 		_hours_buttons[i].button_group = hours_group
@@ -69,9 +73,13 @@ func _ready() -> void:
 	_back_button.pressed.connect(Device.handle_back)
 	_card.answered.connect(_on_card_answered)
 	_coach.closed.connect(GameState.career_close_coach)
+	_board.apply_pressed.connect(GameState.career_apply)
+	_board.study_pressed.connect(GameState.career_study)
 	_pause.quit_to_title_pressed.connect(GameState.quit_to_title)
 	GameState.run_changed.connect(_refresh)
 	_refresh()
+	if GameState.session.take_board_hint():   # after the layoff scene the board opens by itself (GDD 4.5)
+		_open_board.call_deferred()
 
 
 ## The clock (D-01, D-13; INV-22): whole days, one `career_tick` each, only while nothing is open over the work state
@@ -80,7 +88,7 @@ func _process(delta: float) -> void:
 	var session := GameState.session
 	if session == null or GameState.run.phase != GameFlow.Phase.WORK:
 		return
-	if session.is_blocked() or _card.is_open() or _stub_open or _pause.is_open() or SceneRouter.busy:
+	if session.is_blocked() or _card.is_open() or _stub_open or _board_open or _pause.is_open() or SceneRouter.busy:
 		session.clock.hold()
 		return
 	for _day: int in session.clock.advance(session.ctx.cfg, delta):
@@ -89,13 +97,16 @@ func _process(delta: float) -> void:
 			break
 
 
-## Back (the action bar's, Esc, Android): close a dock app's card, resume from Pause, else open Pause. A card
-## the player must answer stays; its "=" opens Pause too.
+## Back (the action bar's, Esc, Android): close a dock app's card or the board, resume from Pause, else open Pause. A
+## card the player must answer stays; its "=" opens Pause too.
 func handle_back() -> bool:
 	if _pause.is_open():
 		return _pause.handle_back()
 	if _stub_open:
 		_close_stub_app()
+		return true
+	if _board_open:
+		_close_board()
 		return true
 	GameState.save()   # opening Pause keeps the quiet days since the last save, in case the app is killed from here
 	_pause.open()
@@ -115,6 +126,8 @@ func _refresh() -> void:
 	_refresh_controls(session)
 	_refresh_card(session)
 	_refresh_coach(session)
+	if _board_open:
+		_board.show_board(session)
 
 
 func _refresh_top_band(s: SimState, ctx: SimContext) -> void:
@@ -184,7 +197,7 @@ func _refresh_card(session: WorkSession) -> void:
 
 
 func _refresh_coach(session: WorkSession) -> void:
-	var id := "" if _stub_open else session.coach_id()
+	var id := "" if _stub_open or _board_open else session.coach_id()
 	match id:
 		WorkSession.COACH_SPEED:
 			_coach.point(id, Content.text("barks", id), _speed_buttons[1])
@@ -204,6 +217,25 @@ func _on_hours_pressed(notch: int) -> void:
 
 func _on_speed_pressed(position: int) -> void:
 	GameState.career_set_speed(position)
+
+
+## The DoomApply board (D-41): it takes the Body's and the thumb band's place, and the clock waits while it is open.
+func _open_board() -> void:
+	if _board_open or _stub_open or _card.is_open():
+		return
+	_board_open = true
+	_body.hide()
+	_thumb_band.hide()
+	_board.show()
+	_refresh()
+
+
+func _close_board() -> void:
+	_board_open = false
+	_board.hide()
+	_body.show()
+	_thumb_band.show()
+	_refresh()
 
 
 func _open_stub_app() -> void:
@@ -293,7 +325,8 @@ func _notice_view(card: Dictionary, ok: Array) -> Dictionary:
 	elif card.has("rating"):
 		text = _review_result_text(card)
 	elif card.has("id"):
-		text = Content.text("barks", String(card["id"]), {"n": int(card.get("n", 0))})
+		text = Content.text("barks", String(card["id"]), {"n": int(card.get("n", 0)),
+			"company": _company_name(String(card.get("company", ""))), "day": int(card.get("day", 0))})
 	elif card.has("event"):
 		text = Content.field("work_events", String(card["event"]), "text")
 	return {"title": "", "text": text, "buttons": ok}
@@ -341,10 +374,16 @@ func _feed_text(line: Dictionary) -> String:
 	if line.has("literal"):
 		return tr(String(line["literal"]))
 	var args: Dictionary = line.get("args", {})
-	var fill := {"money": UiText.money_k(float(args.get("money_k", 0.0))), "n": int(args.get("n", 0))}
+	var fill := {"money": UiText.money_k(float(args.get("money_k", 0.0))), "n": int(args.get("n", 0)),
+		"company": _company_name(String(args.get("company", "")))}
 	if String(line.get("field", "")).is_empty():
 		return Content.text(String(line["file"]), String(line["id"]), fill)
 	return Content.field(String(line["file"]), String(line["id"]), String(line["field"]), fill)
+
+
+## A company's display name from its id ("" for none).
+func _company_name(company_id: String) -> String:
+	return Content.field("companies", company_id, "name") if not company_id.is_empty() else ""
 
 
 func _tint(label: Label, color: Color) -> void:

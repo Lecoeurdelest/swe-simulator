@@ -33,6 +33,7 @@ var dana_met: int = 0                    # interviews finished: Dana's greeting 
 var dana_last_company: String = ""
 var laid_off_company: String = ""        # the company that just laid you off, until the next interview greets you
 var gap_topics: Array = []               # the Self-Taught's weak topics (D-26), rolled at the start of the run
+var board_hint: bool = false             # the work state opens the board by itself next time (after the layoff scene)
 
 
 static func start(context: SimContext, run_number: int, run_seed: int, handbook: Array, name: String, first: bool,
@@ -149,9 +150,30 @@ func pick_ticket(pick: String) -> Array:
 	return apply({"kind": Sim.IN_TICKET_PICK, "pick": pick})
 
 
-## The layoff scene's or the forced leave's OK.
+## The layoff scene's or the forced leave's OK. After the layoff scene the board opens by itself (GDD 4.5, A92).
 func acknowledge() -> Array:
-	return apply({"kind": Sim.IN_ACK})
+	var was_layoff := WorkCards.is_layoff_pending(sim)
+	var events := apply({"kind": Sim.IN_ACK})
+	if was_layoff:
+		board_hint = true
+	return events
+
+
+## True once after the layoff scene: the work state opens the DoomApply board.
+func take_board_hint() -> bool:
+	var hint := board_hint
+	board_hint = false
+	return hint
+
+
+## Apply to a posting on the board (Burnout +3 employed, +2 unemployed; a reply in 3-10 days).
+func apply_to(posting_id: int) -> Array:
+	return apply({"kind": Sim.IN_APPLY, "posting": posting_id})
+
+
+## Study, once a day: Burnout +4, Rust -20, Skill +1 (R-JOB-05).
+func study() -> Array:
+	return apply({"kind": Sim.IN_STUDY})
 
 
 ## M2's review: the stand-in of GDD 5.16 (A67) on its own dice, seeded from the run seed and the day, so the sim's stream
